@@ -7,7 +7,6 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    x:Name="TargetControl"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="600"
@@ -15,7 +14,7 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition Width="1.25*" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
@@ -225,6 +224,7 @@
                             <TextBlock VerticalAlignment="Center" Text="{Binding BatteryState}" />
 
                             <ProgressBar
+                                Height="12"
                                 Margin="0,7,0,0"
                                 Style="{StaticResource ProgressBarSuccess}"
                                 Value="{Binding BatteryProgress}" />
@@ -263,8 +263,8 @@
 
                 <Button
                     HorizontalAlignment="Right"
-                    Command="{Binding RefreshApplicationCommand}"
-                    Content="刷新"
+                    Command="{Binding SortApplicationCommand}"
+                    Content="排序"
                     Style="{StaticResource ButtonPrimary}" />
             </Grid>
 
@@ -317,7 +317,6 @@
                     Margin="5,5,0,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding InstallCommand}"
-                    CommandParameter="{Binding ElementName=TargetControl}"
                     Content="安装"
                     Style="{StaticResource ButtonPrimary}" />
             </UniformGrid>
