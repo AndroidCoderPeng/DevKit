@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using DevKit.DataService;
+using DevKit.Dialogs;
 using DevKit.ViewModels;
 using DevKit.Views;
 using Prism.DryIoc;
@@ -31,6 +32,9 @@ namespace DevKit
             
             //Navigation
             containerRegistry.RegisterForNavigation<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
+            
+            //Dialog or Window
+            containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
         }
     }
 }

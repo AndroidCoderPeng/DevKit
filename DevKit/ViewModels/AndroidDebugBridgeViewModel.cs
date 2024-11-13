@@ -11,6 +11,7 @@ using HandyControl.Controls;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
@@ -190,6 +191,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private readonly IDialogService _dialogService;
         private string _selectedDevice = string.Empty;
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -201,8 +203,10 @@ namespace DevKit.ViewModels
         /// </summary>
         private readonly Timer _refreshDeviceTimer = new Timer(1000);
 
-        public AndroidDebugBridgeViewModel()
+        public AndroidDebugBridgeViewModel(IDialogService dialogService)
         {
+            _dialogService = dialogService;
+
             //定时刷新设备列表，可能会为空，因为开发者模式可能没开
             _refreshDeviceTimer.Elapsed += TimerElapsedEvent_Handler;
             _refreshDeviceTimer.Enabled = true;
@@ -240,12 +244,7 @@ namespace DevKit.ViewModels
             argument.Append("devices");
             var executor = new CommandExecutor(argument.ToCommandLine());
             executor.OnStandardOutput += StandardOutput_EventHandler;
-            executor.OnErrorOutput += ErrorOutput_EventHandler;
             executor.Execute("adb");
-        }
-
-        private void ErrorOutput_EventHandler(string output)
-        {
         }
 
         private void StandardOutput_EventHandler(string output)
@@ -562,7 +561,7 @@ namespace DevKit.ViewModels
             var filePath = fileDialog.FileName;
             if (string.IsNullOrEmpty(filePath))
             {
-                Growl.Error( "安装包路径错误，请重新选择");
+                Growl.Error("安装包路径错误，请重新选择");
                 return;
             }
 
@@ -572,13 +571,17 @@ namespace DevKit.ViewModels
                 //覆盖安装应用（apk）
                 //adb -s <设备序列号> install  -r 
                 argument.Append("-s").Append(_selectedDevice).Append("install").Append("-r").Append(filePath);
-                // LoadingDialog.Get.ShowLoadingDialog(window, "软件安装中，请稍后......");
+                var dialogParameters = new DialogParameters
+                {
+                    { "LoadingMessage", "软件安装中，请稍后......" }
+                };
+                _dialogService.ShowDialog("LoadingDialog", dialogParameters, delegate { });
                 var executor = new CommandExecutor(argument.ToCommandLine());
                 executor.OnStandardOutput += delegate(string value)
                 {
                     Application.Current.Dispatcher.Invoke(delegate
                     {
-                        // LoadingDialog.Get.DismissLoadingDialog();
+                        // _dialogService.CloseDialog();
                         Growl.Success(value);
                     });
                 };
