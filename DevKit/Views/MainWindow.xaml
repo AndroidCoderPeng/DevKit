@@ -77,6 +77,9 @@
             </ListBox.ItemContainerStyle>
         </ListBox>
 
-        <ContentControl Grid.Column="1" prism:RegionManager.RegionName="ContentRegion" />
+        <ContentControl
+            Grid.Column="1"
+            Margin="1,0,0,0"
+            prism:RegionManager.RegionName="ContentRegion" />
     </Grid>
 </Window>
