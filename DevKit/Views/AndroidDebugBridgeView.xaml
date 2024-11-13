@@ -7,10 +7,10 @@
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    x:Name="TargetControl"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="600"
-    x:Name="TargetControl"
     Background="white"
     mc:Ignorable="d">
     <Grid>
@@ -203,18 +203,14 @@
 
                         <TextBlock Grid.Column="0" Text="内存信息" />
 
-                        <StackPanel Grid.Column="1" Orientation="Vertical">
-                            <TextBlock VerticalAlignment="Center" Text="{Binding MemoryRatio}" />
-
-                            <hc:WaveProgressBar
-                                Width="110"
-                                Height="110"
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Left"
-                                ShowText="False"
-                                Style="{StaticResource ProgressBarSuccessWave}"
-                                Value="{Binding MemoryProgress}" />
-                        </StackPanel>
+                        <hc:WaveProgressBar
+                            Grid.Column="1"
+                            Width="120"
+                            Height="120"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource ProgressBarSuccessWave}"
+                            WaveThickness="4"
+                            Value="{Binding MemoryProgress}" />
                     </Grid>
 
                     <Grid Grid.Row="8" Margin="10">

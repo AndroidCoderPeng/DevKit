@@ -87,6 +87,7 @@
     <Compile Include="DataService\IAppDataService.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
+    <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
