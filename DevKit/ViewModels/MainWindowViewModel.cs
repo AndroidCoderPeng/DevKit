@@ -40,6 +40,9 @@ namespace DevKit.ViewModels
                 case 0:
                     region.RequestNavigate("AndroidDebugBridgeView");
                     break;
+                case 1:
+                    region.RequestNavigate("ApplicationPackageView");
+                    break;
             }
         }
     }

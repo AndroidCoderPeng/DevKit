@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Text;
 
 namespace DevKit.Utils
 {
@@ -32,9 +31,7 @@ namespace DevKit.Utils
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = Encoding.UTF8, // 确保输出编码正确  
-                    StandardErrorEncoding = Encoding.UTF8
+                    CreateNoWindow = true
                 }
             };
             process.OutputDataReceived += (sender, e) =>

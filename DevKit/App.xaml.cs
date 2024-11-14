@@ -29,12 +29,14 @@ namespace DevKit
         {
             //Data
             containerRegistry.RegisterSingleton<IAppDataService, AppDataServiceImpl>();
-            
+
             //Navigation
             containerRegistry.RegisterForNavigation<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
-            
+            containerRegistry.RegisterForNavigation<ApplicationPackageView, ApplicationPackageViewModel>();
+
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
+            containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();
         }
     }
 }

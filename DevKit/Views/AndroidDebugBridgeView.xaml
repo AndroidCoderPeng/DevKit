@@ -12,6 +12,13 @@
     d:DesignWidth="600"
     Background="white"
     mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.25*" />
@@ -40,6 +47,7 @@
                     x:Name="DeviceComboBox"
                     Grid.Column="1"
                     Margin="10,0"
+                    FontSize="14"
                     ItemsSource="{Binding DeviceItems}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="SelectionChanged">
@@ -51,7 +59,9 @@
                 <Button
                     Grid.Column="2"
                     Command="{Binding RefreshDeviceCommand}"
-                    Content="刷新"
+                    Content="&#xe602;"
+                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                    FontSize="16"
                     Style="{StaticResource ButtonPrimary}" />
             </Grid>
 
@@ -76,8 +86,8 @@
 
                     <Grid Grid.Row="0" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -93,8 +103,8 @@
 
                     <Grid Grid.Row="1" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -110,8 +120,8 @@
 
                     <Grid Grid.Row="2" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -127,8 +137,8 @@
 
                     <Grid Grid.Row="3" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -145,8 +155,8 @@
 
                     <Grid Grid.Row="4" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -162,8 +172,8 @@
 
                     <Grid Grid.Row="5" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -179,8 +189,8 @@
 
                     <Grid Grid.Row="6" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -196,26 +206,25 @@
 
                     <Grid Grid.Row="7" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="内存信息" />
 
                         <hc:WaveProgressBar
                             Grid.Column="1"
-                            Width="120"
-                            Height="120"
+                            Width="128"
+                            Height="128"
                             HorizontalAlignment="Left"
                             Style="{StaticResource ProgressBarSuccessWave}"
-                            WaveThickness="4"
                             Value="{Binding MemoryProgress}" />
                     </Grid>
 
                     <Grid Grid.Row="8" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="电池状态" />
@@ -224,8 +233,7 @@
                             <TextBlock VerticalAlignment="Center" Text="{Binding BatteryState}" />
 
                             <ProgressBar
-                                Height="12"
-                                Margin="0,7,0,0"
+                                Margin="0,5,0,0"
                                 Style="{StaticResource ProgressBarSuccess}"
                                 Value="{Binding BatteryProgress}" />
                         </StackPanel>
@@ -233,8 +241,8 @@
 
                     <Grid Grid.Row="9" Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.25*" />
-                            <ColumnDefinition Width="1.75*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -264,7 +272,9 @@
                 <Button
                     HorizontalAlignment="Right"
                     Command="{Binding SortApplicationCommand}"
-                    Content="排序"
+                    Content="&#xe612;"
+                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                    FontSize="16"
                     Style="{StaticResource ButtonPrimary}" />
             </Grid>
 
