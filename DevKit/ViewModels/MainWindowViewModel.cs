@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
 using DevKit.DataService;
+using DevKit.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
@@ -11,7 +12,7 @@ namespace DevKit.ViewModels
     {
         #region VM
 
-        public List<string> MenuModels { get; }
+        public List<MainMenuModel> MenuModels { get; }
 
         #endregion
 

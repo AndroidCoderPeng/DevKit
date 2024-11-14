@@ -42,11 +42,27 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock
-                            Padding="15"
-                            VerticalAlignment="Center"
-                            FontSize="16"
-                            Text="{Binding}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                Padding="20,15"
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="30"
+                                Text="{Binding MenuIcon}" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Padding="5,15"
+                                VerticalAlignment="Center"
+                                FontSize="16"
+                                Text="{Binding MenuName}" />
+                        </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
 

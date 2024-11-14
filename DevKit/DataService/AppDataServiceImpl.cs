@@ -1,18 +1,25 @@
 ﻿using System.Collections.Generic;
+using DevKit.Models;
 
 namespace DevKit.DataService
 {
     public class AppDataServiceImpl : IAppDataService
     {
-        private readonly List<string> _menu = new List<string>
+        public List<MainMenuModel> GetMainMenu()
         {
-            "ADB", "APK", "TCP", "UDP", "WebSocket",
-            "串口通信", "图标", "微软翻译", "转码", "颜色"
-        };
-
-        public List<string> GetMainMenu()
-        {
-            return _menu;
+            return new List<MainMenuModel>
+            {
+                new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
+                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP" },
+                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP" },
+                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket" },
+                new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口通信" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "图标" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "微软翻译" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "转码" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "颜色" }
+            };
         }
     }
 }
