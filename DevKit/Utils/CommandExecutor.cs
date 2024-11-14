@@ -27,7 +27,7 @@ namespace DevKit.Utils
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = executor, // 如果不在环境变量中，请改为完整路径  
+                    FileName = executor, // 如果不在环境变量中，需要改为完整路径  
                     Arguments = _arguments,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,

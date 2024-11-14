@@ -1,4 +1,6 @@
 ﻿using System;
+using DevKit.Events;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 
@@ -6,8 +8,10 @@ namespace DevKit.ViewModels
 {
     public class LoadingDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => string.Empty;
+        public string Title => "DevKit";
 
+        public event Action<IDialogResult> RequestClose;
+        
         private string _loadingMessage;
 
         public string LoadingMessage
@@ -20,13 +24,12 @@ namespace DevKit.ViewModels
             }
         }
 
-        /// <summary>
-        /// 空实现
-        /// </summary>
-        public event Action<IDialogResult> RequestClose
+        public LoadingDialogViewModel(IEventAggregator eventAggregator)
         {
-            add { }
-            remove { }
+            eventAggregator.GetEvent<CloseLoadingDialogEvent>().Subscribe(delegate
+            {
+                RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
+            });
         }
 
         public bool CanCloseDialog()

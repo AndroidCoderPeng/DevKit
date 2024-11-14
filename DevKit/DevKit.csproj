@@ -88,6 +88,7 @@
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />

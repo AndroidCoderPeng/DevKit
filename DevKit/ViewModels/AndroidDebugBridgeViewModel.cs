@@ -6,10 +6,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using DevKit.Events;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using MessageBox = System.Windows.MessageBox;
@@ -192,6 +194,7 @@ namespace DevKit.ViewModels
         #endregion
 
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
         private string _selectedDevice = string.Empty;
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -203,9 +206,10 @@ namespace DevKit.ViewModels
         /// </summary>
         private readonly Timer _refreshDeviceTimer = new Timer(1000);
 
-        public AndroidDebugBridgeViewModel(IDialogService dialogService)
+        public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
 
             //定时刷新设备列表，可能会为空，因为开发者模式可能没开
             _refreshDeviceTimer.Elapsed += TimerElapsedEvent_Handler;
@@ -565,25 +569,29 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            var dialogParameters = new DialogParameters
+            {
+                { "LoadingMessage", "软件安装中，请稍后......" }
+            };
+            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
             Task.Run(() =>
             {
                 var argument = new ArgumentCreator();
                 //覆盖安装应用（apk）
                 //adb -s <设备序列号> install  -r 
                 argument.Append("-s").Append(_selectedDevice).Append("install").Append("-r").Append(filePath);
-                var dialogParameters = new DialogParameters
-                {
-                    { "LoadingMessage", "软件安装中，请稍后......" }
-                };
-                _dialogService.ShowDialog("LoadingDialog", dialogParameters, delegate { });
                 var executor = new CommandExecutor(argument.ToCommandLine());
                 executor.OnStandardOutput += delegate(string value)
                 {
-                    Application.Current.Dispatcher.Invoke(delegate
+                    if (value.Equals("Success"))
                     {
-                        // _dialogService.CloseDialog();
-                        Growl.Success(value);
-                    });
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                            Growl.Success(value);
+                        });
+                        GetDeviceApplication();
+                    }
                 };
                 executor.Execute("adb");
             });
