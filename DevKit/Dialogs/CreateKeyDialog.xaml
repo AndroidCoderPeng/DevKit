@@ -9,7 +9,7 @@
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="400"
-    Height="300"
+    Height="305"
     d:DataContext="{d:DesignInstance Type=vm:CreateKeyDialogViewModel}"
     Background="White"
     mc:Ignorable="d">
@@ -23,139 +23,153 @@
         </Style>
     </prism:Dialog.WindowStyle>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </UserControl.Resources>
 
-        <DockPanel Grid.Row="0" LastChildFill="True">
-            <TextBlock
-                Margin="10,0,0,0"
-                VerticalAlignment="Center"
-                Text="Key别名" />
+    <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <hc:TextBox
-                Margin="10"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="请输入密码证书别名"
-                hc:InfoElement.ShowClearButton="True"
-                Text="{Binding KeyAlias}" />
-        </DockPanel>
+            <DockPanel Grid.Row="0" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Text="Key别名" />
 
-        <DockPanel Grid.Row="1" LastChildFill="True">
-            <TextBlock
+                <hc:TextBox
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="请输入密码证书别名"
+                    hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
+                    Text="{Binding KeyAlias}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="1" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0"
+                    VerticalAlignment="Center"
+                    Text="密码" />
+
+                <PasswordBox
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="请输入密码"
+                    ut:PasswordAttachAttribute.Attach="True"
+                    ut:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    FontSize="14"
+                    Style="{DynamicResource PasswordBoxExtend}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="2" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Text="创建证书者姓氏" />
+
+                <hc:TextBox
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="姓氏拼音，如：Zhao"
+                    hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
+                    Text="{Binding KeySurname}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="3" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0"
+                    VerticalAlignment="Center"
+                    Text="公司名" />
+
+                <hc:TextBox
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="请输入证书所属公司名"
+                    hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
+                    Text="{Binding KeyCompany}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="4" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Text="行政区" />
+
+                <hc:TextBox
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="请输入所属公司行政区域，如：海淀区"
+                    hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
+                    Text="{Binding KeyDistrict}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="5" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0"
+                    VerticalAlignment="Center"
+                    Text="省（市）" />
+
+                <hc:TextBox
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    hc:InfoElement.Placeholder="请输入所属公司省份，如：北京市"
+                    hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
+                    Text="{Binding KeyProvince}" />
+            </DockPanel>
+
+            <DockPanel Grid.Row="6" LastChildFill="True">
+                <TextBlock
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Text="存储位置" />
+
+                <TextBlock
+                    Margin="10"
+                    VerticalAlignment="Center"
+                    Text="{Binding KeySavePath}"
+                    ToolTip="{Binding KeySavePath}" />
+            </DockPanel>
+
+            <UniformGrid
+                Grid.Row="7"
                 Margin="10,0"
-                VerticalAlignment="Center"
-                Text="密码" />
+                Columns="2"
+                Rows="1">
+                <Button
+                    Margin="0,0,5,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding SaveKeyCommand}"
+                    Content="选择路径" />
 
-            <PasswordBox
-                Margin="0,0,10,0"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="请输入密码"
-                ut:PasswordAttachAttribute.Attach="True"
-                ut:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Style="{DynamicResource PasswordBoxExtend}" />
-        </DockPanel>
-
-        <DockPanel Grid.Row="2" LastChildFill="True">
-            <TextBlock
-                Margin="10,0,0,0"
-                VerticalAlignment="Center"
-                Text="创建证书者姓氏" />
-
-            <hc:TextBox
-                Margin="10"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="姓氏拼音，如：Zhao"
-                hc:InfoElement.ShowClearButton="True"
-                Text="{Binding KeySurname}" />
-        </DockPanel>
-
-        <DockPanel Grid.Row="3" LastChildFill="True">
-            <TextBlock
-                Margin="10,0"
-                VerticalAlignment="Center"
-                Text="公司名" />
-
-            <hc:TextBox
-                Margin="0,0,10,0"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="请输入证书所属公司名"
-                hc:InfoElement.ShowClearButton="True"
-                Text="{Binding KeyCompany}" />
-        </DockPanel>
-
-        <DockPanel Grid.Row="4" LastChildFill="True">
-            <TextBlock
-                Margin="10,0,0,0"
-                VerticalAlignment="Center"
-                Text="行政区" />
-
-            <hc:TextBox
-                Margin="10"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="请输入所属公司行政区域，如：海淀区"
-                hc:InfoElement.ShowClearButton="True"
-                Text="{Binding KeyDistrict}" />
-        </DockPanel>
-
-        <DockPanel Grid.Row="5" LastChildFill="True">
-            <TextBlock
-                Margin="10,0"
-                VerticalAlignment="Center"
-                Text="省（市）" />
-
-            <hc:TextBox
-                Margin="0,0,10,0"
-                VerticalAlignment="Center"
-                VerticalContentAlignment="Center"
-                hc:InfoElement.Placeholder="请输入所属公司省份，如：北京市"
-                hc:InfoElement.ShowClearButton="True"
-                Text="{Binding KeyProvince}" />
-        </DockPanel>
-
-        <DockPanel Grid.Row="6" LastChildFill="True">
-            <TextBlock
-                Margin="10,0,0,0"
-                VerticalAlignment="Center"
-                Text="存储位置" />
-
-            <TextBlock
-                Margin="10"
-                VerticalAlignment="Center"
-                Text="{Binding KeySavePath}"
-                ToolTip="{Binding KeySavePath}" />
-        </DockPanel>
-
-        <UniformGrid
-            Grid.Row="7"
-            Margin="10,0"
-            Columns="2"
-            Rows="1">
-            <Button
-                Margin="0,0,5,0"
-                HorizontalAlignment="Stretch"
-                Command="{Binding SaveKeyCommand}"
-                Content="选择路径" />
-
-            <Button
-                Margin="5,0,0,0"
-                HorizontalAlignment="Stretch"
-                Command="{Binding GenerateKeyCommand}"
-                Content="生成证书"
-                Style="{StaticResource ButtonPrimary}" />
-        </UniformGrid>
-    </Grid>
+                <Button
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding GenerateKeyCommand}"
+                    Content="生成证书"
+                    Style="{StaticResource ButtonPrimary}" />
+            </UniformGrid>
+        </Grid>
+    </Border>
 </UserControl>

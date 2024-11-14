@@ -62,6 +62,7 @@
                 VerticalContentAlignment="Center"
                 hc:InfoElement.Placeholder="请配置签名秘钥文件（*.jks）"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 Text="{Binding KeyFilePath}"
                 ToolTip="{Binding KeyFilePath}" />
 
@@ -93,6 +94,7 @@
                 VerticalContentAlignment="Center"
                 hc:InfoElement.Placeholder="请输入证书别名"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 Text="{Binding KeyAlias}" />
 
             <TextBlock
@@ -107,6 +109,7 @@
                 hc:InfoElement.Placeholder="请输入密码"
                 ut:PasswordAttachAttribute.Attach="True"
                 ut:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                FontSize="14"
                 Style="{DynamicResource PasswordBoxExtend}" />
 
             <Button
@@ -146,6 +149,7 @@
                 VerticalContentAlignment="Center"
                 hc:InfoElement.Placeholder="请输入（选择）含有APK安装包的根目录"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 Text="{Binding ApkRootFolderPath}" />
 
             <Button
