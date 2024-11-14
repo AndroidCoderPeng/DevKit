@@ -1,15 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
-using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using DialogResult = System.Windows.Forms.DialogResult;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
@@ -77,7 +85,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ApkFileModel> _apkFileCollection = new ObservableCollection<ApkFileModel>();
+        private ObservableCollection<ApkFileModel> _apkFileCollection;
 
         public ObservableCollection<ApkFileModel> ApkFileCollection
         {
@@ -98,17 +106,24 @@ namespace DevKit.ViewModels
         public DelegateCommand ShowSha1Command { set; get; }
         public DelegateCommand SelectApkRootFolderCommand { set; get; }
         public DelegateCommand RefreshApkFilesCommand { set; get; }
+        public DelegateCommand<string> OpenFileFolderCommand { set; get; }
 
         #endregion
 
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
 
-        public ApplicationPackageViewModel(IDialogService dialogService)
+        public ApplicationPackageViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
+
             CreateKeyCommand = new DelegateCommand(CreateKey);
             SelectKeyCommand = new DelegateCommand(SelectKey);
             ShowSha1Command = new DelegateCommand(ShowSha1Async);
+            SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
+            RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
+            OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
         }
 
         private void CreateKey()
@@ -162,7 +177,6 @@ namespace DevKit.ViewModels
                 var builder = new StringBuilder();
                 for (var i = 0; i < list.Count; i++)
                 {
-                    Console.WriteLine($@"{i} ===> {list[i]}");
                     switch (i)
                     {
                         case 1:
@@ -199,6 +213,92 @@ namespace DevKit.ViewModels
             var executor = new CommandExecutor(argument.ToCommandLine());
             executor.OnStandardOutput += list.Add;
             executor.Execute("keytool");
+        }
+
+        private async void SelectApkRootFolder()
+        {
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                folderDialog.Description = @"请选择apk安装包归档的根目录";
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    ApkRootFolderPath = folderDialog.SelectedPath;
+                    //异步遍历文件夹下面的apk文件
+                    var dialogParameters = new DialogParameters
+                    {
+                        { "LoadingMessage", "文件检索中，请稍后......" }
+                    };
+                    _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
+                    var totalFiles = await GetApkFilesAsync();
+                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                    ApkFileCollection = totalFiles.ToObservableCollection();
+                }
+            }
+        }
+
+        private async Task<List<ApkFileModel>> GetApkFilesAsync()
+        {
+            var list = new List<ApkFileModel>();
+            await Task.Run(() => TraverseFolder(_apkRootFolderPath, list));
+            return list.OrderBy(file => file.CreationTime).Reverse().ToList();
+        }
+
+        /// <summary>
+        /// 遍历文件夹并生成相应的数据类型集合
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="apkFiles"></param>
+        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles)
+        {
+            var files = new DirectoryInfo(folderPath).GetFiles("*.apk", SearchOption.AllDirectories)
+                .OrderBy(file => file.CreationTime)
+                .Reverse();
+            foreach (var file in files)
+            {
+                if (file.FullName.Contains("debug") || file.Name.StartsWith(".")) continue;
+                var apkFile = new ApkFileModel
+                {
+                    FileName = file.Name,
+                    FullPath = file.FullName,
+                    FileSize = file.Length.FormatFileSize(),
+                    CreationTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+                };
+
+                apkFiles.Add(apkFile);
+            }
+        }
+
+        private async void RefreshApkFiles()
+        {
+            ApkFileCollection.Clear();
+            //异步遍历文件夹下面的apk文件
+            var dialogParameters = new DialogParameters
+            {
+                { "LoadingMessage", "文件检索中，请稍后......" }
+            };
+            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
+            var totalFiles = await GetApkFilesAsync();
+            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+            ApkFileCollection = totalFiles.ToObservableCollection();
+        }
+
+        private void OpenFileFolder(string path)
+        {
+            var directoryPath = Path.GetDirectoryName(path);
+            try
+            {
+                Debug.Assert(directoryPath != null, nameof(directoryPath) + " != null");
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = directoryPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

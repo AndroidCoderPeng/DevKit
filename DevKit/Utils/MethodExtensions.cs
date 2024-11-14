@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -36,6 +37,33 @@ namespace DevKit.Utils
             
             //转为GB
             return Math.Round(temp / 1024 / 1024, 2);
+        }
+
+        /// <summary>
+        /// 计算文件占用空间大小
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string FormatFileSize(this long length)
+        {
+            var size = (double)length / (1024 * 1024);
+            return $"{size:F2}MB";
+        }
+
+        /// <summary>
+        /// List 转 ObservableCollection
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> list)
+        {
+            var collection = new ObservableCollection<T>();
+            foreach (var t in list)
+            {
+                collection.Add(t);
+            }
+
+            return collection;
         }
     }
 }

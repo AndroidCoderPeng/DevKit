@@ -124,6 +124,7 @@
             VerticalContentAlignment="Top"
             Background="#0C0C0C"
             BorderThickness="0"
+            FontSize="14"
             Foreground="#00FF00"
             HorizontalScrollBarVisibility="Auto"
             IsReadOnly="True"
@@ -164,8 +165,79 @@
         </Grid>
 
         <ListBox
+            x:Name="TargetListBox"
             Grid.Row="4"
             Margin="10"
-            ItemsSource="{Binding ApkFileCollection}" />
+            HorizontalContentAlignment="Stretch"
+            BorderThickness="0"
+            ItemsSource="{Binding ApkFileCollection}">
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                HorizontalAlignment="Stretch"
+                                FontSize="14"
+                                Text="{Binding FileName}" />
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,3,0,0"
+                                HorizontalAlignment="Stretch"
+                                Text="{Binding FullPath}" />
+                        </Grid>
+
+                        <Button
+                            Grid.Column="1"
+                            BorderThickness="0"
+                            Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
+                            CommandParameter="{Binding FullPath}"
+                            Content="&#xe701;"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Margin" Value="0,0,0,5" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border
+                                    x:Name="ItemContainerBorder"
+                                    Padding="7,0"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                </Border>
+
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource DarkDefaultBrush}" />
+                                        <Setter TargetName="ItemContainerBorder" Property="TextBlock.Foreground" Value="{DynamicResource PrimaryBrush}" />
+                                        <Setter TargetName="ItemContainerBorder" Property="TextBlock.FontWeight" Value="Bold" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
     </Grid>
 </UserControl>
