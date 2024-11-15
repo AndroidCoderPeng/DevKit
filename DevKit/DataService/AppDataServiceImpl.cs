@@ -54,5 +54,48 @@ namespace DevKit.DataService
                 }
             }
         }
+
+        public TcpClientConfigCache LoadTcpClientConfigCache()
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<TcpClientConfigCache>();
+                if (queryResult.Any())
+                {
+                    return queryResult.First();
+                }
+
+                return new TcpClientConfigCache();
+            }
+        }
+
+        public void SaveCacheConfig<T>(T configCache)
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                if (configCache is ApkConfigCache)
+                {
+                    if (dataBase.Table<ApkConfigCache>().Any())
+                    {
+                        dataBase.Update(configCache);
+                    }
+                    else
+                    {
+                        dataBase.Insert(configCache);
+                    }
+                }
+                else if (configCache is TcpClientConfigCache)
+                {
+                    if (dataBase.Table<TcpClientConfigCache>().Any())
+                    {
+                        dataBase.Update(configCache);
+                    }
+                    else
+                    {
+                        dataBase.Insert(configCache);
+                    }
+                }
+            }
+        }
     }
 }

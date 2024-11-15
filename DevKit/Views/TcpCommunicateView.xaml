@@ -49,7 +49,6 @@
                     VerticalAlignment="Center"
                     Text="服务端" />
 
-                <!--  需要是做数据持久化  -->
                 <hc:TextBox
                     Grid.Column="1"
                     Margin="10,0"
@@ -58,7 +57,6 @@
                     Text="{Binding RemoteAddress}"
                     TextWrapping="NoWrap" />
 
-                <!--  需要是做数据持久化  -->
                 <hc:TextBox
                     Grid.Column="2"
                     MinWidth="50"
@@ -70,8 +68,7 @@
                     Grid.Column="3"
                     Margin="10,0,0,0"
                     Command="{Binding ConnectRemoteCommand}"
-                    Content="连接"
-                    Style="{StaticResource ButtonPrimary}" />
+                    Content="{Binding ButtonState}" />
             </Grid>
 
             <ListBox
@@ -93,8 +90,11 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!--  需要是做数据持久化  -->
-                    <CheckBox Grid.Column="0" Content="Hex显示" />
+                    <CheckBox
+                        x:Name="ShowHexCheckBox"
+                        Grid.Column="0"
+                        Content="Hex显示"
+                        IsChecked="{Binding ShowHex}" />
 
                     <Button
                         Grid.Column="1"
@@ -127,17 +127,24 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!--  需要是做数据持久化  -->
-                    <CheckBox Grid.Column="0" Content="Hex发送" />
-
-                    <!--  需要是做数据持久化  -->
                     <CheckBox
+                        x:Name="SendHexCheckBox"
+                        Grid.Column="0"
+                        Content="Hex发送"
+                        IsChecked="{Binding SendHex}" />
+
+                    <CheckBox
+                        x:Name="LoopCheckBox"
                         Grid.Column="1"
                         Margin="10,0"
                         Content="循环发送" />
 
-                    <!--  需要是做数据持久化，也需要根据循环发送多选框更改状态，还需要校验输入的值是否为合理的数值  -->
-                    <hc:TextBox Grid.Column="2" hc:InfoElement.ShowClearButton="True" />
+                    <!--  需要根据循环发送多选框更改状态，还需要校验输入的值是否为合理的数值  -->
+                    <hc:TextBox
+                        Grid.Column="2"
+                        hc:InfoElement.ShowClearButton="True"
+                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
+                        Text="{Binding CommandInterval}" />
 
                     <TextBlock
                         Grid.Column="3"

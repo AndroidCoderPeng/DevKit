@@ -2,8 +2,8 @@
 {
     public class MessageModel
     {
-        public string Time { get; set; }
         public string Content { get; set; }
+        public string Time { get; set; }
         public bool IsSend { get; set; }
     }
 }

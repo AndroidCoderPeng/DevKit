@@ -14,6 +14,7 @@ namespace DevKit.Utils
         private const long ReconnectDelay = 5;
         private readonly Bootstrap _bootStrap = new Bootstrap();
         private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
+        private readonly bool _reconnect;
         private string _host;
         private int _port;
         private IChannel _channel;
@@ -25,8 +26,9 @@ namespace DevKit.Utils
         public ConnectFailedEventHandler OnConnectFailed { get; set; }
         public DataReceivedEventHandler OnDataReceived { get; set; }
 
-        public TcpClient()
+        public TcpClient(bool reconnect = false)
         {
+            _reconnect = reconnect;
             _bootStrap.Group(_loopGroup)
                 .Channel<TcpSocketChannel>()
                 .Option(ChannelOption.TcpNodelay, true) //无阻塞
@@ -42,12 +44,12 @@ namespace DevKit.Utils
         private class SimpleChannelInitializer<T> : ChannelInitializer<T> where T : ISocketChannel
         {
             private readonly TcpClient _tcpClient;
- 
+
             public SimpleChannelInitializer(TcpClient tcpClient)
             {
                 _tcpClient = tcpClient;
             }
-            
+
             protected override void InitChannel(T channel)
             {
                 channel.Pipeline
@@ -63,12 +65,12 @@ namespace DevKit.Utils
             private class TcpChannelInboundHandler : SimpleChannelInboundHandler<byte[]>
             {
                 private readonly TcpClient _tcpClient;
- 
+
                 public TcpChannelInboundHandler(TcpClient tcpClient)
                 {
                     _tcpClient = tcpClient;
                 }
-                
+
                 public override void ChannelActive(IChannelHandlerContext context)
                 {
                     var address = context.Channel.RemoteAddress;
@@ -89,6 +91,7 @@ namespace DevKit.Utils
                     }
 
                     _tcpClient.OnDisconnected(this, context);
+                    _tcpClient.ReTryConnect();
                 }
 
                 protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
@@ -125,6 +128,12 @@ namespace DevKit.Utils
             Connect();
         }
 
+        public void Close()
+        {
+            _channel.CloseAsync();
+            _isRunning = false;
+        }
+
         private void Connect()
         {
             if (_channel != null && _channel.Active)
@@ -144,9 +153,8 @@ namespace DevKit.Utils
                         _channel = task.Result;
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine(e);
                     ReTryConnect();
                 }
             });
@@ -154,9 +162,16 @@ namespace DevKit.Utils
 
         private void ReTryConnect()
         {
-            _retryTimes++;
-            Console.WriteLine($@"开始第 {_retryTimes} 次重连");
-            _loopGroup.Schedule(Connect, TimeSpan.FromSeconds(ReconnectDelay));
+            if (_reconnect)
+            {
+                _retryTimes++;
+                Console.WriteLine($@"开始第 {_retryTimes} 次重连");
+                _loopGroup.Schedule(Connect, TimeSpan.FromSeconds(ReconnectDelay));
+            }
+            else
+            {
+                Console.WriteLine(@"连接失败，且不重连");
+            }
         }
     }
 }

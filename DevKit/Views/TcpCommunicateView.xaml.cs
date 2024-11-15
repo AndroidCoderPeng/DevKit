@@ -1,30 +1,35 @@
 ﻿using System.Windows.Controls;
+using DevKit.DataService;
 
 namespace DevKit.Views
 {
     public partial class TcpCommunicateView : UserControl
     {
-        public TcpCommunicateView()
+        public TcpCommunicateView(IAppDataService dataService)
         {
             InitializeComponent();
-            // var tcpClient = new TcpClient();
-            // tcpClient.OnConnected += delegate(object sender, IChannelHandlerContext context)
-            // {
-            //     Console.WriteLine("Connected");
-            // };
-            // tcpClient.OnDisconnected += delegate(object sender, IChannelHandlerContext context)
-            // {
-            //     Console.WriteLine("Disconnected");
-            // };
-            // tcpClient.OnConnectFailed += delegate(object sender, Exception exception)
-            // {
-            //     Console.WriteLine("OnConnectFailed");
-            // };
-            // tcpClient.OnDataReceived += delegate(object sender, byte[] message)
-            // {
-            //     Console.WriteLine(BitConverter.ToString(message));
-            // };
-            // tcpClient.Start("192.168.161.208", 3000);
+            var clientCache = dataService.LoadTcpClientConfigCache();
+            ShowHexCheckBox.Checked += delegate
+            {
+                clientCache.ShowHex = 1;
+                dataService.SaveCacheConfig(clientCache);
+            };
+            ShowHexCheckBox.Unchecked += delegate
+            {
+                clientCache.ShowHex = 0;
+                dataService.SaveCacheConfig(clientCache);
+            };
+
+            SendHexCheckBox.Checked += delegate
+            {
+                clientCache.SendHex = 1;
+                dataService.SaveCacheConfig(clientCache);
+            };
+            SendHexCheckBox.Unchecked += delegate
+            {
+                clientCache.SendHex = 0;
+                dataService.SaveCacheConfig(clientCache);
+            };
         }
     }
 }

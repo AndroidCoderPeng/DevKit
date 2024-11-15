@@ -9,7 +9,9 @@ namespace DevKit.DataService
         List<MainMenuModel> GetMainMenu();
 
         ApkConfigCache LoadApkCacheConfig();
-        
-        void SaveCacheConfig(ApkConfigCache apkConfig);
+
+        TcpClientConfigCache LoadTcpClientConfigCache();
+
+        void SaveCacheConfig<T>(T configCache);
     }
 }
