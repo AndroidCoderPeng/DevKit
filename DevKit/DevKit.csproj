@@ -146,6 +146,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Configs\ConfigCache.cs" />
     <Compile Include="DataService\AppDataServiceImpl.cs" />
     <Compile Include="DataService\IAppDataService.cs" />
     <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">

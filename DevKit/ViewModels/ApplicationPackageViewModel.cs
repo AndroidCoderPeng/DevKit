@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using DevKit.Configs;
+using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
@@ -110,13 +112,27 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
+        private readonly ConfigCache _configCache = new ConfigCache();
+        private readonly Apk _apk = new Apk();
 
-        public ApplicationPackageViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
+        public ApplicationPackageViewModel(IAppDataService dataService, IDialogService dialogService,
+            IEventAggregator eventAggregator)
         {
+            _dataService = dataService;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+
+            var config = dataService.LoadCacheConfig();
+            if (config != null)
+            {
+                KeyFilePath = config.Apk.KeyPath;
+                KeyAlias = config.Apk.Alias;
+                KeyPassword = config.Apk.Password;
+                ApkRootFolderPath = config.Apk.RootFolder;
+            }
 
             CreateKeyCommand = new DelegateCommand(CreateKey);
             SelectKeyCommand = new DelegateCommand(SelectKey);
@@ -166,6 +182,13 @@ namespace DevKit.ViewModels
                     MessageBox.Show("请完善签名Key配置", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
+                //保存配置
+                _apk.KeyPath = _keyFilePath;
+                _apk.Alias = _keyAlias;
+                _apk.Password = _keyPassword;
+                _configCache.Apk = _apk;
+                _dataService.SaveCacheConfig(_configCache);
 
                 if (!string.IsNullOrEmpty(_outputResult))
                 {
@@ -223,6 +246,11 @@ namespace DevKit.ViewModels
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     ApkRootFolderPath = folderDialog.SelectedPath;
+
+                    _apk.RootFolder = _apkRootFolderPath;
+                    _configCache.Apk = _apk;
+                    _dataService.SaveCacheConfig(_configCache);
+
                     //异步遍历文件夹下面的apk文件
                     var dialogParameters = new DialogParameters
                     {
@@ -270,7 +298,7 @@ namespace DevKit.ViewModels
 
         private async void RefreshApkFiles()
         {
-            ApkFileCollection.Clear();
+            ApkFileCollection?.Clear();
             //异步遍历文件夹下面的apk文件
             var dialogParameters = new DialogParameters
             {

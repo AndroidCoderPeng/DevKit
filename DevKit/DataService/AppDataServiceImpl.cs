@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using DevKit.Configs;
 using DevKit.Models;
+using Newtonsoft.Json;
 
 namespace DevKit.DataService
 {
@@ -20,6 +24,27 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "转码" },
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "颜色" }
             };
+        }
+
+        public void SaveCacheConfig(ConfigCache config)
+        {
+            var fileName = $@"{AppDomain.CurrentDomain.BaseDirectory}ConfigCache.json";
+            var json = JsonConvert.SerializeObject(config, Formatting.Indented);
+            File.WriteAllText(fileName, json);
+        }
+
+        public ConfigCache LoadCacheConfig()
+        {
+            try
+            {
+                var fileName = $@"{AppDomain.CurrentDomain.BaseDirectory}ConfigCache.json";
+                var json = File.ReadAllText(fileName);
+                return JsonConvert.DeserializeObject<ConfigCache>(json);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
