@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using DevKit.Configs;
+﻿using System.Collections.Generic;
+using System.Linq;
+using DevKit.Cache;
 using DevKit.Models;
-using Newtonsoft.Json;
+using DevKit.Utils;
 
 namespace DevKit.DataService
 {
@@ -26,24 +25,33 @@ namespace DevKit.DataService
             };
         }
 
-        public void SaveCacheConfig(ConfigCache config)
+        public ApkConfigCache LoadApkCacheConfig()
         {
-            var fileName = $@"{AppDomain.CurrentDomain.BaseDirectory}ConfigCache.json";
-            var json = JsonConvert.SerializeObject(config, Formatting.Indented);
-            File.WriteAllText(fileName, json);
+            using (var dataBase = new DataBaseConnection())
+            {
+                //表里要么没有数据要么只有一条数据
+                var queryResult = dataBase.Table<ApkConfigCache>();
+                if (queryResult.Any())
+                {
+                    return queryResult.First();
+                }
+
+                return new ApkConfigCache();
+            }
         }
 
-        public ConfigCache LoadCacheConfig()
+        public void SaveCacheConfig(ApkConfigCache apkConfig)
         {
-            try
+            using (var dataBase = new DataBaseConnection())
             {
-                var fileName = $@"{AppDomain.CurrentDomain.BaseDirectory}ConfigCache.json";
-                var json = File.ReadAllText(fileName);
-                return JsonConvert.DeserializeObject<ConfigCache>(json);
-            }
-            catch (Exception)
-            {
-                return null;
+                if (dataBase.Table<ApkConfigCache>().Any())
+                {
+                    dataBase.Update(apkConfig);
+                }
+                else
+                {
+                    dataBase.Insert(apkConfig);
+                }
             }
         }
     }

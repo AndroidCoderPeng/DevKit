@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using DevKit.Configs;
+using DevKit.Cache;
 using DevKit.Models;
 
 namespace DevKit.DataService
@@ -8,8 +8,8 @@ namespace DevKit.DataService
     {
         List<MainMenuModel> GetMainMenu();
 
-        void SaveCacheConfig(ConfigCache config);
-
-        ConfigCache LoadCacheConfig();
+        ApkConfigCache LoadApkCacheConfig();
+        
+        void SaveCacheConfig(ApkConfigCache apkConfig);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
@@ -74,15 +75,33 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand<string> ConnectRemoteCommand { set; get; }
+        public DelegateCommand ConnectRemoteCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
 
+        private readonly IAppDataService _dataService;
+        private readonly ApkConfigCache _apkConfigCache;
+        private readonly TcpClientConfigCache _clientConfigCache = new TcpClientConfigCache();
+
         public TcpCommunicateViewModel(IAppDataService dataService)
         {
+            _dataService = dataService;
+
+            // _apkConfigCache = dataService.LoadCacheConfig();
+            // if (_apkConfigCache.TcpClientCache != null)
+            // {
+            //     var clientCache = _apkConfigCache.TcpClientCache;
+            //     // KeyFilePath = tcpClient.RemoteAddress;
+            //     // KeyAlias = tcpClient.RemotePort.ToString();
+            //     // KeyPassword = tcpClient.ShowHex;
+            //     // ApkRootFolderPath = tcpClient.SendHex;
+            //     // var extensions = tcpClient.Extension;
+            // }
+
+            // ConnectRemoteCommand = new DelegateCommand();
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using DevKit.Configs;
+using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
@@ -115,8 +115,7 @@ namespace DevKit.ViewModels
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
-        private readonly ConfigCache _configCache = new ConfigCache();
-        private readonly Apk _apk = new Apk();
+        private ApkConfigCache _configCache;
 
         public ApplicationPackageViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
@@ -125,14 +124,7 @@ namespace DevKit.ViewModels
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
 
-            var config = dataService.LoadCacheConfig();
-            if (config != null)
-            {
-                KeyFilePath = config.Apk.KeyPath;
-                KeyAlias = config.Apk.Alias;
-                KeyPassword = config.Apk.Password;
-                ApkRootFolderPath = config.Apk.RootFolder;
-            }
+            InitDefaultConfig();
 
             CreateKeyCommand = new DelegateCommand(CreateKey);
             SelectKeyCommand = new DelegateCommand(SelectKey);
@@ -140,6 +132,15 @@ namespace DevKit.ViewModels
             SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
             RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
             OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
+        }
+
+        private void InitDefaultConfig()
+        {
+            _configCache = _dataService.LoadApkCacheConfig();
+            KeyFilePath = _configCache.KeyPath;
+            KeyAlias = _configCache.Alias;
+            KeyPassword = _configCache.Password;
+            ApkRootFolderPath = _configCache.ApkRootFolder;
         }
 
         private void CreateKey()
@@ -184,10 +185,9 @@ namespace DevKit.ViewModels
                 }
 
                 //保存配置
-                _apk.KeyPath = _keyFilePath;
-                _apk.Alias = _keyAlias;
-                _apk.Password = _keyPassword;
-                _configCache.Apk = _apk;
+                _configCache.KeyPath = _keyFilePath;
+                _configCache.Alias = _keyAlias;
+                _configCache.Password = _keyPassword;
                 _dataService.SaveCacheConfig(_configCache);
 
                 if (!string.IsNullOrEmpty(_outputResult))
@@ -247,8 +247,7 @@ namespace DevKit.ViewModels
                 {
                     ApkRootFolderPath = folderDialog.SelectedPath;
 
-                    _apk.RootFolder = _apkRootFolderPath;
-                    _configCache.Apk = _apk;
+                    _configCache.ApkRootFolder = _apkRootFolderPath;
                     _dataService.SaveCacheConfig(_configCache);
 
                     //异步遍历文件夹下面的apk文件
