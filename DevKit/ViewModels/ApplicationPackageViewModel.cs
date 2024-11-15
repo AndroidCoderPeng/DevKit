@@ -297,6 +297,11 @@ namespace DevKit.ViewModels
 
         private async void RefreshApkFiles()
         {
+            if (string.IsNullOrWhiteSpace(_apkRootFolderPath))
+            {
+                return;
+            }
+
             ApkFileCollection?.Clear();
             //异步遍历文件夹下面的apk文件
             var dialogParameters = new DialogParameters

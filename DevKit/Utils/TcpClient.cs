@@ -173,5 +173,10 @@ namespace DevKit.Utils
                 Console.WriteLine(@"连接失败，且不重连");
             }
         }
+
+        public void SendAsync(object message)
+        {
+            _channel.WriteAndFlushAsync(message);
+        }
     }
 }

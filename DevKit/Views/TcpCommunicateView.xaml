@@ -2,6 +2,7 @@
     x:Class="DevKit.Views.TcpCommunicateView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -20,6 +21,9 @@
         <Style TargetType="TextBox">
             <Setter Property="FontSize" Value="14" />
         </Style>
+
+        <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
+        <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -84,12 +88,22 @@
                                 <RowDefinition />
                             </Grid.RowDefinitions>
 
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontSize="12" Text="{Binding Time}" />
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
+                                    <TextBlock
+                                        Margin="3,1"
+                                        FontSize="10"
+                                        FontWeight="Light"
+                                        Foreground="White"
+                                        Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                                </Border>
+
                                 <TextBlock
-                                    Margin="10,0,0,0"
-                                    FontSize="12"
-                                    Text="{Binding IsSend}" />
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="{DynamicResource SecondaryTextBrush}"
+                                    Text="{Binding Time}" />
                             </StackPanel>
 
                             <TextBlock
@@ -111,9 +125,9 @@
                                     </Border>
 
                                     <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True" />
-
-                                        <Trigger Property="IsSelected" Value="True" />
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
@@ -178,8 +179,8 @@ namespace DevKit.ViewModels
             {
                 var messageModel = new MessageModel
                 {
-                    Content = BitConverter.ToString(bytes),
-                    Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                    Content = BitConverter.ToString(bytes).Replace("-", " "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
@@ -230,6 +231,31 @@ namespace DevKit.ViewModels
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            //发消息前需要查询一次最新的多选勾中情况
+            _clientCache = _dataService.LoadTcpClientConfigCache();
+            if (_clientCache.SendHex == 1)
+            {
+                var messageModel = new MessageModel
+                {
+                    Content = BitConverter.ToString(Encoding.UTF8.GetBytes(_userInputText)).Replace("-", " "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(messageModel);
+            }
+            else
+            {
+                var messageModel = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(messageModel);
+            }
+
+            _tcpClient.SendAsync(_userInputText);
         }
     }
 }

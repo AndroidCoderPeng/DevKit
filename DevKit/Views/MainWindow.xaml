@@ -31,6 +31,7 @@
                 HorizontalAlignment="Stretch"
                 BorderThickness="0"
                 ItemsSource="{Binding MenuModels}"
+                ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 SelectedIndex="0">
 
                 <b:Interaction.Triggers>
