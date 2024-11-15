@@ -144,6 +144,9 @@ namespace DevKit.ViewModels
             InitDefaultConfig();
 
             ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
+            ExtensionCommand = new DelegateCommand(AddExtensionCommand);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
+            SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void InitDefaultConfig()
@@ -179,7 +182,7 @@ namespace DevKit.ViewModels
                     Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                     IsSend = false
                 };
-                MessageCollection.Add(messageModel);
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
             };
         }
 
@@ -202,6 +205,30 @@ namespace DevKit.ViewModels
             else
             {
                 _tcpClient.Start(_remoteAddress, Convert.ToInt32(_remotePort));
+            }
+        }
+
+        private void AddExtensionCommand()
+        {
+        }
+
+        private void ClearMessage()
+        {
+            MessageCollection?.Clear();
+        }
+
+        private void SendMessage()
+        {
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_buttonState.Equals("连接"))
+            {
+                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
         }
     }
