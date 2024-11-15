@@ -11,11 +11,10 @@
     Title="DevKit"
     Width="900"
     Height="610"
-    MinWidth="650"
-    MinHeight="520"
+    MinWidth="900"
+    MinHeight="610"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     Background="{DynamicResource DarkDefaultBrush}"
-    Topmost="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

@@ -156,6 +156,7 @@
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
+    <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
@@ -171,6 +172,7 @@
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
       <DependentUpon>AndroidDebugBridgeView.xaml</DependentUpon>
     </Compile>
@@ -180,6 +182,9 @@
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Views\TcpCommunicateView.xaml.cs">
+      <DependentUpon>TcpCommunicateView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +217,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\TcpCommunicateView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\launcher.ico" />

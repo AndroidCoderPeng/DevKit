@@ -33,6 +33,7 @@ namespace DevKit
             //Navigation
             containerRegistry.RegisterForNavigation<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterForNavigation<ApplicationPackageView, ApplicationPackageViewModel>();
+            containerRegistry.RegisterForNavigation<TcpCommunicateView, TcpCommunicateViewModel>();
 
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

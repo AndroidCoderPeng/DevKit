@@ -35,8 +35,8 @@
         <Grid Grid.Row="0" Margin="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -45,19 +45,9 @@
                 VerticalAlignment="Center"
                 Text="证书" />
 
-            <Button
-                Grid.Column="1"
-                Width="28"
-                Height="28"
-                Margin="10,0"
-                hc:BorderElement.CornerRadius="14"
-                Command="{Binding CreateKeyCommand}"
-                Content="&#xe6aa;"
-                FontFamily="/DevKit;component/Fonts/#iconfont"
-                Foreground="{DynamicResource DangerBrush}" />
-
             <hc:TextBox
-                Grid.Column="2"
+                Grid.Column="1"
+                Margin="10,0"
                 VerticalAlignment="Center"
                 VerticalContentAlignment="Center"
                 hc:InfoElement.Placeholder="请配置签名秘钥文件（*.jks）"
@@ -65,6 +55,16 @@
                 FontSize="14"
                 Text="{Binding KeyFilePath}"
                 ToolTip="{Binding KeyFilePath}" />
+
+            <Button
+                Grid.Column="2"
+                Width="28"
+                Height="28"
+                hc:BorderElement.CornerRadius="14"
+                Command="{Binding CreateKeyCommand}"
+                Content="&#xe6aa;"
+                FontFamily="/DevKit;component/Fonts/#iconfont"
+                Foreground="{DynamicResource DangerBrush}" />
 
             <Button
                 Grid.Column="3"
