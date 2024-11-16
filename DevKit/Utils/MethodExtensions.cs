@@ -24,7 +24,7 @@ namespace DevKit.Utils
             );
             return dictionary;
         }
-        
+
         /// <summary>
         /// 格式化内存值
         /// </summary>
@@ -68,23 +68,62 @@ namespace DevKit.Utils
         }
 
         /// <summary>
-        /// TODO 有问题
-        /// 将需要发送的Hex序列化为byte[]
+        /// 判断是否是Hex
         /// </summary>
-        /// <param name="message"></param>
         /// <returns></returns>
-        public static byte[] SerializeMessageByU8(this string message)
+        public static bool IsHex(this string value)
         {
-            if (message.Contains(" "))
-            {
-                message = message.Replace(" ", "");
-            }
-            else if (message.Contains("-"))
-            {
-                message = message.Replace("-", "");
-            }
+            return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
+        }
 
-            return Encoding.UTF8.GetBytes(message);
+        /// <summary>
+        /// 返回的Hex带有 - ，比如：AA-BB-CC-DD，需要自行去掉
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string StringToHex(this string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes(value);
+            return BitConverter.ToString(bytes);
+        }
+
+        /// <summary>
+        /// Hex串转为byte[]
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
+        public static byte[] HexToBytes(this string hex)
+        {
+            //有些带有“-”，有些带有“ ”，先整理Hex格式
+            if (hex.Contains("-"))
+            {
+                hex = hex.Replace("-", "");
+            }
+            else if (hex.Contains(" "))
+            {
+                hex = hex.Replace(" ", "");
+            }
+            var bytes = new byte[hex.Length / 2];
+            for (var i = 0; i < hex.Length; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+            return bytes;
+        }
+
+        /// <summary>
+        /// byte[]转字符串，中英文都可以，不会乱码
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static string ByteArrayToString(this byte[] bytes)
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+        
+        public static bool IsNumber(this string s)
+        {
+            return new Regex(@"^\d+$").IsMatch(s);
         }
     }
 }

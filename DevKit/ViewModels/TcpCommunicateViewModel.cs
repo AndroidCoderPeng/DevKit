@@ -187,7 +187,7 @@ namespace DevKit.ViewModels
             {
                 var messageModel = new MessageModel
                 {
-                    Content = _clientCache.SendHex == 1
+                    Content = _clientCache.ShowHex == 1
                         ? BitConverter.ToString(bytes).Replace("-", " ")
                         : Encoding.UTF8.GetString(bytes),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
@@ -198,56 +198,52 @@ namespace DevKit.ViewModels
             };
         }
 
-        //TODO 有问题
         private void ShowHexChecked()
         {
-            //先弹框，再获取MessageCollection，然后全部转为Hex，再重新渲染，最后存库
-            var boxResult = MessageBox.Show("确定切换到Hex显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            var boxResult = MessageBox.Show("切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
-                // var collection = new ObservableCollection<MessageModel>();
-                // foreach (var model in MessageCollection)
-                // {
-                //     //将model.Content视为string，先转bytes[]，再转Hex
-                //     var bytes = model.Content.SerializeMessageByU8();
-                //     var msg = new MessageModel
-                //     {
-                //         Content = BitConverter.ToString(bytes).Replace("-", " "),
-                //         Time = model.Time,
-                //         IsSend = model.IsSend
-                //     };
-                //     collection.Add(msg);
-                // }
-                //
-                // MessageCollection = collection;
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为string
+                    var hex = model.Content.StringToHex();
+                    var msg = new MessageModel
+                    {
+                        Content = hex.Replace("-", " "),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+                
+                MessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
                 _dataService.SaveCacheConfig(_clientCache);
             }
         }
 
-        //TODO 有问题
         private void ShowHexUnchecked()
         {
-            //先弹框，再获取MessageCollection，然后全部转为string，再重新渲染，最后存库
             var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
-                // var collection = new ObservableCollection<MessageModel>();
-                // foreach (var model in MessageCollection)
-                // {
-                //     //将model.Content视为Hex，先转bytes[]，再转string
-                //     var bytes = model.Content.SerializeMessageByU8();
-                //     var msg = new MessageModel
-                //     {
-                //         Content = Encoding.UTF8.GetString(bytes),
-                //         Time = model.Time,
-                //         IsSend = model.IsSend
-                //     };
-                //     collection.Add(msg);
-                // }
-                //
-                // MessageCollection = collection;
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为Hex，先转bytes[]，再转string
+                    var bytes = model.Content.HexToBytes();
+                    var msg = new MessageModel
+                    {
+                        Content = bytes.ByteArrayToString(),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+                
+                MessageCollection = collection;
                 
                 _clientCache.ShowHex = 0;
                 _dataService.SaveCacheConfig(_clientCache);
@@ -297,6 +293,9 @@ namespace DevKit.ViewModels
             _dataService.SaveCacheConfig(_clientCache);
         }
 
+        /// <summary>
+        /// TODO 发送Hex有问题
+        /// </summary>
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))
@@ -310,22 +309,28 @@ namespace DevKit.ViewModels
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            var messageModel = new MessageModel();
+            
             if (_clientCache.SendHex == 1)
             {
-                var bytes = _userInputText.SerializeMessageByU8();
-                _tcpClient.SendAsync(bytes);
-                messageModel.Content = BitConverter.ToString(bytes).Replace("-", " ");
+                if (_userInputText.IsHex())
+                {
+                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _tcpClient.SendAsync(_userInputText.HexToBytes());
             }
             else
             {
                 _tcpClient.SendAsync(_userInputText);
-                messageModel.Content = _userInputText;
             }
 
-            messageModel.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            messageModel.IsSend = true;
+            var messageModel = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
             MessageCollection.Add(messageModel);
         }
     }
