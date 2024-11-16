@@ -128,8 +128,12 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
+        public DelegateCommand ShowHexCheckedCommand { set; get; }
+        public DelegateCommand ShowHexUncheckedCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
+        public DelegateCommand SendHexCheckedCommand { set; get; }
+        public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
@@ -145,8 +149,12 @@ namespace DevKit.ViewModels
             InitDefaultConfig();
 
             ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
+            ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
+            ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
+            SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
+            SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
@@ -177,14 +185,32 @@ namespace DevKit.ViewModels
             };
             _tcpClient.OnDataReceived += delegate(object sender, byte[] bytes)
             {
+                _clientCache = _dataService.LoadTcpClientConfigCache();
                 var messageModel = new MessageModel
                 {
-                    Content = BitConverter.ToString(bytes).Replace("-", " "),
+                    Content = _clientCache.SendHex == 1
+                        ? BitConverter.ToString(bytes).Replace("-", " ")
+                        : Encoding.UTF8.GetString(bytes),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
+
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
             };
+        }
+
+        private void ShowHexChecked()
+        {
+            //先弹框，再获取MessageCollection，然后全部转为Hex，再重新渲染，最后存库
+            _clientCache.ShowHex = 1;
+            _dataService.SaveCacheConfig(_clientCache);
+        }
+
+        private void ShowHexUnchecked()
+        {
+            //先弹框，再获取MessageCollection，然后全部转为string，再重新渲染，最后存库
+            _clientCache.ShowHex = 0;
+            _dataService.SaveCacheConfig(_clientCache);
         }
 
         private void ConnectRemote()
@@ -218,6 +244,18 @@ namespace DevKit.ViewModels
             MessageCollection?.Clear();
         }
 
+        private void SendHexChecked()
+        {
+            _clientCache.SendHex = 1;
+            _dataService.SaveCacheConfig(_clientCache);
+        }
+
+        private void SendHexUnchecked()
+        {
+            _clientCache.SendHex = 0;
+            _dataService.SaveCacheConfig(_clientCache);
+        }
+        
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))
@@ -232,30 +270,25 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            var messageModel = new MessageModel();
+
             //发消息前需要查询一次最新的多选勾中情况
             _clientCache = _dataService.LoadTcpClientConfigCache();
             if (_clientCache.SendHex == 1)
             {
-                var messageModel = new MessageModel
-                {
-                    Content = BitConverter.ToString(Encoding.UTF8.GetBytes(_userInputText)).Replace("-", " "),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                MessageCollection.Add(messageModel);
+                var bytes = Encoding.UTF8.GetBytes(_userInputText);
+                _tcpClient.SendAsync(bytes);
+                messageModel.Content = BitConverter.ToString(bytes).Replace("-", " ");
             }
             else
             {
-                var messageModel = new MessageModel
-                {
-                    Content = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                MessageCollection.Add(messageModel);
+                _tcpClient.SendAsync(_userInputText);
+                messageModel.Content = _userInputText;
             }
 
-            _tcpClient.SendAsync(_userInputText);
+            messageModel.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+            messageModel.IsSend = true;
+            MessageCollection.Add(messageModel);
         }
     }
 }
