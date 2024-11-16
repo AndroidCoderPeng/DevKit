@@ -76,6 +76,7 @@
             </Grid>
 
             <ListBox
+                x:Name="ClientMessageListBox"
                 Grid.Row="1"
                 Margin="0,10"
                 ItemsSource="{Binding MessageCollection}"
@@ -110,7 +111,16 @@
                                 Grid.Row="1"
                                 FontSize="12"
                                 Text="{Binding Content}"
-                                TextWrapping="Wrap" />
+                                TextWrapping="Wrap">
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu Style="{x:Null}">
+                                        <MenuItem
+                                            Click="MenuItem_Click"
+                                            Header="复制"
+                                            Style="{x:Null}" />
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

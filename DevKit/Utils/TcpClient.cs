@@ -11,24 +11,20 @@ namespace DevKit.Utils
 {
     public class TcpClient : ITcpClient
     {
-        private const long ReconnectDelay = 5;
         private readonly Bootstrap _bootStrap = new Bootstrap();
         private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
-        private readonly bool _reconnect;
         private string _host;
         private int _port;
         private IChannel _channel;
         private bool _isRunning;
-        private int _retryTimes;
 
         public ConnectedEventHandler OnConnected { get; set; }
         public DisconnectedEventHandler OnDisconnected { get; set; }
         public ConnectFailedEventHandler OnConnectFailed { get; set; }
         public DataReceivedEventHandler OnDataReceived { get; set; }
 
-        public TcpClient(bool reconnect = false)
+        public TcpClient()
         {
-            _reconnect = reconnect;
             _bootStrap.Group(_loopGroup)
                 .Channel<TcpSocketChannel>()
                 .Option(ChannelOption.TcpNodelay, true) //无阻塞
@@ -91,7 +87,6 @@ namespace DevKit.Utils
                     }
 
                     _tcpClient.OnDisconnected(this, context);
-                    _tcpClient.ReTryConnect();
                 }
 
                 protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
@@ -149,29 +144,14 @@ namespace DevKit.Utils
                     if (task.Result.Active)
                     {
                         _isRunning = true;
-                        _retryTimes = 0;
                         _channel = task.Result;
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ReTryConnect();
+                    Console.WriteLine(e.Message);
                 }
             });
-        }
-
-        private void ReTryConnect()
-        {
-            if (_reconnect)
-            {
-                _retryTimes++;
-                Console.WriteLine($@"开始第 {_retryTimes} 次重连");
-                _loopGroup.Schedule(Connect, TimeSpan.FromSeconds(ReconnectDelay));
-            }
-            else
-            {
-                Console.WriteLine(@"连接失败，且不重连");
-            }
         }
 
         public void SendAsync(object message)

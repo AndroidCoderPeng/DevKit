@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using DevKit.DataService;
+using DevKit.Models;
 
 namespace DevKit.Views
 {
@@ -30,6 +32,13 @@ namespace DevKit.Views
                 clientCache.SendHex = 0;
                 dataService.SaveCacheConfig(clientCache);
             };
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(ClientMessageListBox.SelectedItem is MessageModel message)) return;
+            var content = message.Content;
+            Clipboard.SetText(content);
         }
     }
 }
