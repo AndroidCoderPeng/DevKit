@@ -205,21 +205,21 @@ namespace DevKit.ViewModels
             var boxResult = MessageBox.Show("确定切换到Hex显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
-                var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
-                {
-                    //将model.Content视为string，先转bytes[]，再转Hex
-                    var bytes = Encoding.UTF8.GetBytes(model.Content);
-                    var msg = new MessageModel
-                    {
-                        Content = BitConverter.ToString(bytes).Replace("-", " "),
-                        Time = model.Time,
-                        IsSend = model.IsSend
-                    };
-                    collection.Add(msg);
-                }
-                
-                MessageCollection = collection;
+                // var collection = new ObservableCollection<MessageModel>();
+                // foreach (var model in MessageCollection)
+                // {
+                //     //将model.Content视为string，先转bytes[]，再转Hex
+                //     var bytes = model.Content.SerializeMessageByU8();
+                //     var msg = new MessageModel
+                //     {
+                //         Content = BitConverter.ToString(bytes).Replace("-", " "),
+                //         Time = model.Time,
+                //         IsSend = model.IsSend
+                //     };
+                //     collection.Add(msg);
+                // }
+                //
+                // MessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
                 _dataService.SaveCacheConfig(_clientCache);
@@ -233,21 +233,21 @@ namespace DevKit.ViewModels
             var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
-                var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
-                {
-                    //将model.Content视为Hex，先转bytes[]，再转string
-                    var bytes = Encoding.UTF8.GetBytes(model.Content);
-                    var msg = new MessageModel
-                    {
-                        Content = Encoding.UTF8.GetString(bytes),
-                        Time = model.Time,
-                        IsSend = model.IsSend
-                    };
-                    collection.Add(msg);
-                }
-                
-                MessageCollection = collection;
+                // var collection = new ObservableCollection<MessageModel>();
+                // foreach (var model in MessageCollection)
+                // {
+                //     //将model.Content视为Hex，先转bytes[]，再转string
+                //     var bytes = model.Content.SerializeMessageByU8();
+                //     var msg = new MessageModel
+                //     {
+                //         Content = Encoding.UTF8.GetString(bytes),
+                //         Time = model.Time,
+                //         IsSend = model.IsSend
+                //     };
+                //     collection.Add(msg);
+                // }
+                //
+                // MessageCollection = collection;
                 
                 _clientCache.ShowHex = 0;
                 _dataService.SaveCacheConfig(_clientCache);
@@ -314,7 +314,7 @@ namespace DevKit.ViewModels
             var messageModel = new MessageModel();
             if (_clientCache.SendHex == 1)
             {
-                var bytes = Encoding.UTF8.GetBytes(_userInputText);
+                var bytes = _userInputText.SerializeMessageByU8();
                 _tcpClient.SendAsync(bytes);
                 messageModel.Content = BitConverter.ToString(bytes).Replace("-", " ");
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace DevKit.Utils
@@ -32,9 +33,9 @@ namespace DevKit.Utils
         public static double FormatMemoryValue(this string memory)
         {
             var newLine = Regex.Replace(memory, @"\s", "*");
-            
+
             var temp = double.Parse(newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-            
+
             //转为GB
             return Math.Round(temp / 1024 / 1024, 2);
         }
@@ -64,6 +65,26 @@ namespace DevKit.Utils
             }
 
             return collection;
+        }
+
+        /// <summary>
+        /// TODO 有问题
+        /// 将需要发送的Hex序列化为byte[]
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static byte[] SerializeMessageByU8(this string message)
+        {
+            if (message.Contains(" "))
+            {
+                message = message.Replace(" ", "");
+            }
+            else if (message.Contains("-"))
+            {
+                message = message.Replace("-", "");
+            }
+
+            return Encoding.UTF8.GetBytes(message);
         }
     }
 }
