@@ -168,6 +168,9 @@
     <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">
       <DependentUpon>CreateKeyDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ExtensionCommandDialog.xaml.cs">
+      <DependentUpon>ExtensionCommandDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
@@ -200,9 +203,6 @@
     <Compile Include="Views\ApplicationPackageView.xaml.cs">
       <DependentUpon>ApplicationPackageView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ExtensionCommandDialog.xaml.cs">
-      <DependentUpon>ExtensionCommandDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -232,12 +232,12 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
+    <Page Include="Dialogs\ExtensionCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Themes\DarkTheme.xaml" />
     <Page Include="Themes\LightTheme.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
-    <Page Include="Views\ExtensionCommandDialog.xaml" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

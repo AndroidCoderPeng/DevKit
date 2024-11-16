@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace DevKit.Views
+namespace DevKit.Dialogs
 {
     public partial class ExtensionCommandDialog : UserControl
     {

@@ -40,21 +40,6 @@ namespace DevKit.DataService
             }
         }
 
-        public void SaveCacheConfig(ApkConfigCache apkConfig)
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                if (dataBase.Table<ApkConfigCache>().Any())
-                {
-                    dataBase.Update(apkConfig);
-                }
-                else
-                {
-                    dataBase.Insert(apkConfig);
-                }
-            }
-        }
-
         public TcpClientConfigCache LoadTcpClientConfigCache()
         {
             using (var dataBase = new DataBaseConnection())
@@ -66,6 +51,20 @@ namespace DevKit.DataService
                 }
 
                 return new TcpClientConfigCache();
+            }
+        }
+        
+        public CommandExtensionCache LoadCommandExtensionCache()
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<CommandExtensionCache>();
+                if (queryResult.Any())
+                {
+                    return queryResult.First();
+                }
+
+                return new CommandExtensionCache();
             }
         }
 
@@ -87,6 +86,17 @@ namespace DevKit.DataService
                 else if (configCache is TcpClientConfigCache)
                 {
                     if (dataBase.Table<TcpClientConfigCache>().Any())
+                    {
+                        dataBase.Update(configCache);
+                    }
+                    else
+                    {
+                        dataBase.Insert(configCache);
+                    }
+                }
+                else if (configCache is CommandExtensionCache)
+                {
+                    if (dataBase.Table<CommandExtensionCache>().Any())
                     {
                         dataBase.Update(configCache);
                     }

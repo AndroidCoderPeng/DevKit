@@ -184,7 +184,6 @@ namespace DevKit.ViewModels
             RemotePort = _clientCache.RemotePort.ToString();
             ShowHex = _clientCache.ShowHex == 1;
             SendHex = _clientCache.SendHex == 1;
-            // var extensions = tcpClient.Extension;
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 

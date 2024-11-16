@@ -1,0 +1,101 @@
+﻿<UserControl
+    x:Class="DevKit.Dialogs.ExtensionCommandDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Width="400"
+    Height="400"
+    d:DataContext="{d:DesignInstance Type=vm:ExtensionCommandDialogViewModel}"
+    Background="White"
+    mc:Ignorable="d">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
+            <Setter Property="ShowInTaskbar" Value="False" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Text="指令值" />
+
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                Padding="4,2"
+                hc:InfoElement.ShowClearButton="True"
+                Text="{Binding UserCommandValue}"
+                TextWrapping="NoWrap" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Text="指令注释" />
+
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0"
+                Padding="4,2"
+                hc:InfoElement.ShowClearButton="True"
+                Text="{Binding CommandAnnotation}"
+                TextWrapping="NoWrap" />
+
+            <CheckBox
+                Grid.Column="2"
+                Content="Hex"
+                IsChecked="{Binding IsHex}" />
+
+            <Button
+                Grid.Column="3"
+                Margin="10,0,0,0"
+                Command="{Binding SaveExtensionCommand}"
+                Content="&#xe60a;"
+                FontFamily="/DevKit;component/Fonts/#iconfont"
+                Style="{StaticResource ButtonSuccess}" />
+        </Grid>
+
+        <ListBox
+            Grid.Row="2"
+            BorderThickness="0"
+            ItemsSource="{Binding CommandCollection}"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Disabled"
+            Style="{x:Null}" />
+    </Grid>
+</UserControl>

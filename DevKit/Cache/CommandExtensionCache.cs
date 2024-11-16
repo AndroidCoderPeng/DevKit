@@ -18,12 +18,10 @@ namespace DevKit.Cache
         /// </summary>
         public string ParentType { get; set; }
 
-        public int Order { get; set; }
-
         public string Command { get; set; }
 
         public int IsHex { get; set; }
 
-        public long Delay { get; set; }
+        public string Annotation { get; set; }
     }
 }

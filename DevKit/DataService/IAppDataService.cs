@@ -11,6 +11,8 @@ namespace DevKit.DataService
         ApkConfigCache LoadApkCacheConfig();
 
         TcpClientConfigCache LoadTcpClientConfigCache();
+        
+        CommandExtensionCache LoadCommandExtensionCache();
 
         void SaveCacheConfig<T>(T configCache);
     }
