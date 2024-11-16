@@ -12,7 +12,7 @@ namespace DevKit.ViewModels
 {
     public class CreateKeyDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title { get; private set; }
+        public string Title =>  "新建签名证书";
         public event Action<IDialogResult> RequestClose;
 
         #region VM
@@ -182,7 +182,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            Title = parameters.GetValue<string>("Title");
+            
         }
     }
 }

@@ -190,6 +190,7 @@
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
+    <Compile Include="ViewModels\ExtensionCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
@@ -198,6 +199,9 @@
     </Compile>
     <Compile Include="Views\ApplicationPackageView.xaml.cs">
       <DependentUpon>ApplicationPackageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExtensionCommandDialog.xaml.cs">
+      <DependentUpon>ExtensionCommandDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -233,6 +237,7 @@
     <Page Include="Themes\LightTheme.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
+    <Page Include="Views\ExtensionCommandDialog.xaml" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

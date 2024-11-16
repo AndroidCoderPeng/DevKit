@@ -9,6 +9,7 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
@@ -153,13 +154,15 @@ namespace DevKit.ViewModels
         #endregion
 
         private readonly IAppDataService _dataService;
+        private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService)
+        public TcpCommunicateViewModel(IAppDataService dataService,IDialogService dialogService)
         {
             _dataService = dataService;
+            _dialogService = dialogService;
 
             InitDefaultConfig();
 
@@ -294,6 +297,7 @@ namespace DevKit.ViewModels
 
         private void AddExtensionCommand()
         {
+            _dialogService.Show("ExtensionCommandDialog");
         }
 
         private void ClearMessage()

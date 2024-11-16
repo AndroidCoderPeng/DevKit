@@ -145,11 +145,7 @@ namespace DevKit.ViewModels
 
         private void CreateKey()
         {
-            var dialogParameters = new DialogParameters
-            {
-                { "Title", "新建签名证书" }
-            };
-            _dialogService.ShowDialog("CreateKeyDialog", dialogParameters, delegate(IDialogResult result)
+            _dialogService.ShowDialog("CreateKeyDialog", null, delegate(IDialogResult result)
                 {
                     KeyFilePath = result.Parameters.GetValue<string>("KeySavePath");
                     KeyAlias = result.Parameters.GetValue<string>("KeyAlias");
