@@ -235,10 +235,11 @@
                         x:Name="LoopCheckBox"
                         Grid.Column="1"
                         Margin="10,0"
-                        Content="循环发送">
+                        Content="循环发送"
+                        IsChecked="{Binding LoopSend}">
                         <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding LoopCheckedCommand}" />
+                            <b:EventTrigger EventName="Unchecked">
+                                <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </CheckBox>

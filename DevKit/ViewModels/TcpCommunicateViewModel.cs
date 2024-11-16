@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Timers;
 using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
@@ -87,6 +88,18 @@ namespace DevKit.ViewModels
             get => _sendHex;
         }
 
+        private bool _loopSend;
+
+        public bool LoopSend
+        {
+            set
+            {
+                _loopSend = value;
+                RaisePropertyChanged();
+            }
+            get => _loopSend;
+        }
+
         private string _connectionStateColor = "DarkGray";
 
         public string ConnectionStateColor
@@ -134,13 +147,14 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand LoopCheckedCommand { set; get; }
+        public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
         private readonly TcpClient _tcpClient = new TcpClient();
+        private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
         public TcpCommunicateViewModel(IAppDataService dataService)
@@ -156,7 +170,7 @@ namespace DevKit.ViewModels
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            LoopCheckedCommand = new DelegateCommand(LoopChecked);
+            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
@@ -168,6 +182,8 @@ namespace DevKit.ViewModels
             ShowHex = _clientCache.ShowHex == 1;
             SendHex = _clientCache.SendHex == 1;
             // var extensions = tcpClient.Extension;
+
+            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             _tcpClient.OnConnected += delegate
             {
@@ -202,8 +218,9 @@ namespace DevKit.ViewModels
 
         private void ShowHexChecked()
         {
-            var boxResult = MessageBox.Show("切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel,
-                MessageBoxImage.Warning);
+            var boxResult = MessageBox.Show(
+                "切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+            );
             if (boxResult == MessageBoxResult.OK)
             {
                 var collection = new ObservableCollection<MessageModel>();
@@ -296,9 +313,10 @@ namespace DevKit.ViewModels
             _dataService.SaveCacheConfig(_clientCache);
         }
 
-        private void LoopChecked()
+        private void LoopUnchecked()
         {
-            
+            Console.WriteLine(@"取消循环发送指令");
+            _loopSendMessageTimer.Enabled = false;
         }
 
         private void SendMessage()
@@ -312,6 +330,46 @@ namespace DevKit.ViewModels
             if (_buttonState.Equals("连接"))
             {
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_loopSend)
+            {
+                Console.WriteLine(@"开启循环发送指令");
+                _loopSendMessageTimer.Interval = _commandInterval;
+                _loopSendMessageTimer.Enabled = true;
+            }
+            else
+            {
+                var message = new MessageModel();
+                if (_clientCache.SendHex == 1)
+                {
+                    if (!_userInputText.IsHex())
+                    {
+                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    message.Content = _userInputText;
+                }
+                else
+                {
+                    message.Content = _userInputText;
+                }
+
+                _tcpClient.SendAsync(_userInputText);
+
+                message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+                message.IsSend = true;
+                MessageCollection.Add(message);
+            }
+        }
+
+        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        {
+            if (_buttonState.Equals("连接"))
+            {
+                Console.WriteLine(@"TCP未连接");
                 return;
             }
 
@@ -335,7 +393,7 @@ namespace DevKit.ViewModels
 
             message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
             message.IsSend = true;
-            MessageCollection.Add(message);
+            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
     }
 }
