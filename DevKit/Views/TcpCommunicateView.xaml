@@ -2,10 +2,12 @@
     x:Class="DevKit.Views.TcpCommunicateView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     d:DataContext="{d:DesignInstance Type=vm:TcpCommunicateViewModel}"
     d:DesignHeight="560"
@@ -80,7 +82,9 @@
                 Grid.Row="1"
                 Margin="0,10"
                 ItemsSource="{Binding MessageCollection}"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                Style="{x:Null}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -144,6 +148,11 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+
+                <!--  自动滑动到最底部  -->
+                <b:Interaction.Behaviors>
+                    <ut:AutoScrollToBottomBehavior />
+                </b:Interaction.Behaviors>
             </ListBox>
 
             <Grid Grid.Row="2" Margin="0,0,0,10">
@@ -233,7 +242,6 @@
                 <hc:TextBox
                     Grid.Column="0"
                     Padding="4,2"
-                    hc:InfoElement.ShowClearButton="True"
                     Text="{Binding UserInputText}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
