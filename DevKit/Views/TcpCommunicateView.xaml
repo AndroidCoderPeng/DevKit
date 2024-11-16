@@ -106,13 +106,14 @@
                                 <TextBlock
                                     Margin="5,0,0,0"
                                     VerticalAlignment="Center"
-                                    FontSize="10"
+                                    FontSize="12"
                                     Foreground="{DynamicResource SecondaryTextBrush}"
-                                    Text="{Binding Time}" />
+                                    Text="{Binding Time, StringFormat=[{0}]}" />
                             </StackPanel>
 
                             <TextBlock
                                 Grid.Row="1"
+                                Margin="0,2,0,0"
                                 FontSize="12"
                                 Text="{Binding Content}"
                                 TextWrapping="Wrap">

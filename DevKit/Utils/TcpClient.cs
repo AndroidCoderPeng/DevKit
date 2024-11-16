@@ -29,7 +29,7 @@ namespace DevKit.Utils
                 .Channel<TcpSocketChannel>()
                 .Option(ChannelOption.TcpNodelay, true) //无阻塞
                 .Option(ChannelOption.SoKeepalive, true) //长连接
-                .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator(1024, 5120, 10240))
+                .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator(10240, 51200, 102400))
                 .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(5))
                 .Handler(new SimpleChannelInitializer<ISocketChannel>(this));
         }

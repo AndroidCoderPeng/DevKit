@@ -185,7 +185,6 @@ namespace DevKit.ViewModels
             };
             _tcpClient.OnDataReceived += delegate(object sender, byte[] bytes)
             {
-                _clientCache = _dataService.LoadTcpClientConfigCache();
                 var messageModel = new MessageModel
                 {
                     Content = _clientCache.SendHex == 1
@@ -199,18 +198,60 @@ namespace DevKit.ViewModels
             };
         }
 
+        //TODO 有问题
         private void ShowHexChecked()
         {
             //先弹框，再获取MessageCollection，然后全部转为Hex，再重新渲染，最后存库
-            _clientCache.ShowHex = 1;
-            _dataService.SaveCacheConfig(_clientCache);
+            var boxResult = MessageBox.Show("确定切换到Hex显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (boxResult == MessageBoxResult.OK)
+            {
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为string，先转bytes[]，再转Hex
+                    var bytes = Encoding.UTF8.GetBytes(model.Content);
+                    var msg = new MessageModel
+                    {
+                        Content = BitConverter.ToString(bytes).Replace("-", " "),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+                
+                MessageCollection = collection;
+
+                _clientCache.ShowHex = 1;
+                _dataService.SaveCacheConfig(_clientCache);
+            }
         }
 
+        //TODO 有问题
         private void ShowHexUnchecked()
         {
             //先弹框，再获取MessageCollection，然后全部转为string，再重新渲染，最后存库
-            _clientCache.ShowHex = 0;
-            _dataService.SaveCacheConfig(_clientCache);
+            var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (boxResult == MessageBoxResult.OK)
+            {
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为Hex，先转bytes[]，再转string
+                    var bytes = Encoding.UTF8.GetBytes(model.Content);
+                    var msg = new MessageModel
+                    {
+                        Content = Encoding.UTF8.GetString(bytes),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+                
+                MessageCollection = collection;
+                
+                _clientCache.ShowHex = 0;
+                _dataService.SaveCacheConfig(_clientCache);
+            }
         }
 
         private void ConnectRemote()
@@ -255,7 +296,7 @@ namespace DevKit.ViewModels
             _clientCache.SendHex = 0;
             _dataService.SaveCacheConfig(_clientCache);
         }
-        
+
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))
@@ -271,9 +312,6 @@ namespace DevKit.ViewModels
             }
 
             var messageModel = new MessageModel();
-
-            //发消息前需要查询一次最新的多选勾中情况
-            _clientCache = _dataService.LoadTcpClientConfigCache();
             if (_clientCache.SendHex == 1)
             {
                 var bytes = Encoding.UTF8.GetBytes(_userInputText);
