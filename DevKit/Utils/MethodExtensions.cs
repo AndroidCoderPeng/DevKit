@@ -73,6 +73,14 @@ namespace DevKit.Utils
         /// <returns></returns>
         public static bool IsHex(this string value)
         {
+            if (value.Contains("-"))
+            {
+                value = value.Replace("-", "");
+            }
+            else if (value.Contains(" "))
+            {
+                value = value.Replace(" ", "");
+            }
             return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
         }
 
@@ -103,11 +111,13 @@ namespace DevKit.Utils
             {
                 hex = hex.Replace(" ", "");
             }
+
             var bytes = new byte[hex.Length / 2];
             for (var i = 0; i < hex.Length; i += 2)
             {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
             }
+
             return bytes;
         }
 
@@ -120,7 +130,7 @@ namespace DevKit.Utils
         {
             return Encoding.UTF8.GetString(bytes);
         }
-        
+
         public static bool IsNumber(this string s)
         {
             return new Regex(@"^\d+$").IsMatch(s);

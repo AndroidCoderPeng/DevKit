@@ -309,29 +309,28 @@ namespace DevKit.ViewModels
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
+            var message = new MessageModel();
             if (_clientCache.SendHex == 1)
             {
-                if (_userInputText.IsHex())
+                if (!_userInputText.IsHex())
                 {
                     MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                _tcpClient.SendAsync(_userInputText.HexToBytes());
+                message.Content = _userInputText;
             }
             else
             {
-                _tcpClient.SendAsync(_userInputText);
+                message.Content = _userInputText;
             }
 
-            var messageModel = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            MessageCollection.Add(messageModel);
+            _tcpClient.SendAsync(_userInputText);
+
+            message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+            message.IsSend = true;
+            MessageCollection.Add(message);
         }
     }
 }
