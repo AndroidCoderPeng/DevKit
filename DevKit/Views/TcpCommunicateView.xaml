@@ -235,14 +235,26 @@
                         x:Name="LoopCheckBox"
                         Grid.Column="1"
                         Margin="10,0"
-                        Content="循环发送" />
+                        Content="循环发送">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="Checked">
+                                <b:InvokeCommandAction Command="{Binding LoopCheckedCommand}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </CheckBox>
 
-                    <!--  需要根据循环发送多选框更改状态，还需要校验输入的值是否为合理的数值  -->
                     <hc:TextBox
                         Grid.Column="2"
                         hc:InfoElement.ShowClearButton="True"
-                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
-                        Text="{Binding CommandInterval}" />
+                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
+                        <TextBox.Text>
+                            <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <ut:NumberValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </hc:TextBox>
 
                     <TextBlock
                         Grid.Column="3"

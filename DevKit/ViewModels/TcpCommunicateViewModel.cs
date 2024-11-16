@@ -134,6 +134,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
+        public DelegateCommand LoopCheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
@@ -155,6 +156,7 @@ namespace DevKit.ViewModels
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
+            LoopCheckedCommand = new DelegateCommand(LoopChecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
@@ -200,7 +202,8 @@ namespace DevKit.ViewModels
 
         private void ShowHexChecked()
         {
-            var boxResult = MessageBox.Show("切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            var boxResult = MessageBox.Show("切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel,
+                MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
                 var collection = new ObservableCollection<MessageModel>();
@@ -216,7 +219,7 @@ namespace DevKit.ViewModels
                     };
                     collection.Add(msg);
                 }
-                
+
                 MessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
@@ -242,9 +245,9 @@ namespace DevKit.ViewModels
                     };
                     collection.Add(msg);
                 }
-                
+
                 MessageCollection = collection;
-                
+
                 _clientCache.ShowHex = 0;
                 _dataService.SaveCacheConfig(_clientCache);
             }
@@ -293,9 +296,11 @@ namespace DevKit.ViewModels
             _dataService.SaveCacheConfig(_clientCache);
         }
 
-        /// <summary>
-        /// TODO 发送Hex有问题
-        /// </summary>
+        private void LoopChecked()
+        {
+            
+        }
+
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))

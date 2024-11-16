@@ -182,6 +182,7 @@
     <Compile Include="Utils\DelegateAggregator.cs" />
     <Compile Include="Utils\ITcpClient.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
+    <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="Utils\SocketBase\ByteArrayDecoder.cs" />
     <Compile Include="Utils\SocketBase\ByteArrayEncoder.cs" />
