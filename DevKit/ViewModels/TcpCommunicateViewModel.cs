@@ -159,7 +159,7 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService,IDialogService dialogService)
+        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
@@ -296,7 +296,12 @@ namespace DevKit.ViewModels
 
         private void AddExtensionCommand()
         {
-            _dialogService.Show("ExtensionCommandDialog");
+            var dialogParameters = new DialogParameters
+            {
+                { "ParentId", _clientCache.Id },
+                { "ParentType", ConnectionType.TcpClient }
+            };
+            _dialogService.Show("ExtensionCommandDialog", dialogParameters, delegate { });
         }
 
         private void ClearMessage()

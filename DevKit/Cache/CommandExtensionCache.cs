@@ -6,17 +6,17 @@ namespace DevKit.Cache
     public class CommandExtensionCache
     {
         [PrimaryKey, Unique, NotNull, AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// 父类ID，对应不同类型父类的主键
         /// </summary>
-        public long ParentId { get; set; }
+        public int ParentId { get; set; }
 
         /// <summary>
         /// TCP Client/Server、UDP Client/Server、WebSocket Client/Server、串口
         /// </summary>
-        public string ParentType { get; set; }
+        public int ParentType { get; set; }
 
         public string Command { get; set; }
 

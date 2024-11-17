@@ -6,7 +6,7 @@ namespace DevKit.Cache
     public class ApkConfigCache
     {
         [PrimaryKey, Unique, NotNull, AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         public string KeyPath { get; set; }
 

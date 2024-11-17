@@ -53,15 +53,18 @@ namespace DevKit.DataService
                 return new TcpClientConfigCache();
             }
         }
-        
-        public CommandExtensionCache LoadCommandExtensionCache()
+
+        public CommandExtensionCache LoadCommandExtensionCache(int parentId, int parentType)
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<CommandExtensionCache>();
+                var queryResult = dataBase.Table<CommandExtensionCache>()
+                    .Where(x =>
+                        x.ParentId == parentId && x.ParentType == parentType
+                    );
                 if (queryResult.Any())
                 {
-                    return queryResult.First();
+                    return queryResult.Last();
                 }
 
                 return new CommandExtensionCache();
@@ -96,14 +99,7 @@ namespace DevKit.DataService
                 }
                 else if (configCache is CommandExtensionCache)
                 {
-                    if (dataBase.Table<CommandExtensionCache>().Any())
-                    {
-                        dataBase.Update(configCache);
-                    }
-                    else
-                    {
-                        dataBase.Insert(configCache);
-                    }
+                    dataBase.Insert(configCache);
                 }
             }
         }

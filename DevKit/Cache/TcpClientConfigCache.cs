@@ -6,7 +6,7 @@ namespace DevKit.Cache
     public class TcpClientConfigCache
     {
         [PrimaryKey, Unique, NotNull, AutoIncrement]
-        public long Id { get; set; }
+        public int Id { get; set; }
         
         public string RemoteAddress { get; set; }
 

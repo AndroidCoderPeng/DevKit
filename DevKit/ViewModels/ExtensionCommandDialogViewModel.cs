@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
+using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -78,6 +80,8 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private CommandExtensionCache _commandCache;
+        private int _parentId;
+        private int _parentType;
 
         public ExtensionCommandDialogViewModel(IAppDataService dataService)
         {
@@ -88,7 +92,37 @@ namespace DevKit.ViewModels
 
         private void SaveExtension()
         {
-            Console.WriteLine(_isHex);
+            if (string.IsNullOrWhiteSpace(_userCommandValue))
+            {
+                MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var cache = new CommandExtensionCache
+            {
+                ParentId = _parentId,
+                ParentType = _parentType,
+                Command = _userCommandValue,
+                Annotation = _commandAnnotation
+            };
+
+            if (_isHex)
+            {
+                //检查是否是正确的Hex指令
+                if (!_userCommandValue.IsHex())
+                {
+                    MessageBox.Show("预设的指令不是正确的Hex", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                cache.IsHex = 1;
+            }
+            else
+            {
+                cache.IsHex = 0;
+            }
+
+            _dataService.SaveCacheConfig(cache);
         }
 
         public bool CanCloseDialog()
@@ -102,7 +136,11 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _commandCache = _dataService.LoadCommandExtensionCache();
+            _parentId = parameters.GetValue<int>("ParentId");
+            _parentType = parameters.GetValue<int>("ParentType");
+
+            _commandCache = _dataService.LoadCommandExtensionCache(_parentId, _parentType);
+
             UserCommandValue = _commandCache.Command;
             CommandAnnotation = _commandCache.Annotation;
             IsHex = _commandCache.IsHex == 1;
