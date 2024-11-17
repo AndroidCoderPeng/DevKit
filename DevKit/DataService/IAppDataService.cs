@@ -12,7 +12,7 @@ namespace DevKit.DataService
 
         TcpClientConfigCache LoadTcpClientConfigCache();
 
-        CommandExtensionCache LoadCommandExtensionCache(int parentId, int parentType);
+        List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType);
 
         void SaveCacheConfig<T>(T configCache);
     }

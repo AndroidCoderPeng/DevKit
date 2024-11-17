@@ -58,9 +58,10 @@ namespace DevKit.ViewModels
             get => _isHex;
         }
 
-        private ObservableCollection<string> _commandCollection = new ObservableCollection<string>();
+        private ObservableCollection<CommandExtensionCache> _commandCollection =
+            new ObservableCollection<CommandExtensionCache>();
 
-        public ObservableCollection<string> CommandCollection
+        public ObservableCollection<CommandExtensionCache> CommandCollection
         {
             set
             {
@@ -79,7 +80,6 @@ namespace DevKit.ViewModels
         #endregion
 
         private readonly IAppDataService _dataService;
-        private CommandExtensionCache _commandCache;
         private int _parentId;
         private int _parentType;
 
@@ -123,6 +123,9 @@ namespace DevKit.ViewModels
             }
 
             _dataService.SaveCacheConfig(cache);
+            //更新列表
+            var commandCache = _dataService.LoadCommandExtensionCaches(_parentId, _parentType);
+            CommandCollection = commandCache.ToObservableCollection();
         }
 
         public bool CanCloseDialog()
@@ -139,11 +142,8 @@ namespace DevKit.ViewModels
             _parentId = parameters.GetValue<int>("ParentId");
             _parentType = parameters.GetValue<int>("ParentType");
 
-            _commandCache = _dataService.LoadCommandExtensionCache(_parentId, _parentType);
-
-            UserCommandValue = _commandCache.Command;
-            CommandAnnotation = _commandCache.Annotation;
-            IsHex = _commandCache.IsHex == 1;
+            var commandCache = _dataService.LoadCommandExtensionCaches(_parentId, _parentType);
+            CommandCollection = commandCache.ToObservableCollection();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace DevKit.DataService
             }
         }
 
-        public CommandExtensionCache LoadCommandExtensionCache(int parentId, int parentType)
+        public List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType)
         {
             using (var dataBase = new DataBaseConnection())
             {
@@ -62,12 +62,7 @@ namespace DevKit.DataService
                     .Where(x =>
                         x.ParentId == parentId && x.ParentType == parentType
                     );
-                if (queryResult.Any())
-                {
-                    return queryResult.Last();
-                }
-
-                return new CommandExtensionCache();
+                return queryResult.ToList();
             }
         }
 
@@ -97,9 +92,20 @@ namespace DevKit.DataService
                         dataBase.Insert(configCache);
                     }
                 }
-                else if (configCache is CommandExtensionCache)
+                else if (configCache is CommandExtensionCache cache)
                 {
-                    dataBase.Insert(configCache);
+                    var queryResult = dataBase.Table<CommandExtensionCache>()
+                        .Where(x =>
+                            x.ParentId == cache.ParentId &&
+                            x.ParentType == cache.ParentType &&
+                            x.Command == cache.Command
+                        );
+                    if (queryResult.Any())
+                    {
+                        return;
+                    }
+
+                    dataBase.Insert(cache);
                 }
             }
         }
