@@ -1,13 +1,13 @@
 ﻿namespace DevKit.Utils
 {
-    public enum ConnectionType : ushort
+    public class ConnectionType
     {
-        TcpClient = 1,
-        TcpServer = 2,
-        UdpClient = 3,
-        UdpServer = 4,
-        WebSocketClient = 5,
-        WebSocketServer = 6,
-        SerialPort = 7
+        public const int TcpClient = 1;
+        public const int TcpServer = 2;
+        public const int UdpClient = 3;
+        public const int UdpServer = 4;
+        public const int WebSocketClient = 5;
+        public const int WebSocketServer = 6;
+        public const int SerialPort = 7;
     }
 }

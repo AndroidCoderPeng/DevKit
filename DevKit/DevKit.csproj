@@ -168,9 +168,6 @@
     <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">
       <DependentUpon>CreateKeyDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ExtensionCommandDialog.xaml.cs">
-      <DependentUpon>ExtensionCommandDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
@@ -194,7 +191,6 @@
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
-    <Compile Include="ViewModels\ExtensionCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
@@ -233,7 +229,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
-    <Page Include="Dialogs\ExtensionCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Themes\DarkTheme.xaml" />
     <Page Include="Themes\LightTheme.xaml" />

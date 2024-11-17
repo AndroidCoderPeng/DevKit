@@ -17,5 +17,13 @@ namespace DevKit.Views
             var content = message.Content;
             Clipboard.SetText(content);
         }
+
+        private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void ModifyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+        }
     }
 }

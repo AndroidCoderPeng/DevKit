@@ -38,7 +38,6 @@ namespace DevKit
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();
-            containerRegistry.RegisterDialog<ExtensionCommandDialog, ExtensionCommandDialogViewModel>();
         }
     }
 }

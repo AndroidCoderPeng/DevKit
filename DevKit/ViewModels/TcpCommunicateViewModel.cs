@@ -9,7 +9,6 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
@@ -137,8 +136,72 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        #endregion
+        /// <summary>
+        /// 右侧抽屉/////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        private bool _isRightDrawOpened;
 
+        public bool IsRightDrawOpened
+        {
+            set
+            {
+                _isRightDrawOpened = value;
+                RaisePropertyChanged();
+            }
+            get => _isRightDrawOpened;
+        }
+
+        private string _userCommandValue = string.Empty;
+
+        public string UserCommandValue
+        {
+            set
+            {
+                _userCommandValue = value;
+                RaisePropertyChanged();
+            }
+            get => _userCommandValue;
+        }
+
+        private string _commandAnnotation = string.Empty;
+
+        public string CommandAnnotation
+        {
+            set
+            {
+                _commandAnnotation = value;
+                RaisePropertyChanged();
+            }
+            get => _commandAnnotation;
+        }
+
+        private bool _isHex;
+
+        public bool IsHex
+        {
+            set
+            {
+                _isHex = value;
+                RaisePropertyChanged();
+            }
+            get => _isHex;
+        }
+
+        private ObservableCollection<CommandExtensionCache> _commandCollection =
+            new ObservableCollection<CommandExtensionCache>();
+
+        public ObservableCollection<CommandExtensionCache> CommandCollection
+        {
+            set
+            {
+                _commandCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _commandCollection;
+        }
+
+        #endregion
+        
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
@@ -151,18 +214,23 @@ namespace DevKit.ViewModels
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
+        /// <summary>
+        /// 右侧抽屉/////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+
+        public DelegateCommand RightDrawOpenedCommand { set; get; }
+        public DelegateCommand SaveExtensionCommand { set; get; }
+
         #endregion
 
         private readonly IAppDataService _dataService;
-        private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
+        public TcpCommunicateViewModel(IAppDataService dataService)
         {
             _dataService = dataService;
-            _dialogService = dialogService;
 
             InitDefaultConfig();
 
@@ -175,6 +243,8 @@ namespace DevKit.ViewModels
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
+            RightDrawOpenedCommand = new DelegateCommand(RightDrawOpened);
+            SaveExtensionCommand = new DelegateCommand(SaveExtension);
         }
 
         private void InitDefaultConfig()
@@ -296,12 +366,7 @@ namespace DevKit.ViewModels
 
         private void AddExtensionCommand()
         {
-            var dialogParameters = new DialogParameters
-            {
-                { "ParentId", _clientCache.Id },
-                { "ParentType", ConnectionType.TcpClient }
-            };
-            _dialogService.Show("ExtensionCommandDialog", dialogParameters, delegate { });
+            IsRightDrawOpened = true;
         }
 
         private void ClearMessage()
@@ -402,6 +467,51 @@ namespace DevKit.ViewModels
             message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
             message.IsSend = true;
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+        }
+
+        private void RightDrawOpened()
+        {
+            //加载已经预设的指令
+            var commandCache = _dataService.LoadCommandExtensionCaches(_clientCache.Id, ConnectionType.TcpClient);
+            CommandCollection = commandCache.ToObservableCollection();
+        }
+        
+        private void SaveExtension()
+        {
+            if (string.IsNullOrWhiteSpace(_userCommandValue))
+            {
+                MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var cache = new CommandExtensionCache
+            {
+                ParentId = _clientCache.Id,
+                ParentType = ConnectionType.TcpClient,
+                Command = _userCommandValue,
+                Annotation = _commandAnnotation
+            };
+
+            if (_isHex)
+            {
+                //检查是否是正确的Hex指令
+                if (!_userCommandValue.IsHex())
+                {
+                    MessageBox.Show("预设的指令不是正确的Hex", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                cache.IsHex = 1;
+            }
+            else
+            {
+                cache.IsHex = 0;
+            }
+
+            _dataService.SaveCacheConfig(cache);
+            //更新列表
+            var commandCache = _dataService.LoadCommandExtensionCaches(_clientCache.Id, ConnectionType.TcpClient);
+            CommandCollection = commandCache.ToObservableCollection();
         }
     }
 }
