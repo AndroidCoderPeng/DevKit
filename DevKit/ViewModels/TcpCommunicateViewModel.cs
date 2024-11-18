@@ -5,9 +5,11 @@ using System.Timers;
 using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 
 namespace DevKit.ViewModels
@@ -169,7 +171,7 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService)
+        public TcpCommunicateViewModel(IAppDataService dataService, IEventAggregator eventAggregator)
         {
             _dataService = dataService;
 
@@ -184,6 +186,32 @@ namespace DevKit.ViewModels
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
+
+            eventAggregator.GetEvent<DrawerExecuteCommandEvent>().Subscribe(delegate(CommandExtensionCache cache)
+            {
+                if (_buttonState.Equals("连接"))
+                {
+                    MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
+                var message = new MessageModel();
+                if (_clientCache.SendHex == 1)
+                {
+                    if (!cache.Command.IsHex())
+                    {
+                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+
+                _tcpClient.SendAsync(cache.Command);
+
+                message.Content = cache.Command;
+                message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+                message.IsSend = true;
+                MessageCollection.Add(message);
+            });
         }
 
         private void InitDefaultConfig()

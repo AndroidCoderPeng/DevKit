@@ -1,20 +1,26 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
+using Prism.Events;
+using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.Views
 {
     public partial class TcpCommunicateView : UserControl
     {
         private readonly IAppDataService _dataService;
+        private readonly IEventAggregator _eventAggregator;
 
-        public TcpCommunicateView(IAppDataService dataService)
+        public TcpCommunicateView(IAppDataService dataService, IEventAggregator eventAggregator)
         {
             InitializeComponent();
             _dataService = dataService;
+            _eventAggregator = eventAggregator;
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -26,9 +32,7 @@ namespace DevKit.Views
 
         private void RightDrawer_OnOpened(object sender, RoutedEventArgs e)
         {
-            //加载已经预设的指令
-            var commandCache = _dataService.LoadCommandExtensionCaches(1, ConnectionType.TcpClient);
-            CommandListBox.ItemsSource = commandCache.ToObservableCollection();
+            UpdateListBoxItemsSource();
         }
 
         private void SaveExtensionCommandButton_OnClick(object sender, RoutedEventArgs e)
@@ -67,17 +71,37 @@ namespace DevKit.Views
             }
 
             _dataService.SaveCacheConfig(cache);
-            //更新列表
-            var commandCache = _dataService.LoadCommandExtensionCaches(1, ConnectionType.TcpClient);
-            CommandListBox.ItemsSource = commandCache.ToObservableCollection();
+            UpdateListBoxItemsSource();
         }
 
         private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            var cache = CommandListBox.SelectedItem as CommandExtensionCache;
+            if (cache == null)
+            {
+                return;
+            }
+
+            _dataService.DeleteExtensionCommandCache(cache.Id);
+            UpdateListBoxItemsSource();
         }
 
-        private void ModifyMenuItem_Click(object sender, RoutedEventArgs e)
+        private void UpdateListBoxItemsSource()
         {
+            var commandCache = _dataService.LoadCommandExtensionCaches(1, ConnectionType.TcpClient);
+            CommandListBox.ItemsSource = commandCache.ToObservableCollection();
+        }
+
+        private void ExecuteCommandButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var cache = CommandListBox.SelectedItem as CommandExtensionCache;
+            if (cache == null)
+            {
+                Console.WriteLine(@"cache == null");
+                return;
+            }
+
+            _eventAggregator.GetEvent<DrawerExecuteCommandEvent>().Publish(cache);
         }
     }
 }

@@ -394,11 +394,6 @@
                                                 Click="DeleteMenuItem_Click"
                                                 Header="删除"
                                                 Style="{x:Null}" />
-
-                                            <MenuItem
-                                                Click="ModifyMenuItem_Click"
-                                                Header="修改"
-                                                Style="{x:Null}" />
                                         </ContextMenu>
                                     </Grid.ContextMenu>
 
@@ -425,6 +420,7 @@
                                             Grid.Column="2"
                                             Margin="0,2,0,0"
                                             BorderThickness="0"
+                                            Click="ExecuteCommandButton_OnClick"
                                             Content="&#xe726;"
                                             FontFamily="/DevKit;component/Fonts/#iconfont"
                                             Foreground="LimeGreen"
@@ -452,7 +448,7 @@
                                             </Border>
 
                                             <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
+                                                <Trigger Property="IsMouseOver" Value="True" >
                                                     <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>

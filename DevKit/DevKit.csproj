@@ -172,6 +172,7 @@
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
+    <Compile Include="Events\DrawerExecuteCommandEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />

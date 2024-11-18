@@ -15,5 +15,7 @@ namespace DevKit.DataService
         List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType);
 
         void SaveCacheConfig<T>(T configCache);
+
+        void DeleteExtensionCommandCache(int cacheId);
     }
 }

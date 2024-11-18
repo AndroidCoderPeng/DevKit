@@ -109,5 +109,13 @@ namespace DevKit.DataService
                 }
             }
         }
+
+        public void DeleteExtensionCommandCache(int cacheId)
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                dataBase.Table<CommandExtensionCache>().Delete(x => x.Id == cacheId);
+            }
+        }
     }
 }
