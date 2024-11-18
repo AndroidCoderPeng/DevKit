@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:cache="clr-namespace:DevKit.Cache"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -295,26 +296,17 @@
             <Grid
                 Grid.Column="1"
                 Margin="5,10,10,10"
-                Background="Wheat">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-            </Grid>
+                Background="Wheat" />
 
             <!--  右侧抽屉  -->
             <hc:Drawer
                 Grid.Column="1"
                 Margin="5,0,0,0"
                 IsOpen="{Binding IsRightDrawOpened}"
+                Opened="RightDrawer_OnOpened"
                 ShowMask="True"
                 ShowMode="Cover">
-                
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="Opened">
-                        <b:InvokeCommandAction Command="{Binding RightDrawOpenedCommand}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-                
+
                 <Grid Width="337" Background="White">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -335,18 +327,18 @@
                             Text="指令值" />
 
                         <hc:TextBox
+                            x:Name="UserCommandTextBox"
                             Grid.Column="1"
                             Margin="10,0"
                             Padding="4,2"
                             hc:InfoElement.Placeholder="此项必填"
                             hc:InfoElement.ShowClearButton="True"
-                            Text="{Binding UserCommandValue}"
                             TextWrapping="NoWrap" />
 
                         <CheckBox
+                            x:Name="IsHexCheckBox"
                             Grid.Column="2"
-                            Content="Hex"
-                            IsChecked="{Binding IsHex}" />
+                            Content="Hex" />
                     </Grid>
 
                     <Grid Grid.Row="1" Margin="10">
@@ -362,34 +354,34 @@
                             Text="指令注释" />
 
                         <hc:TextBox
+                            x:Name="CommandAnnotationTextBox"
                             Grid.Column="1"
                             Margin="10,0"
                             Padding="4,2"
                             hc:InfoElement.Placeholder="此项非必填"
                             hc:InfoElement.ShowClearButton="True"
-                            Text="{Binding CommandAnnotation}"
                             TextWrapping="NoWrap" />
 
                         <Button
                             Grid.Column="2"
-                            Command="{Binding SaveExtensionCommand}"
+                            Click="SaveExtensionCommandButton_OnClick"
                             Content="&#xe60a;"
                             FontFamily="/DevKit;component/Fonts/#iconfont" />
                     </Grid>
 
                     <ListBox
+                        x:Name="CommandListBox"
                         Grid.Row="2"
                         Margin="0,0,10,0"
                         HorizontalContentAlignment="Stretch"
                         BorderThickness="0"
-                        ItemsSource="{Binding CommandCollection}"
                         ScrollViewer.CanContentScroll="False"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                         ScrollViewer.VerticalScrollBarVisibility="Hidden"
                         Style="{x:Null}">
 
                         <ListBox.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="{x:Type cache:CommandExtensionCache}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
@@ -436,7 +428,8 @@
                                             Content="&#xe726;"
                                             FontFamily="/DevKit;component/Fonts/#iconfont"
                                             Foreground="LimeGreen"
-                                            Style="{StaticResource ButtonDefault.Small}" />
+                                            Style="{StaticResource ButtonDefault.Small}"
+                                            ToolTip="下发指令" />
                                     </Grid>
 
                                     <TextBlock
