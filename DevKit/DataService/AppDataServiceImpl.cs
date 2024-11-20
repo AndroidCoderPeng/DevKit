@@ -98,7 +98,7 @@ namespace DevKit.DataService
                         .Where(x =>
                             x.ParentId == cache.ParentId &&
                             x.ParentType == cache.ParentType &&
-                            x.Command == cache.Command
+                            x.CommandValue == cache.CommandValue
                         );
                     if (queryResult.Any())
                     {

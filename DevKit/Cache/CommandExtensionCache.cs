@@ -18,7 +18,7 @@ namespace DevKit.Cache
         /// </summary>
         public int ParentType { get; set; }
 
-        public string Command { get; set; }
+        public string CommandValue { get; set; }
 
         public int IsHex { get; set; }
 
