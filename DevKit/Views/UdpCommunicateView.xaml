@@ -131,7 +131,10 @@
                                 TextWrapping="Wrap">
                                 <TextBlock.ContextMenu>
                                     <ContextMenu Style="{x:Null}">
-                                        <MenuItem Header="复制" Style="{x:Null}" />
+                                        <MenuItem
+                                            Click="MenuItem_Click"
+                                            Header="复制"
+                                            Style="{x:Null}" />
                                     </ContextMenu>
                                 </TextBlock.ContextMenu>
                             </TextBlock>
