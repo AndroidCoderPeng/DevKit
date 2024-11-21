@@ -168,11 +168,15 @@
     <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">
       <DependentUpon>CreateKeyDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ExCommandDialog.xaml.cs">
+      <DependentUpon>ExCommandDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
-    <Compile Include="Events\DrawerExecuteCommandEvent.cs" />
+    <Compile Include="Events\DeleteExCommandEvent.cs" />
+    <Compile Include="Events\ExecuteExCommandEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
@@ -192,6 +196,7 @@
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
+    <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
@@ -230,6 +235,7 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
+    <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Themes\DarkTheme.xaml" />
     <Page Include="Themes\LightTheme.xaml" />

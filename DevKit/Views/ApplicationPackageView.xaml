@@ -174,7 +174,9 @@
             Margin="10"
             HorizontalContentAlignment="Stretch"
             BorderThickness="0"
-            ItemsSource="{Binding ApkFileCollection}">
+            ItemsSource="{Binding ApkFileCollection}"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden">
 
             <ListBox.ItemTemplate>
                 <DataTemplate>

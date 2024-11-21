@@ -3,7 +3,7 @@ using Prism.Events;
 
 namespace DevKit.Events
 {
-    public class DrawerExecuteCommandEvent : PubSubEvent<CommandExtensionCache>
+    public class DeleteExCommandEvent : PubSubEvent<CommandExtensionCache>
     {
     }
 }

@@ -11,6 +11,7 @@ using DevKit.Utils;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
@@ -138,67 +139,6 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _isRightDrawOpened;
-
-        public bool IsRightDrawOpened
-        {
-            set
-            {
-                _isRightDrawOpened = value;
-                RaisePropertyChanged();
-            }
-            get => _isRightDrawOpened;
-        }
-
-        private string _userCommandValue = string.Empty;
-
-        public string UserCommandValue
-        {
-            set
-            {
-                _userCommandValue = value;
-                RaisePropertyChanged();
-            }
-            get => _userCommandValue;
-        }
-
-        private bool _isHexChecked;
-
-        public bool IsHexChecked
-        {
-            set
-            {
-                _isHexChecked = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexChecked;
-        }
-
-        private string _commandAnnotation = string.Empty;
-
-        public string CommandAnnotation
-        {
-            set
-            {
-                _commandAnnotation = value;
-                RaisePropertyChanged();
-            }
-            get => _commandAnnotation;
-        }
-
-        private ObservableCollection<CommandExtensionCache> _userCommandCollection =
-            new ObservableCollection<CommandExtensionCache>();
-
-        public ObservableCollection<CommandExtensionCache> UserCommandCollection
-        {
-            set
-            {
-                _userCommandCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _userCommandCollection;
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -212,21 +152,20 @@ namespace DevKit.ViewModels
         public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
-        public DelegateCommand RightDrawerOpenedCommand { set; get; }
-        public DelegateCommand ExtensionCommandSaveCommand { set; get; }
-        public DelegateCommand MouseEnterCommand { set; get; }
-        public DelegateCommand ExecuteCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
+        private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private TcpClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService, IEventAggregator eventAggregator)
+        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
+            IEventAggregator eventAggregator)
         {
             _dataService = dataService;
+            _dialogService = dialogService;
 
             InitDefaultConfig();
 
@@ -239,28 +178,28 @@ namespace DevKit.ViewModels
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
-
-            eventAggregator.GetEvent<DrawerExecuteCommandEvent>().Subscribe(delegate(CommandExtensionCache cache)
+            
+            eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
             {
                 if (_buttonState.Equals("连接"))
                 {
                     MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
+                
                 var message = new MessageModel();
                 if (_clientCache.SendHex == 1)
                 {
-                    if (!cache.CommandValue.IsHex())
+                    if (!commandValue.IsHex())
                     {
                         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                 }
-
-                _tcpClient.SendAsync(cache.CommandValue);
-
-                message.Content = cache.CommandValue;
+                
+                _tcpClient.SendAsync(commandValue);
+                
+                message.Content = commandValue;
                 message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
                 message.IsSend = true;
                 MessageCollection.Add(message);
@@ -386,7 +325,12 @@ namespace DevKit.ViewModels
 
         private void AddExtensionCommand()
         {
-            IsRightDrawOpened = true;
+            var dialogParameters = new DialogParameters
+            {
+                { "ParentId", _clientCache.Id },
+                { "ConnectionType", ConnectionType.TcpClient }
+            };
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
         }
 
         private void ClearMessage()
