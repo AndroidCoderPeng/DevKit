@@ -201,6 +201,7 @@
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
     <Compile Include="ViewModels\UdpCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
       <DependentUpon>AndroidDebugBridgeView.xaml</DependentUpon>
     </Compile>
@@ -216,6 +217,9 @@
     </Compile>
     <Compile Include="Views\UdpCommunicateView.xaml.cs">
       <DependentUpon>UdpCommunicateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WebSocketCommunicateView.xaml.cs">
+      <DependentUpon>WebSocketCommunicateView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -251,6 +255,7 @@
     </Page>
     <Page Include="Views\TcpCommunicateView.xaml" />
     <Page Include="Views\UdpCommunicateView.xaml" />
+    <Page Include="Views\WebSocketCommunicateView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\launcher.ico" />

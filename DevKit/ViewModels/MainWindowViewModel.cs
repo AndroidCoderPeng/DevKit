@@ -50,6 +50,9 @@ namespace DevKit.ViewModels
                 case 3:
                     region.RequestNavigate("UdpCommunicateView");
                     break;
+                case 4:
+                    region.RequestNavigate("WebSocketCommunicateView");
+                    break;
             }
         }
     }
