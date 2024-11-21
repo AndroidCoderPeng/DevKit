@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using System.Windows;
 using DevKit.Utils.SocketBase;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using HandyControl.Controls;
 
 namespace DevKit.Utils
 {
-    public class TcpClient : ITcpClient
+    public class TcpClient
     {
         private readonly Bootstrap _bootStrap = new Bootstrap();
         private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
@@ -149,7 +151,7 @@ namespace DevKit.Utils
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
                 }
             });
         }

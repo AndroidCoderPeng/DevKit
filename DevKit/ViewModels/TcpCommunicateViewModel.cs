@@ -12,6 +12,7 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using TcpClient = DevKit.Utils.TcpClient;
 
 namespace DevKit.ViewModels
 {
@@ -139,6 +140,66 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
+
+        public ObservableCollection<string> LocalAddressCollection
+        {
+            set
+            {
+                _localAddressCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _localAddressCollection;
+        }
+
+        private string _listenStateColor = "DarkGray";
+
+        public string ListenStateColor
+        {
+            set
+            {
+                _listenStateColor = value;
+                RaisePropertyChanged();
+            }
+            get => _listenStateColor;
+        }
+
+        private int _listenPort;
+
+        public int ListenPort
+        {
+            set
+            {
+                _listenPort = value;
+                RaisePropertyChanged();
+            }
+            get => _listenPort;
+        }
+
+        private string _listenState = "监听";
+
+        public string ListenState
+        {
+            set
+            {
+                _listenState = value;
+                RaisePropertyChanged();
+            }
+            get => _listenState;
+        }
+
+        private ObservableCollection<TcpClientModel> _tcpClientCollection = new ObservableCollection<TcpClientModel>();
+
+        public ObservableCollection<TcpClientModel> TcpClientCollection
+        {
+            set
+            {
+                _tcpClientCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _tcpClientCollection;
+        }
+
         #endregion
 
         #region DelegateCommand
@@ -152,6 +213,8 @@ namespace DevKit.ViewModels
         public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand ServerListenCommand { set; get; }
+        public DelegateCommand ItemDoubleClickCommand { set; get; }
 
         #endregion
 
@@ -178,7 +241,9 @@ namespace DevKit.ViewModels
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
-            
+            ServerListenCommand = new DelegateCommand(ServerListen);
+            // ItemDoubleClickCommand = new DelegateCommand();
+
             eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
             {
                 if (_buttonState.Equals("连接"))
@@ -186,7 +251,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 var message = new MessageModel();
                 if (_clientCache.SendHex == 1)
                 {
@@ -196,9 +261,9 @@ namespace DevKit.ViewModels
                         return;
                     }
                 }
-                
+
                 _tcpClient.SendAsync(commandValue);
-                
+
                 message.Content = commandValue;
                 message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
                 message.IsSend = true;
@@ -245,6 +310,9 @@ namespace DevKit.ViewModels
 
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
             };
+
+            //获取本机所有IPv4地址
+            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
         }
 
         private void ShowHexChecked()
@@ -420,6 +488,10 @@ namespace DevKit.ViewModels
             message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
             message.IsSend = true;
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+        }
+
+        private void ServerListen()
+        {
         }
     }
 }

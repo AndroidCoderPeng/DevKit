@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
@@ -116,6 +118,30 @@ namespace DevKit.DataService
             {
                 dataBase.Table<CommandExtensionCache>().Delete(x => x.Id == cacheId);
             }
+        }
+
+        public List<string> GetAllIPv4Addresses()
+        {
+            var result = new List<string>();
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (var network in interfaces)
+            {
+                if (network.OperationalStatus != OperationalStatus.Up)
+                {
+                    continue;
+                }
+
+                var ipAddresses = network.GetIPProperties().UnicastAddresses;
+                foreach (var ip in ipAddresses)
+                {
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        result.Add($"{ip.Address}");
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

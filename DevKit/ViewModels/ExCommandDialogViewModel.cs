@@ -16,7 +16,11 @@ namespace DevKit.ViewModels
     {
         public string Title => "扩展指令";
 
-        public event Action<IDialogResult> RequestClose;
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
 
         #region VM
 

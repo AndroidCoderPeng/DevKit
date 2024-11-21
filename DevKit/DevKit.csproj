@@ -180,12 +180,12 @@
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
+    <Compile Include="Models\TcpClientModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
     <Compile Include="Utils\DelegateAggregator.cs" />
-    <Compile Include="Utils\ITcpClient.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
