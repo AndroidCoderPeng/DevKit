@@ -34,6 +34,7 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterForNavigation<ApplicationPackageView, ApplicationPackageViewModel>();
             containerRegistry.RegisterForNavigation<TcpCommunicateView, TcpCommunicateViewModel>();
+            containerRegistry.RegisterForNavigation<UdpCommunicateView, UdpCommunicateViewModel>();
 
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

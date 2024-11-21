@@ -47,6 +47,9 @@ namespace DevKit.ViewModels
                 case 2:
                     region.RequestNavigate("TcpCommunicateView");
                     break;
+                case 3:
+                    region.RequestNavigate("UdpCommunicateView");
+                    break;
             }
         }
     }

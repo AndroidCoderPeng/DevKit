@@ -15,6 +15,7 @@
     MinHeight="610"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     Background="{DynamicResource DarkDefaultBrush}"
+    Topmost="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

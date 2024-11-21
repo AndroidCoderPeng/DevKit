@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="DevKit.Views.TcpCommunicateView"
+    x:Class="DevKit.Views.UdpCommunicateView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    d:DataContext="{d:DesignInstance Type=vm:TcpCommunicateViewModel}"
+    d:DataContext="{d:DesignInstance Type=vm:UdpCommunicateViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="600"
     Background="white"
@@ -34,7 +34,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!--  TCP 客户端  -->
+        <!--  UDP 客户端  -->
         <Grid Grid.Column="0" Margin="10,10,5,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -49,7 +49,6 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock
@@ -60,7 +59,7 @@
                 <hc:TextBox
                     Grid.Column="1"
                     Margin="10,0"
-                    hc:InfoElement.Placeholder="远程TCP Server IP"
+                    hc:InfoElement.Placeholder="远程UDP Server IP"
                     hc:InfoElement.ShowClearButton="True"
                     Text="{Binding RemoteAddress}"
                     TextWrapping="NoWrap" />
@@ -73,15 +72,9 @@
                     Text="{Binding RemotePort}"
                     TextWrapping="NoWrap" />
 
-                <Button
-                    Grid.Column="4"
-                    Command="{Binding ConnectRemoteCommand}"
-                    Content="{Binding ButtonState}"
-                    Style="{StaticResource ButtonPrimary}" />
-
                 <CheckBox
                     Grid.Column="3"
-                    Margin="10,0"
+                    Margin="10,0,0,0"
                     Content="Hex显示"
                     IsChecked="{Binding ShowHex}">
                     <b:Interaction.Triggers>
@@ -138,10 +131,7 @@
                                 TextWrapping="Wrap">
                                 <TextBlock.ContextMenu>
                                     <ContextMenu Style="{x:Null}">
-                                        <MenuItem
-                                            Click="MenuItem_Click"
-                                            Header="复制"
-                                            Style="{x:Null}" />
+                                        <MenuItem Header="复制" Style="{x:Null}" />
                                     </ContextMenu>
                                 </TextBlock.ContextMenu>
                             </TextBlock>
@@ -231,13 +221,6 @@
                     Grid.Column="4"
                     VerticalAlignment="Center"
                     Text="毫秒/次" />
-
-                <Ellipse
-                    Grid.Column="5"
-                    Width="18"
-                    Height="18"
-                    Margin="10,0,0,0"
-                    Fill="{Binding ConnectionStateColor}" />
             </Grid>
 
             <Grid Grid.Row="3">
@@ -288,7 +271,7 @@
             </Grid>
         </Grid>
 
-        <!--  TCP 服务端  -->
+        <!--  UDP 服务端  -->
         <Grid Grid.Column="1" Margin="5,10,10,10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
