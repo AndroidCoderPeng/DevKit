@@ -50,11 +50,10 @@ namespace DevKit.Utils
                 var clientHandShaker = WebSocketClientHandshakerFactory.NewHandshaker(
                     new Uri(_webSocketClient._url), WebSocketVersion.V13, null, true, new DefaultHttpHeaders()
                 );
-                var webSocketHandler = new WebSocketClientProtocolHandler(clientHandShaker);
                 channel.Pipeline
                     .AddLast(new HttpClientCodec())
                     .AddLast(new HttpObjectAggregator(8192))
-                    .AddLast(webSocketHandler)
+                    .AddLast(new WebSocketClientProtocolHandler(clientHandShaker))
                     .AddLast(new IdleStateHandler(0, 0, 60))
                     .AddLast(new WebSocketChannelInboundHandler(_webSocketClient));
             }
@@ -92,23 +91,15 @@ namespace DevKit.Utils
 
                 protected override void ChannelRead0(IChannelHandlerContext context, object msg)
                 {
-                    // if (msg is TextWebSocketFrame textFrame)
-                    // {
-                    //     _webSocketClient.OnDataReceived(this, textFrame.Text());
-                    // }
-                    // else if (msg is BinaryWebSocketFrame binaryFrame)
-                    // {
-                    //     var byteBuffer = binaryFrame.Content;
-                    //     var bytes = new byte[byteBuffer.ReadableBytes];
-                    //     byteBuffer.ReadBytes(bytes);
-                    //     _webSocketClient.OnDataReceived(this, bytes);
-                    // }
-                    // else if (msg is CloseWebSocketFrame)
-                    // {
-                    //     _webSocketClient.OnDisconnected(this, context);
-                    //     context.CloseAsync();
-                    // }
-                    _webSocketClient.OnDataReceived(this, msg);
+                    if (msg is TextWebSocketFrame textFrame)
+                    {
+                        _webSocketClient.OnDataReceived(this, textFrame.Text());
+                    }
+                    else if (msg is CloseWebSocketFrame)
+                    {
+                        _webSocketClient.OnDisconnected(this, context);
+                        context.CloseAsync();
+                    }
                 }
 
                 public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)

@@ -49,7 +49,6 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock
@@ -65,24 +64,8 @@
                     Text="{Binding RemoteAddress}"
                     TextWrapping="NoWrap" />
 
-                <CheckBox
-                    Grid.Column="2"
-                    Content="Hex显示"
-                    IsChecked="{Binding ShowHex}">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="Checked">
-                            <b:InvokeCommandAction Command="{Binding ShowHexCheckedCommand}" />
-                        </b:EventTrigger>
-
-                        <b:EventTrigger EventName="Unchecked">
-                            <b:InvokeCommandAction Command="{Binding ShowHexUncheckedCommand}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </CheckBox>
-
                 <Button
-                    Grid.Column="3"
-                    Margin="10,0,0,0"
+                    Grid.Column="2"
                     Command="{Binding ConnectRemoteCommand}"
                     Content="{Binding ButtonState}"
                     Style="{StaticResource ButtonPrimary}" />
@@ -246,37 +229,14 @@
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
 
-                <Grid Grid.Column="1" Margin="10,0,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-
-                    <CheckBox
-                        Grid.Row="0"
-                        Margin="0,0,0,10"
-                        Content="Hex"
-                        IsChecked="{Binding SendHex}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding SendHexCheckedCommand}" />
-                            </b:EventTrigger>
-
-                            <b:EventTrigger EventName="Unchecked">
-                                <b:InvokeCommandAction Command="{Binding SendHexUncheckedCommand}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </CheckBox>
-
-
-                    <Button
-                        Grid.Row="1"
-                        Background="{DynamicResource BackgroundBrush}"
-                        BorderThickness="0"
-                        Command="{Binding SendMessageCommand}"
-                        Content="发送"
-                        Foreground="{DynamicResource SuccessBrush}" />
-                </Grid>
+                <Button
+                    Grid.Column="1"
+                    Margin="10,0,0,0"
+                    Background="{DynamicResource BackgroundBrush}"
+                    BorderThickness="0"
+                    Command="{Binding SendMessageCommand}"
+                    Content="发送"
+                    Foreground="{DynamicResource SuccessBrush}" />
             </Grid>
         </Grid>
 
@@ -344,7 +304,7 @@
             <ListBox
                 x:Name="ClientListBox"
                 Grid.Row="2"
-                ItemsSource="{Binding TcpClientCollection}"
+                ItemsSource="{Binding WebSocketClientCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 Style="{x:Null}">
