@@ -25,16 +25,16 @@ namespace DevKit.Utils
         public delegate void ConnectFailedEventHandler(object sender, Exception exception);
     }
 
-    class UdpClientDelegate
+    public class UdpClientDelegate
     {
         public delegate void DataReceivedEventHandler(object sender, byte[] bytes);
     }
-    
-    class UdpServerDelegate
+
+    public class UdpServerDelegate
     {
         public delegate void DataReceivedEventHandler(object sender, byte[] bytes);
     }
-    
+
     public class WebSocketClientDelegateAggregator
     {
         public delegate void ConnectedEventHandler(object sender, IChannelHandlerContext context);

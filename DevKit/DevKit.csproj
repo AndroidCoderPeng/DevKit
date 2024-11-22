@@ -194,6 +194,7 @@
     <Compile Include="Utils\SocketBase\ByteArrayEncoder.cs" />
     <Compile Include="Utils\TcpClient.cs" />
     <Compile Include="Utils\ConnectionType.cs" />
+    <Compile Include="Utils\UdpClient.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
