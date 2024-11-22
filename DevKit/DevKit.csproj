@@ -193,12 +193,12 @@
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="Utils\RuntimeCache.cs" />
-    <Compile Include="Utils\SocketBase\ByteArrayDecoder.cs" />
-    <Compile Include="Utils\SocketBase\ByteArrayEncoder.cs" />
-    <Compile Include="Utils\TcpClient.cs" />
+    <Compile Include="Utils\Socket\Base\ByteArrayDecoder.cs" />
     <Compile Include="Utils\ConnectionType.cs" />
-    <Compile Include="Utils\UdpClient.cs" />
-    <Compile Include="Utils\WebSocketClient.cs" />
+    <Compile Include="Utils\Socket\Base\ByteArrayEncoder.cs" />
+    <Compile Include="Utils\Socket\TcpClient.cs" />
+    <Compile Include="Utils\Socket\UdpClient.cs" />
+    <Compile Include="Utils\Socket\WebSocketClient.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />

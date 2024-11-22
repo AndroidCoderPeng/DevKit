@@ -7,6 +7,7 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using DevKit.Utils.Socket;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;

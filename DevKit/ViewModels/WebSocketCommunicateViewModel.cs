@@ -7,6 +7,7 @@ using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
+using DevKit.Utils.Socket;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;

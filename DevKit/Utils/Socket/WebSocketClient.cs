@@ -10,7 +10,7 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using HandyControl.Controls;
 
-namespace DevKit.Utils
+namespace DevKit.Utils.Socket
 {
     public class WebSocketClient
     {

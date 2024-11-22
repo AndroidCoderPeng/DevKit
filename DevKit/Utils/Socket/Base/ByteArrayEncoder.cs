@@ -3,7 +3,7 @@ using DotNetty.Buffers;
 using DotNetty.Codecs;
 using DotNetty.Transport.Channels;
 
-namespace DevKit.Utils.SocketBase
+namespace DevKit.Utils.Socket.Base
 {
     /// <summary>
     /// 字符串编码器

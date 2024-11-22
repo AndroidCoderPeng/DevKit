@@ -2,14 +2,14 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using DevKit.Utils.SocketBase;
+using DevKit.Utils.Socket.Base;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using HandyControl.Controls;
 
-namespace DevKit.Utils
+namespace DevKit.Utils.Socket
 {
     public class TcpClient
     {
