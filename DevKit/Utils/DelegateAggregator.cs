@@ -41,7 +41,7 @@ namespace DevKit.Utils
 
         public delegate void DisconnectedEventHandler(object sender, IChannelHandlerContext context);
 
-        public delegate void DataReceivedEventHandler(object sender, byte[] bytes);
+        public delegate void DataReceivedEventHandler(object sender, object obj);
 
         public delegate void ConnectFailedEventHandler(object sender, Exception exception);
     }

@@ -43,6 +43,9 @@
     <Reference Include="DotNetty.Codecs, Version=0.7.6.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetty.Codecs.0.7.6\lib\net472\DotNetty.Codecs.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetty.Codecs.Http, Version=0.7.6.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetty.Codecs.Http.0.7.6\lib\net472\DotNetty.Codecs.Http.dll</HintPath>
+    </Reference>
     <Reference Include="DotNetty.Common, Version=0.7.6.0, Culture=neutral, PublicKeyToken=bc13ca065fa06c29, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetty.Common.0.7.6\lib\net472\DotNetty.Common.dll</HintPath>
     </Reference>
@@ -195,6 +198,7 @@
     <Compile Include="Utils\TcpClient.cs" />
     <Compile Include="Utils\ConnectionType.cs" />
     <Compile Include="Utils\UdpClient.cs" />
+    <Compile Include="Utils\WebSocketClient.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
