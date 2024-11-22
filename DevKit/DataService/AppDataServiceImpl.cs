@@ -42,17 +42,17 @@ namespace DevKit.DataService
             }
         }
 
-        public TcpClientConfigCache LoadTcpClientConfigCache()
+        public ClientConfigCache LoadClientConfigCache(int connectionType)
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<TcpClientConfigCache>();
+                var queryResult = dataBase.Table<ClientConfigCache>().Where(x => x.Type == connectionType);
                 if (queryResult.Any())
                 {
                     return queryResult.First();
                 }
 
-                return new TcpClientConfigCache();
+                return new ClientConfigCache();
             }
         }
 
@@ -83,31 +83,36 @@ namespace DevKit.DataService
                         dataBase.Insert(configCache);
                     }
                 }
-                else if (configCache is TcpClientConfigCache)
+                else if (configCache is ClientConfigCache client)
                 {
-                    if (dataBase.Table<TcpClientConfigCache>().Any())
+                    var queryResult = dataBase.Table<ClientConfigCache>()
+                        .Where(
+                            x => x.Id == client.Id && x.Type == client.Type
+                        );
+                    if (queryResult.Any())
                     {
-                        dataBase.Update(configCache);
+                        dataBase.Update(client);
                     }
                     else
                     {
-                        dataBase.Insert(configCache);
+                        dataBase.Insert(client);
                     }
                 }
-                else if (configCache is CommandExtensionCache cache)
+                else if (configCache is CommandExtensionCache command)
                 {
                     var queryResult = dataBase.Table<CommandExtensionCache>()
-                        .Where(x =>
-                            x.ParentId == cache.ParentId &&
-                            x.ParentType == cache.ParentType &&
-                            x.CommandValue == cache.CommandValue
+                        .Where(
+                            x =>
+                                x.ParentId == command.ParentId &&
+                                x.ParentType == command.ParentType &&
+                                x.CommandValue == command.CommandValue
                         );
                     if (queryResult.Any())
                     {
                         return;
                     }
 
-                    dataBase.Insert(cache);
+                    dataBase.Insert(command);
                 }
             }
         }

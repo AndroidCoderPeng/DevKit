@@ -174,7 +174,7 @@ namespace DevKit.ViewModels
         }
 
         #endregion
-        
+
         #region DelegateCommand
 
         public DelegateCommand ShowHexCheckedCommand { set; get; }
@@ -189,20 +189,20 @@ namespace DevKit.ViewModels
         public DelegateCommand ItemDoubleClickCommand { set; get; }
 
         #endregion
-        
+
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly UdpClient _udpClient = new UdpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private TcpClientConfigCache _clientCache;
+        private ClientConfigCache _clientCache;
 
         public UdpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
-            
+
             InitDefaultConfig();
-            
+
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
             ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
@@ -214,14 +214,14 @@ namespace DevKit.ViewModels
             ServerListenCommand = new DelegateCommand(ServerListen);
             // ItemDoubleClickCommand = new DelegateCommand();
         }
-        
+
         private void InitDefaultConfig()
         {
-            // _clientCache = _dataService.LoadTcpClientConfigCache();
-            // RemoteAddress = _clientCache.RemoteAddress;
-            // RemotePort = _clientCache.RemotePort.ToString();
-            // ShowHex = _clientCache.ShowHex == 1;
-            // SendHex = _clientCache.SendHex == 1;
+            _clientCache = _dataService.LoadClientConfigCache(ConnectionType.UdpClient);
+            RemoteAddress = _clientCache.RemoteAddress;
+            RemotePort = _clientCache.RemotePort.ToString();
+            ShowHex = _clientCache.ShowHex == 1;
+            SendHex = _clientCache.SendHex == 1;
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
@@ -242,7 +242,7 @@ namespace DevKit.ViewModels
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
         }
-        
+
         private void ShowHexChecked()
         {
             var boxResult = MessageBox.Show(
@@ -267,10 +267,9 @@ namespace DevKit.ViewModels
                 MessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
-                _dataService.SaveCacheConfig(_clientCache);
             }
         }
-        
+
         private void ShowHexUnchecked()
         {
             var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
@@ -293,10 +292,9 @@ namespace DevKit.ViewModels
                 MessageCollection = collection;
 
                 _clientCache.ShowHex = 0;
-                _dataService.SaveCacheConfig(_clientCache);
             }
         }
-        
+
         private void AddExtensionCommand()
         {
             var dialogParameters = new DialogParameters
@@ -306,32 +304,41 @@ namespace DevKit.ViewModels
             };
             _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
         }
-        
+
         private void ClearMessage()
         {
             MessageCollection?.Clear();
         }
-        
+
         private void SendHexChecked()
         {
-            // _clientCache.SendHex = 1;
-            // _dataService.SaveCacheConfig(_clientCache);
+            _clientCache.SendHex = 1;
         }
 
         private void SendHexUnchecked()
         {
-            // _clientCache.SendHex = 0;
-            // _dataService.SaveCacheConfig(_clientCache);
+            _clientCache.SendHex = 0;
         }
-        
+
         private void LoopUnchecked()
         {
             Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
-        
+
         private void SendMessage()
         {
+            if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
+            {
+                MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _clientCache.Type = ConnectionType.UdpClient;
+            _clientCache.RemoteAddress = _remoteAddress;
+            _clientCache.RemotePort = Convert.ToInt32(_remotePort);
+            _dataService.SaveCacheConfig(_clientCache);
+
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -364,7 +371,7 @@ namespace DevKit.ViewModels
                 MessageCollection.Add(message);
             }
         }
-        
+
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
             var message = new MessageModel();
@@ -383,7 +390,7 @@ namespace DevKit.ViewModels
             message.IsSend = true;
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
-        
+
         private void ServerListen()
         {
         }

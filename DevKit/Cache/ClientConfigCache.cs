@@ -2,12 +2,14 @@
 
 namespace DevKit.Cache
 {
-    [Table("TcpClientConfigCache")]
-    public class TcpClientConfigCache
+    [Table("ClientConfigCache")]
+    public class ClientConfigCache
     {
         [PrimaryKey, Unique, NotNull, AutoIncrement]
         public int Id { get; set; }
-        
+
+        public int Type { get; set; }
+
         public string RemoteAddress { get; set; }
 
         public int RemotePort { get; set; }

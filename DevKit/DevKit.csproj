@@ -160,7 +160,7 @@
     </Compile>
     <Compile Include="Cache\ApkConfigCache.cs" />
     <Compile Include="Cache\CommandExtensionCache.cs" />
-    <Compile Include="Cache\TcpClientConfigCache.cs" />
+    <Compile Include="Cache\ClientConfigCache.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />
     <Compile Include="Converters\MessageTypeConverter.cs" />
     <Compile Include="DataService\AppDataServiceImpl.cs" />

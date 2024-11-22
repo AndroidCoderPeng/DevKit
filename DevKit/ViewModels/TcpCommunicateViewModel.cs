@@ -222,7 +222,7 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private TcpClientConfigCache _clientCache;
+        private ClientConfigCache _clientCache;
 
         public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
@@ -273,7 +273,7 @@ namespace DevKit.ViewModels
 
         private void InitDefaultConfig()
         {
-            _clientCache = _dataService.LoadTcpClientConfigCache();
+            _clientCache = _dataService.LoadClientConfigCache(ConnectionType.TcpClient);
             RemoteAddress = _clientCache.RemoteAddress;
             RemotePort = _clientCache.RemotePort.ToString();
             ShowHex = _clientCache.ShowHex == 1;
@@ -339,7 +339,6 @@ namespace DevKit.ViewModels
                 MessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
-                _dataService.SaveCacheConfig(_clientCache);
             }
         }
 
@@ -365,7 +364,6 @@ namespace DevKit.ViewModels
                 MessageCollection = collection;
 
                 _clientCache.ShowHex = 0;
-                _dataService.SaveCacheConfig(_clientCache);
             }
         }
 
@@ -376,10 +374,6 @@ namespace DevKit.ViewModels
                 MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            _clientCache.RemoteAddress = _remoteAddress;
-            _clientCache.RemotePort = Convert.ToInt32(_remotePort);
-            _dataService.SaveCacheConfig(_clientCache);
 
             if (_tcpClient.IsRunning())
             {
@@ -409,13 +403,11 @@ namespace DevKit.ViewModels
         private void SendHexChecked()
         {
             _clientCache.SendHex = 1;
-            _dataService.SaveCacheConfig(_clientCache);
         }
 
         private void SendHexUnchecked()
         {
             _clientCache.SendHex = 0;
-            _dataService.SaveCacheConfig(_clientCache);
         }
 
         private void LoopUnchecked()
@@ -426,6 +418,11 @@ namespace DevKit.ViewModels
 
         private void SendMessage()
         {
+            _clientCache.Type = ConnectionType.TcpClient;
+            _clientCache.RemoteAddress = _remoteAddress;
+            _clientCache.RemotePort = Convert.ToInt32(_remotePort);
+            _dataService.SaveCacheConfig(_clientCache);
+            
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);

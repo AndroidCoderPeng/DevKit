@@ -10,7 +10,7 @@ namespace DevKit.DataService
 
         ApkConfigCache LoadApkCacheConfig();
 
-        TcpClientConfigCache LoadTcpClientConfigCache();
+        ClientConfigCache LoadClientConfigCache(int connectionType);
 
         List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType);
 
