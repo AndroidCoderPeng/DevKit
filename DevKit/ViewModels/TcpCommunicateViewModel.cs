@@ -398,7 +398,7 @@ namespace DevKit.ViewModels
                 { "ParentId", _clientCache.Id },
                 { "ConnectionType", ConnectionType.TcpClient }
             };
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
+            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
         }
 
         private void ClearMessage()

@@ -189,6 +189,7 @@
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
+    <Compile Include="Utils\RuntimeCache.cs" />
     <Compile Include="Utils\SocketBase\ByteArrayDecoder.cs" />
     <Compile Include="Utils\SocketBase\ByteArrayEncoder.cs" />
     <Compile Include="Utils\TcpClient.cs" />
@@ -207,6 +208,9 @@
     </Compile>
     <Compile Include="Views\ApplicationPackageView.xaml.cs">
       <DependentUpon>ApplicationPackageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExCommandWindow.xaml.cs">
+      <DependentUpon>ExCommandWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -249,6 +253,7 @@
     <Page Include="Themes\LightTheme.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
+    <Page Include="Views\ExCommandWindow.xaml" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
