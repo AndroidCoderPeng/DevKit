@@ -20,10 +20,10 @@ namespace DevKit.Utils
         private IChannel _channel;
         private bool _isRunning;
 
-        public ConnectedEventHandler OnConnected { get; set; }
-        public DisconnectedEventHandler OnDisconnected { get; set; }
-        public ConnectFailedEventHandler OnConnectFailed { get; set; }
-        public DataReceivedEventHandler OnDataReceived { get; set; }
+        public TcpClientDelegateAggregator.ConnectedEventHandler OnConnected { get; set; }
+        public TcpClientDelegateAggregator.DisconnectedEventHandler OnDisconnected { get; set; }
+        public TcpClientDelegateAggregator.ConnectFailedEventHandler OnConnectFailed { get; set; }
+        public TcpClientDelegateAggregator.DataReceivedEventHandler OnDataReceived { get; set; }
 
         public TcpClient()
         {
