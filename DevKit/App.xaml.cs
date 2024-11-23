@@ -36,7 +36,7 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<TcpCommunicateView, TcpCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<UdpCommunicateView, UdpCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketCommunicateView, WebSocketCommunicateViewModel>();
-            containerRegistry.RegisterForNavigation<SerialPortView, SerialPortViewModel>();
+            containerRegistry.RegisterForNavigation<SerialPortCommunicateView, SerialPortCommunicateViewModel>();
 
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

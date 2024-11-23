@@ -54,7 +54,7 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("WebSocketCommunicateView");
                     break;
                 case 5:
-                    region.RequestNavigate("SerialPortView");
+                    region.RequestNavigate("SerialPortCommunicateView");
                     break;
             }
         }
