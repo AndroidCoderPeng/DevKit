@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 using DevKit.Cache;
@@ -78,9 +79,9 @@ namespace DevKit.ViewModels
             get => _parityArray;
         }
 
-        private List<int> _stopBitArray;
+        private List<StopBits> _stopBitArray;
 
-        public List<int> StopBitArray
+        public List<StopBits> StopBitArray
         {
             set
             {
@@ -101,7 +102,7 @@ namespace DevKit.ViewModels
             }
             get => _buttonState;
         }
-        
+
         private bool _showHex = true;
 
         public bool ShowHex
@@ -166,11 +167,11 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand PortItemSelectedCommand { set; get; }
-        public DelegateCommand BaudRateItemSelectedCommand { set; get; }
-        public DelegateCommand DataBitItemSelectedCommand { set; get; }
-        public DelegateCommand ParityItemSelectedCommand { set; get; }
-        public DelegateCommand StopBitItemSelectedCommand { set; get; }
+        public DelegateCommand<string> PortItemSelectedCommand { set; get; }
+        public DelegateCommand<object> BaudRateItemSelectedCommand { set; get; }
+        public DelegateCommand<object> DataBitItemSelectedCommand { set; get; }
+        public DelegateCommand<object> ParityItemSelectedCommand { set; get; }
+        public DelegateCommand<object> StopBitItemSelectedCommand { set; get; }
         public DelegateCommand OpenSerialPortCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
@@ -186,27 +187,33 @@ namespace DevKit.ViewModels
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly Timer _loopSendMessageTimer = new Timer();
+        private readonly SerialPortKit _serialPortKit = new SerialPortKit();
         private ClientConfigCache _clientCache;
-        
+        private string _portName;
+        private int _baudRate;
+        private Parity _parity;
+        private int _dataBits;
+        private StopBits _stopBits;
+
         public SerialPortCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
-            
-            InitDefaultConfig();
-            
+
             PortArray = SerialPort.GetPortNames();
             BaudRateArray = new List<int> { 9600, 14400, 19200, 38400, 56000, 57600, 115200, 128000, 230400 };
             DataBitArray = new List<int> { 5, 6, 7, 8 };
             ParityArray = new List<Parity> { Parity.None, Parity.Odd, Parity.Even, Parity.Mark, Parity.Space };
-            StopBitArray = new List<int> { 1, 2 };
+            StopBitArray = new List<StopBits> { StopBits.None, StopBits.One, StopBits.Two, StopBits.OnePointFive };
 
-            // PortItemSelectedCommand = new DelegateCommand();
-            // BaudRateItemSelectedCommand = new DelegateCommand();
-            // DataBitItemSelectedCommand = new DelegateCommand();
-            // ParityItemSelectedCommand = new DelegateCommand();
-            // StopBitItemSelectedCommand = new DelegateCommand();
-            // OpenSerialPortCommand = new DelegateCommand();
+            InitDefaultConfig();
+
+            PortItemSelectedCommand = new DelegateCommand<string>(PortItemSelected);
+            BaudRateItemSelectedCommand = new DelegateCommand<object>(BaudRateItemSelected);
+            DataBitItemSelectedCommand = new DelegateCommand<object>(DataBitItemSelected);
+            ParityItemSelectedCommand = new DelegateCommand<object>(ParityItemSelected);
+            StopBitItemSelectedCommand = new DelegateCommand<object>(StopBitItemSelected);
+            OpenSerialPortCommand = new DelegateCommand(OpenSerialPort);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
@@ -222,24 +229,68 @@ namespace DevKit.ViewModels
             _clientCache = _dataService.LoadClientConfigCache(ConnectionType.SerialPort);
             ShowHex = _clientCache.ShowHex == 1;
             SendHex = _clientCache.SendHex == 1;
-            
+
+            //默认值
+            _baudRate = _baudRateArray.First();
+            _parity = _parityArray.First();
+            _dataBits = _dataBitArray.First();
+            _stopBits = _stopBitArray.First();
+
+            _serialPortKit.DataReceivedEvent += delegate(byte[] bytes) { };
+
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
         }
-        
+
+        private void PortItemSelected(string portName)
+        {
+            _portName = portName;
+        }
+
+        private void BaudRateItemSelected(object baudRate)
+        {
+            _baudRate = (int)baudRate;
+        }
+
+        private void DataBitItemSelected(object dataBits)
+        {
+            _dataBits = (int)dataBits;
+        }
+
+        private void ParityItemSelected(object parity)
+        {
+            _parity = (Parity)parity;
+        }
+
+        private void StopBitItemSelected(object stopBits)
+        {
+            _stopBits = (StopBits)stopBits;
+        }
+
+        private void OpenSerialPort()
+        {
+            if (string.IsNullOrEmpty(_portName))
+            {
+                MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
+        }
+
         private void AddExtensionCommand()
         {
             var dialogParameters = new DialogParameters
             {
                 { "ParentId", _clientCache.Id },
-                { "ConnectionType", ConnectionType.TcpClient }
+                { "ConnectionType", ConnectionType.SerialPort }
             };
             _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
         }
-        
+
         private void ShowHexChecked()
         {
             var boxResult = MessageBox.Show(
-                "切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
             );
             if (boxResult == MessageBoxResult.OK)
             {
@@ -287,7 +338,7 @@ namespace DevKit.ViewModels
                 _clientCache.ShowHex = 0;
             }
         }
-        
+
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
             if (_buttonState.Equals("打开串口"))
@@ -312,7 +363,7 @@ namespace DevKit.ViewModels
             message.IsSend = true;
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
-        
+
         private void ClearMessage()
         {
             MessageCollection?.Clear();
@@ -333,7 +384,7 @@ namespace DevKit.ViewModels
             Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
-        
+
         private void SendMessage()
         {
             _clientCache.Type = ConnectionType.SerialPort;

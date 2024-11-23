@@ -132,15 +132,16 @@
                     <TextBlock
                         Width="60"
                         VerticalAlignment="Center"
-                        Text="端口：" />
+                        Text="串口名：" />
 
                     <hc:ComboBox
+                        x:Name="PortComboBox"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding PortArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding PortItemSelectedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding PortItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=PortComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
@@ -155,10 +156,13 @@
                         VerticalAlignment="Center"
                         Text="波特率：" />
 
-                    <hc:ComboBox ItemsSource="{Binding BaudRateArray}" SelectedIndex="0">
+                    <hc:ComboBox
+                        x:Name="BaudRateComboBox"
+                        ItemsSource="{Binding BaudRateArray}"
+                        SelectedIndex="0">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding BaudRateItemSelectedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding BaudRateItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=BaudRateComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
@@ -171,12 +175,13 @@
                         Text="数据位：" />
 
                     <hc:ComboBox
+                        x:Name="DataBitComboBox"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding DataBitArray}"
                         SelectedIndex="3">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding DataBitItemSelectedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding DataBitItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=DataBitComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
@@ -192,12 +197,13 @@
                         Text="校验位：" />
 
                     <hc:ComboBox
+                        x:Name="ParityComboBox"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding ParityArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding ParityItemSelectedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding ParityItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=ParityComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
@@ -210,12 +216,13 @@
                         Text="停止位：" />
 
                     <hc:ComboBox
+                        x:Name="StopBitComboBox"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding StopBitArray}"
-                        SelectedIndex="0">
+                        SelectedIndex="1">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding StopBitItemSelectedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding StopBitItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=StopBitComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>

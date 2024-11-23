@@ -318,7 +318,7 @@ namespace DevKit.ViewModels
         private void ShowHexChecked()
         {
             var boxResult = MessageBox.Show(
-                "切换到Hex显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
             );
             if (boxResult == MessageBoxResult.OK)
             {

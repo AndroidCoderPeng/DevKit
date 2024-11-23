@@ -193,6 +193,7 @@
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="Utils\RuntimeCache.cs" />
+    <Compile Include="Utils\SerialPortKit.cs" />
     <Compile Include="Utils\Socket\Base\ByteArrayDecoder.cs" />
     <Compile Include="Utils\ConnectionType.cs" />
     <Compile Include="Utils\Socket\Base\ByteArrayEncoder.cs" />
