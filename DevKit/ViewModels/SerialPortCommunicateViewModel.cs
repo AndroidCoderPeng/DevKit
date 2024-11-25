@@ -276,13 +276,20 @@ namespace DevKit.ViewModels
 
         private void OpenSerialPort()
         {
-            if (string.IsNullOrEmpty(_portName))
+            if (_serialPortKit.IsOpen)
             {
-                MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                _serialPortKit.Close();
             }
+            else
+            {
+                if (string.IsNullOrEmpty(_portName))
+                {
+                    MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-            _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
+                _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
+            }
         }
 
         private void AddExtensionCommand()
