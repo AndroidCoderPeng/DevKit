@@ -219,7 +219,7 @@
                         x:Name="StopBitComboBox"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding StopBitArray}"
-                        SelectedIndex="1">
+                        SelectedIndex="0">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="SelectionChanged">
                                 <b:InvokeCommandAction Command="{Binding StopBitItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=StopBitComboBox}" />

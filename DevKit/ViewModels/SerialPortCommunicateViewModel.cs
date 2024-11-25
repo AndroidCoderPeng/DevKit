@@ -79,9 +79,9 @@ namespace DevKit.ViewModels
             get => _parityArray;
         }
 
-        private List<StopBits> _stopBitArray;
+        private List<float> _stopBitArray;
 
-        public List<StopBits> StopBitArray
+        public List<float> StopBitArray
         {
             set
             {
@@ -187,6 +187,14 @@ namespace DevKit.ViewModels
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly Timer _loopSendMessageTimer = new Timer();
+
+        private readonly Dictionary<float, StopBits> _stopBitMap = new Dictionary<float, StopBits>
+        {
+            { 1, StopBits.One },
+            { 1.5f, StopBits.OnePointFive },
+            { 2, StopBits.Two }
+        };
+
         private readonly SerialPortKit _serialPortKit = new SerialPortKit();
         private ClientConfigCache _clientCache;
         private string _portName;
@@ -204,7 +212,7 @@ namespace DevKit.ViewModels
             BaudRateArray = new List<int> { 9600, 14400, 19200, 38400, 56000, 57600, 115200, 128000, 230400 };
             DataBitArray = new List<int> { 5, 6, 7, 8 };
             ParityArray = new List<Parity> { Parity.None, Parity.Odd, Parity.Even, Parity.Mark, Parity.Space };
-            StopBitArray = new List<StopBits> { StopBits.None, StopBits.One, StopBits.Two, StopBits.OnePointFive };
+            StopBitArray = new List<float> { 1, 1.5f, 2 };
 
             InitDefaultConfig();
 
@@ -234,7 +242,7 @@ namespace DevKit.ViewModels
             _baudRate = _baudRateArray.First();
             _parity = _parityArray.First();
             _dataBits = _dataBitArray.First();
-            _stopBits = _stopBitArray.First();
+            _stopBits = _stopBitMap[_stopBitArray.First()];
 
             _serialPortKit.DataReceivedEvent += delegate(byte[] bytes) { };
 
@@ -263,7 +271,7 @@ namespace DevKit.ViewModels
 
         private void StopBitItemSelected(object stopBits)
         {
-            _stopBits = (StopBits)stopBits;
+            _stopBits = _stopBitMap[(float)stopBits];
         }
 
         private void OpenSerialPort()
