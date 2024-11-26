@@ -247,28 +247,26 @@ namespace DevKit.ViewModels
             var argument = new ArgumentCreator();
             argument.Append("devices");
             var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += StandardOutput_EventHandler;
-            executor.Execute("adb");
-        }
-
-        private void StandardOutput_EventHandler(string output)
-        {
-            if (string.IsNullOrEmpty(output) || output.Equals("List of devices attached"))
+            executor.OnStandardOutput += delegate(string value)
             {
-                return;
-            }
-
-            var newLine = Regex.Replace(output, @"\s", "*");
-            var split = newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                if (_deviceItems.Contains(split[0]))
+                if (string.IsNullOrEmpty(value) || value.Equals("List of devices attached"))
                 {
                     return;
                 }
 
-                DeviceItems.Add(split[0]);
-            });
+                var newLine = Regex.Replace(value, @"\s", "*");
+                var split = newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    if (_deviceItems.Contains(split[0]))
+                    {
+                        return;
+                    }
+
+                    DeviceItems.Add(split[0]);
+                });
+            };
+            Task.Run(() => { executor.Execute("adb"); });
         }
 
         private async void DeviceSelected(string device)
@@ -549,9 +547,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        /// <summary>
-        /// TODO LoadingDialog未实现
-        /// </summary>
         private void InstallApplication()
         {
             var fileDialog = new OpenFileDialog
