@@ -2,30 +2,30 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using DevKit.Utils.Socket.Base;
+using DotNetty.Codecs.Http;
+using DotNetty.Codecs.Http.WebSockets;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 using HandyControl.Controls;
 
-namespace DevKit.Utils.Socket
+namespace DevKit.Utils.Socket.Client
 {
-    public class TcpClient
+    public class WebSocketClient
     {
         private readonly Bootstrap _bootStrap = new Bootstrap();
         private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
-        private string _host;
-        private int _port;
+        private string _url;
         private IChannel _channel;
         private bool _isRunning;
 
-        public TcpClientDelegateAggregator.ConnectedEventHandler OnConnected { get; set; }
-        public TcpClientDelegateAggregator.DisconnectedEventHandler OnDisconnected { get; set; }
-        public TcpClientDelegateAggregator.ConnectFailedEventHandler OnConnectFailed { get; set; }
-        public TcpClientDelegateAggregator.DataReceivedEventHandler OnDataReceived { get; set; }
+        public WebSocketClientDelegateAggregator.ConnectedEventHandler OnConnected { get; set; }
+        public WebSocketClientDelegateAggregator.DisconnectedEventHandler OnDisconnected { get; set; }
+        public WebSocketClientDelegateAggregator.ConnectFailedEventHandler OnConnectFailed { get; set; }
+        public WebSocketClientDelegateAggregator.DataReceivedEventHandler OnDataReceived { get; set; }
 
-        public TcpClient()
+        public WebSocketClient()
         {
             _bootStrap.Group(_loopGroup)
                 .Channel<TcpSocketChannel>()
@@ -36,37 +36,35 @@ namespace DevKit.Utils.Socket
                 .Handler(new SimpleChannelInitializer<ISocketChannel>(this));
         }
 
-        /// <summary>
-        /// 通道初始化
-        /// </summary>
         private class SimpleChannelInitializer<T> : ChannelInitializer<T> where T : ISocketChannel
         {
-            private readonly TcpClient _tcpClient;
+            private readonly WebSocketClient _webSocketClient;
 
-            public SimpleChannelInitializer(TcpClient tcpClient)
+            public SimpleChannelInitializer(WebSocketClient webSocketClient)
             {
-                _tcpClient = tcpClient;
+                _webSocketClient = webSocketClient;
             }
 
             protected override void InitChannel(T channel)
             {
+                var clientHandShaker = WebSocketClientHandshakerFactory.NewHandshaker(
+                    new Uri(_webSocketClient._url), WebSocketVersion.V13, null, true, new DefaultHttpHeaders()
+                );
                 channel.Pipeline
-                    .AddLast(new ByteArrayDecoder())
-                    .AddLast(new ByteArrayEncoder())
+                    .AddLast(new HttpClientCodec())
+                    .AddLast(new HttpObjectAggregator(8192))
+                    .AddLast(new WebSocketClientProtocolHandler(clientHandShaker))
                     .AddLast(new IdleStateHandler(0, 0, 60))
-                    .AddLast(new TcpChannelInboundHandler(_tcpClient));
+                    .AddLast(new WebSocketChannelInboundHandler(_webSocketClient));
             }
 
-            /// <summary>
-            /// 消息适配器
-            /// </summary>
-            private class TcpChannelInboundHandler : SimpleChannelInboundHandler<byte[]>
+            private class WebSocketChannelInboundHandler : SimpleChannelInboundHandler<object>
             {
-                private readonly TcpClient _tcpClient;
+                private readonly WebSocketClient _webSocketClient;
 
-                public TcpChannelInboundHandler(TcpClient tcpClient)
+                public WebSocketChannelInboundHandler(WebSocketClient webSocketClient)
                 {
-                    _tcpClient = tcpClient;
+                    _webSocketClient = webSocketClient;
                 }
 
                 public override void ChannelActive(IChannelHandlerContext context)
@@ -77,7 +75,7 @@ namespace DevKit.Utils.Socket
                         Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
                     }
 
-                    _tcpClient.OnConnected(this, context);
+                    _webSocketClient.OnConnected(this, context);
                 }
 
                 public override void ChannelInactive(IChannelHandlerContext context)
@@ -88,35 +86,38 @@ namespace DevKit.Utils.Socket
                         Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
                     }
 
-                    _tcpClient.OnDisconnected(this, context);
+                    _webSocketClient.OnDisconnected(this, context);
                 }
 
-                protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
+                protected override void ChannelRead0(IChannelHandlerContext context, object msg)
                 {
-                    _tcpClient.OnDataReceived(this, msg);
+                    if (msg is TextWebSocketFrame textFrame)
+                    {
+                        _webSocketClient.OnDataReceived(this, textFrame.Text());
+                    }
+                    else if (msg is CloseWebSocketFrame)
+                    {
+                        _webSocketClient.OnDisconnected(this, context);
+                        context.CloseAsync();
+                    }
                 }
 
                 public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
                 {
-                    _tcpClient.OnConnectFailed(this, exception);
+                    _webSocketClient.OnConnectFailed(this, exception);
                     context.CloseAsync();
                 }
             }
         }
-
-        /// <summary>
-        /// TcpClient 是否正在运行
-        /// </summary>
-        /// <returns></returns>
+        
         public bool IsRunning()
         {
             return _isRunning;
         }
-
-        public void Start(string host, int port)
+        
+        public void Start(string url)
         {
-            _host = host;
-            _port = port;
+            _url = url;
             if (_isRunning)
             {
                 return;
@@ -124,13 +125,13 @@ namespace DevKit.Utils.Socket
 
             Connect();
         }
-
+        
         public void Close()
         {
             _channel.CloseAsync();
             _isRunning = false;
         }
-
+        
         private void Connect()
         {
             if (_channel != null && _channel.Active)
@@ -142,7 +143,7 @@ namespace DevKit.Utils.Socket
             {
                 try
                 {
-                    var task = _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
+                    var task = _bootStrap.ConnectAsync();
                     if (task.Result.Active)
                     {
                         _isRunning = true;

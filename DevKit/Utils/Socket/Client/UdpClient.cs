@@ -5,7 +5,7 @@ using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
 
-namespace DevKit.Utils.Socket
+namespace DevKit.Utils.Socket.Client
 {
     public class UdpClient
     {

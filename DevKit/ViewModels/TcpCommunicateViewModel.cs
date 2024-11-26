@@ -12,7 +12,7 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TcpClient = DevKit.Utils.Socket.TcpClient;
+using TcpClient = DevKit.Utils.Socket.Client.TcpClient;
 
 namespace DevKit.ViewModels
 {
