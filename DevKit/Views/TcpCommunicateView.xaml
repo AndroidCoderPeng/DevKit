@@ -312,7 +312,7 @@
                     Grid.Column="1"
                     Margin="10,0"
                     ItemsSource="{Binding LocalAddressCollection}"
-                    SelectedIndex="0" />
+                    SelectedIndex="{Binding SelectedIndex}" />
 
                 <Ellipse
                     Grid.Column="2"

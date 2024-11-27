@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
+using System.Windows;
 using DevKit.Utils.Socket.Base;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using HandyControl.Controls;
 
 namespace DevKit.Utils.Socket.Server
 {
@@ -12,6 +15,13 @@ namespace DevKit.Utils.Socket.Server
         private readonly MultithreadEventLoopGroup _bossGroup = new MultithreadEventLoopGroup();
         private readonly MultithreadEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
         private readonly ServerBootstrap _serverBootstrap = new ServerBootstrap();
+        private string _host;
+        private int _port;
+        private ListenStateDelegate _stateDelegate;
+        private IChannel _channel;
+        private bool _isRunning;
+
+        public delegate void ListenStateDelegate(int state);
 
         public TcpServerDelegateAggregator.ConnectedEventHandler OnConnected { get; set; }
         public TcpServerDelegateAggregator.DisconnectedEventHandler OnDisconnected { get; set; }
@@ -25,9 +35,7 @@ namespace DevKit.Utils.Socket.Server
                 .Option(ChannelOption.SoBacklog, 1024)
                 .Option(ChannelOption.SoKeepalive, true)
                 .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator())
-                .Handler(new SimpleChannelInitializer<TcpServerSocketChannel>(this));
-            var channel = _serverBootstrap.BindAsync().Result;
-            channel.CloseAsync();
+                .ChildHandler(new SimpleChannelInitializer<TcpServerSocketChannel>(this));
         }
 
         private class SimpleChannelInitializer<T> : ChannelInitializer<T> where T : TcpServerSocketChannel
@@ -89,6 +97,65 @@ namespace DevKit.Utils.Socket.Server
                     context.CloseAsync();
                 }
             }
+        }
+
+        public bool IsRunning()
+        {
+            return _isRunning;
+        }
+
+        public void StartListen(string host, int port, ListenStateDelegate stateDelegate)
+        {
+            _host = host;
+            _port = port;
+            _stateDelegate = stateDelegate;
+            if (_isRunning)
+            {
+                return;
+            }
+
+            ListenLocalPort();
+        }
+
+        private void ListenLocalPort()
+        {
+            if (_channel != null && _channel.Active)
+            {
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    var task = _serverBootstrap.BindAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
+                    if (task.Result.Active)
+                    {
+                        _isRunning = true;
+                        _channel = task.Result;
+                        _stateDelegate(1);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Application.Current.Dispatcher.Invoke(() => { Growl.Error("本地端口存在冲突，启动TCP服务失败"); });
+                    _stateDelegate(0);
+                }
+            });
+        }
+
+        public void StopListen()
+        {
+            _channel.CloseAsync();
+            _channel = null;
+            _isRunning = false;
+            _stateDelegate(0);
+        }
+
+        public void SendAsync(object message)
+        {
+            _channel.WriteAndFlushAsync(message);
         }
     }
 }

@@ -8,6 +8,7 @@ using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
+using DevKit.Utils.Socket.Server;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -152,6 +153,18 @@ namespace DevKit.ViewModels
             get => _localAddressCollection;
         }
 
+        private int _selectedIndex;
+
+        public int SelectedIndex
+        {
+            set
+            {
+                _selectedIndex = value;
+                RaisePropertyChanged();
+            }
+            get => _selectedIndex;
+        }
+
         private string _listenStateColor = "DarkGray";
 
         public string ListenStateColor
@@ -222,6 +235,7 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
+        private readonly TcpServer _tcpServer = new TcpServer();
         private ClientConfigCache _clientCache;
 
         public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
@@ -313,6 +327,36 @@ namespace DevKit.ViewModels
 
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
+
+            _tcpServer.OnConnected += delegate
+            {
+                // ConnectionStateColor = "LimeGreen";
+                // ButtonState = "断开";
+            };
+            _tcpServer.OnDisconnected += delegate
+            {
+                // ConnectionStateColor = "DarkGray";
+                // ButtonState = "连接";
+            };
+            _tcpServer.OnConnectFailed += delegate(object sender, Exception exception)
+            {
+                // ConnectionStateColor = "DarkGray";
+                // ButtonState = "连接";
+                // MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
+            };
+            _tcpServer.OnDataReceived += delegate(object sender, byte[] bytes)
+            {
+                // var messageModel = new MessageModel
+                // {
+                //     Content = _clientCache.ShowHex == 1
+                //         ? BitConverter.ToString(bytes).Replace("-", " ")
+                //         : Encoding.UTF8.GetString(bytes),
+                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                //     IsSend = false
+                // };
+                //
+                // Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+            };
         }
 
         private void ShowHexChecked()
@@ -422,7 +466,7 @@ namespace DevKit.ViewModels
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveCacheConfig(_clientCache);
-            
+
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -489,6 +533,28 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
+            if (_tcpServer.IsRunning())
+            {
+                _tcpServer.StopListen();
+            }
+            else
+            {
+                _tcpServer.StartListen(_localAddressCollection[_selectedIndex], _listenPort, ListenStateHandler);
+            }
+        }
+
+        private void ListenStateHandler(int state)
+        {
+            if (state == 1)
+            {
+                ListenState = "停止";
+                ListenStateColor = "LimeGreen";
+            }
+            else
+            {
+                ListenState = "监听";
+                ListenStateColor = "DarkGray";
+            }
         }
     }
 }
