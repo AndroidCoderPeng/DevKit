@@ -26,6 +26,7 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
+        <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -311,6 +312,7 @@
                 <hc:ComboBox
                     Grid.Column="1"
                     Margin="10,0"
+                    IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     ItemsSource="{Binding LocalAddressCollection}"
                     SelectedIndex="{Binding SelectedIndex}" />
 
@@ -339,10 +341,12 @@
                     Margin="10,0"
                     hc:InfoElement.Placeholder="端口"
                     hc:InfoElement.ShowClearButton="True"
+                    IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
                 <Button
+                    x:Name="ListenStateButton"
                     Grid.Column="2"
                     Command="{Binding ServerListenCommand}"
                     Content="{Binding ListenState}"

@@ -177,7 +177,7 @@ namespace DevKit.ViewModels
             get => _listenStateColor;
         }
 
-        private int _listenPort;
+        private int _listenPort = 3000;
 
         public int ListenPort
         {

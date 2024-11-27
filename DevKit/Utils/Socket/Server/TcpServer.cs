@@ -131,9 +131,10 @@ namespace DevKit.Utils.Socket.Server
                     var task = _serverBootstrap.BindAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
                     if (task.Result.Active)
                     {
+                        _stateDelegate(1);
                         _isRunning = true;
                         _channel = task.Result;
-                        _stateDelegate(1);
+                        _channel.CloseAsync();
                     }
                 }
                 catch (Exception e)
