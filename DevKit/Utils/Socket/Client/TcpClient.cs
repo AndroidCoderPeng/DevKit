@@ -33,74 +33,59 @@ namespace DevKit.Utils.Socket.Client
                 .Option(ChannelOption.SoKeepalive, true) //长连接
                 .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator(10240, 51200, 102400))
                 .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(5))
-                .Handler(new SimpleChannelInitializer<ISocketChannel>(this));
+                .Handler(new ActionChannelInitializer<TcpSocketChannel>(channel =>
+                {
+                    channel.Pipeline
+                        .AddLast(new ByteArrayDecoder())
+                        .AddLast(new ByteArrayEncoder())
+                        .AddLast(new IdleStateHandler(0, 0, 60))
+                        .AddLast(new TcpChannelInboundHandler(this));
+                }));
         }
 
         /// <summary>
-        /// 通道初始化
+        /// 消息适配器
         /// </summary>
-        private class SimpleChannelInitializer<T> : ChannelInitializer<T> where T : ISocketChannel
+        private class TcpChannelInboundHandler : SimpleChannelInboundHandler<byte[]>
         {
             private readonly TcpClient _tcpClient;
 
-            public SimpleChannelInitializer(TcpClient tcpClient)
+            public TcpChannelInboundHandler(TcpClient tcpClient)
             {
                 _tcpClient = tcpClient;
             }
 
-            protected override void InitChannel(T channel)
+            public override void ChannelActive(IChannelHandlerContext context)
             {
-                channel.Pipeline
-                    .AddLast(new ByteArrayDecoder())
-                    .AddLast(new ByteArrayEncoder())
-                    .AddLast(new IdleStateHandler(0, 0, 60))
-                    .AddLast(new TcpChannelInboundHandler(_tcpClient));
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
+                {
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
+                }
+
+                _tcpClient.OnConnected(this, context);
             }
 
-            /// <summary>
-            /// 消息适配器
-            /// </summary>
-            private class TcpChannelInboundHandler : SimpleChannelInboundHandler<byte[]>
+            public override void ChannelInactive(IChannelHandlerContext context)
             {
-                private readonly TcpClient _tcpClient;
-
-                public TcpChannelInboundHandler(TcpClient tcpClient)
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
                 {
-                    _tcpClient = tcpClient;
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
                 }
 
-                public override void ChannelActive(IChannelHandlerContext context)
-                {
-                    var address = context.Channel.RemoteAddress;
-                    if (address is IPEndPoint endPoint)
-                    {
-                        Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
-                    }
+                _tcpClient.OnDisconnected(this, context);
+            }
 
-                    _tcpClient.OnConnected(this, context);
-                }
+            protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
+            {
+                _tcpClient.OnDataReceived(this, msg);
+            }
 
-                public override void ChannelInactive(IChannelHandlerContext context)
-                {
-                    var address = context.Channel.RemoteAddress;
-                    if (address is IPEndPoint endPoint)
-                    {
-                        Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
-                    }
-
-                    _tcpClient.OnDisconnected(this, context);
-                }
-
-                protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
-                {
-                    _tcpClient.OnDataReceived(this, msg);
-                }
-
-                public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
-                {
-                    _tcpClient.OnConnectFailed(this, exception);
-                    context.CloseAsync();
-                }
+            public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+            {
+                _tcpClient.OnConnectFailed(this, exception);
+                context.CloseAsync();
             }
         }
 
