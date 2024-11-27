@@ -12,7 +12,7 @@ namespace DevKit.Utils.Socket.Server
 {
     public class TcpServer
     {
-        private readonly MultithreadEventLoopGroup _bossGroup = new MultithreadEventLoopGroup();
+        private readonly MultithreadEventLoopGroup _bossGroup = new MultithreadEventLoopGroup(1);
         private readonly MultithreadEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
         private readonly ServerBootstrap _serverBootstrap = new ServerBootstrap();
         private string _host;
@@ -128,13 +128,13 @@ namespace DevKit.Utils.Socket.Server
             {
                 try
                 {
-                    var task = _serverBootstrap.BindAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
+                    var task = _serverBootstrap.BindAsync(IPAddress.Any, _port);
                     if (task.Result.Active)
                     {
                         _stateDelegate(1);
                         _isRunning = true;
                         _channel = task.Result;
-                        _channel.CloseAsync();
+                        // _channel.CloseAsync();
                     }
                 }
                 catch (Exception e)

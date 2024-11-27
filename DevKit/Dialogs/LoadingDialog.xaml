@@ -7,7 +7,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="400"
-    Height="120"
+    Height="100"
     d:DataContext="{d:DesignInstance Type=vm:LoadingDialogViewModel}"
     mc:Ignorable="d">
 
@@ -34,8 +34,8 @@
 
         <ProgressBar
             Grid.Row="1"
-            Margin="10"
-            IsIndeterminate="True"
-            Style="{StaticResource ProgressBarPrimaryStripe}" />
+            Height="10"
+            Margin="15"
+            IsIndeterminate="True" />
     </Grid>
 </UserControl>

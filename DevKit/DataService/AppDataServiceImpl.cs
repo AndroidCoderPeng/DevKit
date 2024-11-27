@@ -141,7 +141,10 @@ namespace DevKit.DataService
                 {
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        result.Add($"{ip.Address}");
+                        if (ip.Address.ToString() != "127.0.0.1")
+                        {
+                            result.Add($"{ip.Address}");
+                        }
                     }
                 }
             }

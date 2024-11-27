@@ -149,8 +149,9 @@ namespace DevKit.Utils.Socket.Client
                         _channel = task.Result;
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
                 }
             });
