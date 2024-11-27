@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Utils.Socket.Base;
 using DotNetty.Handlers.Timeout;
@@ -113,33 +112,27 @@ namespace DevKit.Utils.Socket.Client
         public void Close()
         {
             _channel.CloseAsync();
+            _channel = null;
             _isRunning = false;
         }
 
-        private void Connect()
+        private async void Connect()
         {
             if (_channel != null && _channel.Active)
             {
                 return;
             }
 
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    var task = _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
-                    if (task.Result.Active)
-                    {
-                        _isRunning = true;
-                        _channel = task.Result;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
-                }
-            });
+                _channel = await _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
+                _isRunning = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
+            }
         }
 
         public void SendAsync(object message)

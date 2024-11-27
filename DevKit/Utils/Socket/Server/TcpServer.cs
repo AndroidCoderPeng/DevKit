@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Utils.Socket.Base;
 using DotNetty.Transport.Bootstrapping;
@@ -104,32 +103,25 @@ namespace DevKit.Utils.Socket.Server
             ListenLocalPort();
         }
 
-        private void ListenLocalPort()
+        private async void ListenLocalPort()
         {
             if (_channel != null && _channel.Active)
             {
                 return;
             }
 
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    var task = _serverBootstrap.BindAsync(IPAddress.Any, _port);
-                    if (task.Result.Active)
-                    {
-                        _stateDelegate(1);
-                        _isRunning = true;
-                        _channel = task.Result;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    Application.Current.Dispatcher.Invoke(() => { Growl.Error("本地端口存在冲突，启动TCP服务失败"); });
-                    _stateDelegate(0);
-                }
-            });
+                _channel = await _serverBootstrap.BindAsync(IPAddress.Any, _port);
+                _stateDelegate(1);
+                _isRunning = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Application.Current.Dispatcher.Invoke(() => { Growl.Error("本地端口存在冲突，启动TCP服务失败"); });
+                _stateDelegate(0);
+            }
         }
 
         public void StopListen()

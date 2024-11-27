@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading.Tasks;
 using System.Windows;
 using DotNetty.Codecs.Http;
 using DotNetty.Codecs.Http.WebSockets;
@@ -117,32 +116,26 @@ namespace DevKit.Utils.Socket.Client
         public void Close()
         {
             _channel.CloseAsync();
+            _channel = null;
             _isRunning = false;
         }
 
-        private void Connect()
+        private async void Connect()
         {
             if (_channel != null && _channel.Active)
             {
                 return;
             }
 
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    var task = _bootStrap.ConnectAsync();
-                    if (task.Result.Active)
-                    {
-                        _isRunning = true;
-                        _channel = task.Result;
-                    }
-                }
-                catch (Exception)
-                {
-                    Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
-                }
-            });
+                _channel = await _bootStrap.ConnectAsync();
+                _isRunning = true;
+            }
+            catch (Exception)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Growl.Error("连接服务端失败，请检查网络"); });
+            }
         }
 
         public void SendAsync(object message)

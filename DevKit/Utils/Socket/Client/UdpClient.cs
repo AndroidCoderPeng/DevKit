@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
@@ -49,7 +48,7 @@ namespace DevKit.Utils.Socket.Client
             }
         }
 
-        public void BindRemote(string host, int port)
+        public async void BindRemote(string host, int port)
         {
             _endPoint = new IPEndPoint(IPAddress.Parse(host), port);
             if (_channel != null && _channel.Active)
@@ -57,14 +56,7 @@ namespace DevKit.Utils.Socket.Client
                 return;
             }
 
-            Task.Run(() =>
-            {
-                var task = _bootStrap.ConnectAsync(_endPoint);
-                if (task.Result.Active)
-                {
-                    _channel = task.Result;
-                }
-            });
+            _channel = await _bootStrap.ConnectAsync(_endPoint);
         }
 
         public void SendAsync(object message)
