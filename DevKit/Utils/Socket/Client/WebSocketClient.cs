@@ -16,7 +16,7 @@ namespace DevKit.Utils.Socket.Client
     {
         private readonly Bootstrap _bootStrap = new Bootstrap();
         private readonly MultithreadEventLoopGroup _loopGroup = new MultithreadEventLoopGroup();
-        private string _url;
+        private string _url = string.Empty;
         private IChannel _channel;
         private bool _isRunning;
 
@@ -33,88 +33,76 @@ namespace DevKit.Utils.Socket.Client
                 .Option(ChannelOption.SoKeepalive, true) //长连接
                 .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator(10240, 51200, 102400))
                 .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(5))
-                .Handler(new SimpleChannelInitializer<ISocketChannel>(this));
+                .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
+                {
+                    var clientHandShaker = WebSocketClientHandshakerFactory.NewHandshaker(
+                        new Uri(_url), WebSocketVersion.V13, null, true, new DefaultHttpHeaders()
+                    );
+                    channel.Pipeline
+                        .AddLast(new HttpClientCodec())
+                        .AddLast(new HttpObjectAggregator(8192))
+                        .AddLast(new WebSocketClientProtocolHandler(clientHandShaker))
+                        .AddLast(new IdleStateHandler(0, 0, 60))
+                        .AddLast(new WebSocketChannelInboundHandler(this));
+                }));
         }
 
-        private class SimpleChannelInitializer<T> : ChannelInitializer<T> where T : ISocketChannel
+        private class WebSocketChannelInboundHandler : SimpleChannelInboundHandler<object>
         {
             private readonly WebSocketClient _webSocketClient;
 
-            public SimpleChannelInitializer(WebSocketClient webSocketClient)
+            public WebSocketChannelInboundHandler(WebSocketClient webSocketClient)
             {
                 _webSocketClient = webSocketClient;
             }
 
-            protected override void InitChannel(T channel)
+            public override void ChannelActive(IChannelHandlerContext context)
             {
-                var clientHandShaker = WebSocketClientHandshakerFactory.NewHandshaker(
-                    new Uri(_webSocketClient._url), WebSocketVersion.V13, null, true, new DefaultHttpHeaders()
-                );
-                channel.Pipeline
-                    .AddLast(new HttpClientCodec())
-                    .AddLast(new HttpObjectAggregator(8192))
-                    .AddLast(new WebSocketClientProtocolHandler(clientHandShaker))
-                    .AddLast(new IdleStateHandler(0, 0, 60))
-                    .AddLast(new WebSocketChannelInboundHandler(_webSocketClient));
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
+                {
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
+                }
+
+                _webSocketClient.OnConnected(this, context);
             }
 
-            private class WebSocketChannelInboundHandler : SimpleChannelInboundHandler<object>
+            public override void ChannelInactive(IChannelHandlerContext context)
             {
-                private readonly WebSocketClient _webSocketClient;
-
-                public WebSocketChannelInboundHandler(WebSocketClient webSocketClient)
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
                 {
-                    _webSocketClient = webSocketClient;
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
                 }
 
-                public override void ChannelActive(IChannelHandlerContext context)
-                {
-                    var address = context.Channel.RemoteAddress;
-                    if (address is IPEndPoint endPoint)
-                    {
-                        Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
-                    }
+                _webSocketClient.OnDisconnected(this, context);
+            }
 
-                    _webSocketClient.OnConnected(this, context);
+            protected override void ChannelRead0(IChannelHandlerContext context, object msg)
+            {
+                if (msg is TextWebSocketFrame textFrame)
+                {
+                    _webSocketClient.OnDataReceived(this, textFrame.Text());
                 }
-
-                public override void ChannelInactive(IChannelHandlerContext context)
+                else if (msg is CloseWebSocketFrame)
                 {
-                    var address = context.Channel.RemoteAddress;
-                    if (address is IPEndPoint endPoint)
-                    {
-                        Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
-                    }
-
                     _webSocketClient.OnDisconnected(this, context);
-                }
-
-                protected override void ChannelRead0(IChannelHandlerContext context, object msg)
-                {
-                    if (msg is TextWebSocketFrame textFrame)
-                    {
-                        _webSocketClient.OnDataReceived(this, textFrame.Text());
-                    }
-                    else if (msg is CloseWebSocketFrame)
-                    {
-                        _webSocketClient.OnDisconnected(this, context);
-                        context.CloseAsync();
-                    }
-                }
-
-                public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
-                {
-                    _webSocketClient.OnConnectFailed(this, exception);
                     context.CloseAsync();
                 }
             }
+
+            public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
+            {
+                _webSocketClient.OnConnectFailed(this, exception);
+                context.CloseAsync();
+            }
         }
-        
+
         public bool IsRunning()
         {
             return _isRunning;
         }
-        
+
         public void Start(string url)
         {
             _url = url;
@@ -125,13 +113,13 @@ namespace DevKit.Utils.Socket.Client
 
             Connect();
         }
-        
+
         public void Close()
         {
             _channel.CloseAsync();
             _isRunning = false;
         }
-        
+
         private void Connect()
         {
             if (_channel != null && _channel.Active)
