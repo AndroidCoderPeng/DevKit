@@ -57,23 +57,11 @@ namespace DevKit.Utils.Socket.Client
 
             public override void ChannelActive(IChannelHandlerContext context)
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
-                {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
-                }
-
                 _tcpClient.OnConnected(this, context);
             }
 
             public override void ChannelInactive(IChannelHandlerContext context)
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
-                {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
-                }
-
                 _tcpClient.OnDisconnected(this, context);
             }
 
