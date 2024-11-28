@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Utils.Socket.Base;
@@ -53,23 +52,11 @@ namespace DevKit.Utils.Socket.Server
 
             public override void ChannelActive(IChannelHandlerContext context)
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
-                {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
-                }
-
                 _tcpServer.OnConnected(this, context);
             }
 
             public override void ChannelInactive(IChannelHandlerContext context)
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
-                {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
-                }
-
                 _tcpServer.OnDisconnected(this, context);
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Text;
 using System.Timers;
 using System.Windows;
@@ -9,6 +10,7 @@ using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using DevKit.Utils.Socket.Server;
+using DotNetty.Transport.Channels;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -316,15 +318,21 @@ namespace DevKit.ViewModels
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
 
-            _tcpServer.OnConnected += delegate
+            _tcpServer.OnConnected += delegate(object sender, IChannelHandlerContext context)
             {
-                // ConnectionStateColor = "LimeGreen";
-                // ButtonState = "断开";
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
+                {
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
+                }
             };
-            _tcpServer.OnDisconnected += delegate
+            _tcpServer.OnDisconnected += delegate(object sender, IChannelHandlerContext context)
             {
-                // ConnectionStateColor = "DarkGray";
-                // ButtonState = "连接";
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
+                {
+                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
+                }
             };
             _tcpServer.OnConnectFailed += delegate(object sender, Exception exception)
             {
@@ -542,6 +550,9 @@ namespace DevKit.ViewModels
             {
                 ListenState = "监听";
                 ListenStateColor = "DarkGray";
+                
+                //断开客户端（没找到服务端断开监听，只能在服务端断开时候主动调一下客户端关闭）
+                _tcpClient.Close();
             }
         }
     }
