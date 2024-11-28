@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Utils.Socket.Base;
 using DotNetty.Handlers.Timeout;
@@ -32,7 +33,7 @@ namespace DevKit.Utils.Socket.Client
                 .Option(ChannelOption.SoKeepalive, true) //长连接
                 .Option(ChannelOption.RcvbufAllocator, new AdaptiveRecvByteBufAllocator(10240, 51200, 102400))
                 .Option(ChannelOption.ConnectTimeout, TimeSpan.FromSeconds(5))
-                .Handler(new ActionChannelInitializer<TcpSocketChannel>(channel =>
+                .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
                 {
                     channel.Pipeline
                         .AddLast(new ByteArrayDecoder())
@@ -116,7 +117,7 @@ namespace DevKit.Utils.Socket.Client
             _isRunning = false;
         }
 
-        private async void Connect()
+        private void Connect()
         {
             if (_channel != null && _channel.Active)
             {
@@ -125,8 +126,13 @@ namespace DevKit.Utils.Socket.Client
 
             try
             {
-                _channel = await _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
-                _isRunning = true;
+                Task.Run(() =>
+                {
+                    var bindTask = _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
+                    bindTask.Wait();
+                    _channel = bindTask.Result;
+                    _isRunning = true;
+                });
             }
             catch (Exception e)
             {

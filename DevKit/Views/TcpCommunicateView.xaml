@@ -314,7 +314,7 @@
                     Margin="10,0"
                     IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     ItemsSource="{Binding LocalAddressCollection}"
-                    SelectedIndex="{Binding SelectedIndex}" />
+                    SelectedIndex="0" />
 
                 <Ellipse
                     Grid.Column="2"

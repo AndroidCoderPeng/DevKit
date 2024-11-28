@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using DotNetty.Codecs.Http;
 using DotNetty.Codecs.Http.WebSockets;
@@ -120,7 +121,7 @@ namespace DevKit.Utils.Socket.Client
             _isRunning = false;
         }
 
-        private async void Connect()
+        private void Connect()
         {
             if (_channel != null && _channel.Active)
             {
@@ -129,8 +130,14 @@ namespace DevKit.Utils.Socket.Client
 
             try
             {
-                _channel = await _bootStrap.ConnectAsync();
-                _isRunning = true;
+                //等效 await task
+                Task.Run(() =>
+                {
+                    var connectTask = _bootStrap.ConnectAsync();
+                    connectTask.Wait();
+                    _channel = connectTask.Result;
+                    _isRunning = true;
+                });
             }
             catch (Exception)
             {

@@ -153,18 +153,6 @@ namespace DevKit.ViewModels
             get => _localAddressCollection;
         }
 
-        private int _selectedIndex;
-
-        public int SelectedIndex
-        {
-            set
-            {
-                _selectedIndex = value;
-                RaisePropertyChanged();
-            }
-            get => _selectedIndex;
-        }
-
         private string _listenStateColor = "DarkGray";
 
         public string ListenStateColor
@@ -177,7 +165,7 @@ namespace DevKit.ViewModels
             get => _listenStateColor;
         }
 
-        private int _listenPort = 3000;
+        private int _listenPort = 9000;
 
         public int ListenPort
         {
@@ -539,7 +527,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                _tcpServer.StartListen(_localAddressCollection[_selectedIndex], _listenPort, ListenStateHandler);
+                _tcpServer.StartListen(_listenPort, ListenStateHandler);
             }
         }
 

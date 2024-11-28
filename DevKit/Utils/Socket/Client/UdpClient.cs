@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using DotNetty.Handlers.Timeout;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
@@ -22,7 +23,7 @@ namespace DevKit.Utils.Socket.Client
                 .Option(ChannelOption.TcpNodelay, true)
                 .Option(ChannelOption.SoRcvbuf, 51200)
                 .Option(ChannelOption.SoSndbuf, 51200)
-                .Handler(new ActionChannelInitializer<SocketDatagramChannel>(channel =>
+                .Handler(new ActionChannelInitializer<ISocketChannel>(channel =>
                 {
                     channel.Pipeline
                         .AddLast(new IdleStateHandler(0, 0, 60))
@@ -48,15 +49,20 @@ namespace DevKit.Utils.Socket.Client
             }
         }
 
-        public async void BindRemote(string host, int port)
+        public void BindRemote(string host, int port)
         {
-            _endPoint = new IPEndPoint(IPAddress.Parse(host), port);
             if (_channel != null && _channel.Active)
             {
                 return;
             }
 
-            _channel = await _bootStrap.ConnectAsync(_endPoint);
+            _endPoint = new IPEndPoint(IPAddress.Parse(host), port);
+            Task.Run(() =>
+            {
+                var connectTask = _bootStrap.ConnectAsync(_endPoint);
+                connectTask.Wait();
+                _channel = connectTask.Result;
+            });
         }
 
         public void SendAsync(object message)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Utils.Socket.Base;
 using DotNetty.Transport.Bootstrapping;
@@ -14,7 +15,6 @@ namespace DevKit.Utils.Socket.Server
         private readonly MultithreadEventLoopGroup _bossGroup = new MultithreadEventLoopGroup(1);
         private readonly MultithreadEventLoopGroup _workerGroup = new MultithreadEventLoopGroup();
         private readonly ServerBootstrap _serverBootstrap = new ServerBootstrap();
-        private string _host;
         private int _port;
         private ListenStateDelegate _stateDelegate;
         private IChannel _channel;
@@ -33,7 +33,7 @@ namespace DevKit.Utils.Socket.Server
                 .Channel<TcpServerSocketChannel>()
                 .Option(ChannelOption.SoBacklog, 1024)
                 .Option(ChannelOption.SoKeepalive, true)
-                .ChildHandler(new ActionChannelInitializer<TcpServerSocketChannel>(channel =>
+                .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                 {
                     channel.Pipeline
                         .AddLast(new ByteArrayDecoder())
@@ -90,9 +90,8 @@ namespace DevKit.Utils.Socket.Server
             return _isRunning;
         }
 
-        public void StartListen(string host, int port, ListenStateDelegate stateDelegate)
+        public void StartListen(int port, ListenStateDelegate stateDelegate)
         {
-            _host = host;
             _port = port;
             _stateDelegate = stateDelegate;
             if (_isRunning)
@@ -103,7 +102,7 @@ namespace DevKit.Utils.Socket.Server
             ListenLocalPort();
         }
 
-        private async void ListenLocalPort()
+        private void ListenLocalPort()
         {
             if (_channel != null && _channel.Active)
             {
@@ -112,9 +111,14 @@ namespace DevKit.Utils.Socket.Server
 
             try
             {
-                _channel = await _serverBootstrap.BindAsync(IPAddress.Any, _port);
-                _stateDelegate(1);
-                _isRunning = true;
+                Task.Run(() =>
+                {
+                    var bindTask = _serverBootstrap.BindAsync(_port);
+                    bindTask.Wait();
+                    _channel = bindTask.Result;
+                    _stateDelegate(1);
+                    _isRunning = true;
+                });
             }
             catch (Exception e)
             {
