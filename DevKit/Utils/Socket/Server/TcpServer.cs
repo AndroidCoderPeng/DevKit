@@ -23,7 +23,6 @@ namespace DevKit.Utils.Socket.Server
 
         public TcpServerDelegateAggregator.ConnectedEventHandler OnConnected { get; set; }
         public TcpServerDelegateAggregator.DisconnectedEventHandler OnDisconnected { get; set; }
-        public TcpServerDelegateAggregator.ConnectFailedEventHandler OnConnectFailed { get; set; }
         public TcpServerDelegateAggregator.DataReceivedEventHandler OnDataReceived { get; set; }
 
         public TcpServer()
@@ -62,12 +61,11 @@ namespace DevKit.Utils.Socket.Server
 
             protected override void ChannelRead0(IChannelHandlerContext ctx, byte[] msg)
             {
-                _tcpServer.OnDataReceived(this, msg);
+                _tcpServer.OnDataReceived(this, ctx, msg);
             }
 
             public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
             {
-                _tcpServer.OnConnectFailed(this, exception);
                 context.CloseAsync();
             }
         }

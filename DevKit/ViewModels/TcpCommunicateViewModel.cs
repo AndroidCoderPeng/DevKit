@@ -323,7 +323,13 @@ namespace DevKit.ViewModels
                 var address = context.Channel.RemoteAddress;
                 if (address is IPEndPoint endPoint)
                 {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已连接");
+                    var clientModel = new TcpClientModel();
+
+                    var iPv4 = endPoint.Address.MapToIPv4();
+                    clientModel.Ip = iPv4.ToString();
+                    clientModel.Port = endPoint.Port;
+
+                    Application.Current.Dispatcher.Invoke(() => { TcpClientCollection.Add(clientModel); });
                 }
             };
             _tcpServer.OnDisconnected += delegate(object sender, IChannelHandlerContext context)
@@ -331,27 +337,45 @@ namespace DevKit.ViewModels
                 var address = context.Channel.RemoteAddress;
                 if (address is IPEndPoint endPoint)
                 {
-                    Console.WriteLine($@"{endPoint.Address.MapToIPv4()} 已断开");
+                    var iPv4 = endPoint.Address.MapToIPv4();
+                    var port = endPoint.Port;
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        TcpClientModel clientModel = null;
+                        foreach (var client in _tcpClientCollection)
+                        {
+                            if (client.Ip == iPv4.ToString() && client.Port == port)
+                            {
+                                clientModel = client;
+                                break;
+                            }
+                        }
+
+                        if (clientModel != null)
+                        {
+                            TcpClientCollection.Remove(clientModel);
+                        }
+                    });
                 }
             };
-            _tcpServer.OnConnectFailed += delegate(object sender, Exception exception)
+            _tcpServer.OnDataReceived += delegate(object sender, IChannelHandlerContext context, byte[] bytes)
             {
-                // ConnectionStateColor = "DarkGray";
-                // ButtonState = "连接";
-                // MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
-            };
-            _tcpServer.OnDataReceived += delegate(object sender, byte[] bytes)
-            {
-                // var messageModel = new MessageModel
-                // {
-                //     Content = _clientCache.ShowHex == 1
-                //         ? BitConverter.ToString(bytes).Replace("-", " ")
-                //         : Encoding.UTF8.GetString(bytes),
-                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                //     IsSend = false
-                // };
-                //
-                // Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                var address = context.Channel.RemoteAddress;
+                if (address is IPEndPoint endPoint)
+                {
+                    var iPv4 = endPoint.Address.MapToIPv4();
+                    var port = endPoint.Port;
+
+                    foreach (var client in _tcpClientCollection)
+                    {
+                        if (client.Ip == iPv4.ToString() && client.Port == port)
+                        {
+                            client.MessageCount++;
+                            break;
+                        }
+                    }
+                }
             };
         }
 
@@ -550,7 +574,7 @@ namespace DevKit.ViewModels
             {
                 ListenState = "监听";
                 ListenStateColor = "DarkGray";
-                
+
                 //断开客户端（没找到服务端断开监听，只能在服务端断开时候主动调一下客户端关闭）
                 _tcpClient.Close();
             }

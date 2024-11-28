@@ -100,6 +100,11 @@ namespace DevKit.Utils.Socket.Client
 
         public void Close()
         {
+            if (_channel == null)
+            {
+                return;
+            }
+
             _channel.CloseAsync();
             _channel = null;
             _isRunning = false;

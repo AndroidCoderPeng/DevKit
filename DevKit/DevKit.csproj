@@ -165,7 +165,9 @@
     <Compile Include="Cache\CommandExtensionCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
+    <Compile Include="Converters\MessageCountConverter.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />
+    <Compile Include="Converters\MessageTagConverter.cs" />
     <Compile Include="Converters\MessageTypeConverter.cs" />
     <Compile Include="DataService\AppDataServiceImpl.cs" />
     <Compile Include="DataService\IAppDataService.cs" />
