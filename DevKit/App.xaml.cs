@@ -41,6 +41,7 @@ namespace DevKit
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();
+            containerRegistry.RegisterDialog<TcpClientMessageDialog, TcpClientMessageDialogViewModel>();
             
             //自定义Window容器，方便修改Window启动位置
             containerRegistry.RegisterDialogWindow<ExCommandWindow>("ExCommandWindow");

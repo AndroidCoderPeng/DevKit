@@ -456,7 +456,7 @@ namespace DevKit.ViewModels
                 { "ParentId", _clientCache.Id },
                 { "ConnectionType", ConnectionType.TcpClient }
             };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
         }
 
         private void ClearMessage()
@@ -582,11 +582,11 @@ namespace DevKit.ViewModels
 
         private void ClientItemDoubleClick(TcpClientModel clientModel)
         {
-            // var dialogParameters = new DialogParameters
-            // {
-            //     { "TcpClientModel", clientModel }
-            // };
-            // _dialogService.ShowDialog("TcpClientMessageDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            var dialogParameters = new DialogParameters
+            {
+                { "TcpClientModel", clientModel }
+            };
+            _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
         }
     }
 }

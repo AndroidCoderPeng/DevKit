@@ -180,6 +180,7 @@
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\TcpClientMessageDialog.xaml.cs" />
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Events\DeleteExCommandEvent.cs" />
     <Compile Include="Events\ExecuteExCommandEvent.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SerialPortCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\TcpClientMessageDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
     <Compile Include="ViewModels\UdpCommunicateViewModel.cs" />
     <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
@@ -263,6 +265,7 @@
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
+    <Page Include="Dialogs\TcpClientMessageDialog.xaml" />
     <Page Include="Themes\DarkTheme.xaml" />
     <Page Include="Themes\LightTheme.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
