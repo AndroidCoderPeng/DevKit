@@ -582,11 +582,18 @@ namespace DevKit.ViewModels
 
         private void ClientItemDoubleClick(TcpClientModel clientModel)
         {
+            if (RuntimeCache.IsClientViewShowing)
+            {
+                MessageBox.Show("请勿重复打开消息界面", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             var dialogParameters = new DialogParameters
             {
                 { "TcpClientModel", clientModel }
             };
-            _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
+            _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            RuntimeCache.IsClientViewShowing = true;
         }
     }
 }
