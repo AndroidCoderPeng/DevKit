@@ -74,8 +74,8 @@
                                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                     <Border
                                         x:Name="ItemContainerBorder"
-                                        Margin="7"
-                                        CornerRadius="7">
+                                        Margin="6,3"
+                                        CornerRadius="6">
                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                                     </Border>
 
