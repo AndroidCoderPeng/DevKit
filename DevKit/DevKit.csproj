@@ -180,7 +180,9 @@
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\TcpClientMessageDialog.xaml.cs" />
+    <Compile Include="Dialogs\TcpClientMessageDialog.xaml.cs">
+      <DependentUpon>TcpClientMessageDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Events\DeleteExCommandEvent.cs" />
     <Compile Include="Events\ExecuteExCommandEvent.cs" />
