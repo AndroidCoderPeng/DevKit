@@ -21,7 +21,7 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket" },
                 new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口通信" },
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "图标" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "微软翻译" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "翻译" },
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "转码" },
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "颜色" }
             };

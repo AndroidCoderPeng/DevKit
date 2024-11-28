@@ -217,7 +217,7 @@ namespace DevKit.ViewModels
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand ItemDoubleClickCommand { set; get; }
+        public DelegateCommand<TcpClientModel> ClientItemDoubleClickCommand { set; get; }
 
         #endregion
 
@@ -246,7 +246,7 @@ namespace DevKit.ViewModels
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
-            // ItemDoubleClickCommand = new DelegateCommand();
+            ClientItemDoubleClickCommand = new DelegateCommand<TcpClientModel>(ClientItemDoubleClick);
 
             eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
             {
@@ -578,6 +578,15 @@ namespace DevKit.ViewModels
                 //断开客户端（没找到服务端断开监听，只能在服务端断开时候主动调一下客户端关闭）
                 _tcpClient.Close();
             }
+        }
+
+        private void ClientItemDoubleClick(TcpClientModel clientModel)
+        {
+            // var dialogParameters = new DialogParameters
+            // {
+            //     { "TcpClientModel", clientModel }
+            // };
+            // _dialogService.ShowDialog("TcpClientMessageDialog", dialogParameters, delegate { }, "ExCommandWindow");
         }
     }
 }

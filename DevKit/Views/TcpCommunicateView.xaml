@@ -365,7 +365,7 @@
 
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="MouseDoubleClick">
-                        <b:InvokeCommandAction Command="{Binding ItemDoubleClickCommand}" CommandParameter="{Binding SelectedItem, ElementName=ClientListBox}" />
+                        <b:InvokeCommandAction Command="{Binding ClientItemDoubleClickCommand}" CommandParameter="{Binding SelectedItem, ElementName=ClientListBox}" />
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
 
