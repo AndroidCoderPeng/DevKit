@@ -20,10 +20,10 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP" },
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket" },
                 new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口通信" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "图标" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "翻译" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "转码" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "颜色" }
+                new MainMenuModel { MenuIcon = "\ue672", MenuName = "图标" },
+                new MainMenuModel { MenuIcon = "\ue707", MenuName = "翻译" },
+                new MainMenuModel { MenuIcon = "\ue602", MenuName = "转码" },
+                new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
             };
         }
 
