@@ -268,8 +268,6 @@
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Dialogs\TcpClientMessageDialog.xaml" />
-    <Page Include="Themes\DarkTheme.xaml" />
-    <Page Include="Themes\LightTheme.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ExCommandWindow.xaml" />
