@@ -56,6 +56,12 @@ namespace DevKit.ViewModels
                 case 5:
                     region.RequestNavigate("SerialPortCommunicateView");
                     break;
+                case 6:
+                    region.RequestNavigate("GenerateIconView");
+                    break;
+                case 7:
+                    region.RequestNavigate("TranslationView");
+                    break;
             }
         }
     }
