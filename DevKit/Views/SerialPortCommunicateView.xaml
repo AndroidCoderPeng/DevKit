@@ -40,8 +40,7 @@
             Margin="10"
             ItemsSource="{Binding MessageCollection}"
             ScrollViewer.CanContentScroll="False"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            Style="{x:Null}">
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid>
