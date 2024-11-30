@@ -21,7 +21,6 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket" },
                 new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口" },
                 new MainMenuModel { MenuIcon = "\ue672", MenuName = "图标" },
-                new MainMenuModel { MenuIcon = "\ue707", MenuName = "翻译" },
                 new MainMenuModel { MenuIcon = "\ue602", MenuName = "转码" },
                 new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
             };
@@ -150,6 +149,11 @@ namespace DevKit.DataService
             }
 
             return result;
+        }
+
+        public List<string> GetPlatformTypes()
+        {
+            return new List<string> { "Windows", "Android", "iOS" };
         }
     }
 }

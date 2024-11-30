@@ -59,9 +59,6 @@ namespace DevKit.ViewModels
                 case 6:
                     region.RequestNavigate("GenerateIconView");
                     break;
-                case 7:
-                    region.RequestNavigate("TranslationView");
-                    break;
             }
         }
     }

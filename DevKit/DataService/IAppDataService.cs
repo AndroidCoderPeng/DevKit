@@ -19,5 +19,7 @@ namespace DevKit.DataService
         void DeleteExtensionCommandCache(int cacheId);
 
         List<string> GetAllIPv4Addresses();
+
+        List<string> GetPlatformTypes();
     }
 }

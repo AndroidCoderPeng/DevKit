@@ -52,7 +52,7 @@
 
                             <TextBlock
                                 Grid.Column="0"
-                                Padding="20,10"
+                                Padding="20,13"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="30"
