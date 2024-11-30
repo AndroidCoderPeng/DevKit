@@ -38,6 +38,7 @@
             </Grid.ColumnDefinitions>
 
             <hc:ImageSelector
+                x:Name="ImageSelector"
                 Grid.Column="0"
                 Width="192"
                 Height="192"
@@ -59,6 +60,7 @@
             <ComboBox
                 x:Name="TypeComboBox"
                 Grid.Column="0"
+                IsEnabled="{Binding HasValue, ElementName=ImageSelector}"
                 ItemsSource="{Binding PlatformTypes}"
                 SelectedIndex="0">
                 <b:Interaction.Triggers>
