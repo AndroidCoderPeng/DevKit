@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using DevKit.DataService;
 using DevKit.Models;
+using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -103,15 +104,32 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand ImageSelectedCommand { set; get; }
+        public DelegateCommand ImageUnselectedCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
 
         #endregion
 
+        private readonly IAppDataService _dataService;
+
         public GenerateIconViewModel(IAppDataService dataService)
         {
-            PlatformTypes = dataService.GetPlatformTypes();
+            _dataService = dataService;
+            PlatformTypes = _dataService.GetPlatformTypes();
 
+            ImageSelectedCommand = new DelegateCommand(ImageSelected);
+            ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
+        }
+
+        private void ImageSelected()
+        {
+            ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows").ToObservableCollection();
+        }
+
+        private void ImageUnselected()
+        {
+            ImageTypeCollection.Clear();
         }
 
         private void ItemSelected(ComboBox comboBox)
@@ -126,6 +144,8 @@ namespace DevKit.ViewModels
 
                     IsIcoRadioButtonEnabled = true;
                     IsIcoRadioButtonChecked = true;
+
+                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows").ToObservableCollection();
                     break;
                 case "Android":
                     IsWindowsIconListBoxVisible = "Collapsed";
@@ -134,6 +154,8 @@ namespace DevKit.ViewModels
 
                     IsIcoRadioButtonEnabled = false;
                     IsPngRadioButtonChecked = true;
+
+                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Android").ToObservableCollection();
                     break;
                 default:
                     IsWindowsIconListBoxVisible = "Collapsed";
@@ -142,6 +164,8 @@ namespace DevKit.ViewModels
 
                     IsIcoRadioButtonEnabled = false;
                     IsPngRadioButtonChecked = true;
+
+                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("iOS").ToObservableCollection();
                     break;
             }
         }

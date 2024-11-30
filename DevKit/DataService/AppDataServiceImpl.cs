@@ -155,5 +155,27 @@ namespace DevKit.DataService
         {
             return new List<string> { "Windows", "Android", "iOS" };
         }
+
+        public List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform)
+        {
+            if (platform.Equals("Windows"))
+            {
+                return new List<PlatformImageTypeModel>
+                {
+                    new PlatformImageTypeModel { Size = "32*32", },
+                    new PlatformImageTypeModel { Size = "64*64", },
+                    new PlatformImageTypeModel { Size = "128*128", },
+                    new PlatformImageTypeModel { Size = "256*256", }
+                };
+            }
+            else if (platform.Equals("Android"))
+            {
+                return new List<PlatformImageTypeModel>();
+            }
+            else
+            {
+                return new List<PlatformImageTypeModel>();
+            }
+        }
     }
 }

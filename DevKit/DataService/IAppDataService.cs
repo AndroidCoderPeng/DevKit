@@ -21,5 +21,7 @@ namespace DevKit.DataService
         List<string> GetAllIPv4Addresses();
 
         List<string> GetPlatformTypes();
+
+        List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform);
     }
 }
