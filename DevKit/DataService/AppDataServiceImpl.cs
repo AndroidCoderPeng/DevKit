@@ -162,10 +162,10 @@ namespace DevKit.DataService
             {
                 return new List<PlatformImageTypeModel>
                 {
-                    new PlatformImageTypeModel { Size = "32*32", },
-                    new PlatformImageTypeModel { Size = "64*64", },
-                    new PlatformImageTypeModel { Size = "128*128", },
-                    new PlatformImageTypeModel { Size = "256*256", }
+                    new PlatformImageTypeModel { Width = 32, Height = 32 },
+                    new PlatformImageTypeModel { Width = 64, Height = 64 },
+                    new PlatformImageTypeModel { Width = 128, Height = 128 },
+                    new PlatformImageTypeModel { Width = 256, Height = 256 }
                 };
             }
             else if (platform.Equals("Android"))

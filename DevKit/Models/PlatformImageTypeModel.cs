@@ -4,7 +4,8 @@ namespace DevKit.Models
 {
     public class PlatformImageTypeModel
     {
-        public string Size { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public BitmapImage Image { get; set; }
     }
 }
