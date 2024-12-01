@@ -38,6 +38,8 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<WebSocketCommunicateView, WebSocketCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<SerialPortCommunicateView, SerialPortCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<GenerateIconView, GenerateIconViewModel>();
+            containerRegistry.RegisterForNavigation<TranscodingView, TranscodingViewModel>();
+            containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
 
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

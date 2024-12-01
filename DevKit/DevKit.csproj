@@ -220,6 +220,7 @@
     <Compile Include="Utils\Socket\Server\TcpServer.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
+    <Compile Include="ViewModels\ColorResourceViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\GenerateIconViewModel.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="ViewModels\SerialPortCommunicateViewModel.cs" />
     <Compile Include="ViewModels\TcpClientMessageDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\TranscodingViewModel.cs" />
     <Compile Include="ViewModels\UdpCommunicateViewModel.cs" />
     <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
@@ -235,6 +237,9 @@
     </Compile>
     <Compile Include="Views\ApplicationPackageView.xaml.cs">
       <DependentUpon>ApplicationPackageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ColorResourceView.xaml.cs">
+      <DependentUpon>ColorResourceView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExCommandWindow.xaml.cs">
       <DependentUpon>ExCommandWindow.xaml</DependentUpon>
@@ -251,6 +256,9 @@
     </Compile>
     <Compile Include="Views\TcpCommunicateView.xaml.cs">
       <DependentUpon>TcpCommunicateView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TranscodingView.xaml.cs">
+      <DependentUpon>TranscodingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UdpCommunicateView.xaml.cs">
       <DependentUpon>UdpCommunicateView.xaml</DependentUpon>
@@ -285,6 +293,7 @@
     <Page Include="Dialogs\TcpClientMessageDialog.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
+    <Page Include="Views\ColorResourceView.xaml" />
     <Page Include="Views\ExCommandWindow.xaml" />
     <Page Include="Views\GenerateIconView.xaml" />
     <Page Include="Views\MainWindow.xaml">
@@ -293,6 +302,7 @@
     </Page>
     <Page Include="Views\SerialPortCommunicateView.xaml" />
     <Page Include="Views\TcpCommunicateView.xaml" />
+    <Page Include="Views\TranscodingView.xaml" />
     <Page Include="Views\UdpCommunicateView.xaml" />
     <Page Include="Views\WebSocketCommunicateView.xaml" />
   </ItemGroup>

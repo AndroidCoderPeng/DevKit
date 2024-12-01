@@ -141,6 +141,7 @@
                 Margin="10,0"
                 Command="{Binding OutputIconCommand}"
                 Content="导出到本地"
+                IsEnabled="{Binding HasValue, ElementName=ImageSelector}"
                 Style="{StaticResource ButtonPrimary}" />
 
             <RadioButton
