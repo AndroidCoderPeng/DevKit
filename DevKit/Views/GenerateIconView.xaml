@@ -84,7 +84,7 @@
             <Button
                 Grid.Column="1"
                 Margin="10,0"
-                Command="{Binding OutputCommand}"
+                Command="{Binding OutputIconCommand}"
                 Content="导出到本地"
                 Style="{StaticResource ButtonPrimary}" />
 

@@ -188,28 +188,26 @@ namespace DevKit.DataService
                         { Width = 192, Height = 192, AndroidSizeTag = "xxxhdpi", ResultImage = bitmapImage }
                 };
             }
-            else
-            {
-                if (platform.Equals("Windows"))
-                {
-                    return new List<PlatformImageTypeModel>
-                    {
-                        new PlatformImageTypeModel { Width = 32, Height = 32 },
-                        new PlatformImageTypeModel { Width = 64, Height = 64 },
-                        new PlatformImageTypeModel { Width = 128, Height = 128 },
-                        new PlatformImageTypeModel { Width = 256, Height = 256 }
-                    };
-                }
 
+            if (platform.Equals("Windows"))
+            {
                 return new List<PlatformImageTypeModel>
                 {
-                    new PlatformImageTypeModel { Width = 48, Height = 48, AndroidSizeTag = "mdpi" },
-                    new PlatformImageTypeModel { Width = 72, Height = 72, AndroidSizeTag = "hdpi" },
-                    new PlatformImageTypeModel { Width = 96, Height = 96, AndroidSizeTag = "xhdpi" },
-                    new PlatformImageTypeModel { Width = 144, Height = 144, AndroidSizeTag = "xxhdpi" },
-                    new PlatformImageTypeModel { Width = 192, Height = 192, AndroidSizeTag = "xxxhdpi" }
+                    new PlatformImageTypeModel { Width = 32, Height = 32 },
+                    new PlatformImageTypeModel { Width = 64, Height = 64 },
+                    new PlatformImageTypeModel { Width = 128, Height = 128 },
+                    new PlatformImageTypeModel { Width = 256, Height = 256 }
                 };
             }
+
+            return new List<PlatformImageTypeModel>
+            {
+                new PlatformImageTypeModel { Width = 48, Height = 48, AndroidSizeTag = "mdpi" },
+                new PlatformImageTypeModel { Width = 72, Height = 72, AndroidSizeTag = "hdpi" },
+                new PlatformImageTypeModel { Width = 96, Height = 96, AndroidSizeTag = "xhdpi" },
+                new PlatformImageTypeModel { Width = 144, Height = 144, AndroidSizeTag = "xxhdpi" },
+                new PlatformImageTypeModel { Width = 192, Height = 192, AndroidSizeTag = "xxxhdpi" }
+            };
         }
     }
 }
