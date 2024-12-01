@@ -6,6 +6,7 @@ namespace DevKit.Models
     {
         public int Width { get; set; }
         public int Height { get; set; }
-        public BitmapImage Image { get; set; }
+        public string AndroidSizeTag { get; set; }
+        public BitmapImage ResultImage { get; set; }
     }
 }

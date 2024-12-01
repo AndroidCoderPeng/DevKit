@@ -45,10 +45,11 @@
                 Margin="10"
                 hc:BorderElement.CornerRadius="0"
                 BorderBrush="{DynamicResource PrimaryBrush}"
-                BorderThickness="1">
+                BorderThickness="1"
+                DefaultExt=".png">
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="ImageSelected">
-                        <b:InvokeCommandAction Command="{Binding ImageSelectedCommand}" />
+                        <b:InvokeCommandAction Command="{Binding ImageSelectedCommand}" CommandParameter="{Binding Uri, ElementName=ImageSelector}" />
                     </b:EventTrigger>
 
                     <b:EventTrigger EventName="ImageUnselected">
@@ -140,7 +141,7 @@
                             Height="{Binding Height}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1">
-                            <Image />
+                            <Image Source="{Binding ResultImage}" />
                         </Border>
                     </Grid>
                 </DataTemplate>
@@ -173,13 +174,67 @@
             Grid.Row="2"
             Margin="10"
             ItemsSource="{Binding ImageTypeCollection}"
-            Visibility="{Binding IsAndroidDrawableListBoxVisible}" />
+            Visibility="{Binding IsAndroidDrawableListBoxVisible}">
 
-        <ListBox
-            x:Name="IPhoneImageListBox"
-            Grid.Row="2"
-            Margin="10"
-            ItemsSource="{Binding ImageTypeCollection}"
-            Visibility="{Binding IsIPhoneImageListBoxVisible}" />
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Margin="0,7"
+                            FontSize="14"
+                            Text="{Binding AndroidSizeTag}" />
+
+                        <Border
+                            Grid.Row="1"
+                            Width="{Binding Width}"
+                            Height="{Binding Height}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1">
+                            <Image Source="{Binding ResultImage}" />
+                        </Border>
+
+                        <TextBlock
+                            Grid.Row="2"
+                            Margin="0,7"
+                            FontSize="14">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}*{1}">
+                                    <Binding Path="Width" />
+                                    <Binding Path="Height" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <!--  ListBox横排  -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border x:Name="ItemContainerBorder" Margin="5,0">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Top" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
     </Grid>
 </UserControl>

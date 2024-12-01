@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DevKit.Cache;
 using DevKit.Models;
 
@@ -22,6 +23,6 @@ namespace DevKit.DataService
 
         List<string> GetPlatformTypes();
 
-        List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform);
+        List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform, Uri uri);
     }
 }

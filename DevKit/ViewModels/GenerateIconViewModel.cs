@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using DevKit.DataService;
@@ -104,32 +105,36 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ImageSelectedCommand { set; get; }
+        public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
         public DelegateCommand ImageUnselectedCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
+        private Uri _uri;
 
         public GenerateIconViewModel(IAppDataService dataService)
         {
             _dataService = dataService;
             PlatformTypes = _dataService.GetPlatformTypes();
 
-            ImageSelectedCommand = new DelegateCommand(ImageSelected);
+            ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
         }
 
-        private void ImageSelected()
+        private void ImageSelected(Uri uri)
         {
-            ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows").ToObservableCollection();
+            _uri = uri;
+            ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows", _uri).ToObservableCollection();
+            IsIcoRadioButtonChecked = true;
         }
 
         private void ImageUnselected()
         {
             ImageTypeCollection.Clear();
+            _uri = null;
         }
 
         private void ItemSelected(ComboBox comboBox)
@@ -145,7 +150,8 @@ namespace DevKit.ViewModels
                     IsIcoRadioButtonEnabled = true;
                     IsIcoRadioButtonChecked = true;
 
-                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows").ToObservableCollection();
+                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows", _uri)
+                        .ToObservableCollection();
                     break;
                 case "Android":
                     IsWindowsIconListBoxVisible = "Collapsed";
@@ -155,17 +161,8 @@ namespace DevKit.ViewModels
                     IsIcoRadioButtonEnabled = false;
                     IsPngRadioButtonChecked = true;
 
-                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Android").ToObservableCollection();
-                    break;
-                default:
-                    IsWindowsIconListBoxVisible = "Collapsed";
-                    IsAndroidDrawableListBoxVisible = "Collapsed";
-                    IsIPhoneImageListBoxVisible = "Visible";
-
-                    IsIcoRadioButtonEnabled = false;
-                    IsPngRadioButtonChecked = true;
-
-                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("iOS").ToObservableCollection();
+                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Android", _uri)
+                        .ToObservableCollection();
                     break;
             }
         }
