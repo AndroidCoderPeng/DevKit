@@ -92,6 +92,7 @@
                         Grid.Row="0"
                         Command="{Binding CreateRoundCornerIconCommand}"
                         Content="生成圆角图标"
+                        IsEnabled="{Binding HasValue, ElementName=ImageSelector}"
                         Style="{StaticResource ButtonPrimary}" />
 
                     <Button
@@ -99,6 +100,7 @@
                         Margin="0,10,0,0"
                         Command="{Binding SaveRoundCornerIconCommand}"
                         Content="保存圆角图标"
+                        IsEnabled="{Binding HasValue, ElementName=ImageSelector}"
                         Style="{StaticResource ButtonDashedPrimary}" />
                 </Grid>
             </Grid>
