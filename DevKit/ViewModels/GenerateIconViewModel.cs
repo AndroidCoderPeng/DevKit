@@ -126,7 +126,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
         public DelegateCommand ImageUnselectedCommand { set; get; }
-        public DelegateCommand SliderValueChangedCommand { set; get; }
+        public DelegateCommand CreateRoundCornerIconCommand { set; get; }
         public DelegateCommand SaveRoundCornerIconCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
         public DelegateCommand OutputIconCommand { set; get; }
@@ -135,6 +135,7 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private Uri _uri;
+        private Bitmap _roundImage;
 
         public GenerateIconViewModel(IAppDataService dataService)
         {
@@ -143,7 +144,7 @@ namespace DevKit.ViewModels
 
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
-            SliderValueChangedCommand = new DelegateCommand(SliderValueChanged);
+            CreateRoundCornerIconCommand = new DelegateCommand(CreateRoundCornerIcon);
             SaveRoundCornerIconCommand = new DelegateCommand(SaveRoundCornerIcon);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
             OutputIconCommand = new DelegateCommand(OutputIcon);
@@ -164,21 +165,20 @@ namespace DevKit.ViewModels
             RoundCornerImage = null;
         }
 
-        private void SliderValueChanged()
+        private void CreateRoundCornerIcon()
         {
-            var roundImage = CreateRoundCornerImage();
-            RoundCornerImage = roundImage.ToBitmapImage();
+            _roundImage = CreateRoundCornerImage();
+            RoundCornerImage = _roundImage.ToBitmapImage();
         }
 
         private void SaveRoundCornerIcon()
         {
-            var roundImage = CreateRoundCornerImage();
             var folderDialog = new FolderBrowserDialog();
             if (folderDialog.ShowDialog() == DialogResult.OK)
             {
                 var file = new FileInfo(_uri.LocalPath);
                 var fileName = Path.GetFileNameWithoutExtension(file.FullName);
-                roundImage.Save($@"{folderDialog.SelectedPath}\{fileName}.png", ImageFormat.Png);
+                _roundImage.Save($@"{folderDialog.SelectedPath}\{fileName}.png", ImageFormat.Png);
                 Growl.Success("图标生成成功");
             }
         }
@@ -190,31 +190,16 @@ namespace DevKit.ViewModels
                 var roundImage = new Bitmap(originalImage.Width, originalImage.Height);
                 using (var g = Graphics.FromImage(roundImage))
                 {
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     using (var path = new GraphicsPath())
                     {
-                        path.AddArc(
-                            0, 0,
-                            _cornerRadius * 2, _cornerRadius * 2,
-                            180, 90
-                        );
-                        path.AddArc(
-                            originalImage.Width - _cornerRadius * 2, 0,
-                            _cornerRadius * 2, _cornerRadius * 2,
-                            270, 90
-                        );
-                        path.AddArc(
-                            originalImage.Width - _cornerRadius * 2, originalImage.Height - _cornerRadius * 2,
-                            _cornerRadius * 2, _cornerRadius * 2,
-                            0, 90
-                        );
-                        path.AddArc(
-                            0, originalImage.Height - _cornerRadius * 2,
-                            _cornerRadius * 2, _cornerRadius * 2,
-                            90, 90
-                        );
+                        path.AddArc(0, 0, _cornerRadius * 2, _cornerRadius * 2, 180, 90);
+                        path.AddArc(originalImage.Width - _cornerRadius * 2, 0, _cornerRadius * 2,
+                            _cornerRadius * 2, 270, 90);
+                        path.AddArc(originalImage.Width - _cornerRadius * 2,
+                            originalImage.Height - _cornerRadius * 2, _cornerRadius * 2, _cornerRadius * 2, 0,
+                            90);
+                        path.AddArc(0, originalImage.Height - _cornerRadius * 2, _cornerRadius * 2,
+                            _cornerRadius * 2, 90, 90);
                         path.CloseFigure();
 
                         var region = new Region(path);

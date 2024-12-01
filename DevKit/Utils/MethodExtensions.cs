@@ -143,15 +143,13 @@ namespace DevKit.Utils
 
         public static BitmapImage ToBitmapImage(this Bitmap bitmap)
         {
-            using (var ms = new MemoryStream())
-            {
-                bitmap.Save(ms, ImageFormat.Png);
-                var bitImage = new BitmapImage();
-                bitImage.BeginInit();
-                bitImage.StreamSource = ms;
-                bitImage.EndInit();
-                return bitImage;
-            }
+            var ms = new MemoryStream();
+            bitmap.Save(ms, ImageFormat.Png);
+            var bitImage = new BitmapImage();
+            bitImage.BeginInit();
+            bitImage.StreamSource = ms;
+            bitImage.EndInit();
+            return bitImage;
         }
     }
 }
