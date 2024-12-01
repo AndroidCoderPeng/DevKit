@@ -6,7 +6,6 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {

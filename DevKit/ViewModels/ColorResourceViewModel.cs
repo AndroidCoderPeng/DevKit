@@ -1,7 +1,8 @@
-﻿namespace DevKit.ViewModels
+﻿using Prism.Mvvm;
+
+namespace DevKit.ViewModels
 {
-    public class ColorResourceViewModel
+    public class ColorResourceViewModel : BindableBase
     {
-        
     }
 }
