@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Media.Imaging;
 
 namespace DevKit.Utils
 {
@@ -81,6 +85,7 @@ namespace DevKit.Utils
             {
                 value = value.Replace(" ", "");
             }
+
             return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
         }
 
@@ -134,6 +139,19 @@ namespace DevKit.Utils
         public static bool IsNumber(this string s)
         {
             return new Regex(@"^\d+$").IsMatch(s);
+        }
+
+        public static BitmapImage ToBitmapImage(this Bitmap bitmap)
+        {
+            using (var ms = new MemoryStream())
+            {
+                bitmap.Save(ms, ImageFormat.Png);
+                var bitImage = new BitmapImage();
+                bitImage.BeginInit();
+                bitImage.StreamSource = ms;
+                bitImage.EndInit();
+                return bitImage;
+            }
         }
     }
 }
