@@ -12,7 +12,6 @@ using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using ComboBox = System.Windows.Controls.ComboBox;
-using Size = System.Drawing.Size;
 
 namespace DevKit.ViewModels
 {
@@ -195,39 +194,11 @@ namespace DevKit.ViewModels
                     }
                     else if (_isPngRadioButtonChecked)
                     {
-                        //生成一系列不同尺寸的png格式图片
-                        foreach (var type in _imageTypeCollection)
-                        {
-                            var size = new Size(type.Width, type.Height);
-                            var destination = $@"{rootPath}\{fileName}_{type.Width}.png";
-                            using (var originalImage = Image.FromFile(_uri.LocalPath))
-                            {
-                                using (var bitmap = new Bitmap(originalImage, size))
-                                {
-                                    bitmap.Save(destination, ImageFormat.Png);
-                                }
-                            }
-                        }
-
-                        Growl.Success("图标生成成功");
+                        GenerateWindowsIcon(rootPath, fileName, ImageFormat.Png);
                     }
                     else
                     {
-                        //生成一系列不同尺寸的jpg格式图片
-                        foreach (var type in _imageTypeCollection)
-                        {
-                            var size = new Size(type.Width, type.Height);
-                            var destination = $@"{rootPath}\{fileName}_{type.Width}.jpg";
-                            using (var originalImage = Image.FromFile(_uri.LocalPath))
-                            {
-                                using (var bitmap = new Bitmap(originalImage, size))
-                                {
-                                    bitmap.Save(destination, ImageFormat.Jpeg);
-                                }
-                            }
-                        }
-
-                        Growl.Success("图标生成成功");
+                        GenerateWindowsIcon(rootPath, fileName, ImageFormat.Jpeg);
                     }
                 }
 
@@ -238,6 +209,32 @@ namespace DevKit.ViewModels
                     );
                 }
             }
+        }
+
+        /// <summary>
+        /// 生成Windows平台图标
+        /// </summary>
+        /// <param name="rootPath"></param>
+        /// <param name="fileName"></param>
+        /// <param name="imageFormat"></param>
+        private void GenerateWindowsIcon(string rootPath, string fileName, ImageFormat imageFormat)
+        {
+            foreach (var type in _imageTypeCollection)
+            {
+                var size = new Size(type.Width, type.Height);
+                var destination = Equals(imageFormat, ImageFormat.Png)
+                    ? $@"{rootPath}\{fileName}_{type.Width}.png"
+                    : $@"{rootPath}\{fileName}_{type.Width}.jpg";
+                using (var originalImage = Image.FromFile(_uri.LocalPath))
+                {
+                    using (var bitmap = new Bitmap(originalImage, size))
+                    {
+                        bitmap.Save(destination, ImageFormat.Jpeg);
+                    }
+                }
+            }
+
+            Growl.Success("图标生成成功");
         }
 
         /// <summary>
