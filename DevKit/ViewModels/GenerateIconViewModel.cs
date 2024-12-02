@@ -167,7 +167,23 @@ namespace DevKit.ViewModels
 
         private void CreateRoundCornerIcon()
         {
-            _roundImage = CreateRoundCornerImage();
+            var originalImage = Image.FromFile(_uri.LocalPath);
+            _roundImage = new Bitmap(originalImage.Width, originalImage.Height);
+            using (var g = Graphics.FromImage(_roundImage))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias; // 抗锯齿
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic; // 高质量双三次插值
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.FillRectangle(Brushes.Transparent, new Rectangle(0, 0, originalImage.Width, originalImage.Height));
+                using (var path = CreateRoundedRectPath(originalImage.Width, originalImage.Height, _cornerRadius))
+                {
+                    g.SetClip(path);
+                    g.DrawImage(originalImage, new Point(0, 0));
+                }
+            }
+
+            originalImage.Dispose();
             RoundCornerImage = _roundImage.ToBitmapImage();
         }
 
@@ -179,37 +195,24 @@ namespace DevKit.ViewModels
                 var file = new FileInfo(_uri.LocalPath);
                 var fileName = Path.GetFileNameWithoutExtension(file.FullName);
                 _roundImage.Save($@"{folderDialog.SelectedPath}\{fileName}.png", ImageFormat.Png);
+                _roundImage.Dispose();
                 Growl.Success("图标生成成功");
             }
         }
 
-        private Bitmap CreateRoundCornerImage()
+        private GraphicsPath CreateRoundedRectPath(int width, int height, int cornerRadius)
         {
-            using (var originalImage = Image.FromFile(_uri.LocalPath))
-            {
-                var roundImage = new Bitmap(originalImage.Width, originalImage.Height);
-                using (var g = Graphics.FromImage(roundImage))
-                {
-                    using (var path = new GraphicsPath())
-                    {
-                        path.AddArc(0, 0, _cornerRadius * 2, _cornerRadius * 2, 180, 90);
-                        path.AddArc(originalImage.Width - _cornerRadius * 2, 0, _cornerRadius * 2,
-                            _cornerRadius * 2, 270, 90);
-                        path.AddArc(originalImage.Width - _cornerRadius * 2,
-                            originalImage.Height - _cornerRadius * 2, _cornerRadius * 2, _cornerRadius * 2, 0,
-                            90);
-                        path.AddArc(0, originalImage.Height - _cornerRadius * 2, _cornerRadius * 2,
-                            _cornerRadius * 2, 90, 90);
-                        path.CloseFigure();
-
-                        var region = new Region(path);
-                        g.Clip = region;
-                        g.DrawImage(originalImage, new Point(0, 0));
-                    }
-                }
-
-                return roundImage;
-            }
+            var path = new GraphicsPath();
+            // 左上角
+            path.AddArc(0, 0, cornerRadius, cornerRadius, 180, 90);
+            // 右上角
+            path.AddArc(width - cornerRadius, 0, cornerRadius, cornerRadius, 270, 90);
+            // 右下角
+            path.AddArc(width - cornerRadius, height - cornerRadius, cornerRadius, cornerRadius, 0, 90);
+            // 左下角
+            path.AddArc(0, height - cornerRadius, cornerRadius, cornerRadius, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private void ItemSelected(ComboBox comboBox)
