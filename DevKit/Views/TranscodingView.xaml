@@ -61,31 +61,44 @@
                     Grid.Row="0"
                     Grid.RowSpan="2"
                     Grid.Column="0"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding ByteArrayToAsciiCommand}"
+                    CommandParameter="{Binding Text, ElementName=InputByteArrayTextBox}"
                     Content="&#xe604;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    FontSize="16" />
+                    FontSize="16"
+                    Style="{x:Null}" />
 
                 <hc:TextBox
+                    x:Name="InputByteArrayTextBox"
                     Grid.Row="0"
                     Grid.Column="1"
                     Margin="10,0,10,5"
-                    hc:InfoElement.Placeholder="请输入待转码的字符，HEX格式"
+                    hc:InfoElement.Placeholder="请输入待转码的字符，字节码数组格式，如：[71, 101, 116, 68, 97, 116, 97]"
                     hc:InfoElement.ShowClearButton="True" />
 
                 <hc:TextBox
+                    x:Name="InputAsciiTextBox"
                     Grid.Row="1"
                     Grid.Column="1"
                     Margin="10,5,10,0"
                     hc:InfoElement.Placeholder="请输入待转码的字符，ASCII格式"
-                    hc:InfoElement.ShowClearButton="True" />
+                    hc:InfoElement.ShowClearButton="True"
+                    Text="{Binding AsciiCodeValue}" />
 
                 <Button
                     Grid.Row="0"
                     Grid.RowSpan="2"
                     Grid.Column="2"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding AsciiToHexCommand}"
+                    CommandParameter="{Binding Text, ElementName=InputAsciiTextBox}"
                     Content="&#xe600;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    FontSize="16" />
+                    FontSize="16"
+                    Style="{x:Null}" />
             </Grid>
 
             <Grid Grid.Row="1">

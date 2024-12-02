@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Windows;
 using DevKit.DataService;
 using DevKit.Utils;
@@ -13,6 +14,18 @@ namespace DevKit.ViewModels
     public class TranscodingViewModel : BindableBase
     {
         #region VM
+
+        private string _asciiCodeValue;
+
+        public string AsciiCodeValue
+        {
+            set
+            {
+                _asciiCodeValue = value;
+                RaisePropertyChanged();
+            }
+            get => _asciiCodeValue;
+        }
 
         private string _hexValue = "00";
 
@@ -78,6 +91,8 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> ByteArrayToAsciiCommand { set; get; }
+        public DelegateCommand<string> AsciiToHexCommand { set; get; }
         public DelegateCommand<string> SearchStartedCommand { set; get; }
         public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
         public DelegateCommand ImageUnselectedCommand { set; get; }
@@ -90,9 +105,36 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
 
+            ByteArrayToAsciiCommand = new DelegateCommand<string>(ByteArrayToAscii);
+            AsciiToHexCommand = new DelegateCommand<string>(AsciiToHex);
             SearchStartedCommand = new DelegateCommand<string>(SearchStarted);
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
+        }
+
+        private void ByteArrayToAscii(string byteArray)
+        {
+            if (byteArray.StartsWith("[") && byteArray.EndsWith("]"))
+            {
+                var dataContent = byteArray
+                    .Substring(1, byteArray.Length - 2)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var bytes = new byte[dataContent.Length];
+                for (var i = 0; i < dataContent.Length; i++)
+                {
+                    bytes[i] = Convert.ToByte(dataContent[i]);
+                }
+
+                AsciiCodeValue = Encoding.ASCII.GetString(bytes).Replace("\n", "").Replace("\r", "");
+            }
+            else
+            {
+                MessageBox.Show("不是有效的数据，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AsciiToHex(string ascii)
+        {
         }
 
         private void SearchStarted(string hexValue)
