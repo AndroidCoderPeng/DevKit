@@ -207,7 +207,6 @@
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
     <Compile Include="Utils\DelegateAggregator.cs" />
-    <Compile Include="Utils\HexValidationRule.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />

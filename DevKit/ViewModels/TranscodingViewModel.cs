@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Windows;
 using DevKit.DataService;
+using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -94,6 +97,18 @@ namespace DevKit.ViewModels
 
         private void SearchStarted(string hexValue)
         {
+            if (!hexValue.IsHex())
+            {
+                MessageBox.Show("不是有效的16进制", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (int.Parse(hexValue, NumberStyles.HexNumber) > 127)
+            {
+                MessageBox.Show("超出ASCII码范围", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             var asciiCode = _dataService.QueryAsciiCodeByHex(hexValue);
             DecimalValue = asciiCode.DecimalValue.ToString();
             StringValue = asciiCode.StringValue;
