@@ -34,6 +34,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private bool _hasSelectedDevice;
+
+        public bool HasSelectedDevice
+        {
+            get => _hasSelectedDevice;
+            set
+            {
+                _hasSelectedDevice = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _androidId;
 
         public string AndroidId
@@ -272,6 +284,7 @@ namespace DevKit.ViewModels
         private async void DeviceSelected(string device)
         {
             _selectedDevice = device;
+            HasSelectedDevice = true;
             //获取设备详情
             await Task.Run(GetDeviceDetail);
 

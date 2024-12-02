@@ -302,6 +302,7 @@
                 Grid.Row="2"
                 Margin="0,10,10,10"
                 Columns="2"
+                IsEnabled="{Binding HasSelectedDevice}"
                 Rows="2">
 
                 <Button
