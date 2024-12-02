@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     d:DataContext="{d:DesignInstance Type=vm:TranscodingViewModel}"
     d:DesignHeight="560"
@@ -23,14 +24,100 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid ShowGridLines="True">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="212" />
         </Grid.RowDefinitions>
 
+        <Border
+            Grid.Row="1"
+            Margin="10,20,0,0"
+            Style="{StaticResource BorderTipPrimary}">
+            <TextBlock Text="ASCII转码" />
+        </Border>
+
         <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <hc:TextBox
+                Grid.Row="0"
+                Margin="10"
+                hc:InfoElement.Placeholder="请输入待转码的字符，HEX格式"
+                hc:InfoElement.ShowClearButton="True" />
+
+            <hc:TextBox
+                Grid.Row="1"
+                Margin="10,0"
+                hc:InfoElement.Placeholder="请输入待转码的字符，ASCII格式"
+                hc:InfoElement.ShowClearButton="True" />
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <hc:SearchBar
+                    x:Name="SearchBar"
+                    Grid.Column="0"
+                    Width="192"
+                    Margin="10"
+                    HorizontalAlignment="Left"
+                    hc:InfoElement.ShowClearButton="True"
+                    Style="{StaticResource SearchBarPlus}">
+                    <hc:SearchBar.Text>
+                        <Binding Path="HexValue" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <ut:HexValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </hc:SearchBar.Text>
+
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SearchStarted">
+                            <b:InvokeCommandAction Command="{Binding SearchStartedCommand}" CommandParameter="{Binding Text, ElementName=SearchBar}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </hc:SearchBar>
+
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Text="{Binding DecimalValue, StringFormat=10进制值：{0}}" />
+
+                <TextBlock
+                    Grid.Column="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="{Binding StringValue, StringFormat=字符值：{0}}" />
+
+                <TextBlock
+                    Grid.Column="3"
+                    Margin="10,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Text="{Binding UniCodeValue, StringFormat=Unicode：{0}}" />
+            </Grid>
+        </Grid>
+
+        <Border
+            Grid.Row="3"
+            Margin="10,20,0,0"
+            Style="{StaticResource BorderTipPrimary}">
+            <TextBlock Text="图片Base64转码" />
+        </Border>
+
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />

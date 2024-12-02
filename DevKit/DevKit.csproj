@@ -197,6 +197,7 @@
     <Compile Include="Events\DeleteExCommandEvent.cs" />
     <Compile Include="Events\ExecuteExCommandEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
+    <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\PlatformImageTypeModel.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
     <Compile Include="Utils\DelegateAggregator.cs" />
+    <Compile Include="Utils\HexValidationRule.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />

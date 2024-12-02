@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -7,6 +8,7 @@ using System.Windows.Media.Imaging;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
+using Newtonsoft.Json;
 
 namespace DevKit.DataService
 {
@@ -208,6 +210,13 @@ namespace DevKit.DataService
                 new PlatformImageTypeModel { Width = 144, Height = 144, AndroidSizeTag = "xxhdpi" },
                 new PlatformImageTypeModel { Width = 192, Height = 192, AndroidSizeTag = "xxxhdpi" }
             };
+        }
+
+        public AsciiCodeModel QueryAsciiCodeByHex(string hexCode)
+        {
+            var asciiJson = File.ReadAllText("AsciiTable.json");
+            var models = JsonConvert.DeserializeObject<List<AsciiCodeModel>>(asciiJson);
+            return models.Find(x => x.HexValue == hexCode.ToUpper());
         }
     }
 }
