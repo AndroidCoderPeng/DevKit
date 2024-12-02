@@ -46,7 +46,8 @@
                 hc:BorderElement.CornerRadius="0"
                 BorderBrush="{DynamicResource PrimaryBrush}"
                 BorderThickness="1"
-                DefaultExt=".png">
+                DefaultExt=".png"
+                Filter="图像文件(*.png;*.jpg)|*.png;*.jpg">
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="ImageSelected">
                         <b:InvokeCommandAction Command="{Binding ImageSelectedCommand}" CommandParameter="{Binding Uri, ElementName=ImageSelector}" />

@@ -21,5 +21,11 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+    </Grid>
 </UserControl>
