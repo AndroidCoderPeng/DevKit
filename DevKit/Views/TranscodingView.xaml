@@ -96,11 +96,16 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <hc:TextBox Grid.Column="0" Text="{Binding SignedByteArray}" />
+                <hc:TextBox
+                    x:Name="ByteArrayTextBox"
+                    Grid.Column="0"
+                    hc:InfoElement.Placeholder="请输入待转码的字符，格式如上" />
 
                 <Button
                     Grid.Column="1"
                     Margin="10,0"
+                    Command="{Binding SignedToUnsignedCommand}"
+                    CommandParameter="{Binding Text, ElementName=ByteArrayTextBox}"
                     Content="转为无符号"
                     Style="{StaticResource ButtonPrimary}" />
 

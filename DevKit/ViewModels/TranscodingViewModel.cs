@@ -2,11 +2,13 @@
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Controls;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using MessageBox = System.Windows.MessageBox;
@@ -39,6 +41,18 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _hexCodeValue;
+        }
+
+        private string _unsignedByteArray;
+
+        public string UnsignedByteArray
+        {
+            set
+            {
+                _unsignedByteArray = value;
+                RaisePropertyChanged();
+            }
+            get => _unsignedByteArray;
         }
 
         private string _hexValue = "00";
@@ -106,6 +120,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand<string> ByteArrayToHexCommand { set; get; }
+        public DelegateCommand<string> SignedToUnsignedCommand { set; get; }
         public DelegateCommand<string> ByteArrayToAsciiCommand { set; get; }
         public DelegateCommand<TextBox> TextChangedCommand { set; get; }
         public DelegateCommand<string> SearchStartedCommand { set; get; }
@@ -121,6 +136,7 @@ namespace DevKit.ViewModels
             _dataService = dataService;
 
             ByteArrayToHexCommand = new DelegateCommand<string>(ByteArrayToHex);
+            SignedToUnsignedCommand = new DelegateCommand<string>(SignedToUnsigned);
             ByteArrayToAsciiCommand = new DelegateCommand<string>(ByteArrayToAscii);
             TextChangedCommand = new DelegateCommand<TextBox>(TextChanged);
             SearchStartedCommand = new DelegateCommand<string>(SearchStarted);
@@ -150,6 +166,22 @@ namespace DevKit.ViewModels
             }
         }
 
+        private void SignedToUnsigned(string byteArray)
+        {
+            if (byteArray.StartsWith("[") && byteArray.EndsWith("]"))
+            {
+                var dataContent = byteArray
+                    .Substring(1, byteArray.Length - 2)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var list = dataContent.Select(data => int.Parse(data) & 0xFF).ToList();
+                UnsignedByteArray = JsonConvert.SerializeObject(list);
+            }
+            else
+            {
+                MessageBox.Show("不是有效的数据，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ByteArrayToAscii(string byteArray)
         {
             if (byteArray.StartsWith("[") && byteArray.EndsWith("]"))
@@ -160,7 +192,7 @@ namespace DevKit.ViewModels
                 var bytes = new byte[dataContent.Length];
                 for (var i = 0; i < dataContent.Length; i++)
                 {
-                    var data = int.Parse(dataContent[i]);
+                    var data = int.Parse(dataContent[i]) & 0xFF;
                     if (data > 127)
                     {
                         MessageBox.Show("不是有效的数据，无法转换为ASCII", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -182,6 +214,7 @@ namespace DevKit.ViewModels
         {
             if (string.IsNullOrEmpty(textBox.Text))
             {
+                HexCodeValue = string.Empty;
                 AsciiCodeValue = string.Empty;
             }
         }
