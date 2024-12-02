@@ -29,6 +29,18 @@ namespace DevKit.ViewModels
             get => _asciiCodeValue;
         }
 
+        private string _hexCodeValue;
+
+        public string HexCodeValue
+        {
+            set
+            {
+                _hexCodeValue = value;
+                RaisePropertyChanged();
+            }
+            get => _hexCodeValue;
+        }
+
         private string _hexValue = "00";
 
         public string HexValue
@@ -93,6 +105,7 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> ByteArrayToHexCommand { set; get; }
         public DelegateCommand<string> ByteArrayToAsciiCommand { set; get; }
         public DelegateCommand<TextBox> TextChangedCommand { set; get; }
         public DelegateCommand<string> SearchStartedCommand { set; get; }
@@ -107,11 +120,34 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
 
+            ByteArrayToHexCommand = new DelegateCommand<string>(ByteArrayToHex);
             ByteArrayToAsciiCommand = new DelegateCommand<string>(ByteArrayToAscii);
             TextChangedCommand = new DelegateCommand<TextBox>(TextChanged);
             SearchStartedCommand = new DelegateCommand<string>(SearchStarted);
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
+        }
+
+        private void ByteArrayToHex(string byteArray)
+        {
+            if (byteArray.StartsWith("[") && byteArray.EndsWith("]"))
+            {
+                var dataContent = byteArray
+                    .Substring(1, byteArray.Length - 2)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var builder = new StringBuilder();
+                foreach (var data in dataContent)
+                {
+                    var hex = (int.Parse(data) & 0xFF).ToString("X");
+                    builder.Append(hex).Append(" ");
+                }
+
+                HexCodeValue = builder.ToString().TrimEnd();
+            }
+            else
+            {
+                MessageBox.Show("不是有效的数据，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ByteArrayToAscii(string byteArray)
@@ -124,6 +160,13 @@ namespace DevKit.ViewModels
                 var bytes = new byte[dataContent.Length];
                 for (var i = 0; i < dataContent.Length; i++)
                 {
+                    var data = int.Parse(dataContent[i]);
+                    if (data > 127)
+                    {
+                        MessageBox.Show("不是有效的数据，无法转换为ASCII", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
                     bytes[i] = Convert.ToByte(dataContent[i]);
                 }
 

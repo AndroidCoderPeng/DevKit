@@ -29,14 +29,51 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="212" />
         </Grid.RowDefinitions>
 
+        <hc:TextBox
+            x:Name="InputByteArrayTextBox"
+            Grid.Row="0"
+            Margin="10"
+            hc:InfoElement.Placeholder="请输入待转码的字符，字节码数组格式，如：[71, 101, 116, 68, 97, 116, 97]"
+            TextWrapping="Wrap">
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="TextChanged">
+                    <b:InvokeCommandAction Command="{Binding TextChangedCommand}" CommandParameter="{Binding ElementName=InputByteArrayTextBox}" />
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </hc:TextBox>
+
         <Border
             Grid.Row="1"
-            Margin="10"
+            Margin="10,0"
             Style="{StaticResource BorderTipPrimary}">
-            <TextBlock Text="ASCII转码" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Byte[]转码" />
+
+                <Button
+                    Grid.Column="1"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding ByteArrayToHexCommand}"
+                    CommandParameter="{Binding Text, ElementName=InputByteArrayTextBox}"
+                    Content="&#xe604;"
+                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                    FontSize="16"
+                    Style="{x:Null}">
+                    <Button.LayoutTransform>
+                        <ScaleTransform ScaleX="-1.0" />
+                    </Button.LayoutTransform>
+                </Button>
+            </Grid>
         </Border>
 
         <Grid Grid.Row="2">
@@ -45,42 +82,48 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="10,0">
+            <Label
+                Grid.Row="0"
+                Margin="10,10,10,0"
+                HorizontalAlignment="Left"
+                Content="{Binding HexCodeValue}"
+                Style="{StaticResource LabelSuccess}" />
+
+            <Grid Grid.Row="1" Margin="10,10,10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <hc:TextBox Grid.Column="0" Text="{Binding SignedByteArray}" />
+
+                <Button
+                    Grid.Column="1"
+                    Margin="10,0"
+                    Content="转为无符号"
+                    Style="{StaticResource ButtonPrimary}" />
+
+                <hc:TextBox
+                    Grid.Column="2"
+                    IsReadOnly="True"
+                    Text="{Binding UnsignedByteArray}" />
+            </Grid>
+        </Grid>
+
+        <Border
+            Grid.Row="3"
+            Margin="10"
+            Style="{StaticResource BorderTipPrimary}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-
-                <hc:TextBox
-                    x:Name="InputByteArrayTextBox"
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Margin="0,0,10,5"
-                    hc:InfoElement.Placeholder="请输入待转码的字符，字节码数组格式，如：[71, 101, 116, 68, 97, 116, 97]"
-                    hc:InfoElement.ShowClearButton="True">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="TextChanged">
-                            <b:InvokeCommandAction Command="{Binding TextChangedCommand}" CommandParameter="{Binding ElementName=InputByteArrayTextBox}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </hc:TextBox>
-
-                <Label
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Margin="0,5,10,0"
-                    HorizontalAlignment="Left"
-                    Content="{Binding AsciiCodeValue}"
-                    Style="{StaticResource LabelSuccess}" />
+                <TextBlock Grid.Column="0" Text="ASCII转码" />
 
                 <Button
-                    Grid.Row="0"
-                    Grid.RowSpan="2"
                     Grid.Column="1"
                     Background="Transparent"
                     BorderThickness="0"
@@ -95,6 +138,20 @@
                     </Button.LayoutTransform>
                 </Button>
             </Grid>
+        </Border>
+
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label
+                Grid.Row="0"
+                Margin="10,0"
+                HorizontalAlignment="Left"
+                Content="{Binding AsciiCodeValue}"
+                Style="{StaticResource LabelSuccess}" />
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -142,13 +199,13 @@
         </Grid>
 
         <Border
-            Grid.Row="3"
+            Grid.Row="5"
             Margin="10,0"
             Style="{StaticResource BorderTipPrimary}">
             <TextBlock Text="图片Base64转码" />
         </Border>
 
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
