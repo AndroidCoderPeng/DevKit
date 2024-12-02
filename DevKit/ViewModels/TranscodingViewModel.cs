@@ -6,8 +6,10 @@ using System.Text;
 using System.Windows;
 using DevKit.DataService;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
+using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
@@ -92,7 +94,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand<string> ByteArrayToAsciiCommand { set; get; }
-        public DelegateCommand<string> AsciiToHexCommand { set; get; }
+        public DelegateCommand<TextBox> TextChangedCommand { set; get; }
         public DelegateCommand<string> SearchStartedCommand { set; get; }
         public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
         public DelegateCommand ImageUnselectedCommand { set; get; }
@@ -106,7 +108,7 @@ namespace DevKit.ViewModels
             _dataService = dataService;
 
             ByteArrayToAsciiCommand = new DelegateCommand<string>(ByteArrayToAscii);
-            AsciiToHexCommand = new DelegateCommand<string>(AsciiToHex);
+            TextChangedCommand = new DelegateCommand<TextBox>(TextChanged);
             SearchStartedCommand = new DelegateCommand<string>(SearchStarted);
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
@@ -133,8 +135,12 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void AsciiToHex(string ascii)
+        private void TextChanged(TextBox textBox)
         {
+            if (string.IsNullOrEmpty(textBox.Text))
+            {
+                AsciiCodeValue = string.Empty;
+            }
         }
 
         private void SearchStarted(string hexValue)
