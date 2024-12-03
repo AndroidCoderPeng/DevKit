@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,6 +22,8 @@
         <Style TargetType="TextBox">
             <Setter Property="FontSize" Value="14" />
         </Style>
+
+        <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -277,6 +280,7 @@
                                 Margin="0,7,0,0"
                                 HorizontalAlignment="Center"
                                 FontSize="14"
+                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
                                 Text="{Binding Name}" />
 
                             <Button
@@ -286,7 +290,8 @@
                                 Command="{Binding DataContext.TraditionColorListBoxItemButtonClickCommand, ElementName=TraditionColorListBox}"
                                 CommandParameter="{Binding Hex}"
                                 Content="{Binding Hex}"
-                                FontSize="14" />
+                                FontSize="14"
+                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}" />
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -343,6 +348,7 @@
                                 Margin="0,7,0,0"
                                 HorizontalAlignment="Center"
                                 FontSize="14"
+                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
                                 Text="{Binding Name}" />
 
                             <Button
@@ -352,7 +358,8 @@
                                 Command="{Binding DataContext.DimColorListBoxItemButtonClickCommand, ElementName=DimColorListBox}"
                                 CommandParameter="{Binding Hex}"
                                 Content="{Binding Hex}"
-                                FontSize="14" />
+                                FontSize="14"
+                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}" />
                         </Grid>
                     </Border>
                 </DataTemplate>
