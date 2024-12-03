@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -145,9 +146,9 @@ namespace DevKit.ViewModels
             get => _isGradientColorListBoxVisible;
         }
 
-        private ObservableCollection<ColorModel> _colorResources = new ObservableCollection<ColorModel>();
+        private ObservableCollection<ColorResourceCache> _colorResources = new ObservableCollection<ColorResourceCache>();
 
-        public ObservableCollection<ColorModel> ColorResources
+        public ObservableCollection<ColorResourceCache> ColorResources
         {
             set
             {

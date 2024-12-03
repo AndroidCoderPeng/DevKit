@@ -225,19 +225,18 @@ namespace DevKit.DataService
             return new List<string> { "中国传统色系", "低调色系", "渐变色系" };
         }
 
-        public async Task<List<ColorModel>> GetColorsByScheme(string colorScheme)
+        public async Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme)
         {
-            switch (colorScheme)
+            List<ColorResourceCache> result = null;
+            using (var dataBase = new DataBaseConnection())
             {
-                case "中国传统色系":
-                    var traditionColorJson = await Task.Run(() => File.ReadAllText("TraditionColor.json"));
-                    return JsonConvert.DeserializeObject<List<ColorModel>>(traditionColorJson);
-                case "低调色系":
-                    var dimColorJson = await Task.Run(() => File.ReadAllText("DimColor.json"));
-                    return JsonConvert.DeserializeObject<List<ColorModel>>(dimColorJson);
-                default:
-                    return null;
+                await Task.Run(() =>
+                {
+                    result = dataBase.Table<ColorResourceCache>().Where(x => x.Scheme == colorScheme).ToList();
+                });
             }
+
+            return result;
         }
 
         public async Task<List<GradientColorModel>> GetGradientColors()
