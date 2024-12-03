@@ -24,7 +24,6 @@
         </Style>
 
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
-        <cvt:ColorHexArrayConverter x:Key="ColorHexArrayConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -404,7 +403,16 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border Background="{Binding HexArray, Converter={StaticResource ColorHexArrayConverterKey}}">
+                    <Border Width="200" Height="200">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Offset="0" Color="{Binding FirstColor}" />
+                                <GradientStop Offset="0.33" Color="{Binding SecondColor}" />
+                                <GradientStop Offset="0.66" Color="{Binding ThirdColor}" />
+                                <GradientStop Offset="1" Color="{Binding FourthColor}" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />

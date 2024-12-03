@@ -7,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using DevKit.Cache;
 using DevKit.DataService;
-using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Prism.Commands;
@@ -158,10 +157,10 @@ namespace DevKit.ViewModels
             get => _colorResources;
         }
 
-        private ObservableCollection<GradientColorModel> _gradientColorResources =
-            new ObservableCollection<GradientColorModel>();
+        private ObservableCollection<GradientColorResCache> _gradientColorResources =
+            new ObservableCollection<GradientColorResCache>();
 
-        public ObservableCollection<GradientColorModel> GradientColorResources
+        public ObservableCollection<GradientColorResCache> GradientColorResources
         {
             set
             {

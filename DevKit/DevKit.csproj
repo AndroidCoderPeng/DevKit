@@ -175,7 +175,7 @@
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\CommandExtensionCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
-    <Compile Include="Converters\ColorHexArrayConverter.cs" />
+    <Compile Include="Cache\GradientColorResCache.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />

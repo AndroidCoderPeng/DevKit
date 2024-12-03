@@ -239,10 +239,15 @@ namespace DevKit.DataService
             return result;
         }
 
-        public async Task<List<GradientColorModel>> GetGradientColors()
+        public async Task<List<GradientColorResCache>> GetGradientColors()
         {
-            var gradientColorJson = await Task.Run(() => File.ReadAllText("GradientColor.json"));
-            return JsonConvert.DeserializeObject<List<GradientColorModel>>(gradientColorJson);
+            List<GradientColorResCache> result = null;
+            using (var dataBase = new DataBaseConnection())
+            {
+                await Task.Run(() => { result = dataBase.Table<GradientColorResCache>().ToList(); });
+            }
+
+            return result;
         }
     }
 }
