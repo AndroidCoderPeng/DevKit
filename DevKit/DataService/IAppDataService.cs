@@ -31,7 +31,5 @@ namespace DevKit.DataService
         List<string> GetColorSchemes();
 
         Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme);
-
-        Task<List<GradientColorResCache>> GetGradientColors();
     }
 }

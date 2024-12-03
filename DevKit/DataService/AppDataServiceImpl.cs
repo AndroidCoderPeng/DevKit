@@ -222,7 +222,7 @@ namespace DevKit.DataService
 
         public List<string> GetColorSchemes()
         {
-            return new List<string> { "中国传统色系", "低调色系", "渐变色系" };
+            return new List<string> { "中国传统色系", "低调色系" };
         }
 
         public async Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme)
@@ -234,17 +234,6 @@ namespace DevKit.DataService
                 {
                     result = dataBase.Table<ColorResourceCache>().Where(x => x.Scheme == colorScheme).ToList();
                 });
-            }
-
-            return result;
-        }
-
-        public async Task<List<GradientColorResCache>> GetGradientColors()
-        {
-            List<GradientColorResCache> result = null;
-            using (var dataBase = new DataBaseConnection())
-            {
-                await Task.Run(() => { result = dataBase.Table<GradientColorResCache>().ToList(); });
             }
 
             return result;

@@ -175,7 +175,6 @@
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\CommandExtensionCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
-    <Compile Include="Cache\GradientColorResCache.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />
@@ -202,7 +201,6 @@
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
-    <Compile Include="Models\GradientColorModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\PlatformImageTypeModel.cs" />

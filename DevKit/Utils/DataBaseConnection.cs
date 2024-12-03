@@ -12,7 +12,6 @@ namespace DevKit.Utils
             CreateTable<ClientConfigCache>();
             CreateTable<CommandExtensionCache>();
             CreateTable<ColorResourceCache>();
-            CreateTable<GradientColorResCache>();
         }
     }
 }

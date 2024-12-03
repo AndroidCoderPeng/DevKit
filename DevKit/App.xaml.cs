@@ -36,11 +36,6 @@ namespace DevKit
                     {
                         _ = StoreColorCacheAsync();
                     }
-
-                    if (!dataBase.Table<GradientColorResCache>().Any())
-                    {
-                        _ = StoreGradientColorCacheAsync();
-                    }
                 }
             };
             return mainWindow;
@@ -79,52 +74,6 @@ namespace DevKit
                             Hex = colorModel.Hex
                         };
                         dataBase.Insert(cache);
-                    }
-                }
-            });
-        }
-
-        private async Task StoreGradientColorCacheAsync()
-        {
-            await Task.Run(() =>
-            {
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var gradientColorJson = File.ReadAllText("GradientColor.json");
-                    var gradientColorModels =
-                        JsonConvert.DeserializeObject<List<GradientColorModel>>(gradientColorJson);
-                    foreach (var colorModel in gradientColorModels)
-                    {
-                        if (colorModel.HexArray.Count == 2)
-                        {
-                            var cache = new GradientColorResCache
-                            {
-                                FirstColor = colorModel.HexArray[0],
-                                SecondColor = colorModel.HexArray[1]
-                            };
-                            dataBase.Insert(cache);
-                        }
-                        else if (colorModel.HexArray.Count == 3)
-                        {
-                            var cache = new GradientColorResCache
-                            {
-                                FirstColor = colorModel.HexArray[0],
-                                SecondColor = colorModel.HexArray[1],
-                                ThirdColor = colorModel.HexArray[2]
-                            };
-                            dataBase.Insert(cache);
-                        }
-                        else if (colorModel.HexArray.Count == 4)
-                        {
-                            var cache = new GradientColorResCache
-                            {
-                                FirstColor = colorModel.HexArray[0],
-                                SecondColor = colorModel.HexArray[1],
-                                ThirdColor = colorModel.HexArray[2],
-                                FourthColor = colorModel.HexArray[3]
-                            };
-                            dataBase.Insert(cache);
-                        }
                     }
                 }
             });

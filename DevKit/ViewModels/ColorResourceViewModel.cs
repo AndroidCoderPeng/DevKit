@@ -157,19 +157,6 @@ namespace DevKit.ViewModels
             get => _colorResources;
         }
 
-        private ObservableCollection<GradientColorResCache> _gradientColorResources =
-            new ObservableCollection<GradientColorResCache>();
-
-        public ObservableCollection<GradientColorResCache> GradientColorResources
-        {
-            set
-            {
-                _gradientColorResources = value;
-                RaisePropertyChanged();
-            }
-            get => _gradientColorResources;
-        }
-
         #endregion
 
         private readonly IAppDataService _dataService;
@@ -308,18 +295,6 @@ namespace DevKit.ViewModels
                         ColorResources = models.ToObservableCollection();
                     });
                     ColorCount = ColorResources.Count;
-                    break;
-                case "渐变色系":
-                    IsTraditionColorListBoxVisible = "Collapsed";
-                    IsDimColorListBoxVisible = "Collapsed";
-                    IsGradientColorListBoxVisible = "Visible";
-
-                    Task.Run(async () =>
-                    {
-                        var models = await _dataService.GetGradientColors();
-                        GradientColorResources = models.ToObservableCollection();
-                    });
-                    ColorCount = GradientColorResources.Count;
                     break;
             }
         }
