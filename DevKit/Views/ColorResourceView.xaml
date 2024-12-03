@@ -60,7 +60,8 @@
                         hc:InfoElement.ShowClearButton="True"
                         Maximum="255"
                         Minimum="0"
-                        Style="{StaticResource NumericUpDownPlus}">
+                        Style="{StaticResource NumericUpDownPlus}"
+                        Value="{Binding Red}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
                                 <b:InvokeCommandAction Command="{Binding ColorRedValueChangedCommand}" CommandParameter="{Binding ElementName=ColorRedValueNumericUpDown}" />
@@ -86,7 +87,8 @@
                         hc:InfoElement.ShowClearButton="True"
                         Maximum="255"
                         Minimum="0"
-                        Style="{StaticResource NumericUpDownPlus}">
+                        Style="{StaticResource NumericUpDownPlus}"
+                        Value="{Binding Green}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
                                 <b:InvokeCommandAction Command="{Binding ColorGreenValueChangedCommand}" CommandParameter="{Binding ElementName=ColorGreenValueNumericUpDown}" />
@@ -112,7 +114,8 @@
                         hc:InfoElement.ShowClearButton="True"
                         Maximum="255"
                         Minimum="0"
-                        Style="{StaticResource NumericUpDownPlus}">
+                        Style="{StaticResource NumericUpDownPlus}"
+                        Value="{Binding Blue}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
                                 <b:InvokeCommandAction Command="{Binding ColorBlueValueChangedCommand}" CommandParameter="{Binding ElementName=ColorBlueValueNumericUpDown}" />
@@ -163,8 +166,7 @@
                 <Grid Grid.Row="2" Margin="0,0,0,2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
 
                     <Border
@@ -190,6 +192,7 @@
 
                         <Button
                             Grid.Row="1"
+                            HorizontalAlignment="Stretch"
                             BorderThickness="0"
                             Command="{Binding CopyColorHexValueCommand}"
                             CommandParameter="{Binding Text, ElementName=ColorHexValueTextBox}"
@@ -210,7 +213,8 @@
                 x:Name="InputColorHexValueTextBox"
                 Grid.Column="0"
                 hc:InfoElement.Placeholder="请输入待转换的颜色值，格式为RGB，如：#000000"
-                hc:InfoElement.ShowClearButton="True" />
+                hc:InfoElement.ShowClearButton="True"
+                MaxLength="7" />
 
             <Button
                 Grid.Column="1"
