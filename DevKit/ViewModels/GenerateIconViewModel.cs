@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -107,17 +106,16 @@ namespace DevKit.ViewModels
             get => _isPngRadioButtonChecked;
         }
 
-        private ObservableCollection<PlatformImageTypeModel> _imageTypeCollection =
-            new ObservableCollection<PlatformImageTypeModel>();
+        private List<PlatformImageTypeModel> _imageTypeItems = new List<PlatformImageTypeModel>();
 
-        public ObservableCollection<PlatformImageTypeModel> ImageTypeCollection
+        public List<PlatformImageTypeModel> ImageTypeItems
         {
             set
             {
-                _imageTypeCollection = value;
+                _imageTypeItems = value;
                 RaisePropertyChanged();
             }
-            get => _imageTypeCollection;
+            get => _imageTypeItems;
         }
 
         #endregion
@@ -154,13 +152,13 @@ namespace DevKit.ViewModels
         {
             _uri = uri;
             RoundCornerImage = new BitmapImage(_uri);
-            ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows", _uri).ToObservableCollection();
+            ImageTypeItems = _dataService.GetImageTypesByPlatform("Windows", _uri);
             IsIcoRadioButtonChecked = true;
         }
 
         private void ImageUnselected()
         {
-            ImageTypeCollection.Clear();
+            ImageTypeItems.Clear();
             _uri = null;
             RoundCornerImage = null;
         }
@@ -227,8 +225,7 @@ namespace DevKit.ViewModels
                     IsIcoRadioButtonEnabled = true;
                     IsIcoRadioButtonChecked = true;
 
-                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Windows", _uri)
-                        .ToObservableCollection();
+                    ImageTypeItems = _dataService.GetImageTypesByPlatform("Windows", _uri);
                     break;
                 case "Android":
                     IsWindowsIconListBoxVisible = "Collapsed";
@@ -237,8 +234,7 @@ namespace DevKit.ViewModels
                     IsIcoRadioButtonEnabled = false;
                     IsPngRadioButtonChecked = true;
 
-                    ImageTypeCollection = _dataService.GetImageTypesByPlatform("Android", _uri)
-                        .ToObservableCollection();
+                    ImageTypeItems = _dataService.GetImageTypesByPlatform("Android", _uri);
                     break;
             }
         }
@@ -260,7 +256,7 @@ namespace DevKit.ViewModels
                     if (_isIcoRadioButtonChecked)
                     {
                         // //生成一系列不同尺寸的ico格式图片
-                        foreach (var type in _imageTypeCollection)
+                        foreach (var type in _imageTypeItems)
                         {
                             var size = new Size(type.Width, type.Height);
                             var destination = $@"{rootPath}\launcher_{type.Width}.ico";
@@ -302,7 +298,7 @@ namespace DevKit.ViewModels
         /// <param name="imageFormat"></param>
         private void GenerateWindowsIcon(string rootPath, string fileName, ImageFormat imageFormat)
         {
-            foreach (var type in _imageTypeCollection)
+            foreach (var type in _imageTypeItems)
             {
                 var size = new Size(type.Width, type.Height);
                 var destination = Equals(imageFormat, ImageFormat.Png)
@@ -328,7 +324,7 @@ namespace DevKit.ViewModels
         /// <param name="imageFormat"></param>
         private void GenerateAndroidIcon(string rootPath, string fileName, ImageFormat imageFormat)
         {
-            foreach (var type in _imageTypeCollection)
+            foreach (var type in _imageTypeItems)
             {
                 var size = new Size(type.Width, type.Height);
                 var folderPath = $@"{rootPath}\{type.AndroidSizeTag}";
