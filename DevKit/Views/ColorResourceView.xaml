@@ -24,6 +24,7 @@
         </Style>
 
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
+        <cvt:ColorHexArrayConverter x:Key="ColorHexArrayConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -403,14 +404,41 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                    </Grid>
+                    <Border Background="{Binding HexArray, Converter={StaticResource ColorHexArrayConverterKey}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+
+            <!--  ListBox横排  -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border
+                                    x:Name="ItemContainerBorder"
+                                    Width="129"
+                                    Margin="1"
+                                    CornerRadius="5">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
         </ListBox>
     </Grid>
 </UserControl>

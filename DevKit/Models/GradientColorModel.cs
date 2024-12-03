@@ -4,6 +4,6 @@ namespace DevKit.Models
 {
     public class GradientColorModel
     {
-        private List<string> HexArray { get; set; }
+        public List<string> HexArray { get; set; }
     }
 }
