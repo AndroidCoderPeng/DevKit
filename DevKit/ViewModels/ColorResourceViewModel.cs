@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using DevKit.DataService;
+using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using Color = System.Windows.Media.Color;
+using ComboBox = System.Windows.Controls.ComboBox;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
@@ -23,6 +26,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
+        public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
 
         #endregion
 
@@ -90,6 +94,79 @@ namespace DevKit.ViewModels
 
         public List<string> ColorSchemes { get; }
 
+        private int _colorCount;
+
+        public int ColorCount
+        {
+            set
+            {
+                _colorCount = value;
+                RaisePropertyChanged();
+            }
+            get => _colorCount;
+        }
+
+        private string _isTraditionColorListBoxVisible = "Visible";
+
+        public string IsTraditionColorListBoxVisible
+        {
+            set
+            {
+                _isTraditionColorListBoxVisible = value;
+                RaisePropertyChanged();
+            }
+            get => _isTraditionColorListBoxVisible;
+        }
+
+        private string _isDimColorListBoxVisible = "Collapsed";
+
+        public string IsDimColorListBoxVisible
+        {
+            set
+            {
+                _isDimColorListBoxVisible = value;
+                RaisePropertyChanged();
+            }
+            get => _isDimColorListBoxVisible;
+        }
+
+        private string _isGradientColorListBoxVisible = "Collapsed";
+
+        public string IsGradientColorListBoxVisible
+        {
+            set
+            {
+                _isGradientColorListBoxVisible = value;
+                RaisePropertyChanged();
+            }
+            get => _isGradientColorListBoxVisible;
+        }
+
+        private ObservableCollection<ColorModel> _colorResources = new ObservableCollection<ColorModel>();
+
+        public ObservableCollection<ColorModel> ColorResources
+        {
+            set
+            {
+                _colorResources = value;
+                RaisePropertyChanged();
+            }
+            get => _colorResources;
+        }
+
+        private ObservableCollection<GradientColorModel> _gradientColorResources =
+            new ObservableCollection<GradientColorModel>();
+
+        public ObservableCollection<GradientColorModel> GradientColorResources
+        {
+            set
+            {
+                _gradientColorResources = value;
+                RaisePropertyChanged();
+            }
+            get => _gradientColorResources;
+        }
+
         #endregion
 
         private readonly IAppDataService _dataService;
@@ -99,6 +176,8 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
             ColorSchemes = _dataService.GetColorSchemes();
+            ColorResources = _dataService.GetColorsByScheme("中国传统色系").ToObservableCollection();
+            ColorCount = ColorResources.Count;
 
             var color = Color.FromRgb(_red, _green, _blue);
             ColorBrush = new SolidColorBrush(color);
@@ -109,6 +188,7 @@ namespace DevKit.ViewModels
             AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
+            ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
         }
 
         private void ColorRedValueChanged(NumericUpDown numeric)
@@ -188,6 +268,38 @@ namespace DevKit.ViewModels
             Red = color.R;
             Green = color.G;
             Blue = color.B;
+        }
+
+        private void ItemSelected(ComboBox comboBox)
+        {
+            var text = comboBox.Text;
+            switch (text)
+            {
+                case "中国传统色系":
+                    IsTraditionColorListBoxVisible = "Visible";
+                    IsDimColorListBoxVisible = "Collapsed";
+                    IsGradientColorListBoxVisible = "Collapsed";
+
+                    ColorResources = _dataService.GetColorsByScheme("中国传统色系").ToObservableCollection();
+                    ColorCount = ColorResources.Count;
+                    break;
+                case "低调色系":
+                    IsTraditionColorListBoxVisible = "Collapsed";
+                    IsDimColorListBoxVisible = "Visible";
+                    IsGradientColorListBoxVisible = "Collapsed";
+
+                    ColorResources = _dataService.GetColorsByScheme("低调色系").ToObservableCollection();
+                    ColorCount = ColorResources.Count;
+                    break;
+                case "渐变色系":
+                    IsTraditionColorListBoxVisible = "Collapsed";
+                    IsDimColorListBoxVisible = "Collapsed";
+                    IsGradientColorListBoxVisible = "Visible";
+
+                    GradientColorResources = _dataService.GetGradientColors().ToObservableCollection();
+                    ColorCount = GradientColorResources.Count;
+                    break;
+            }
         }
     }
 }

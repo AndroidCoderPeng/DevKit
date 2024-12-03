@@ -245,15 +245,112 @@
                 </b:Interaction.Triggers>
             </ComboBox>
 
-            <TextBlock Grid.Column="1" Text="{Binding ColorCount, StringFormat=共有颜色：{0} 种}" />
+            <TextBlock
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                VerticalAlignment="Center"
+                Text="{Binding ColorCount, StringFormat=共有颜色：{0} 种}" />
         </Grid>
 
         <ListBox
+            x:Name="TraditionColorListBox"
             Grid.Row="3"
             Margin="10"
             HorizontalAlignment="Stretch"
+            ItemsSource="{Binding ColorResources}"
             ScrollViewer.CanContentScroll="False"
-            ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            Visibility="{Binding IsTraditionColorListBoxVisible}">
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="{Binding Hex}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                HorizontalAlignment="Center"
+                                FontSize="14"
+                                Text="{Binding Name}" />
+
+                            <Button
+                                Grid.Row="1"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Content="{Binding Hex}"
+                                FontSize="14" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <!--  ListBox横排  -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+
+        <ListBox
+            x:Name="DimColorListBox"
+            Grid.Row="3"
+            Margin="10"
+            HorizontalAlignment="Stretch"
+            ItemsSource="{Binding ColorResources}"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            Visibility="{Binding IsDimColorListBoxVisible}">
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="{Binding Hex}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                HorizontalAlignment="Center"
+                                FontSize="14"
+                                Text="{Binding Name}" />
+
+                            <Button
+                                Grid.Row="1"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Content="{Binding Hex}"
+                                FontSize="14" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+
+            <!--  ListBox横排  -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+
+        <ListBox
+            x:Name="GradientColorListBox"
+            Grid.Row="3"
+            Margin="10"
+            HorizontalAlignment="Stretch"
+            ItemsSource="{Binding GradientColorResources}"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+            Visibility="{Binding IsGradientColorListBoxVisible}">
 
             <ListBox.ItemTemplate>
                 <DataTemplate>

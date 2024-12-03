@@ -223,5 +223,26 @@ namespace DevKit.DataService
         {
             return new List<string> { "中国传统色系", "低调色系", "渐变色系" };
         }
+
+        public List<ColorModel> GetColorsByScheme(string colorScheme)
+        {
+            switch (colorScheme)
+            {
+                case "中国传统色系":
+                    var traditionColorJson = File.ReadAllText("TraditionColor.json");
+                    return JsonConvert.DeserializeObject<List<ColorModel>>(traditionColorJson);
+                case "低调色系":
+                    var dimColorJson = File.ReadAllText("DimColor.json");
+                    return JsonConvert.DeserializeObject<List<ColorModel>>(dimColorJson);
+            }
+
+            return null;
+        }
+
+        public List<GradientColorModel> GetGradientColors()
+        {
+            var gradientColorJson = File.ReadAllText("GradientColor.json");
+            return JsonConvert.DeserializeObject<List<GradientColorModel>>(gradientColorJson);
+        }
     }
 }
