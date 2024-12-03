@@ -52,7 +52,7 @@
 
                             <TextBlock
                                 Grid.Column="0"
-                                Padding="20,13"
+                                Padding="10,15.5"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="30"
@@ -67,34 +67,6 @@
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                    <Border
-                                        x:Name="ItemContainerBorder"
-                                        Margin="6,3"
-                                        CornerRadius="6">
-                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                        </Trigger>
-
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource PrimaryBrush}" />
-                                            <Setter Property="TextBlock.Foreground" Value="white" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
             </ListBox>
 
             <ContentControl
