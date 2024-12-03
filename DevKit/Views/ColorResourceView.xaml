@@ -234,6 +234,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="360" />
             </Grid.ColumnDefinitions>
 
             <ComboBox
@@ -250,9 +251,20 @@
 
             <TextBlock
                 Grid.Column="1"
-                Margin="10,0,0,0"
+                Margin="10,0"
                 VerticalAlignment="Center"
                 Text="{Binding ColorCount, StringFormat=共有颜色：{0} 种}" />
+
+            <hc:Pagination
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                MaxPageCount="{Binding MaxPage}">
+                <hc:Interaction.Triggers>
+                    <hc:EventTrigger EventName="PageUpdated">
+                        <hc:EventToCommand Command="{Binding PageUpdatedCommand}" PassEventArgsToCommand="True" />
+                    </hc:EventTrigger>
+                </hc:Interaction.Triggers>
+            </hc:Pagination>
         </Grid>
 
         <ListBox
@@ -262,6 +274,7 @@
             HorizontalAlignment="Center"
             ItemsSource="{Binding ColorResources}"
             ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
             Visibility="{Binding IsTraditionColorListBoxVisible}">
 
             <ListBox.ItemTemplate>
@@ -329,6 +342,7 @@
             HorizontalAlignment="Stretch"
             ItemsSource="{Binding ColorResources}"
             ScrollViewer.CanContentScroll="False"
+            ScrollViewer.VerticalScrollBarVisibility="Hidden"
             Visibility="{Binding IsDimColorListBoxVisible}">
 
             <ListBox.ItemTemplate>

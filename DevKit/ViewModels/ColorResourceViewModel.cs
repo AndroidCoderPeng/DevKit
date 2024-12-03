@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +10,7 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Controls;
+using HandyControl.Data;
 using Prism.Commands;
 using Prism.Mvvm;
 using Color = System.Windows.Media.Color;
@@ -28,6 +30,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
+        public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
         public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
         public DelegateCommand<string> DimColorListBoxItemButtonClickCommand { set; get; }
 
@@ -158,10 +161,28 @@ namespace DevKit.ViewModels
             get => _colorResources;
         }
 
+        private int _maxPage;
+
+        public int MaxPage
+        {
+            set
+            {
+                _maxPage = value;
+                RaisePropertyChanged();
+            }
+            get => _maxPage;
+        }
+
         #endregion
 
         private readonly IAppDataService _dataService;
         private byte _alpha = 255;
+        private List<ColorResourceCache> _colorResCaches = new List<ColorResourceCache>();
+
+        /// <summary>
+        /// 列表每页条目数
+        /// </summary>
+        private const int PerPageItemCount = 30;
 
         public ColorResourceViewModel(IAppDataService dataService)
         {
@@ -169,9 +190,10 @@ namespace DevKit.ViewModels
             ColorSchemes = _dataService.GetColorSchemes();
             Task.Run(async () =>
             {
-                var models = await _dataService.GetColorsByScheme("中国传统色系");
-                ColorCount = models.Count;
-                ColorResources = models.ToObservableCollection();
+                _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
+                MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
+                ColorCount = _colorResCaches.Count;
+                ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
             });
 
             var color = Color.FromRgb(_red, _green, _blue);
@@ -184,6 +206,7 @@ namespace DevKit.ViewModels
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
+            PageUpdatedCommand = new DelegateCommand<FunctionEventArgs<int>>(PageUpdated);
             TraditionColorListBoxItemButtonClickCommand =
                 new DelegateCommand<string>(TraditionColorListBoxItemButtonClick);
             DimColorListBoxItemButtonClickCommand = new DelegateCommand<string>(DimColorListBoxItemButtonClick);
@@ -280,9 +303,10 @@ namespace DevKit.ViewModels
 
                     Task.Run(async () =>
                     {
-                        var models = await _dataService.GetColorsByScheme("中国传统色系");
-                        ColorCount = models.Count;
-                        ColorResources = models.ToObservableCollection();
+                        _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
+                        MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
+                        ColorCount = _colorResCaches.Count;
+                        ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
                     });
 
                     break;
@@ -293,12 +317,22 @@ namespace DevKit.ViewModels
 
                     Task.Run(async () =>
                     {
-                        var models = await _dataService.GetColorsByScheme("低调色系");
-                        ColorCount = models.Count;
-                        ColorResources = models.ToObservableCollection();
+                        _colorResCaches = await _dataService.GetColorsByScheme("低调色系");
+                        MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
+                        ColorCount = _colorResCaches.Count;
+                        ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
                     });
                     break;
             }
+        }
+
+        private void PageUpdated(FunctionEventArgs<int> args)
+        {
+            ColorResources = _colorResCaches
+                .Skip((args.Info - 1) * PerPageItemCount)
+                .Take(PerPageItemCount)
+                .ToList()
+                .ToObservableCollection();
         }
 
         private void TraditionColorListBoxItemButtonClick(string colorVale)
