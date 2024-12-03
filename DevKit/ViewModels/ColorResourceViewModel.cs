@@ -145,7 +145,8 @@ namespace DevKit.ViewModels
             get => _isGradientColorListBoxVisible;
         }
 
-        private ObservableCollection<ColorResourceCache> _colorResources = new ObservableCollection<ColorResourceCache>();
+        private ObservableCollection<ColorResourceCache> _colorResources =
+            new ObservableCollection<ColorResourceCache>();
 
         public ObservableCollection<ColorResourceCache> ColorResources
         {
@@ -169,9 +170,9 @@ namespace DevKit.ViewModels
             Task.Run(async () =>
             {
                 var models = await _dataService.GetColorsByScheme("中国传统色系");
+                ColorCount = models.Count;
                 ColorResources = models.ToObservableCollection();
             });
-            ColorCount = ColorResources.Count;
 
             var color = Color.FromRgb(_red, _green, _blue);
             ColorBrush = new SolidColorBrush(color);
@@ -280,9 +281,10 @@ namespace DevKit.ViewModels
                     Task.Run(async () =>
                     {
                         var models = await _dataService.GetColorsByScheme("中国传统色系");
+                        ColorCount = models.Count;
                         ColorResources = models.ToObservableCollection();
                     });
-                    ColorCount = ColorResources.Count;
+
                     break;
                 case "低调色系":
                     IsTraditionColorListBoxVisible = "Collapsed";
@@ -292,9 +294,9 @@ namespace DevKit.ViewModels
                     Task.Run(async () =>
                     {
                         var models = await _dataService.GetColorsByScheme("低调色系");
+                        ColorCount = models.Count;
                         ColorResources = models.ToObservableCollection();
                     });
-                    ColorCount = ColorResources.Count;
                     break;
             }
         }
