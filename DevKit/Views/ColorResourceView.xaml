@@ -54,6 +54,7 @@
                     </Border>
 
                     <hc:NumericUpDown
+                        x:Name="ColorRedValueNumericUpDown"
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
@@ -62,7 +63,7 @@
                         Style="{StaticResource NumericUpDownPlus}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
-                                <b:InvokeCommandAction Command="{Binding ColorRedValueChangedCommand}" CommandParameter="{Binding Text, ElementName=SearchBar}" />
+                                <b:InvokeCommandAction Command="{Binding ColorRedValueChangedCommand}" CommandParameter="{Binding ElementName=ColorRedValueNumericUpDown}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:NumericUpDown>
@@ -79,6 +80,7 @@
                     </Border>
 
                     <hc:NumericUpDown
+                        x:Name="ColorGreenValueNumericUpDown"
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
@@ -87,7 +89,7 @@
                         Style="{StaticResource NumericUpDownPlus}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
-                                <b:InvokeCommandAction Command="{Binding ColorGreenValueChangedCommand}" CommandParameter="{Binding Text, ElementName=SearchBar}" />
+                                <b:InvokeCommandAction Command="{Binding ColorGreenValueChangedCommand}" CommandParameter="{Binding ElementName=ColorGreenValueNumericUpDown}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:NumericUpDown>
@@ -104,6 +106,7 @@
                     </Border>
 
                     <hc:NumericUpDown
+                        x:Name="ColorBlueValueNumericUpDown"
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
@@ -112,7 +115,7 @@
                         Style="{StaticResource NumericUpDownPlus}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
-                                <b:InvokeCommandAction Command="{Binding ColorBlueValueChangedCommand}" CommandParameter="{Binding Text, ElementName=SearchBar}" />
+                                <b:InvokeCommandAction Command="{Binding ColorBlueValueChangedCommand}" CommandParameter="{Binding ElementName=ColorBlueValueNumericUpDown}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:NumericUpDown>
@@ -148,10 +151,11 @@
                     IsSnapToTickEnabled="True"
                     Maximum="1"
                     Minimum="0"
-                    TickFrequency="0.01">
+                    TickFrequency="0.01"
+                    Value="1">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="ValueChanged">
-                            <b:InvokeCommandAction Command="{Binding ValueChangedCommand}" CommandParameter="{Binding Text, ElementName=SearchBar}" />
+                            <b:InvokeCommandAction Command="{Binding AlphaValueChangedCommand}" CommandParameter="{Binding ElementName=AlphaSlider}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Slider>
@@ -165,7 +169,7 @@
 
                     <Border
                         Grid.Column="0"
-                        Background="Sienna"
+                        Background="{Binding ColorBrush}"
                         BorderThickness="1"
                         CornerRadius="5" />
 
@@ -176,16 +180,19 @@
                         </Grid.RowDefinitions>
 
                         <hc:TextBox
+                            x:Name="ColorHexValueTextBox"
                             Grid.Row="0"
                             VerticalContentAlignment="Center"
                             BorderThickness="0"
                             FontWeight="Bold"
                             IsReadOnly="True"
-                            Text="#FFCCCCCC" />
+                            Text="{Binding ColorHexValue}" />
 
                         <Button
                             Grid.Row="1"
                             BorderThickness="0"
+                            Command="{Binding CopyColorHexValueCommand}"
+                            CommandParameter="{Binding Text, ElementName=ColorHexValueTextBox}"
                             Content="复制颜色值"
                             Foreground="{DynamicResource PrimaryBrush}" />
                     </Grid>
@@ -195,54 +202,23 @@
 
         <Grid Grid.Row="1" Margin="10,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <hc:TextBox
-                x:Name="ColorHexValueTextBox"
+                x:Name="InputColorHexValueTextBox"
                 Grid.Column="0"
-                hc:InfoElement.Placeholder="请输入待转换的颜色值，格式如：#000000"
+                hc:InfoElement.Placeholder="请输入待转换的颜色值，格式为RGB，如：#000000"
                 hc:InfoElement.ShowClearButton="True" />
 
             <Button
                 Grid.Column="1"
-                Height="37"
                 Margin="10,0"
                 Command="{Binding ColorHexToRgbCommand}"
-                CommandParameter="{Binding Text, ElementName=ColorHexValueTextBox}"
+                CommandParameter="{Binding Text, ElementName=InputColorHexValueTextBox}"
                 Content="转为RGB"
                 Style="{StaticResource ButtonPrimary}" />
-
-            <Grid Grid.Column="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
-                <Border
-                    Grid.Column="0"
-                    Margin="0,0,5,0"
-                    Style="{StaticResource BorderTipDanger}">
-                    <TextBlock Text="R：255" />
-                </Border>
-
-                <Border
-                    Grid.Column="1"
-                    Margin="5,0"
-                    Style="{StaticResource BorderTipSuccess}">
-                    <TextBlock Text="G：255" />
-                </Border>
-
-                <Border
-                    Grid.Column="2"
-                    Margin="5,0,0,0"
-                    Style="{StaticResource BorderTipPrimary}">
-                    <TextBlock Text="B：255" />
-                </Border>
-            </Grid>
         </Grid>
 
         <ListBox
