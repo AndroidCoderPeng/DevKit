@@ -1,7 +1,9 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Prism.Commands;
@@ -86,12 +88,18 @@ namespace DevKit.ViewModels
             get => _blue;
         }
 
+        public List<string> ColorSchemes { get; }
+
         #endregion
 
+        private readonly IAppDataService _dataService;
         private byte _alpha = 255;
 
-        public ColorResourceViewModel()
+        public ColorResourceViewModel(IAppDataService dataService)
         {
+            _dataService = dataService;
+            ColorSchemes = _dataService.GetColorSchemes();
+
             var color = Color.FromRgb(_red, _green, _blue);
             ColorBrush = new SolidColorBrush(color);
 

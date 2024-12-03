@@ -26,5 +26,7 @@ namespace DevKit.DataService
         List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform, Uri uri);
 
         AsciiCodeModel QueryAsciiCodeByHex(string hexCode);
+        
+        List<string> GetColorSchemes();
     }
 }

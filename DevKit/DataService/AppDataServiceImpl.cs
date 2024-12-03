@@ -218,5 +218,10 @@ namespace DevKit.DataService
             var models = JsonConvert.DeserializeObject<List<AsciiCodeModel>>(asciiJson);
             return models.Find(x => x.HexValue == hexCode.ToUpper());
         }
+
+        public List<string> GetColorSchemes()
+        {
+            return new List<string> { "中国传统色系", "低调色系", "渐变色系" };
+        }
     }
 }
