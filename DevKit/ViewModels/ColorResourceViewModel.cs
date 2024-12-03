@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -178,7 +179,11 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
             ColorSchemes = _dataService.GetColorSchemes();
-            ColorResources = _dataService.GetColorsByScheme("中国传统色系").ToObservableCollection();
+            Task.Run(async () =>
+            {
+                var models = await _dataService.GetColorsByScheme("中国传统色系");
+                ColorResources = models.ToObservableCollection();
+            });
             ColorCount = ColorResources.Count;
 
             var color = Color.FromRgb(_red, _green, _blue);
@@ -285,7 +290,11 @@ namespace DevKit.ViewModels
                     IsDimColorListBoxVisible = "Collapsed";
                     IsGradientColorListBoxVisible = "Collapsed";
 
-                    ColorResources = _dataService.GetColorsByScheme("中国传统色系").ToObservableCollection();
+                    Task.Run(async () =>
+                    {
+                        var models = await _dataService.GetColorsByScheme("中国传统色系");
+                        ColorResources = models.ToObservableCollection();
+                    });
                     ColorCount = ColorResources.Count;
                     break;
                 case "低调色系":
@@ -293,7 +302,11 @@ namespace DevKit.ViewModels
                     IsDimColorListBoxVisible = "Visible";
                     IsGradientColorListBoxVisible = "Collapsed";
 
-                    ColorResources = _dataService.GetColorsByScheme("低调色系").ToObservableCollection();
+                    Task.Run(async () =>
+                    {
+                        var models = await _dataService.GetColorsByScheme("低调色系");
+                        ColorResources = models.ToObservableCollection();
+                    });
                     ColorCount = ColorResources.Count;
                     break;
                 case "渐变色系":
@@ -301,7 +314,11 @@ namespace DevKit.ViewModels
                     IsDimColorListBoxVisible = "Collapsed";
                     IsGradientColorListBoxVisible = "Visible";
 
-                    GradientColorResources = _dataService.GetGradientColors().ToObservableCollection();
+                    Task.Run(async () =>
+                    {
+                        var models = await _dataService.GetGradientColors();
+                        GradientColorResources = models.ToObservableCollection();
+                    });
                     ColorCount = GradientColorResources.Count;
                     break;
             }

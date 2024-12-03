@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DevKit.Cache;
 using DevKit.Models;
 
@@ -29,8 +30,8 @@ namespace DevKit.DataService
 
         List<string> GetColorSchemes();
 
-        List<ColorModel> GetColorsByScheme(string colorScheme);
+        Task<List<ColorModel>> GetColorsByScheme(string colorScheme);
 
-        List<GradientColorModel> GetGradientColors();
+        Task<List<GradientColorModel>> GetGradientColors();
     }
 }

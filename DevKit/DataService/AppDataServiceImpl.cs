@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using DevKit.Cache;
 using DevKit.Models;
@@ -224,24 +225,24 @@ namespace DevKit.DataService
             return new List<string> { "中国传统色系", "低调色系", "渐变色系" };
         }
 
-        public List<ColorModel> GetColorsByScheme(string colorScheme)
+        public async Task<List<ColorModel>> GetColorsByScheme(string colorScheme)
         {
             switch (colorScheme)
             {
                 case "中国传统色系":
-                    var traditionColorJson = File.ReadAllText("TraditionColor.json");
+                    var traditionColorJson = await Task.Run(() => File.ReadAllText("TraditionColor.json"));
                     return JsonConvert.DeserializeObject<List<ColorModel>>(traditionColorJson);
                 case "低调色系":
-                    var dimColorJson = File.ReadAllText("DimColor.json");
+                    var dimColorJson = await Task.Run(() => File.ReadAllText("DimColor.json"));
                     return JsonConvert.DeserializeObject<List<ColorModel>>(dimColorJson);
+                default:
+                    return null;
             }
-
-            return null;
         }
 
-        public List<GradientColorModel> GetGradientColors()
+        public async Task<List<GradientColorModel>> GetGradientColors()
         {
-            var gradientColorJson = File.ReadAllText("GradientColor.json");
+            var gradientColorJson = await Task.Run(() => File.ReadAllText("GradientColor.json"));
             return JsonConvert.DeserializeObject<List<GradientColorModel>>(gradientColorJson);
         }
     }
