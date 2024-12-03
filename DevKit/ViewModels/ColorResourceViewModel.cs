@@ -27,6 +27,8 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
+        public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
+        public DelegateCommand<string> DimColorListBoxItemButtonClickCommand { set; get; }
 
         #endregion
 
@@ -189,6 +191,9 @@ namespace DevKit.ViewModels
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
+            TraditionColorListBoxItemButtonClickCommand =
+                new DelegateCommand<string>(TraditionColorListBoxItemButtonClick);
+            DimColorListBoxItemButtonClickCommand = new DelegateCommand<string>(DimColorListBoxItemButtonClick);
         }
 
         private void ColorRedValueChanged(NumericUpDown numeric)
@@ -300,6 +305,18 @@ namespace DevKit.ViewModels
                     ColorCount = GradientColorResources.Count;
                     break;
             }
+        }
+
+        private void TraditionColorListBoxItemButtonClick(string colorVale)
+        {
+            Clipboard.SetText(colorVale);
+            Growl.Success("颜色值已复制");
+        }
+
+        private void DimColorListBoxItemButtonClick(string colorVale)
+        {
+            Clipboard.SetText(colorVale);
+            Growl.Success("颜色值已复制");
         }
     }
 }
