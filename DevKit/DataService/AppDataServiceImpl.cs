@@ -67,7 +67,12 @@ namespace DevKit.DataService
             {
                 var queryResult = dataBase.Table<ExCommandCache>()
                     .Where(x => x.ParentType == parentType);
-                return queryResult.ToList();
+                var commandCaches = queryResult.ToList();
+                commandCaches.Insert(0, new ExCommandCache
+                {
+                    Annotation = "请选择"
+                });
+                return commandCaches;
             }
         }
 

@@ -296,6 +296,9 @@ namespace DevKit.ViewModels
             ShowHex = _clientCache.ShowHex == 1;
             SendHex = _clientCache.SendHex == 1;
 
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
+                .ToObservableCollection();
+
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             _tcpClient.OnConnected += delegate

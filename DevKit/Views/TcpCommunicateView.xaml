@@ -187,7 +187,19 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <ComboBox Grid.Column="0" ItemsSource="{Binding ExCommandCollection}" />
+                <ComboBox
+                    Grid.Column="0"
+                    ItemsSource="{Binding ExCommandCollection}"
+                    SelectedIndex="0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock Text="{Binding CommandValue}" />
+                                <TextBlock Text="{Binding Annotation}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <Button
                     Grid.Column="1"
