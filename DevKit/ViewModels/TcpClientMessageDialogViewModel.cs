@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Text;
+using System.Windows;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
@@ -12,11 +15,36 @@ namespace DevKit.ViewModels
     {
         public string Title { set; get; }
 
+        #region VM
+
+        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
+
+        public ObservableCollection<MessageModel> MessageCollection
+        {
+            set
+            {
+                _messageCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _messageCollection;
+        }
+
+        #endregion
+        
         public TcpClientMessageDialogViewModel(IEventAggregator eventAggregator)
         {
             eventAggregator.GetEvent<TcpClientMessageEvent>().Subscribe(delegate(byte[] bytes)
             {
-                Console.WriteLine(BitConverter.ToString(bytes));
+                var messageModel = new MessageModel
+                {
+                    Content = true
+                        ? BitConverter.ToString(bytes).Replace("-", " ")
+                        : Encoding.UTF8.GetString(bytes),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
             });
         }
 
