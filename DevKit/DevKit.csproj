@@ -173,7 +173,7 @@
     </Compile>
     <Compile Include="Cache\ApkConfigCache.cs" />
     <Compile Include="Cache\ColorResourceCache.cs" />
-    <Compile Include="Cache\CommandExtensionCache.cs" />
+    <Compile Include="Cache\ExCommandCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />

@@ -60,10 +60,10 @@ namespace DevKit.ViewModels
             get => _commandAnnotation;
         }
 
-        private ObservableCollection<CommandExtensionCache> _userCommandCollection =
-            new ObservableCollection<CommandExtensionCache>();
+        private ObservableCollection<ExCommandCache> _userCommandCollection =
+            new ObservableCollection<ExCommandCache>();
 
-        public ObservableCollection<CommandExtensionCache> UserCommandCollection
+        public ObservableCollection<ExCommandCache> UserCommandCollection
         {
             set
             {
@@ -93,14 +93,11 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _id = parameters.GetValue<int>("ParentId");
             _type = parameters.GetValue<int>("ConnectionType");
-
-            UserCommandCollection = _dataService.LoadCommandExtensionCaches(_id, _type).ToObservableCollection();
+            UserCommandCollection = _dataService.LoadCommandExtensionCaches(_type).ToObservableCollection();
         }
 
         private readonly IAppDataService _dataService;
-        private int _id;
         private int _type;
 
         public ExCommandDialogViewModel(IAppDataService dataService, IEventAggregator eventAggregator)
@@ -113,10 +110,10 @@ namespace DevKit.ViewModels
                 eventAggregator.GetEvent<ExecuteExCommandEvent>().Publish(command);
             });
 
-            eventAggregator.GetEvent<DeleteExCommandEvent>().Subscribe(delegate(CommandExtensionCache cache)
+            eventAggregator.GetEvent<DeleteExCommandEvent>().Subscribe(delegate(ExCommandCache cache)
             {
                 _dataService.DeleteExtensionCommandCache(cache.Id);
-                UserCommandCollection = _dataService.LoadCommandExtensionCaches(_id, _type).ToObservableCollection();
+                UserCommandCollection = _dataService.LoadCommandExtensionCaches(_type).ToObservableCollection();
             });
         }
 
@@ -131,9 +128,8 @@ namespace DevKit.ViewModels
             var annotation = string.IsNullOrWhiteSpace(_commandAnnotation)
                 ? $"指令{UserCommandCollection.Count + 1}"
                 : _userCommandValue;
-            var cache = new CommandExtensionCache
+            var cache = new ExCommandCache
             {
-                ParentId = _id,
                 ParentType = _type,
                 CommandValue = _userCommandValue,
                 Annotation = annotation
@@ -156,7 +152,7 @@ namespace DevKit.ViewModels
             }
 
             _dataService.SaveCacheConfig(cache);
-            UserCommandCollection = _dataService.LoadCommandExtensionCaches(_id, _type).ToObservableCollection();
+            UserCommandCollection = _dataService.LoadCommandExtensionCaches(_type).ToObservableCollection();
         }
     }
 }

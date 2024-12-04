@@ -59,6 +59,18 @@ namespace DevKit.ViewModels
             get => _buttonState;
         }
 
+        private bool _showHex = true;
+
+        public bool ShowHex
+        {
+            set
+            {
+                _showHex = value;
+                RaisePropertyChanged();
+            }
+            get => _showHex;
+        }
+
         private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
 
         public ObservableCollection<MessageModel> MessageCollection
@@ -71,16 +83,17 @@ namespace DevKit.ViewModels
             get => _messageCollection;
         }
 
-        private bool _showHex = true;
+        private ObservableCollection<ExCommandCache> _exCommandCollection =
+            new ObservableCollection<ExCommandCache>();
 
-        public bool ShowHex
+        public ObservableCollection<ExCommandCache> ExCommandCollection
         {
             set
             {
-                _showHex = value;
+                _exCommandCollection = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
+            get => _exCommandCollection;
         }
 
         private bool _sendHex = true;
@@ -453,7 +466,6 @@ namespace DevKit.ViewModels
         {
             var dialogParameters = new DialogParameters
             {
-                { "ParentId", _clientCache.Id },
                 { "ConnectionType", ConnectionType.TcpClient }
             };
             _dialogService.Show("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");

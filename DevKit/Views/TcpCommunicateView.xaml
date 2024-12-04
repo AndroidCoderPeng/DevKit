@@ -179,28 +179,24 @@
 
             <Grid Grid.Row="2" Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button
-                    Grid.Column="0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ExtensionCommand}"
-                    Content="指令扩展"
-                    Style="{StaticResource ButtonPrimary}" />
+                <ComboBox Grid.Column="0" ItemsSource="{Binding ExCommandCollection}" />
 
                 <Button
                     Grid.Column="1"
                     Margin="10,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ClearMessageCommand}"
-                    Content="清空数据"
-                    Style="{StaticResource ButtonDanger}" />
+                    Command="{Binding ExtensionCommand}"
+                    Content="&#xe6aa;"
+                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                    Foreground="{DynamicResource PrimaryBrush}"
+                    ToolTip="添加扩展指令" />
 
                 <CheckBox
                     x:Name="LoopCheckBox"
@@ -232,7 +228,7 @@
                 <TextBlock
                     Grid.Column="4"
                     VerticalAlignment="Center"
-                    Text="毫秒/次" />
+                    Text="ms/次" />
 
                 <Ellipse
                     Grid.Column="5"
@@ -260,11 +256,11 @@
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
 
                     <CheckBox
                         Grid.Row="0"
-                        Margin="0,0,0,10"
                         Content="HEX"
                         IsChecked="{Binding SendHex}">
                         <b:Interaction.Triggers>
@@ -278,9 +274,15 @@
                         </b:Interaction.Triggers>
                     </CheckBox>
 
-
                     <Button
                         Grid.Row="1"
+                        Margin="0,5"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ClearMessageCommand}"
+                        Content="清屏" />
+
+                    <Button
+                        Grid.Row="2"
                         Background="{DynamicResource BackgroundBrush}"
                         BorderThickness="0"
                         Command="{Binding SendMessageCommand}"

@@ -58,13 +58,10 @@
 
             <Button
                 Grid.Column="2"
-                Width="28"
-                Height="28"
-                hc:BorderElement.CornerRadius="14"
                 Command="{Binding CreateKeyCommand}"
                 Content="&#xe6aa;"
                 FontFamily="/DevKit;component/Fonts/#iconfont"
-                Foreground="{DynamicResource DangerBrush}" />
+                Foreground="{DynamicResource PrimaryBrush}" />
 
             <Button
                 Grid.Column="3"

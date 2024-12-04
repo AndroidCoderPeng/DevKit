@@ -10,6 +10,7 @@ using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
 using Newtonsoft.Json;
+using Enumerable = System.Linq.Enumerable;
 
 namespace DevKit.DataService
 {
@@ -37,7 +38,7 @@ namespace DevKit.DataService
             {
                 //表里要么没有数据要么只有一条数据
                 var queryResult = dataBase.Table<ApkConfigCache>();
-                if (queryResult.Any())
+                if (Enumerable.Any(queryResult))
                 {
                     return queryResult.First();
                 }
@@ -51,7 +52,7 @@ namespace DevKit.DataService
             using (var dataBase = new DataBaseConnection())
             {
                 var queryResult = dataBase.Table<ClientConfigCache>().Where(x => x.Type == connectionType);
-                if (queryResult.Any())
+                if (Enumerable.Any(queryResult))
                 {
                     return queryResult.First();
                 }
@@ -60,14 +61,12 @@ namespace DevKit.DataService
             }
         }
 
-        public List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType)
+        public List<ExCommandCache> LoadCommandExtensionCaches(int parentType)
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<CommandExtensionCache>()
-                    .Where(x =>
-                        x.ParentId == parentId && x.ParentType == parentType
-                    );
+                var queryResult = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ParentType == parentType);
                 return queryResult.ToList();
             }
         }
@@ -78,7 +77,7 @@ namespace DevKit.DataService
             {
                 if (configCache is ApkConfigCache)
                 {
-                    if (dataBase.Table<ApkConfigCache>().Any())
+                    if (Enumerable.Any(dataBase.Table<ApkConfigCache>()))
                     {
                         dataBase.Update(configCache);
                     }
@@ -93,7 +92,7 @@ namespace DevKit.DataService
                         .Where(
                             x => x.Id == client.Id && x.Type == client.Type
                         );
-                    if (queryResult.Any())
+                    if (Enumerable.Any(queryResult))
                     {
                         dataBase.Update(client);
                     }
@@ -102,14 +101,12 @@ namespace DevKit.DataService
                         dataBase.Insert(client);
                     }
                 }
-                else if (configCache is CommandExtensionCache command)
+                else if (configCache is ExCommandCache command)
                 {
-                    var queryResult = dataBase.Table<CommandExtensionCache>()
-                        .Where(
-                            x =>
-                                x.ParentId == command.ParentId &&
-                                x.ParentType == command.ParentType &&
-                                x.CommandValue == command.CommandValue
+                    var queryResult = dataBase.Table<ExCommandCache>()
+                        .Where(x =>
+                            x.ParentType == command.ParentType &&
+                            x.CommandValue == command.CommandValue
                         );
                     if (queryResult.Any())
                     {
@@ -125,7 +122,7 @@ namespace DevKit.DataService
         {
             using (var dataBase = new DataBaseConnection())
             {
-                dataBase.Table<CommandExtensionCache>().Delete(x => x.Id == cacheId);
+                dataBase.Table<ExCommandCache>().Delete(x => x.Id == cacheId);
             }
         }
 

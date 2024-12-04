@@ -18,7 +18,7 @@ namespace DevKit.Dialogs
         
         private void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (!(CommandListBox.SelectedItem is CommandExtensionCache cache))
+            if (!(CommandListBox.SelectedItem is ExCommandCache cache))
             {
                 return;
             }

@@ -14,7 +14,7 @@ namespace DevKit.DataService
 
         ClientConfigCache LoadClientConfigCache(int connectionType);
 
-        List<CommandExtensionCache> LoadCommandExtensionCaches(int parentId, int parentType);
+        List<ExCommandCache> LoadCommandExtensionCaches(int parentType);
 
         void SaveCacheConfig<T>(T configCache);
 
