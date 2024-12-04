@@ -5,12 +5,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="335"
     Height="570"
+    d:DataContext="{d:DesignInstance Type=vm:TcpClientMessageDialogViewModel}"
+    Background="White"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
             <Setter Property="SizeToContent" Value="WidthAndHeight" />
             <Setter Property="ResizeMode" Value="NoResize" />
         </Style>

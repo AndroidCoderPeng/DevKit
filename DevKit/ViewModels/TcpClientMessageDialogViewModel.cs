@@ -1,6 +1,8 @@
 ﻿using System;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 
@@ -8,7 +10,15 @@ namespace DevKit.ViewModels
 {
     public class TcpClientMessageDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => string.Empty;
+        public string Title { set; get; }
+
+        public TcpClientMessageDialogViewModel(IEventAggregator eventAggregator)
+        {
+            eventAggregator.GetEvent<TcpClientMessageEvent>().Subscribe(delegate(byte[] bytes)
+            {
+                Console.WriteLine(BitConverter.ToString(bytes));
+            });
+        }
 
         public event Action<IDialogResult> RequestClose
         {
@@ -28,7 +38,8 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            var clientModel = parameters.GetValue<TcpClientModel>("TcpClientModel");
+            var client = parameters.GetValue<TcpClientModel>("TcpClientModel");
+            Title = $"{client.Ip}:{client.Port}";
         }
     }
 }

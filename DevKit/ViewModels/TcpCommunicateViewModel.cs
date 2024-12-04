@@ -7,11 +7,13 @@ using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using DevKit.Utils.Socket.Server;
 using DotNetty.Transport.Channels;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TcpClient = DevKit.Utils.Socket.Client.TcpClient;
@@ -238,15 +240,18 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private readonly TcpServer _tcpServer = new TcpServer();
         private ClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
+        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
+            IEventAggregator eventAggregator)
         {
             _dataService = dataService;
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
 
             InitDefaultConfig();
 
@@ -365,6 +370,7 @@ namespace DevKit.ViewModels
                     {
                         if (client.Ip == iPv4.ToString() && client.Port == port)
                         {
+                            _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
                             client.MessageCount++;
                             break;
                         }
@@ -613,7 +619,7 @@ namespace DevKit.ViewModels
             {
                 { "TcpClientModel", clientModel }
             };
-            _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
             RuntimeCache.IsClientViewShowing = true;
         }
     }
