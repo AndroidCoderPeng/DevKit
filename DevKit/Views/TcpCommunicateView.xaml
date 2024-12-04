@@ -414,15 +414,18 @@
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid>
+                        <Grid Height="45">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" FontSize="14">
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                FontSize="14">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0 }:{1}">
+                                    <MultiBinding StringFormat="{}{0}:{1}">
                                         <Binding Path="Ip" />
                                         <Binding Path="Port" />
                                     </MultiBinding>
@@ -431,41 +434,21 @@
 
                             <Border
                                 Grid.Column="1"
-                                Width="16"
-                                Height="16"
+                                Width="24"
+                                Height="18"
                                 Background="Red"
-                                CornerRadius="8"
+                                CornerRadius="9"
                                 Visibility="{Binding MessageCount, Converter={StaticResource MessageTagConverterKey}}">
                                 <TextBlock
-                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     FontSize="10"
                                     Foreground="White"
-                                    Text="{Binding MessageCount, Converter={StaticResource MessageCountConverterKey}}" />
+                                    Text="{Binding MessageCount, Converter={StaticResource MessageCountConverterKey}}"
+                                    TextAlignment="Center" />
                             </Border>
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                    <Border x:Name="ItemContainerBorder" Padding="10">
-                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
 
                 <!--  自动滑动到最底部  -->
                 <b:Interaction.Behaviors>

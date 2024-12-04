@@ -26,6 +26,8 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
+        <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
+        <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -303,6 +305,7 @@
             <ListBox
                 x:Name="ClientListBox"
                 Grid.Row="2"
+                HorizontalContentAlignment="Stretch"
                 ItemsSource="{Binding WebSocketClientCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -312,6 +315,44 @@
                         <b:InvokeCommandAction Command="{Binding ItemDoubleClickCommand}" CommandParameter="{Binding SelectedItem, ElementName=ClientListBox}" />
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Height="45">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                FontSize="14">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}:{1}">
+                                        <Binding Path="Ip" />
+                                        <Binding Path="Port" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+
+                            <Border
+                                Grid.Column="1"
+                                Width="24"
+                                Height="18"
+                                Background="Red"
+                                CornerRadius="9"
+                                Visibility="{Binding MessageCount, Converter={StaticResource MessageTagConverterKey}}">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Foreground="White"
+                                    Text="{Binding MessageCount, Converter={StaticResource MessageCountConverterKey}}"
+                                    TextAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
 
                 <!--  自动滑动到最底部  -->
                 <b:Interaction.Behaviors>
