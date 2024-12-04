@@ -613,7 +613,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ClientItemDoubleClick(TcpClientModel clientModel)
+        private void ClientItemDoubleClick(TcpClientModel client)
         {
             if (RuntimeCache.IsClientViewShowing)
             {
@@ -623,9 +623,11 @@ namespace DevKit.ViewModels
 
             var dialogParameters = new DialogParameters
             {
-                { "TcpClientModel", clientModel }
+                { "TcpClientModel", client }
             };
             _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
+            //窗口打开，消息已读，数量置0
+            client.MessageCount = 0;
             RuntimeCache.IsClientViewShowing = true;
         }
     }
