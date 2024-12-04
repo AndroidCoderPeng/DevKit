@@ -30,6 +30,12 @@ namespace DevKit.ViewModels
         }
 
         #endregion
+
+        #region DelegateCommand
+
+        
+
+        #endregion
         
         public TcpClientMessageDialogViewModel(IEventAggregator eventAggregator)
         {
