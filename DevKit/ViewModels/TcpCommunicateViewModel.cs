@@ -656,7 +656,7 @@ namespace DevKit.ViewModels
             _connectedClient = client;
             var dialogParameters = new DialogParameters
             {
-                { "TcpClientModel", client }
+                { "ClientModel", client }
             };
             _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
             //窗口打开，消息已读，数量置0

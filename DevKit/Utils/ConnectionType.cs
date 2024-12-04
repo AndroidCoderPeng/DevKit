@@ -1,6 +1,6 @@
 ﻿namespace DevKit.Utils
 {
-    public class ConnectionType
+    public struct ConnectionType
     {
         public const int TcpClient = 1;
         public const int TcpServer = 2;

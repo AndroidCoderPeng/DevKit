@@ -274,7 +274,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            var client = parameters.GetValue<ConnectedClientModel>("TcpClientModel");
+            var client = parameters.GetValue<ConnectedClientModel>("ClientModel");
             Title = $"{client.Ip}:{client.Port}";
 
             foreach (var bytes in client.MessageCollection)

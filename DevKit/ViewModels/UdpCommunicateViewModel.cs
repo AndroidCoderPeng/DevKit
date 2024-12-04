@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
+using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
@@ -157,7 +158,7 @@ namespace DevKit.ViewModels
             get => _listenStateColor;
         }
 
-        private int _listenPort;
+        private int _listenPort = 3030;
 
         public int ListenPort
         {
@@ -210,7 +211,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand ItemDoubleClickCommand { set; get; }
+        public DelegateCommand<ConnectedClientModel> ItemDoubleClickCommand { set; get; }
 
         #endregion
 
@@ -222,6 +223,7 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
         private bool _isListening;
+        private ConnectedClientModel _connectedClient;
 
         public UdpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
@@ -229,7 +231,7 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            
+
             InitDefaultConfig();
 
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
@@ -244,7 +246,7 @@ namespace DevKit.ViewModels
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
-            // ItemDoubleClickCommand = new DelegateCommand(ClientItemDoubleClick);
+            ItemDoubleClickCommand = new DelegateCommand<ConnectedClientModel>(ClientItemDoubleClick);
         }
 
         private void InitDefaultConfig()
@@ -304,7 +306,7 @@ namespace DevKit.ViewModels
                         udp.ClientType == ConnectionType.UdpClient)
                     {
                         var bytes = e.ByteBlock.ToArray();
-                        // _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
+                        _eventAggregator.GetEvent<UdpClientMessageEvent>().Publish(bytes);
                         //子窗口处于打开状态，不统计消息
                         if (!RuntimeCache.IsClientViewShowing)
                         {
@@ -541,6 +543,22 @@ namespace DevKit.ViewModels
                     MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void ClientItemDoubleClick(ConnectedClientModel client)
+        {
+            if (client == null)
+            {
+                return;
+            }
+            
+            if (RuntimeCache.IsClientViewShowing)
+            {
+                MessageBox.Show("请勿重复打开消息界面", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _connectedClient = client;
         }
     }
 }
