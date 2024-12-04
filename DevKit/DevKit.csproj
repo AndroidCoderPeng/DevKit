@@ -211,7 +211,7 @@
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\PlatformImageTypeModel.cs" />
-    <Compile Include="Models\TcpClientModel.cs" />
+    <Compile Include="Models\ConnectedClientModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />

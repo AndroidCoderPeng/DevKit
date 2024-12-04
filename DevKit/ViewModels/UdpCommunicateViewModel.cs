@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Windows;
@@ -9,11 +10,13 @@ using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Sockets;
 using UdpClient = TouchSocket.Sockets.UdpSession;
+using UdpServer = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
@@ -178,16 +181,17 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<TcpClientModel> _tcpClientCollection = new ObservableCollection<TcpClientModel>();
+        private ObservableCollection<ConnectedClientModel> _clientCollection =
+            new ObservableCollection<ConnectedClientModel>();
 
-        public ObservableCollection<TcpClientModel> TcpClientCollection
+        public ObservableCollection<ConnectedClientModel> ClientCollection
         {
             set
             {
-                _tcpClientCollection = value;
+                _clientCollection = value;
                 RaisePropertyChanged();
             }
-            get => _tcpClientCollection;
+            get => _clientCollection;
         }
 
         #endregion
@@ -212,15 +216,20 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
+        private readonly IEventAggregator _eventAggregator;
         private readonly UdpClient _udpClient = new UdpClient();
+        private readonly UdpServer _udpServer = new UdpServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
+        private bool _isListening;
 
-        public UdpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
+        public UdpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
+            IEventAggregator eventAggregator)
         {
             _dataService = dataService;
             _dialogService = dialogService;
-
+            _eventAggregator = eventAggregator;
+            
             InitDefaultConfig();
 
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
@@ -235,7 +244,7 @@ namespace DevKit.ViewModels
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
-            // ItemDoubleClickCommand = new DelegateCommand();
+            // ItemDoubleClickCommand = new DelegateCommand(ClientItemDoubleClick);
         }
 
         private void InitDefaultConfig()
@@ -269,6 +278,44 @@ namespace DevKit.ViewModels
 
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
+
+            _udpServer.Received = (client, e) =>
+            {
+                var endPoint = e.EndPoint;
+                if (!_clientCollection.Any(udp =>
+                        udp.Ip == endPoint.GetIP() &&
+                        udp.Port == endPoint.GetPort() &&
+                        udp.ClientType == ConnectionType.UdpClient))
+                {
+                    var clientModel = new ConnectedClientModel
+                    {
+                        ClientType = ConnectionType.UdpClient,
+                        Ip = endPoint.GetIP(),
+                        Port = endPoint.GetPort()
+                    };
+
+                    Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
+                }
+
+                foreach (var udp in _clientCollection)
+                {
+                    if (udp.Ip == endPoint.GetIP() &&
+                        udp.Port == endPoint.GetPort() &&
+                        udp.ClientType == ConnectionType.UdpClient)
+                    {
+                        var bytes = e.ByteBlock.ToArray();
+                        // _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
+                        //子窗口处于打开状态，不统计消息
+                        if (!RuntimeCache.IsClientViewShowing)
+                        {
+                            udp.MessageCollection.Add(bytes);
+                            udp.MessageCount++;
+                        }
+                    }
+                }
+
+                return EasyTask.CompletedTask;
+            };
         }
 
         private void ShowHexChecked()
@@ -400,6 +447,11 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            _udpClient.Setup(
+                new TouchSocketConfig().SetRemoteIPHost(new IPHost($"{_remoteAddress}:{_remotePort}"))
+            );
+            _udpClient.Start();
+
             if (_loopSend)
             {
                 Console.WriteLine(@"开启循环发送指令");
@@ -408,8 +460,6 @@ namespace DevKit.ViewModels
             }
             else
             {
-                _udpClient.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(_remotePort)));
-                _udpClient.Start();
                 if (_clientCache.SendHex == 1)
                 {
                     if (!_userInputText.IsHex())
@@ -463,6 +513,34 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
+            if (_isListening)
+            {
+                if (RuntimeCache.IsClientViewShowing)
+                {
+                    MessageBox.Show("客户端已打开，无法停止监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _udpServer.Stop();
+                _isListening = false;
+                ListenState = "监听";
+                ListenStateColor = "DarkGray";
+            }
+            else
+            {
+                try
+                {
+                    _udpServer.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(_listenPort)));
+                    _udpServer.Start();
+                    _isListening = true;
+                    ListenState = "停止";
+                    ListenStateColor = "LimeGreen";
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }

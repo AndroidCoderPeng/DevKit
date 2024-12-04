@@ -3,8 +3,9 @@ using System.ComponentModel;
 
 namespace DevKit.Models
 {
-    public class TcpClientModel : INotifyPropertyChanged
+    public class ConnectedClientModel : INotifyPropertyChanged
     {
+        public int ClientType { get; set; }
         public string Id { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }

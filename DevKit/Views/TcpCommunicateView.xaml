@@ -402,7 +402,7 @@
                 x:Name="ClientListBox"
                 Grid.Row="2"
                 HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding TcpClientCollection}"
+                ItemsSource="{Binding ClientCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 

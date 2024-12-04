@@ -205,16 +205,17 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<TcpClientModel> _tcpClientCollection = new ObservableCollection<TcpClientModel>();
+        private ObservableCollection<ConnectedClientModel> _clientCollection =
+            new ObservableCollection<ConnectedClientModel>();
 
-        public ObservableCollection<TcpClientModel> TcpClientCollection
+        public ObservableCollection<ConnectedClientModel> ClientCollection
         {
             set
             {
-                _tcpClientCollection = value;
+                _clientCollection = value;
                 RaisePropertyChanged();
             }
-            get => _tcpClientCollection;
+            get => _clientCollection;
         }
 
         #endregion
@@ -234,7 +235,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<TcpClientModel> ClientItemDoubleClickCommand { set; get; }
+        public DelegateCommand<ConnectedClientModel> ClientItemDoubleClickCommand { set; get; }
 
         #endregion
 
@@ -246,7 +247,7 @@ namespace DevKit.ViewModels
         private readonly TcpServer _tcpServer = new TcpServer();
         private ClientConfigCache _clientCache;
         private bool _isListening;
-        private TcpClientModel _connectedClient;
+        private ConnectedClientModel _connectedClient;
 
         public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
@@ -281,7 +282,7 @@ namespace DevKit.ViewModels
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
-            ClientItemDoubleClickCommand = new DelegateCommand<TcpClientModel>(ClientItemDoubleClick);
+            ClientItemDoubleClickCommand = new DelegateCommand<ConnectedClientModel>(ClientItemDoubleClick);
         }
 
         private void InitDefaultConfig()
@@ -336,14 +337,15 @@ namespace DevKit.ViewModels
             //有客户端成功连接
             _tcpServer.Connected = (client, e) =>
             {
-                var clientModel = new TcpClientModel
+                var clientModel = new ConnectedClientModel
                 {
+                    ClientType = ConnectionType.TcpClient,
                     Id = client.Id,
                     Ip = client.IP,
                     Port = client.Port
                 };
 
-                Application.Current.Dispatcher.Invoke(() => { TcpClientCollection.Add(clientModel); });
+                Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
                 return EasyTask.CompletedTask;
             };
 
@@ -351,10 +353,10 @@ namespace DevKit.ViewModels
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    TcpClientModel clientModel = null;
-                    foreach (var tcp in _tcpClientCollection)
+                    ConnectedClientModel clientModel = null;
+                    foreach (var tcp in _clientCollection)
                     {
-                        if (tcp.Id == client.Id)
+                        if (tcp.Id == client.Id && tcp.ClientType == ConnectionType.TcpClient)
                         {
                             clientModel = tcp;
                             break;
@@ -363,7 +365,7 @@ namespace DevKit.ViewModels
 
                     if (clientModel != null)
                     {
-                        TcpClientCollection.Remove(clientModel);
+                        ClientCollection.Remove(clientModel);
                     }
                 });
                 return EasyTask.CompletedTask;
@@ -371,9 +373,9 @@ namespace DevKit.ViewModels
 
             _tcpServer.Received = (client, e) =>
             {
-                foreach (var tcp in _tcpClientCollection)
+                foreach (var tcp in _clientCollection)
                 {
-                    if (tcp.Id == client.Id)
+                    if (tcp.Id == client.Id && tcp.ClientType == ConnectionType.TcpClient)
                     {
                         var bytes = e.ByteBlock.ToArray();
                         _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
@@ -612,7 +614,7 @@ namespace DevKit.ViewModels
             {
                 if (RuntimeCache.IsClientViewShowing)
                 {
-                    MessageBox.Show("TCP客户端已打开，无法停止监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("客户端已打开，无法停止监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -638,7 +640,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ClientItemDoubleClick(TcpClientModel client)
+        private void ClientItemDoubleClick(ConnectedClientModel client)
         {
             if (client == null)
             {

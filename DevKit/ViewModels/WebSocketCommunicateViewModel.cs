@@ -150,10 +150,10 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<TcpClientModel> _websocketClientCollection =
-            new ObservableCollection<TcpClientModel>();
+        private ObservableCollection<ConnectedClientModel> _websocketClientCollection =
+            new ObservableCollection<ConnectedClientModel>();
 
-        public ObservableCollection<TcpClientModel> WebSocketClientCollection
+        public ObservableCollection<ConnectedClientModel> WebSocketClientCollection
         {
             set
             {
