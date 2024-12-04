@@ -74,6 +74,20 @@ namespace DevKit.ViewModels
         {
             var client = parameters.GetValue<TcpClientModel>("TcpClientModel");
             Title = $"{client.Ip}:{client.Port}";
+            
+            foreach (var bytes in client.MessageCollection)
+            {
+                var messageModel = new MessageModel
+                {
+                    Content = true
+                        ? BitConverter.ToString(bytes).Replace("-", " ")
+                        : Encoding.UTF8.GetString(bytes),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+
+                MessageCollection.Add(messageModel);
+            }
         }
     }
 }

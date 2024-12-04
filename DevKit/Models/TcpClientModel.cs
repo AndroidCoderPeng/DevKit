@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace DevKit.Models
 {
@@ -6,6 +7,18 @@ namespace DevKit.Models
     {
         public string Ip { get; set; }
         public int Port { get; set; }
+
+        private ObservableCollection<byte[]> _messageCollection = new ObservableCollection<byte[]>();
+
+        public ObservableCollection<byte[]> MessageCollection
+        {
+            set
+            {
+                _messageCollection = value;
+                OnPropertyChanged(nameof(MessageCollection));
+            }
+            get => _messageCollection;
+        }
 
         private int _messageCount;
 

@@ -374,6 +374,7 @@ namespace DevKit.ViewModels
                             //子窗口处于打开状态，不统计消息数量
                             if (!RuntimeCache.IsClientViewShowing)
                             {
+                                client.MessageCollection.Add(bytes);
                                 client.MessageCount++;
                             }
 
