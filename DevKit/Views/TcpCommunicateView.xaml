@@ -188,17 +188,25 @@
                 </Grid.ColumnDefinitions>
 
                 <ComboBox
+                    x:Name="ExCommandComboBox"
                     Grid.Column="0"
                     ItemsSource="{Binding ExCommandCollection}"
                     SelectedIndex="0">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid>
-                                <TextBlock Text="{Binding CommandValue}" />
-                                <TextBlock Text="{Binding Annotation}" />
-                            </Grid>
+                            <TextBlock Text="{Binding Annotation}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
+
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="DropDownOpened">
+                            <b:InvokeCommandAction Command="{Binding DropDownOpenedCommand}" />
+                        </b:EventTrigger>
+
+                        <b:EventTrigger EventName="DropDownClosed">
+                            <b:InvokeCommandAction Command="{Binding DropDownClosedCommand}" CommandParameter="{Binding ElementName=ExCommandComboBox}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </ComboBox>
 
                 <Button

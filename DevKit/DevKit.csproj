@@ -196,8 +196,6 @@
       <DependentUpon>TcpClientMessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
-    <Compile Include="Events\DeleteExCommandEvent.cs" />
-    <Compile Include="Events\ExecuteExCommandEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
@@ -244,9 +242,6 @@
     </Compile>
     <Compile Include="Views\ColorResourceView.xaml.cs">
       <DependentUpon>ColorResourceView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ExCommandWindow.xaml.cs">
-      <DependentUpon>ExCommandWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GenerateIconView.xaml.cs">
       <DependentUpon>GenerateIconView.xaml</DependentUpon>
@@ -298,7 +293,6 @@
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ColorResourceView.xaml" />
-    <Page Include="Views\ExCommandWindow.xaml" />
     <Page Include="Views\GenerateIconView.xaml" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

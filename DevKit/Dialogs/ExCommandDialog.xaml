@@ -7,14 +7,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="335"
-    Height="570"
+    Width="400"
+    Height="125"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     Background="White"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
         <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
             <Setter Property="SizeToContent" Value="WidthAndHeight" />
             <Setter Property="ResizeMode" Value="NoResize" />
         </Style>
@@ -31,14 +32,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10,10,10,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock
@@ -48,24 +48,18 @@
 
                 <hc:TextBox
                     Grid.Column="1"
-                    Margin="10,0"
+                    Margin="10,0,0,0"
                     Padding="4,2"
                     hc:InfoElement.Placeholder="此项必填"
                     hc:InfoElement.ShowClearButton="True"
                     Text="{Binding UserCommandValue}"
                     TextWrapping="NoWrap" />
-
-                <CheckBox
-                    Grid.Column="2"
-                    Content="Hex"
-                    IsChecked="{Binding IsHexChecked}" />
             </Grid>
 
             <Grid Grid.Row="1" Margin="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock
@@ -75,111 +69,31 @@
 
                 <hc:TextBox
                     Grid.Column="1"
-                    Margin="10,0"
+                    Margin="10,0,0,0"
                     Padding="4,2"
                     hc:InfoElement.Placeholder="此项非必填"
                     hc:InfoElement.ShowClearButton="True"
                     Text="{Binding CommandAnnotation}"
                     TextWrapping="NoWrap" />
-
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding ExtensionCommandSaveCommand}"
-                    Content="&#xe60a;"
-                    FontFamily="/DevKit;component/Fonts/#iconfont" />
             </Grid>
 
-            <ListBox
-                x:Name="CommandListBox"
-                Grid.Row="2"
-                Margin="0,0,10,0"
-                HorizontalContentAlignment="Stretch"
-                BorderThickness="0"
-                ItemsSource="{Binding UserCommandCollection}"
-                ScrollViewer.CanContentScroll="False"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                Style="{x:Null}">
+            <Grid Grid.Row="2" Margin="10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding ExtensionCommandSaveCommand}"
+                    Content="保存指令"
+                    Style="{StaticResource ButtonPrimary}" />
 
-                            <Grid.ContextMenu>
-                                <ContextMenu Style="{x:Null}">
-                                    <MenuItem
-                                        Click="DeleteMenuItem_Click"
-                                        Header="删除"
-                                        Style="{x:Null}" />
-                                </ContextMenu>
-                            </Grid.ContextMenu>
-
-                            <Grid Grid.Row="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Border
-                                    Grid.Column="0"
-                                    VerticalAlignment="Center"
-                                    Background="{DynamicResource PrimaryBrush}"
-                                    CornerRadius="3">
-                                    <TextBlock
-                                        Margin="3,1"
-                                        FontSize="12"
-                                        Foreground="White"
-                                        Text="{Binding Annotation}" />
-                                </Border>
-
-                                <Button
-                                    Grid.Column="2"
-                                    Margin="0,2,0,0"
-                                    BorderThickness="0"
-                                    Command="{Binding DataContext.ExecuteCommand, ElementName=CommandListBox}"
-                                    CommandParameter="{Binding CommandValue}"
-                                    Content="&#xe726;"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    Foreground="LimeGreen"
-                                    Style="{StaticResource ButtonDefault.Small}"
-                                    ToolTip="下发指令" />
-                            </Grid>
-
-                            <TextBlock
-                                Grid.Row="1"
-                                Margin="0,3,0,0"
-                                FontSize="14"
-                                Text="{Binding CommandValue}"
-                                TextWrapping="Wrap" />
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                    <Border x:Name="ItemContainerBorder" Padding="3">
-                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
+                <CheckBox
+                    Grid.Column="1"
+                    Content="HEX"
+                    IsChecked="{Binding IsHexChecked}" />
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

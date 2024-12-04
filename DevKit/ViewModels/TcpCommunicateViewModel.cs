@@ -6,7 +6,6 @@ using System.Timers;
 using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
-using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using DevKit.Utils.Socket.Server;
@@ -261,31 +260,31 @@ namespace DevKit.ViewModels
             ServerListenCommand = new DelegateCommand(ServerListen);
             ClientItemDoubleClickCommand = new DelegateCommand<TcpClientModel>(ClientItemDoubleClick);
 
-            eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
-            {
-                if (_buttonState.Equals("连接"))
-                {
-                    MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                var message = new MessageModel();
-                if (_clientCache.SendHex == 1)
-                {
-                    if (!commandValue.IsHex())
-                    {
-                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                }
-
-                _tcpClient.SendAsync(commandValue);
-
-                message.Content = commandValue;
-                message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-                message.IsSend = true;
-                MessageCollection.Add(message);
-            });
+            // eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
+            // {
+            //     if (_buttonState.Equals("连接"))
+            //     {
+            //         MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     var message = new MessageModel();
+            //     if (_clientCache.SendHex == 1)
+            //     {
+            //         if (!commandValue.IsHex())
+            //         {
+            //             MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //             return;
+            //         }
+            //     }
+            //
+            //     _tcpClient.SendAsync(commandValue);
+            //
+            //     message.Content = commandValue;
+            //     message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+            //     message.IsSend = true;
+            //     MessageCollection.Add(message);
+            // });
         }
 
         private void InitDefaultConfig()
@@ -471,7 +470,7 @@ namespace DevKit.ViewModels
             {
                 { "ConnectionType", ConnectionType.TcpClient }
             };
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
         }
 
         private void ClearMessage()
