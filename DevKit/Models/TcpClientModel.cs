@@ -5,6 +5,7 @@ namespace DevKit.Models
 {
     public class TcpClientModel : INotifyPropertyChanged
     {
+        public string Id { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
 

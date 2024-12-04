@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Net;
 using System.Text;
 using System.Timers;
 using System.Windows;
@@ -10,13 +9,14 @@ using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
-using DevKit.Utils.Socket.Server;
-using DotNetty.Transport.Channels;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TcpClient = DevKit.Utils.Socket.Client.TcpClient;
+using TouchSocket.Core;
+using TouchSocket.Sockets;
+using TcpClient = TouchSocket.Sockets.TcpClient;
+using TcpServer = TouchSocket.Sockets.TcpService;
 
 namespace DevKit.ViewModels
 {
@@ -245,6 +245,8 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private readonly TcpServer _tcpServer = new TcpServer();
         private ClientConfigCache _clientCache;
+        private bool _isListening;
+        private TcpClientModel _connectedClient;
 
         public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
@@ -256,11 +258,11 @@ namespace DevKit.ViewModels
             {
                 if (cmd is byte[] bytes)
                 {
-                    _tcpServer.SendAsync(bytes);
+                    _tcpServer.Send(_connectedClient?.Id, bytes);
                 }
                 else
                 {
-                    _tcpServer.SendAsync((string)cmd);
+                    _tcpServer.Send(_connectedClient?.Id, (string)cmd);
                 }
             });
 
@@ -295,106 +297,98 @@ namespace DevKit.ViewModels
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            _tcpClient.OnConnected += delegate
+            //成功连接到服务器
+            _tcpClient.Connected = (client, e) =>
             {
                 ConnectionStateColor = "LimeGreen";
                 ButtonState = "断开";
+                return EasyTask.CompletedTask;
             };
-            _tcpClient.OnDisconnected += delegate
+
+            //从服务器断开连接，当连接不成功时不会触发。
+            _tcpClient.Closed = (client, e) =>
             {
                 ConnectionStateColor = "DarkGray";
                 ButtonState = "连接";
+                return EasyTask.CompletedTask;
             };
-            _tcpClient.OnConnectFailed += delegate(object sender, Exception exception)
+
+            //从服务器收到信息
+            _tcpClient.Received = (client, e) =>
             {
-                ConnectionStateColor = "DarkGray";
-                ButtonState = "连接";
-                MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
-            };
-            _tcpClient.OnDataReceived += delegate(object sender, byte[] bytes)
-            {
+                var byteBlock = e.ByteBlock;
                 var messageModel = new MessageModel
                 {
                     Content = _clientCache.ShowHex == 1
-                        ? BitConverter.ToString(bytes).Replace("-", " ")
-                        : Encoding.UTF8.GetString(bytes),
+                        ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                        : byteBlock.Span.ToString(Encoding.UTF8),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
 
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                return EasyTask.CompletedTask;
             };
 
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
 
-            _tcpServer.OnConnected += delegate(object sender, IChannelHandlerContext context)
+            //有客户端成功连接
+            _tcpServer.Connected = (client, e) =>
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
+                var clientModel = new TcpClientModel
                 {
-                    var clientModel = new TcpClientModel();
+                    Id = client.Id,
+                    Ip = client.IP,
+                    Port = client.Port
+                };
 
-                    var iPv4 = endPoint.Address.MapToIPv4();
-                    clientModel.Ip = iPv4.ToString();
-                    clientModel.Port = endPoint.Port;
-
-                    Application.Current.Dispatcher.Invoke(() => { TcpClientCollection.Add(clientModel); });
-                }
+                Application.Current.Dispatcher.Invoke(() => { TcpClientCollection.Add(clientModel); });
+                return EasyTask.CompletedTask;
             };
-            _tcpServer.OnDisconnected += delegate(object sender, IChannelHandlerContext context)
+
+            _tcpServer.Closed = (client, e) =>
             {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var iPv4 = endPoint.Address.MapToIPv4();
-                    var port = endPoint.Port;
-
-                    Application.Current.Dispatcher.Invoke(() =>
+                    TcpClientModel clientModel = null;
+                    foreach (var tcp in _tcpClientCollection)
                     {
-                        TcpClientModel clientModel = null;
-                        foreach (var client in _tcpClientCollection)
+                        if (tcp.Id == client.Id)
                         {
-                            if (client.Ip == iPv4.ToString() && client.Port == port)
-                            {
-                                clientModel = client;
-                                break;
-                            }
-                        }
-
-                        if (clientModel != null)
-                        {
-                            TcpClientCollection.Remove(clientModel);
-                        }
-                    });
-                }
-            };
-            _tcpServer.OnDataReceived += delegate(object sender, IChannelHandlerContext context, byte[] bytes)
-            {
-                var address = context.Channel.RemoteAddress;
-                if (address is IPEndPoint endPoint)
-                {
-                    var iPv4 = endPoint.Address.MapToIPv4();
-                    var port = endPoint.Port;
-
-                    foreach (var client in _tcpClientCollection)
-                    {
-                        if (client.Ip == iPv4.ToString() && client.Port == port)
-                        {
-                            _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
-                            //子窗口处于打开状态，不统计消息
-                            if (!RuntimeCache.IsClientViewShowing)
-                            {
-                                client.MessageCollection.Add(bytes);
-                                client.MessageCount++;
-                                
-                                _tcpServer.SendAsync("AA 01 00 93 00 00 94");
-                            }
-
+                            clientModel = tcp;
                             break;
                         }
                     }
+
+                    if (clientModel != null)
+                    {
+                        TcpClientCollection.Remove(clientModel);
+                    }
+                });
+                return EasyTask.CompletedTask;
+            };
+
+            _tcpServer.Received = (client, e) =>
+            {
+                foreach (var tcp in _tcpClientCollection)
+                {
+                    if (tcp.Id == client.Id)
+                    {
+                        var bytes = e.ByteBlock.ToArray();
+                        _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
+                        //子窗口处于打开状态，不统计消息
+                        if (!RuntimeCache.IsClientViewShowing)
+                        {
+                            tcp.MessageCollection.Add(bytes);
+                            tcp.MessageCount++;
+                        }
+
+                        break;
+                    }
                 }
+
+                return EasyTask.CompletedTask;
             };
         }
 
@@ -458,13 +452,14 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_tcpClient.IsRunning())
+            if (_tcpClient.Online)
             {
                 _tcpClient.Close();
             }
             else
             {
-                _tcpClient.Start(_remoteAddress, Convert.ToInt32(_remotePort));
+                _tcpClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}:{_remotePort}"));
+                _tcpClient.Connect();
             }
         }
 
@@ -606,7 +601,7 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
-            if (_tcpServer.IsRunning())
+            if (_isListening)
             {
                 if (RuntimeCache.IsClientViewShowing)
                 {
@@ -614,28 +609,25 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                _tcpServer.StopListen();
-            }
-            else
-            {
-                _tcpServer.StartListen(_listenPort, ListenStateHandler);
-            }
-        }
-
-        private void ListenStateHandler(int state)
-        {
-            if (state == 1)
-            {
-                ListenState = "停止";
-                ListenStateColor = "LimeGreen";
-            }
-            else
-            {
+                _tcpServer.Stop();
+                _isListening = false;
                 ListenState = "监听";
                 ListenStateColor = "DarkGray";
-
-                //断开客户端（没找到服务端断开监听，只能在服务端断开时候主动调一下客户端关闭）
-                _tcpClient.Close();
+            }
+            else
+            {
+                try
+                {
+                    _tcpServer.Setup(new TouchSocketConfig().SetListenIPHosts(_listenPort));
+                    _tcpServer.Start();
+                    _isListening = true;
+                    ListenState = "停止";
+                    ListenStateColor = "LimeGreen";
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -652,6 +644,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            _connectedClient = client;
             var dialogParameters = new DialogParameters
             {
                 { "TcpClientModel", client }
