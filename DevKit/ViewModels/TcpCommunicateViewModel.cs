@@ -554,6 +554,8 @@ namespace DevKit.ViewModels
                     }
                 }
 
+                //TODO
+                //有点问题
                 _tcpClient.SendAsync(_userInputText);
 
                 message.Content = _userInputText;
@@ -625,6 +627,11 @@ namespace DevKit.ViewModels
 
         private void ClientItemDoubleClick(TcpClientModel client)
         {
+            if (client == null)
+            {
+                return;
+            }
+
             if (RuntimeCache.IsClientViewShowing)
             {
                 MessageBox.Show("请勿重复打开消息界面", "错误", MessageBoxButton.OK, MessageBoxImage.Error);

@@ -96,11 +96,9 @@ namespace DevKit.Utils.Socket.Server
 
             try
             {
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    var bindTask = _serverBootstrap.BindAsync(_port);
-                    bindTask.Wait();
-                    _channel = bindTask.Result;
+                    _channel = await _serverBootstrap.BindAsync(_port);
                     _stateDelegate(1);
                     _isRunning = true;
                 });
