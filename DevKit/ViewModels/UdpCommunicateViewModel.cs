@@ -8,10 +8,12 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using DevKit.Utils.Socket.Client;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using TouchSocket.Core;
+using TouchSocket.Sockets;
+using UdpClient = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
@@ -246,21 +248,23 @@ namespace DevKit.ViewModels
 
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
                 .ToObservableCollection();
-            
+
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            _udpClient.OnDataReceived += delegate(object sender, byte[] bytes)
+            _udpClient.Received = (client, e) =>
             {
+                var byteBlock = e.ByteBlock;
                 var messageModel = new MessageModel
                 {
                     Content = _clientCache.ShowHex == 1
-                        ? BitConverter.ToString(bytes).Replace("-", " ")
-                        : Encoding.UTF8.GetString(bytes),
+                        ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                        : byteBlock.Span.ToString(Encoding.UTF8),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
 
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                return EasyTask.CompletedTask;
             };
 
             //获取本机所有IPv4地址
@@ -404,7 +408,8 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var message = new MessageModel();
+                _udpClient.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(_remotePort)));
+                _udpClient.Start();
                 if (_clientCache.SendHex == 1)
                 {
                     if (!_userInputText.IsHex())
@@ -412,20 +417,26 @@ namespace DevKit.ViewModels
                         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
+
+                    _udpClient.Send(_userInputText.HexToBytes());
+                }
+                else
+                {
+                    _udpClient.Send(_userInputText);
                 }
 
-                _udpClient.SendAsync(_userInputText);
-
-                message.Content = _userInputText;
-                message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-                message.IsSend = true;
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
                 MessageCollection.Add(message);
             }
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            var message = new MessageModel();
             if (_clientCache.SendHex == 1)
             {
                 if (!_userInputText.IsHex())
@@ -433,12 +444,20 @@ namespace DevKit.ViewModels
                     MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
+                _udpClient.Send(_userInputText.HexToBytes());
+            }
+            else
+            {
+                _udpClient.Send(_userInputText);
             }
 
-            _udpClient.SendAsync(_userInputText);
-            message.Content = _userInputText;
-            message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            message.IsSend = true;
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
 
