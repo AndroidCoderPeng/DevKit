@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
@@ -11,7 +12,6 @@ using DevKit.Utils;
 using DevKit.Utils.Socket.Server;
 using DotNetty.Transport.Channels;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TcpClient = DevKit.Utils.Socket.Client.TcpClient;
@@ -222,6 +222,8 @@ namespace DevKit.ViewModels
         public DelegateCommand ConnectRemoteCommand { set; get; }
         public DelegateCommand ShowHexCheckedCommand { set; get; }
         public DelegateCommand ShowHexUncheckedCommand { set; get; }
+        public DelegateCommand DropDownOpenedCommand { set; get; }
+        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
@@ -240,8 +242,7 @@ namespace DevKit.ViewModels
         private readonly TcpServer _tcpServer = new TcpServer();
         private ClientConfigCache _clientCache;
 
-        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
-            IEventAggregator eventAggregator)
+        public TcpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
@@ -251,6 +252,8 @@ namespace DevKit.ViewModels
             ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
             ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
+            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
@@ -462,6 +465,23 @@ namespace DevKit.ViewModels
             {
                 _tcpClient.Start(_remoteAddress, Convert.ToInt32(_remotePort));
             }
+        }
+
+        private void DropDownOpened()
+        {
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
+                .ToObservableCollection();
+        }
+
+        private void DropDownClosed(ComboBox box)
+        {
+            if (box.SelectedIndex == -1)
+            {
+                box.SelectedIndex = 0;
+            }
+
+            var commandCache = _exCommandCollection[box.SelectedIndex];
+            UserInputText = commandCache.CommandValue;
         }
 
         private void AddExtensionCommand()

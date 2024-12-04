@@ -4,7 +4,6 @@ using System.Timers;
 using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
-using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using DevKit.Utils.Socket.Client;
@@ -200,23 +199,23 @@ namespace DevKit.ViewModels
             ServerListenCommand = new DelegateCommand(ServerListen);
             // ItemDoubleClickCommand = new DelegateCommand();
 
-            eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
-            {
-                if (_buttonState.Equals("连接"))
-                {
-                    MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _webSocketClient.SendAsync(commandValue);
-                var message = new MessageModel
-                {
-                    Content = commandValue,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                MessageCollection.Add(message);
-            });
+            // eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
+            // {
+            //     if (_buttonState.Equals("连接"))
+            //     {
+            //         MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     _webSocketClient.SendAsync(commandValue);
+            //     var message = new MessageModel
+            //     {
+            //         Content = commandValue,
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = true
+            //     };
+            //     MessageCollection.Add(message);
+            // });
         }
 
         private void InitDefaultConfig()
