@@ -57,12 +57,7 @@ namespace DevKit.Utils.Socket.Client
             }
 
             _endPoint = new IPEndPoint(IPAddress.Parse(host), port);
-            Task.Run(() =>
-            {
-                var connectTask = _bootStrap.ConnectAsync(_endPoint);
-                connectTask.Wait();
-                _channel = connectTask.Result;
-            });
+            Task.Run(async () => { _channel = await _bootStrap.ConnectAsync(_endPoint); });
         }
 
         public void SendAsync(object message)

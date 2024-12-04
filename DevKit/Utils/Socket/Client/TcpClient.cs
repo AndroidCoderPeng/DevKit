@@ -119,11 +119,9 @@ namespace DevKit.Utils.Socket.Client
 
             try
             {
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    var bindTask = _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
-                    bindTask.Wait();
-                    _channel = bindTask.Result;
+                    _channel = await _bootStrap.ConnectAsync(new IPEndPoint(IPAddress.Parse(_host), _port));
                     _isRunning = true;
                 });
             }

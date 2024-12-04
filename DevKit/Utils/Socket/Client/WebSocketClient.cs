@@ -130,12 +130,9 @@ namespace DevKit.Utils.Socket.Client
 
             try
             {
-                //等效 await task
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
-                    var connectTask = _bootStrap.ConnectAsync();
-                    connectTask.Wait();
-                    _channel = connectTask.Result;
+                    _channel = await _bootStrap.ConnectAsync();
                     _isRunning = true;
                 });
             }
