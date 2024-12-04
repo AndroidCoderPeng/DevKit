@@ -18,7 +18,7 @@ namespace DevKit.DataService
 
         void SaveCacheConfig<T>(T configCache);
 
-        void DeleteExtensionCommandCache(int cacheId);
+        void DeleteExtensionCommandCache(int connectionType, int cacheId);
 
         List<string> GetAllIPv4Addresses();
 

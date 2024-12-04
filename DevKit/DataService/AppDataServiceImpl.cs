@@ -123,11 +123,14 @@ namespace DevKit.DataService
             }
         }
 
-        public void DeleteExtensionCommandCache(int cacheId)
+        public void DeleteExtensionCommandCache(int connectionType, int cacheId)
         {
             using (var dataBase = new DataBaseConnection())
             {
-                dataBase.Table<ExCommandCache>().Delete(x => x.Id == cacheId);
+                dataBase.Table<ExCommandCache>().Where(x =>
+                    x.ParentType == connectionType &&
+                    x.Id == cacheId
+                ).Delete();
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
@@ -42,18 +43,6 @@ namespace DevKit.ViewModels
             get => _remotePort;
         }
 
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-
-        public ObservableCollection<MessageModel> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _messageCollection;
-        }
-
         private bool _showHex = true;
 
         public bool ShowHex
@@ -66,16 +55,29 @@ namespace DevKit.ViewModels
             get => _showHex;
         }
 
-        private bool _sendHex = true;
+        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
 
-        public bool SendHex
+        public ObservableCollection<MessageModel> MessageCollection
         {
             set
             {
-                _sendHex = value;
+                _messageCollection = value;
                 RaisePropertyChanged();
             }
-            get => _sendHex;
+            get => _messageCollection;
+        }
+
+        private ObservableCollection<ExCommandCache> _exCommandCollection =
+            new ObservableCollection<ExCommandCache>();
+
+        public ObservableCollection<ExCommandCache> ExCommandCollection
+        {
+            set
+            {
+                _exCommandCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _exCommandCollection;
         }
 
         private bool _loopSend;
@@ -100,6 +102,18 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _commandInterval;
+        }
+
+        private bool _sendHex = true;
+
+        public bool SendHex
+        {
+            set
+            {
+                _sendHex = value;
+                RaisePropertyChanged();
+            }
+            get => _sendHex;
         }
 
         private string _userInputText = string.Empty;
@@ -180,11 +194,14 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ShowHexCheckedCommand { set; get; }
         public DelegateCommand ShowHexUncheckedCommand { set; get; }
+        public DelegateCommand DropDownOpenedCommand { set; get; }
+        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
+        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
+        public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
+        public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand ItemDoubleClickCommand { set; get; }
@@ -206,11 +223,14 @@ namespace DevKit.ViewModels
 
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
             ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
+            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
+            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
+            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
             // ItemDoubleClickCommand = new DelegateCommand();
@@ -224,6 +244,9 @@ namespace DevKit.ViewModels
             ShowHex = _clientCache.ShowHex == 1;
             SendHex = _clientCache.SendHex == 1;
 
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
+                .ToObservableCollection();
+            
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             _udpClient.OnDataReceived += delegate(object sender, byte[] bytes)
@@ -296,14 +319,41 @@ namespace DevKit.ViewModels
             }
         }
 
+        private void DropDownOpened()
+        {
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
+                .ToObservableCollection();
+        }
+
+        private void DeleteExCmd(object obj)
+        {
+            var result = MessageBox.Show(
+                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
+            );
+            if (result == MessageBoxResult.OK)
+            {
+                _dataService.DeleteExtensionCommandCache(ConnectionType.UdpClient, (int)obj);
+            }
+        }
+
+        private void DropDownClosed(ComboBox box)
+        {
+            if (box.SelectedIndex == -1)
+            {
+                box.SelectedIndex = 0;
+            }
+
+            var commandCache = _exCommandCollection[box.SelectedIndex];
+            UserInputText = commandCache.CommandValue;
+        }
+
         private void AddExtensionCommand()
         {
             var dialogParameters = new DialogParameters
             {
-                { "ParentId", _clientCache.Id },
                 { "ConnectionType", ConnectionType.UdpClient }
             };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { });
         }
 
         private void ClearMessage()

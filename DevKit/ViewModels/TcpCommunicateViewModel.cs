@@ -228,10 +228,10 @@ namespace DevKit.ViewModels
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
+        public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
+        public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand<TcpClientModel> ClientItemDoubleClickCommand { set; get; }
@@ -275,10 +275,10 @@ namespace DevKit.ViewModels
             DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
             DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
+            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
             ClientItemDoubleClickCommand = new DelegateCommand<TcpClientModel>(ClientItemDoubleClick);
@@ -476,7 +476,7 @@ namespace DevKit.ViewModels
             );
             if (result == MessageBoxResult.OK)
             {
-                _dataService.DeleteExtensionCommandCache((int)obj);
+                _dataService.DeleteExtensionCommandCache(ConnectionType.TcpClient, (int)obj);
             }
         }
 

@@ -147,7 +147,7 @@ namespace DevKit.ViewModels
             );
             if (result == MessageBoxResult.OK)
             {
-                _dataService.DeleteExtensionCommandCache((int)obj);
+                _dataService.DeleteExtensionCommandCache(ConnectionType.TcpServer, (int)obj);
             }
         }
 
