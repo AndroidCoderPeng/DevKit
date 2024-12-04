@@ -60,65 +60,65 @@ namespace DevKit.ViewModels
             get => _buttonState;
         }
 
-        private bool _showHex = true;
+        private bool _clientShowHex = true;
 
-        public bool ShowHex
+        public bool ClientShowHex
         {
             set
             {
-                _showHex = value;
+                _clientShowHex = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
+            get => _clientShowHex;
         }
 
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
+        private ObservableCollection<MessageModel> _clientMessageCollection = new ObservableCollection<MessageModel>();
 
-        public ObservableCollection<MessageModel> MessageCollection
+        public ObservableCollection<MessageModel> ClientMessageCollection
         {
             set
             {
-                _messageCollection = value;
+                _clientMessageCollection = value;
                 RaisePropertyChanged();
             }
-            get => _messageCollection;
+            get => _clientMessageCollection;
         }
 
-        private ObservableCollection<ExCommandCache> _exCommandCollection =
+        private ObservableCollection<ExCommandCache> _clientExCommandCollection =
             new ObservableCollection<ExCommandCache>();
 
-        public ObservableCollection<ExCommandCache> ExCommandCollection
+        public ObservableCollection<ExCommandCache> ClientExCommandCollection
         {
             set
             {
-                _exCommandCollection = value;
+                _clientExCommandCollection = value;
                 RaisePropertyChanged();
             }
-            get => _exCommandCollection;
+            get => _clientExCommandCollection;
         }
 
-        private bool _sendHex = true;
+        private bool _clientSendHex = true;
 
-        public bool SendHex
+        public bool ClientSendHex
         {
             set
             {
-                _sendHex = value;
+                _clientSendHex = value;
                 RaisePropertyChanged();
             }
-            get => _sendHex;
+            get => _clientSendHex;
         }
 
-        private bool _loopSend;
+        private bool _clientLoopSend;
 
-        public bool LoopSend
+        public bool ClientLoopSend
         {
             set
             {
-                _loopSend = value;
+                _clientLoopSend = value;
                 RaisePropertyChanged();
             }
-            get => _loopSend;
+            get => _clientLoopSend;
         }
 
         private string _connectionStateColor = "DarkGray";
@@ -145,16 +145,16 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private string _userInputText = string.Empty;
+        private string _clientUserInputText = string.Empty;
 
-        public string UserInputText
+        public string ClientUserInputText
         {
             set
             {
-                _userInputText = value;
+                _clientUserInputText = value;
                 RaisePropertyChanged();
             }
-            get => _userInputText;
+            get => _clientUserInputText;
         }
 
         private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
@@ -222,18 +222,18 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ConnectRemoteCommand { set; get; }
-        public DelegateCommand ShowHexCheckedCommand { set; get; }
-        public DelegateCommand ShowHexUncheckedCommand { set; get; }
+        public DelegateCommand ClientConnectRemoteCommand { set; get; }
+        public DelegateCommand ClientShowHexCheckedCommand { set; get; }
+        public DelegateCommand ClientShowHexUncheckedCommand { set; get; }
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand ExtensionCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand SendHexCheckedCommand { set; get; }
-        public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand ClientAddExtensionCommand { set; get; }
+        public DelegateCommand ClientLoopUncheckedCommand { set; get; }
+        public DelegateCommand ClientSendHexCheckedCommand { set; get; }
+        public DelegateCommand ClientSendHexUncheckedCommand { set; get; }
+        public DelegateCommand ClientClearMessageCommand { set; get; }
+        public DelegateCommand ClientSendMessageCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand<ConnectedClientModel> ClientItemDoubleClickCommand { set; get; }
 
@@ -269,18 +269,18 @@ namespace DevKit.ViewModels
 
             InitDefaultConfig();
 
-            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
-            ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
-            ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
+            ClientConnectRemoteCommand = new DelegateCommand(ClientConnectRemote);
+            ClientShowHexCheckedCommand = new DelegateCommand(ClientShowHexChecked);
+            ClientShowHexUncheckedCommand = new DelegateCommand(ClientShowHexUnchecked);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
             DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            ExtensionCommand = new DelegateCommand(AddExtensionCommand);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
-            SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
+            ClientAddExtensionCommand = new DelegateCommand(ClientAddExtension);
+            ClientLoopUncheckedCommand = new DelegateCommand(ClientLoopUnchecked);
+            ClientSendHexCheckedCommand = new DelegateCommand(ClientSendHexChecked);
+            ClientSendHexUncheckedCommand = new DelegateCommand(ClientSendHexUnchecked);
+            ClientClearMessageCommand = new DelegateCommand(ClientClearMessage);
+            ClientSendMessageCommand = new DelegateCommand(ClientSendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
             ClientItemDoubleClickCommand = new DelegateCommand<ConnectedClientModel>(ClientItemDoubleClick);
         }
@@ -290,10 +290,11 @@ namespace DevKit.ViewModels
             _clientCache = _dataService.LoadClientConfigCache(ConnectionType.TcpClient);
             RemoteAddress = _clientCache.RemoteAddress;
             RemotePort = _clientCache.RemotePort.ToString();
-            ShowHex = _clientCache.ShowHex == 1;
-            SendHex = _clientCache.SendHex == 1;
+            ClientShowHex = _clientCache.ShowHex == 1;
+            ClientSendHex = _clientCache.SendHex == 1;
 
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
+            ClientExCommandCollection = _dataService
+                .LoadCommandExtensionCaches(ConnectionType.TcpClient)
                 .ToObservableCollection();
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
@@ -327,7 +328,7 @@ namespace DevKit.ViewModels
                     IsSend = false
                 };
 
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                Application.Current.Dispatcher.Invoke(() => { ClientMessageCollection.Add(messageModel); });
                 return EasyTask.CompletedTask;
             };
 
@@ -394,7 +395,7 @@ namespace DevKit.ViewModels
             };
         }
 
-        private void ShowHexChecked()
+        private void ClientShowHexChecked()
         {
             var boxResult = MessageBox.Show(
                 "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
@@ -402,7 +403,7 @@ namespace DevKit.ViewModels
             if (boxResult == MessageBoxResult.OK)
             {
                 var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
+                foreach (var model in ClientMessageCollection)
                 {
                     //将model.Content视为string
                     var hex = model.Content.StringToHex();
@@ -415,19 +416,19 @@ namespace DevKit.ViewModels
                     collection.Add(msg);
                 }
 
-                MessageCollection = collection;
+                ClientMessageCollection = collection;
 
                 _clientCache.ShowHex = 1;
             }
         }
 
-        private void ShowHexUnchecked()
+        private void ClientShowHexUnchecked()
         {
             var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
             if (boxResult == MessageBoxResult.OK)
             {
                 var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
+                foreach (var model in ClientMessageCollection)
                 {
                     //将model.Content视为Hex，先转bytes[]，再转string
                     var bytes = model.Content.HexToBytes();
@@ -440,13 +441,13 @@ namespace DevKit.ViewModels
                     collection.Add(msg);
                 }
 
-                MessageCollection = collection;
+                ClientMessageCollection = collection;
 
                 _clientCache.ShowHex = 0;
             }
         }
 
-        private void ConnectRemote()
+        private void ClientConnectRemote()
         {
             if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
             {
@@ -467,7 +468,8 @@ namespace DevKit.ViewModels
 
         private void DropDownOpened()
         {
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
+            ClientExCommandCollection = _dataService
+                .LoadCommandExtensionCaches(ConnectionType.TcpClient)
                 .ToObservableCollection();
         }
 
@@ -489,11 +491,11 @@ namespace DevKit.ViewModels
                 box.SelectedIndex = 0;
             }
 
-            var commandCache = _exCommandCollection[box.SelectedIndex];
-            UserInputText = commandCache.CommandValue;
+            var commandCache = _clientExCommandCollection[box.SelectedIndex];
+            ClientUserInputText = commandCache.CommandValue;
         }
 
-        private void AddExtensionCommand()
+        private void ClientAddExtension()
         {
             var dialogParameters = new DialogParameters
             {
@@ -502,35 +504,35 @@ namespace DevKit.ViewModels
             _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
         }
 
-        private void ClearMessage()
+        private void ClientClearMessage()
         {
-            MessageCollection?.Clear();
+            ClientMessageCollection?.Clear();
         }
 
-        private void SendHexChecked()
+        private void ClientSendHexChecked()
         {
             _clientCache.SendHex = 1;
         }
 
-        private void SendHexUnchecked()
+        private void ClientSendHexUnchecked()
         {
             _clientCache.SendHex = 0;
         }
 
-        private void LoopUnchecked()
+        private void ClientLoopUnchecked()
         {
             Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
-        private void SendMessage()
+        private void ClientSendMessage()
         {
             _clientCache.Type = ConnectionType.TcpClient;
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveCacheConfig(_clientCache);
 
-            if (string.IsNullOrWhiteSpace(_userInputText))
+            if (string.IsNullOrWhiteSpace(_clientUserInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -542,7 +544,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_loopSend)
+            if (_clientLoopSend)
             {
                 Console.WriteLine(@"开启循环发送指令");
                 _loopSendMessageTimer.Interval = _commandInterval;
@@ -552,27 +554,27 @@ namespace DevKit.ViewModels
             {
                 if (_clientCache.SendHex == 1)
                 {
-                    if (!_userInputText.IsHex())
+                    if (!_clientUserInputText.IsHex())
                     {
                         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
                     //以byte[]发送
-                    _tcpClient.SendAsync(_userInputText.HexToBytes());
+                    _tcpClient.SendAsync(_clientUserInputText.HexToBytes());
                 }
                 else
                 {
-                    _tcpClient.SendAsync(_userInputText);
+                    _tcpClient.SendAsync(_clientUserInputText);
                 }
 
                 var message = new MessageModel
                 {
-                    Content = _userInputText,
+                    Content = _clientUserInputText,
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = true
                 };
-                MessageCollection.Add(message);
+                ClientMessageCollection.Add(message);
             }
         }
 
@@ -586,26 +588,26 @@ namespace DevKit.ViewModels
 
             if (_clientCache.SendHex == 1)
             {
-                if (!_userInputText.IsHex())
+                if (!_clientUserInputText.IsHex())
                 {
                     MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                _tcpClient.Send(_userInputText.HexToBytes());
+                _tcpClient.Send(_clientUserInputText.HexToBytes());
             }
             else
             {
-                _tcpClient.Send(_userInputText);
+                _tcpClient.Send(_clientUserInputText);
             }
 
             var message = new MessageModel
             {
-                Content = _userInputText,
+                Content = _clientUserInputText,
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                 IsSend = true
             };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            Application.Current.Dispatcher.Invoke(() => { ClientMessageCollection.Add(message); });
         }
 
         private void ServerListen()

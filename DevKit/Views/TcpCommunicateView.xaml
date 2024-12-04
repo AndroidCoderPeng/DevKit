@@ -81,21 +81,21 @@
                     Grid.Column="3"
                     Margin="10,0"
                     Content="HEX显示"
-                    IsChecked="{Binding ShowHex}">
+                    IsChecked="{Binding ClientShowHex}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="Checked">
-                            <b:InvokeCommandAction Command="{Binding ShowHexCheckedCommand}" />
+                            <b:InvokeCommandAction Command="{Binding ClientShowHexCheckedCommand}" />
                         </b:EventTrigger>
 
                         <b:EventTrigger EventName="Unchecked">
-                            <b:InvokeCommandAction Command="{Binding ShowHexUncheckedCommand}" />
+                            <b:InvokeCommandAction Command="{Binding ClientShowHexUncheckedCommand}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </CheckBox>
 
                 <Button
                     Grid.Column="4"
-                    Command="{Binding ConnectRemoteCommand}"
+                    Command="{Binding ClientConnectRemoteCommand}"
                     Content="{Binding ButtonState}"
                     Style="{StaticResource ButtonPrimary}" />
             </Grid>
@@ -104,7 +104,7 @@
                 x:Name="ClientMessageListBox"
                 Grid.Row="1"
                 Margin="0,10"
-                ItemsSource="{Binding MessageCollection}"
+                ItemsSource="{Binding ClientMessageCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>
@@ -189,10 +189,10 @@
                 </Grid.ColumnDefinitions>
 
                 <ComboBox
-                    x:Name="ExCommandComboBox"
+                    x:Name="ClientExCommandComboBox"
                     Grid.Column="0"
                     HorizontalContentAlignment="Stretch"
-                    ItemsSource="{Binding ExCommandCollection}"
+                    ItemsSource="{Binding ClientExCommandCollection}"
                     SelectedIndex="0">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -211,7 +211,7 @@
                                     Grid.Column="1"
                                     Background="Transparent"
                                     BorderThickness="0"
-                                    Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ExCommandComboBox}"
+                                    Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ClientExCommandComboBox}"
                                     CommandParameter="{Binding Id}"
                                     Content="&#xe6dc;"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -236,20 +236,20 @@
                 <Button
                     Grid.Column="1"
                     Margin="10,0"
-                    Command="{Binding ExtensionCommand}"
+                    Command="{Binding ClientAddExtensionCommand}"
                     Content="&#xe6aa;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
                     Foreground="{DynamicResource PrimaryBrush}"
                     ToolTip="添加扩展指令" />
 
                 <CheckBox
-                    x:Name="LoopCheckBox"
+                    x:Name="ClientLoopCheckBox"
                     Grid.Column="2"
                     Content="循环发送"
-                    IsChecked="{Binding LoopSend}">
+                    IsChecked="{Binding ClientLoopSend}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="Unchecked">
-                            <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
+                            <b:InvokeCommandAction Command="{Binding ClientLoopUncheckedCommand}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </CheckBox>
@@ -257,7 +257,7 @@
                 <hc:TextBox
                     Grid.Column="3"
                     Margin="10,0"
-                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
+                    IsEnabled="{Binding ElementName=ClientLoopCheckBox, Path=IsChecked}">
                     <TextBox.Text>
                         <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
                             <Binding.ValidationRules>
@@ -290,7 +290,7 @@
                     Grid.Column="0"
                     Padding="4"
                     VerticalContentAlignment="Top"
-                    Text="{Binding UserInputText}"
+                    Text="{Binding ClientUserInputText}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
 
@@ -304,14 +304,14 @@
                     <CheckBox
                         Grid.Row="0"
                         Content="HEX"
-                        IsChecked="{Binding SendHex}">
+                        IsChecked="{Binding ClientSendHex}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding SendHexCheckedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding ClientSendHexCheckedCommand}" />
                             </b:EventTrigger>
 
                             <b:EventTrigger EventName="Unchecked">
-                                <b:InvokeCommandAction Command="{Binding SendHexUncheckedCommand}" />
+                                <b:InvokeCommandAction Command="{Binding ClientSendHexUncheckedCommand}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </CheckBox>
@@ -320,14 +320,14 @@
                         Grid.Row="1"
                         Margin="0,7"
                         HorizontalAlignment="Stretch"
-                        Command="{Binding ClearMessageCommand}"
+                        Command="{Binding ClientClearMessageCommand}"
                         Content="清屏" />
 
                     <Button
                         Grid.Row="2"
                         Background="{DynamicResource BackgroundBrush}"
                         BorderThickness="0"
-                        Command="{Binding SendMessageCommand}"
+                        Command="{Binding ClientSendMessageCommand}"
                         Content="发送"
                         Foreground="{DynamicResource SuccessBrush}" />
                 </Grid>
@@ -455,6 +455,151 @@
                     <ut:AutoScrollToBottomBehavior />
                 </b:Interaction.Behaviors>
             </ListBox>
+        </Grid>
+
+        <!--  TCP 服务端-客户端通信界面  -->
+        <Grid Grid.Column="1" Background="LightGray">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <ListBox
+                x:Name="ServerMessageListBox"
+                Grid.Row="0"
+                Margin="10,10,10,0"
+                BorderThickness="1"
+                ItemsSource="{Binding ServerMessageCollection}"
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
+                                    <TextBlock
+                                        Margin="3,1"
+                                        FontSize="10"
+                                        FontWeight="Light"
+                                        Foreground="White"
+                                        Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                                </Border>
+
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Foreground="{DynamicResource SecondaryTextBrush}"
+                                    Text="{Binding Time, StringFormat=[{0}]}" />
+                            </StackPanel>
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,2,0,0"
+                                FontSize="12"
+                                Text="{Binding Content}"
+                                TextWrapping="Wrap" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <Border x:Name="ItemContainerBorder" Padding="3">
+                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <!--  自动滑动到最底部  -->
+                <b:Interaction.Behaviors>
+                    <ut:AutoScrollToBottomBehavior />
+                </b:Interaction.Behaviors>
+            </ListBox>
+
+            <Grid Grid.Row="1" Margin="10,10,10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox
+                    Grid.Column="0"
+                    Content="HEX显示"
+                    IsChecked="{Binding ServerShowHex}">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="Checked">
+                            <b:InvokeCommandAction Command="{Binding ServerShowHexCheckedCommand}" />
+                        </b:EventTrigger>
+
+                        <b:EventTrigger EventName="Unchecked">
+                            <b:InvokeCommandAction Command="{Binding ServerShowHexUncheckedCommand}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </CheckBox>
+
+                <CheckBox
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    Content="HEX发送"
+                    IsChecked="{Binding ServerSendHex}" />
+            </Grid>
+
+            <Grid Grid.Row="2" Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <hc:TextBox
+                    Grid.Column="0"
+                    Padding="4"
+                    VerticalContentAlignment="Top"
+                    Text="{Binding ServerUserInputText}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto" />
+
+                <Grid Grid.Column="1" Margin="10,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Button
+                        Grid.Row="1"
+                        Margin="0,0,0,7"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ServerClearMessageCommand}"
+                        Content="清屏" />
+
+                    <Button
+                        Grid.Row="2"
+                        Background="{DynamicResource BackgroundBrush}"
+                        BorderThickness="0"
+                        Command="{Binding ServerSendMessageCommand}"
+                        Content="发送"
+                        Foreground="{DynamicResource SuccessBrush}" />
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
