@@ -232,7 +232,6 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var message = new MessageModel();
             if (_sendHex)
             {
                 if (!_userInputText.IsHex())
@@ -240,13 +239,20 @@ namespace DevKit.ViewModels
                     MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
+                _eventAggregator.GetEvent<TcpServerMessageEvent>().Publish(_userInputText.HexToBytes());
+            }
+            else
+            {
+                _eventAggregator.GetEvent<TcpServerMessageEvent>().Publish(_userInputText);
             }
 
-            _eventAggregator.GetEvent<TcpServerMessageEvent>().Publish(_userInputText);
-
-            message.Content = _userInputText;
-            message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            message.IsSend = true;
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
             MessageCollection.Add(message);
         }
 

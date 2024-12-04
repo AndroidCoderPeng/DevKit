@@ -132,9 +132,14 @@ namespace DevKit.Utils.Socket.Client
             }
         }
 
-        public void SendAsync(object message)
+        public void SendAsync(byte[] bytes)
         {
-            _channel.WriteAndFlushAsync(message);
+            _channel.WriteAndFlushAsync(bytes);
+        }
+
+        public void SendAsync(string msg)
+        {
+            _channel.WriteAndFlushAsync(msg);
         }
     }
 }

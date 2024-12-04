@@ -252,9 +252,16 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<TcpServerMessageEvent>().Subscribe(delegate(string cmd)
+            _eventAggregator.GetEvent<TcpServerMessageEvent>().Subscribe(delegate(object cmd)
             {
-                _tcpServer.SendAsync(cmd);
+                if (cmd is byte[] bytes)
+                {
+                    _tcpServer.SendAsync(bytes);
+                }
+                else
+                {
+                    _tcpServer.SendAsync((string)cmd);
+                }
             });
 
             InitDefaultConfig();
@@ -380,6 +387,8 @@ namespace DevKit.ViewModels
                             {
                                 client.MessageCollection.Add(bytes);
                                 client.MessageCount++;
+                                
+                                _tcpServer.SendAsync("AA 01 00 93 00 00 94");
                             }
 
                             break;
@@ -544,7 +553,6 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var message = new MessageModel();
                 if (_clientCache.SendHex == 1)
                 {
                     if (!_userInputText.IsHex())
@@ -552,15 +560,21 @@ namespace DevKit.ViewModels
                         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
+
+                    //以byte[]发送
+                    _tcpClient.SendAsync(_userInputText.HexToBytes());
+                }
+                else
+                {
+                    _tcpClient.SendAsync(_userInputText);
                 }
 
-                //TODO
-                //有点问题
-                _tcpClient.SendAsync(_userInputText);
-
-                message.Content = _userInputText;
-                message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-                message.IsSend = true;
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
                 MessageCollection.Add(message);
             }
         }

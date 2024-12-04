@@ -2,7 +2,7 @@
 
 namespace DevKit.Events
 {
-    public class TcpServerMessageEvent : PubSubEvent<string>
+    public class TcpServerMessageEvent : PubSubEvent<object>
     {
     }
 }
