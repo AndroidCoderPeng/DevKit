@@ -223,6 +223,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ShowHexCheckedCommand { set; get; }
         public DelegateCommand ShowHexUncheckedCommand { set; get; }
         public DelegateCommand DropDownOpenedCommand { set; get; }
+        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
         public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
@@ -253,6 +254,7 @@ namespace DevKit.ViewModels
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
             ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
             DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
             ExtensionCommand = new DelegateCommand(AddExtensionCommand);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
@@ -262,32 +264,6 @@ namespace DevKit.ViewModels
             SendMessageCommand = new DelegateCommand(SendMessage);
             ServerListenCommand = new DelegateCommand(ServerListen);
             ClientItemDoubleClickCommand = new DelegateCommand<TcpClientModel>(ClientItemDoubleClick);
-
-            // eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
-            // {
-            //     if (_buttonState.Equals("连接"))
-            //     {
-            //         MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         return;
-            //     }
-            //
-            //     var message = new MessageModel();
-            //     if (_clientCache.SendHex == 1)
-            //     {
-            //         if (!commandValue.IsHex())
-            //         {
-            //             MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //             return;
-            //         }
-            //     }
-            //
-            //     _tcpClient.SendAsync(commandValue);
-            //
-            //     message.Content = commandValue;
-            //     message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            //     message.IsSend = true;
-            //     MessageCollection.Add(message);
-            // });
         }
 
         private void InitDefaultConfig()
@@ -471,6 +447,17 @@ namespace DevKit.ViewModels
         {
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
                 .ToObservableCollection();
+        }
+
+        private void DeleteExCmd(object obj)
+        {
+            var result = MessageBox.Show(
+                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
+            );
+            if (result == MessageBoxResult.OK)
+            {
+                _dataService.DeleteExtensionCommandCache((int)obj);
+            }
         }
 
         private void DropDownClosed(ComboBox box)

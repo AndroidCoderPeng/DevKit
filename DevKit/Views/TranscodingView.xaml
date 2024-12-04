@@ -65,14 +65,10 @@
                     BorderThickness="0"
                     Command="{Binding ByteArrayToHexCommand}"
                     CommandParameter="{Binding Text, ElementName=InputByteArrayTextBox}"
-                    Content="&#xe604;"
+                    Content="&#xe611;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
                     FontSize="16"
-                    Style="{x:Null}">
-                    <Button.LayoutTransform>
-                        <ScaleTransform ScaleX="-1.0" />
-                    </Button.LayoutTransform>
-                </Button>
+                    Style="{x:Null}" />
             </Grid>
         </Border>
 
@@ -134,14 +130,10 @@
                     BorderThickness="0"
                     Command="{Binding ByteArrayToAsciiCommand}"
                     CommandParameter="{Binding Text, ElementName=InputByteArrayTextBox}"
-                    Content="&#xe604;"
+                    Content="&#xe611;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
                     FontSize="16"
-                    Style="{x:Null}">
-                    <Button.LayoutTransform>
-                        <ScaleTransform ScaleX="-1.0" />
-                    </Button.LayoutTransform>
-                </Button>
+                    Style="{x:Null}" />
             </Grid>
         </Border>
 

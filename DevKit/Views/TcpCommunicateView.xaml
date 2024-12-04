@@ -29,6 +29,7 @@
         <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
         <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
         <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
+        <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -190,11 +191,34 @@
                 <ComboBox
                     x:Name="ExCommandComboBox"
                     Grid.Column="0"
+                    HorizontalContentAlignment="Stretch"
                     ItemsSource="{Binding ExCommandCollection}"
                     SelectedIndex="0">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Annotation}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding Annotation}" />
+
+                                <Button
+                                    Grid.Column="1"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ExCommandComboBox}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="&#xe6dc;"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="16"
+                                    Foreground="{DynamicResource DangerBrush}"
+                                    Visibility="{Binding Annotation, Converter={StaticResource DeleteExCmdBtnVisibleConverterKey}}" />
+                            </Grid>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
 

@@ -176,6 +176,7 @@
     <Compile Include="Cache\ExCommandCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
+    <Compile Include="Converters\DeleteExCmdBtnVisibleConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />

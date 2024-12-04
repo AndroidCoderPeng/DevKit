@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using DevKit.Cache;
 using DevKit.Models;
@@ -82,7 +83,7 @@ namespace DevKit.DataService
             {
                 if (configCache is ApkConfigCache)
                 {
-                    if (Enumerable.Any(dataBase.Table<ApkConfigCache>()))
+                    if (dataBase.Table<ApkConfigCache>().Any())
                     {
                         dataBase.Update(configCache);
                     }
@@ -94,10 +95,8 @@ namespace DevKit.DataService
                 else if (configCache is ClientConfigCache client)
                 {
                     var queryResult = dataBase.Table<ClientConfigCache>()
-                        .Where(
-                            x => x.Id == client.Id && x.Type == client.Type
-                        );
-                    if (Enumerable.Any(queryResult))
+                        .Where(x => x.Id == client.Id && x.Type == client.Type);
+                    if (queryResult.Any())
                     {
                         dataBase.Update(client);
                     }
@@ -115,6 +114,7 @@ namespace DevKit.DataService
                         );
                     if (queryResult.Any())
                     {
+                        MessageBox.Show("指令已存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
