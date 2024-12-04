@@ -371,7 +371,7 @@ namespace DevKit.ViewModels
                         if (client.Ip == iPv4.ToString() && client.Port == port)
                         {
                             _eventAggregator.GetEvent<TcpClientMessageEvent>().Publish(bytes);
-                            //子窗口处于打开状态，不统计消息数量
+                            //子窗口处于打开状态，不统计消息
                             if (!RuntimeCache.IsClientViewShowing)
                             {
                                 client.MessageCollection.Add(bytes);
