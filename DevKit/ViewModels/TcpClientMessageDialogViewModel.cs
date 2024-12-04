@@ -99,16 +99,18 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
-        
+        private readonly IEventAggregator _eventAggregator;
+
         public TcpClientMessageDialogViewModel(IAppDataService dataService, IEventAggregator eventAggregator,
             IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
                 .ToObservableCollection();
 
-            eventAggregator.GetEvent<TcpClientMessageEvent>().Subscribe(delegate(byte[] bytes)
+            _eventAggregator.GetEvent<TcpClientMessageEvent>().Subscribe(delegate(byte[] bytes)
             {
                 var messageModel = new MessageModel
                 {
@@ -240,12 +242,12 @@ namespace DevKit.ViewModels
                 }
             }
 
-            // _tcpClient.SendAsync(_userInputText);
-            //
-            // message.Content = _userInputText;
-            // message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            // message.IsSend = true;
-            // MessageCollection.Add(message);
+            _eventAggregator.GetEvent<TcpServerMessageEvent>().Publish(_userInputText);
+
+            message.Content = _userInputText;
+            message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
+            message.IsSend = true;
+            MessageCollection.Add(message);
         }
 
         public event Action<IDialogResult> RequestClose

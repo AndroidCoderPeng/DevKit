@@ -252,6 +252,10 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
+            _eventAggregator.GetEvent<TcpServerMessageEvent>().Subscribe(delegate(string cmd)
+            {
+                _tcpServer.SendAsync(cmd);
+            });
 
             InitDefaultConfig();
 

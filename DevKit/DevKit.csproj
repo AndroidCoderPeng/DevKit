@@ -198,6 +198,7 @@
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Events\TcpClientMessageEvent.cs" />
+    <Compile Include="Events\TcpServerMessageEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
