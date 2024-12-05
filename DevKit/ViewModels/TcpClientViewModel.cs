@@ -182,17 +182,6 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
             _dialogService = dialogService;
-            // _eventAggregator.GetEvent<TcpServerMessageEvent>().Subscribe(delegate(object cmd)
-            // {
-            //     if (cmd is byte[] bytes)
-            //     {
-            //         _tcpServer.Send(_connectedClient?.Id, bytes);
-            //     }
-            //     else
-            //     {
-            //         _tcpServer.Send(_connectedClient?.Id, (string)cmd);
-            //     }
-            // });
 
             InitDefaultConfig();
 

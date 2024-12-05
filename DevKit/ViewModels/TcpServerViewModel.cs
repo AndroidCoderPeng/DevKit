@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
@@ -9,6 +10,7 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Sockets;
 using TcpServer = TouchSocket.Sockets.TcpService;
@@ -213,32 +215,46 @@ namespace DevKit.ViewModels
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand SendHexCheckedCommand { set; get; }
-        public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
+        private readonly IDialogService _dialogService;
         private readonly TcpServer _tcpServer = new TcpServer();
+        private readonly Timer _loopSendMessageTimer = new Timer();
         private bool _isListening;
         private ConnectedClientModel _connectedClient;
 
-        public TcpServerViewModel(IAppDataService dataService)
+        public TcpServerViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
-
+            _dialogService = dialogService;
+            
             InitDefaultConfig();
 
             ServerListenCommand = new DelegateCommand(ServerListen);
             ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
+            ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
+            ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
+            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
+            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
+            AddExtensionCommand = new DelegateCommand(AddExtension);
+            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
+            SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void InitDefaultConfig()
         {
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
+                .ToObservableCollection();
+
+            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             //有客户端成功连接
             _tcpServer.Connected = (client, e) =>
@@ -275,6 +291,8 @@ namespace DevKit.ViewModels
                             break;
                         }
                     }
+                    
+                    MessageCollection.Clear();
                 });
                 return EasyTask.CompletedTask;
             };
@@ -379,6 +397,169 @@ namespace DevKit.ViewModels
             {
                 IsContentViewVisible = "Collapsed";
                 IsEmptyImageVisible = "Visible";
+            }
+        }
+
+        private void ShowHexChecked()
+        {
+            var boxResult = MessageBox.Show(
+                "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+            );
+            if (boxResult == MessageBoxResult.OK)
+            {
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为string
+                    var hex = model.Content.StringToHex();
+                    var msg = new MessageModel
+                    {
+                        Content = hex.Replace("-", " "),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+
+                MessageCollection = collection;
+            }
+        }
+
+        private void ShowHexUnchecked()
+        {
+            var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            if (boxResult == MessageBoxResult.OK)
+            {
+                var collection = new ObservableCollection<MessageModel>();
+                foreach (var model in MessageCollection)
+                {
+                    //将model.Content视为Hex，先转bytes[]，再转string
+                    var bytes = model.Content.HexToBytes();
+                    var msg = new MessageModel
+                    {
+                        Content = bytes.ByteArrayToString(),
+                        Time = model.Time,
+                        IsSend = model.IsSend
+                    };
+                    collection.Add(msg);
+                }
+
+                MessageCollection = collection;
+            }
+        }
+
+        private void DropDownOpened()
+        {
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
+                .ToObservableCollection();
+        }
+
+        private void DeleteExCmd(object obj)
+        {
+            var result = MessageBox.Show(
+                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
+            );
+            if (result == MessageBoxResult.OK)
+            {
+                _dataService.DeleteExtensionCommandCache(ConnectionType.TcpServer, (int)obj);
+            }
+        }
+
+        private void DropDownClosed(ComboBox box)
+        {
+            if (box.SelectedIndex == -1)
+            {
+                box.SelectedIndex = 0;
+            }
+
+            var commandCache = _exCommandCollection[box.SelectedIndex];
+            UserInputText = commandCache.CommandValue;
+        }
+
+        private void AddExtension()
+        {
+            var dialogParameters = new DialogParameters
+            {
+                { "ConnectionType", ConnectionType.TcpServer }
+            };
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
+        }
+        
+        private void LoopUnchecked()
+        {
+            Console.WriteLine(@"取消循环发送指令");
+            _loopSendMessageTimer.Enabled = false;
+        }
+
+        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        {
+            if (_sendHex)
+            {
+                if (!_userInputText.IsHex())
+                {
+                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
+            }
+            else
+            {
+                _tcpServer.Send(_connectedClient.Id, _userInputText);
+            }
+
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+        }
+        
+        private void ClearMessage()
+        {
+            MessageCollection?.Clear();
+        }
+        
+        private void SendMessage()
+        {
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_loopSend)
+            {
+                Console.WriteLine(@"开启循环发送指令");
+                _loopSendMessageTimer.Interval = _commandInterval;
+                _loopSendMessageTimer.Enabled = true;
+            }
+            else
+            {
+                if (_sendHex)
+                {
+                    if (!_userInputText.IsHex())
+                    {
+                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
+                }
+                else
+                {
+                    _tcpServer.Send(_connectedClient.Id, _userInputText);
+                }
+
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(message);
             }
         }
     }
