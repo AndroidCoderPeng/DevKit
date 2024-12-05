@@ -4,9 +4,9 @@ using DevKit.Models;
 
 namespace DevKit.Views
 {
-    public partial class UdpCommunicateView : UserControl
+    public partial class UdpClientView : UserControl
     {
-        public UdpCommunicateView()
+        public UdpClientView()
         {
             InitializeComponent();
         }

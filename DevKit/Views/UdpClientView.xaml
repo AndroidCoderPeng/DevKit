@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="DevKit.Views.TcpClientView"
+    x:Class="DevKit.Views.UdpClientView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    d:DataContext="{d:DesignInstance Type=vm:TcpClientViewModel}"
+    d:DataContext="{d:DesignInstance Type=vm:UdpClientViewModel}"
     d:DesignHeight="560"
     d:DesignWidth="600"
     Background="white"
@@ -43,7 +43,6 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -54,7 +53,7 @@
             <hc:TextBox
                 Grid.Column="1"
                 Margin="10,0"
-                hc:InfoElement.Placeholder="远程TCP Server IP"
+                hc:InfoElement.Placeholder="远程UDP Server IP"
                 hc:InfoElement.ShowClearButton="True"
                 Text="{Binding RemoteAddress}"
                 TextWrapping="NoWrap" />
@@ -69,7 +68,7 @@
 
             <CheckBox
                 Grid.Column="3"
-                Margin="10,0"
+                Margin="10,0,0,0"
                 Content="HEX显示"
                 IsChecked="{Binding ShowHex}">
                 <b:Interaction.Triggers>
@@ -82,16 +81,10 @@
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
             </CheckBox>
-
-            <Button
-                Grid.Column="4"
-                Command="{Binding ConnectRemoteCommand}"
-                Content="{Binding ButtonState}"
-                Style="{StaticResource ButtonPrimary}" />
         </Grid>
 
         <ListBox
-            x:Name="MessageListBox"
+            x:Name="ClientMessageListBox"
             Grid.Row="1"
             Margin="0,10"
             ItemsSource="{Binding MessageCollection}"
@@ -175,7 +168,6 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <ComboBox
@@ -226,7 +218,7 @@
             <Button
                 Grid.Column="1"
                 Margin="10,0"
-                Command="{Binding AddExtensionCommand}"
+                Command="{Binding ExtensionCommand}"
                 Content="&#xe6aa;"
                 FontFamily="/DevKit;component/Fonts/#iconfont"
                 Foreground="{DynamicResource PrimaryBrush}"
@@ -261,13 +253,6 @@
                 Grid.Column="4"
                 VerticalAlignment="Center"
                 Text="ms/次" />
-
-            <Ellipse
-                Grid.Column="5"
-                Width="18"
-                Height="18"
-                Margin="10,0,0,0"
-                Fill="{Binding ConnectionStateColor}" />
         </Grid>
 
         <Grid Grid.Row="3">

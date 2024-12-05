@@ -51,10 +51,10 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("TcpServerView");
                     break;
                 case 4:
-                    region.RequestNavigate("UdpCommunicateView");
+                    region.RequestNavigate("UdpClientView");
                     break;
                 case 5:
-                    
+                    region.RequestNavigate("UdpServerView");
                     break;
                 case 6:
                     region.RequestNavigate("WebSocketCommunicateView");

@@ -1,27 +1,23 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
-using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Sockets;
 using UdpClient = TouchSocket.Sockets.UdpSession;
-using UdpServer = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
-    public class UdpCommunicateViewModel : BindableBase
+    public class UdpClientViewModel : BindableBase
     {
         #region VM
 
@@ -134,67 +130,6 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
-
-        public ObservableCollection<string> LocalAddressCollection
-        {
-            set
-            {
-                _localAddressCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _localAddressCollection;
-        }
-
-        private string _listenStateColor = "DarkGray";
-
-        public string ListenStateColor
-        {
-            set
-            {
-                _listenStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _listenStateColor;
-        }
-
-        private int _listenPort = 3030;
-
-        public int ListenPort
-        {
-            set
-            {
-                _listenPort = value;
-                RaisePropertyChanged();
-            }
-            get => _listenPort;
-        }
-
-        private string _listenState = "监听";
-
-        public string ListenState
-        {
-            set
-            {
-                _listenState = value;
-                RaisePropertyChanged();
-            }
-            get => _listenState;
-        }
-
-        private ObservableCollection<ConnectedClientModel> _clientCollection =
-            new ObservableCollection<ConnectedClientModel>();
-
-        public ObservableCollection<ConnectedClientModel> ClientCollection
-        {
-            set
-            {
-                _clientCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _clientCollection;
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -210,27 +145,19 @@ namespace DevKit.ViewModels
         public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
-        public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<ConnectedClientModel> ItemDoubleClickCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
-        private readonly IEventAggregator _eventAggregator;
         private readonly UdpClient _udpClient = new UdpClient();
-        private readonly UdpServer _udpServer = new UdpServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
-        private bool _isListening;
-        private ConnectedClientModel _connectedClient;
 
-        public UdpCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
-            IEventAggregator eventAggregator)
+        public UdpClientViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
-            _eventAggregator = eventAggregator;
 
             InitDefaultConfig();
 
@@ -245,8 +172,6 @@ namespace DevKit.ViewModels
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
-            ServerListenCommand = new DelegateCommand(ServerListen);
-            ItemDoubleClickCommand = new DelegateCommand<ConnectedClientModel>(ClientItemDoubleClick);
         }
 
         private void InitDefaultConfig()
@@ -275,44 +200,6 @@ namespace DevKit.ViewModels
                 };
 
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                return EasyTask.CompletedTask;
-            };
-
-            //获取本机所有IPv4地址
-            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
-
-            _udpServer.Received = (client, e) =>
-            {
-                var endPoint = e.EndPoint;
-                if (!_clientCollection.Any(udp =>
-                        udp.Ip == endPoint.GetIP() &&
-                        udp.Port == endPoint.GetPort()))
-                {
-                    var clientModel = new ConnectedClientModel
-                    {
-                        Ip = endPoint.GetIP(),
-                        Port = endPoint.GetPort()
-                    };
-
-                    Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
-                }
-
-                foreach (var udp in _clientCollection)
-                {
-                    if (udp.Ip == endPoint.GetIP() &&
-                        udp.Port == endPoint.GetPort())
-                    {
-                        var bytes = e.ByteBlock.ToArray();
-                        _eventAggregator.GetEvent<UdpClientMessageEvent>().Publish(bytes);
-                        //子窗口处于打开状态，不统计消息
-                        if (!RuntimeCache.IsClientViewShowing)
-                        {
-                            udp.MessageCollection.Add(bytes);
-                            udp.MessageCount++;
-                        }
-                    }
-                }
-
                 return EasyTask.CompletedTask;
             };
         }
@@ -508,54 +395,6 @@ namespace DevKit.ViewModels
                 IsSend = true
             };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-        }
-
-        private void ServerListen()
-        {
-            if (_isListening)
-            {
-                if (RuntimeCache.IsClientViewShowing)
-                {
-                    MessageBox.Show("客户端已打开，无法停止监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _udpServer.Stop();
-                _isListening = false;
-                ListenState = "监听";
-                ListenStateColor = "DarkGray";
-            }
-            else
-            {
-                try
-                {
-                    _udpServer.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(_listenPort)));
-                    _udpServer.Start();
-                    _isListening = true;
-                    ListenState = "停止";
-                    ListenStateColor = "LimeGreen";
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void ClientItemDoubleClick(ConnectedClientModel client)
-        {
-            if (client == null)
-            {
-                return;
-            }
-            
-            if (RuntimeCache.IsClientViewShowing)
-            {
-                MessageBox.Show("请勿重复打开消息界面", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            _connectedClient = client;
         }
     }
 }

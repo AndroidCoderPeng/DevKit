@@ -232,7 +232,8 @@
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
-    <Compile Include="ViewModels\UdpCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\UdpClientViewModel.cs" />
+    <Compile Include="ViewModels\UdpServerViewModel.cs" />
     <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
       <DependentUpon>AndroidDebugBridgeView.xaml</DependentUpon>
@@ -262,8 +263,11 @@
     <Compile Include="Views\TranscodingView.xaml.cs">
       <DependentUpon>TranscodingView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UdpCommunicateView.xaml.cs">
-      <DependentUpon>UdpCommunicateView.xaml</DependentUpon>
+    <Compile Include="Views\UdpClientView.xaml.cs">
+      <DependentUpon>UdpClientView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UdpServerView.xaml.cs">
+      <DependentUpon>UdpServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WebSocketCommunicateView.xaml.cs">
       <DependentUpon>WebSocketCommunicateView.xaml</DependentUpon>
@@ -304,7 +308,8 @@
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\TranscodingView.xaml" />
-    <Page Include="Views\UdpCommunicateView.xaml" />
+    <Page Include="Views\UdpClientView.xaml" />
+    <Page Include="Views\UdpServerView.xaml" />
     <Page Include="Views\WebSocketCommunicateView.xaml" />
   </ItemGroup>
   <ItemGroup>
