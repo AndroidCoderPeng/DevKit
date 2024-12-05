@@ -187,6 +187,9 @@ namespace DevKit.ViewModels
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
+            _udpClient.Setup(
+                new TouchSocketConfig().SetRemoteIPHost(new IPHost($"{_remoteAddress}:{_remotePort}"))
+            );
             _udpClient.Received = (client, e) =>
             {
                 var byteBlock = e.ByteBlock;
@@ -202,6 +205,7 @@ namespace DevKit.ViewModels
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 return EasyTask.CompletedTask;
             };
+            _udpClient.Start();
         }
 
         private void ShowHexChecked()
@@ -332,11 +336,6 @@ namespace DevKit.ViewModels
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            _udpClient.Setup(
-                new TouchSocketConfig().SetRemoteIPHost(new IPHost($"{_remoteAddress}:{_remotePort}"))
-            );
-            _udpClient.Start();
 
             if (_loopSend)
             {

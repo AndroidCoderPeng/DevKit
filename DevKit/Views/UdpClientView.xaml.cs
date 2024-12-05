@@ -13,7 +13,7 @@ namespace DevKit.Views
         
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (!(ClientMessageListBox.SelectedItem is MessageModel message)) return;
+            if (!(MessageListBox.SelectedItem is MessageModel message)) return;
             var content = message.Content;
             Clipboard.SetText(content);
         }
