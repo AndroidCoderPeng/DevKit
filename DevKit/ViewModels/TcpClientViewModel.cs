@@ -322,7 +322,14 @@ namespace DevKit.ViewModels
             else
             {
                 _tcpClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}:{_remotePort}"));
-                _tcpClient.Connect();
+                try
+                {
+                    _tcpClient.Connect();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
