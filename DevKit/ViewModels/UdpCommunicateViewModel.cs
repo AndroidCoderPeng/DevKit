@@ -286,12 +286,10 @@ namespace DevKit.ViewModels
                 var endPoint = e.EndPoint;
                 if (!_clientCollection.Any(udp =>
                         udp.Ip == endPoint.GetIP() &&
-                        udp.Port == endPoint.GetPort() &&
-                        udp.ClientType == ConnectionType.UdpClient))
+                        udp.Port == endPoint.GetPort()))
                 {
                     var clientModel = new ConnectedClientModel
                     {
-                        ClientType = ConnectionType.UdpClient,
                         Ip = endPoint.GetIP(),
                         Port = endPoint.GetPort()
                     };
@@ -302,8 +300,7 @@ namespace DevKit.ViewModels
                 foreach (var udp in _clientCollection)
                 {
                     if (udp.Ip == endPoint.GetIP() &&
-                        udp.Port == endPoint.GetPort() &&
-                        udp.ClientType == ConnectionType.UdpClient)
+                        udp.Port == endPoint.GetPort())
                     {
                         var bytes = e.ByteBlock.ToArray();
                         _eventAggregator.GetEvent<UdpClientMessageEvent>().Publish(bytes);

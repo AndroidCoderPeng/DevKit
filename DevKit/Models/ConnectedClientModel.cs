@@ -5,10 +5,33 @@ namespace DevKit.Models
 {
     public class ConnectedClientModel : INotifyPropertyChanged
     {
-        public int ClientType { get; set; }
         public string Id { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
+
+        private bool _isConnected;
+
+        public bool IsConnected
+        {
+            get => _isConnected;
+            set
+            {
+                _isConnected = value;
+                OnPropertyChanged(nameof(ConnectColorBrush));
+            }
+        }
+
+        private string _connectColorBrush;
+
+        public string ConnectColorBrush
+        {
+            get => _connectColorBrush;
+            set
+            {
+                _connectColorBrush = value;
+                OnPropertyChanged(nameof(ConnectColorBrush));
+            }
+        }
 
         private ObservableCollection<byte[]> _messageCollection = new ObservableCollection<byte[]>();
 
