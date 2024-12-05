@@ -337,12 +337,6 @@ namespace DevKit.ViewModels
         {
             if (_isListening)
             {
-                if (RuntimeCache.IsClientViewShowing)
-                {
-                    MessageBox.Show("客户端已打开，无法停止监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
                 _tcpServer.Stop();
                 _isListening = false;
                 ListenState = "监听";

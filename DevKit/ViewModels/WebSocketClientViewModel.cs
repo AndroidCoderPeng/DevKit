@@ -6,11 +6,10 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using DevKit.Utils.Socket.Client;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using WebSocketClient=TouchSocket.Http.WebSockets.WebSocketClient;
 
 namespace DevKit.ViewModels
 {
@@ -168,12 +167,9 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
-        public DelegateCommand ExtensionCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
+        public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
-        public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand ItemDoubleClickCommand { set; get; }
 
         #endregion
 
@@ -183,8 +179,7 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
 
-        public WebSocketClientViewModel(IAppDataService dataService, IDialogService dialogService,
-            IEventAggregator eventAggregator)
+        public WebSocketClientViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;
@@ -192,30 +187,9 @@ namespace DevKit.ViewModels
             InitDefaultConfig();
 
             ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
-            ExtensionCommand = new DelegateCommand(AddExtensionCommand);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
-            ServerListenCommand = new DelegateCommand(ServerListen);
-            // ItemDoubleClickCommand = new DelegateCommand();
-
-            // eventAggregator.GetEvent<ExecuteExCommandEvent>().Subscribe(delegate(string commandValue)
-            // {
-            //     if (_buttonState.Equals("连接"))
-            //     {
-            //         MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         return;
-            //     }
-            //
-            //     _webSocketClient.SendAsync(commandValue);
-            //     var message = new MessageModel
-            //     {
-            //         Content = commandValue,
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = true
-            //     };
-            //     MessageCollection.Add(message);
-            // });
         }
 
         private void InitDefaultConfig()
@@ -225,33 +199,33 @@ namespace DevKit.ViewModels
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            _webSocketClient.OnConnected += delegate
-            {
-                ConnectionStateColor = "LimeGreen";
-                ButtonState = "断开";
-            };
-            _webSocketClient.OnDisconnected += delegate
-            {
-                ConnectionStateColor = "DarkGray";
-                ButtonState = "连接";
-            };
-            _webSocketClient.OnConnectFailed += delegate(object sender, Exception exception)
-            {
-                ConnectionStateColor = "DarkGray";
-                ButtonState = "连接";
-                MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
-            };
-            _webSocketClient.OnDataReceived += delegate(object sender, string message)
-            {
-                var messageModel = new MessageModel
-                {
-                    Content = message,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
-
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-            };
+            // _webSocketClient.OnConnected += delegate
+            // {
+            //     ConnectionStateColor = "LimeGreen";
+            //     ButtonState = "断开";
+            // };
+            // _webSocketClient.OnDisconnected += delegate
+            // {
+            //     ConnectionStateColor = "DarkGray";
+            //     ButtonState = "连接";
+            // };
+            // _webSocketClient.OnConnectFailed += delegate(object sender, Exception exception)
+            // {
+            //     ConnectionStateColor = "DarkGray";
+            //     ButtonState = "连接";
+            //     MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
+            // };
+            // _webSocketClient.OnDataReceived += delegate(object sender, string message)
+            // {
+            //     var messageModel = new MessageModel
+            //     {
+            //         Content = message,
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = false
+            //     };
+            //
+            //     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+            // };
 
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
@@ -265,24 +239,14 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_webSocketClient.IsRunning())
-            {
-                _webSocketClient.Close();
-            }
-            else
-            {
-                _webSocketClient.Start(_remoteAddress);
-            }
-        }
-
-        private void AddExtensionCommand()
-        {
-            var dialogParameters = new DialogParameters
-            {
-                { "ParentId", _clientCache.Id },
-                { "ConnectionType", ConnectionType.WebSocketClient }
-            };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            // if (_webSocketClient.IsRunning())
+            // {
+            //     _webSocketClient.Close();
+            // }
+            // else
+            // {
+            //     _webSocketClient.Start(_remoteAddress);
+            // }
         }
 
         private void ClearMessage()
@@ -314,45 +278,41 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_loopSend)
-            {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
-                _loopSendMessageTimer.Enabled = true;
-            }
-            else
-            {
-                _webSocketClient.SendAsync(_userInputText);
-                var message = new MessageModel
-                {
-                    Content = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                MessageCollection.Add(message);
-            }
+            // if (_loopSend)
+            // {
+            //     Console.WriteLine(@"开启循环发送指令");
+            //     _loopSendMessageTimer.Interval = _commandInterval;
+            //     _loopSendMessageTimer.Enabled = true;
+            // }
+            // else
+            // {
+            //     _webSocketClient.SendAsync(_userInputText);
+            //     var message = new MessageModel
+            //     {
+            //         Content = _userInputText,
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = true
+            //     };
+            //     MessageCollection.Add(message);
+            // }
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            if (_buttonState.Equals("连接"))
-            {
-                Console.WriteLine(@"WebSocket未连接");
-                return;
-            }
-
-            _webSocketClient.SendAsync(_userInputText);
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-        }
-
-        private void ServerListen()
-        {
+            // if (_buttonState.Equals("连接"))
+            // {
+            //     Console.WriteLine(@"WebSocket未连接");
+            //     return;
+            // }
+            //
+            // _webSocketClient.SendAsync(_userInputText);
+            // var message = new MessageModel
+            // {
+            //     Content = _userInputText,
+            //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //     IsSend = true
+            // };
+            // Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
     }
 }

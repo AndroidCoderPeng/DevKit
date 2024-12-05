@@ -30,335 +30,204 @@
         <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.75*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <Grid Margin="10,10,5,10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-        <!--  WebSocket 客户端  -->
-        <Grid Grid.Column="0" Margin="10,10,5,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Text="服务端" />
 
-                <TextBlock
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Text="服务端" />
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0"
+                hc:InfoElement.Placeholder="远程WebSocket Server Address"
+                hc:InfoElement.ShowClearButton="True"
+                Text="{Binding RemoteAddress}"
+                TextWrapping="NoWrap" />
 
-                <hc:TextBox
-                    Grid.Column="1"
-                    Margin="10,0"
-                    hc:InfoElement.Placeholder="远程WebSocket Server Address"
-                    hc:InfoElement.ShowClearButton="True"
-                    Text="{Binding RemoteAddress}"
-                    TextWrapping="NoWrap" />
+            <Button
+                Grid.Column="2"
+                Command="{Binding ConnectRemoteCommand}"
+                Content="{Binding ButtonState}"
+                Style="{StaticResource ButtonPrimary}" />
+        </Grid>
 
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding ConnectRemoteCommand}"
-                    Content="{Binding ButtonState}"
-                    Style="{StaticResource ButtonPrimary}" />
-            </Grid>
+        <ListBox
+            x:Name="MessageListBox"
+            Grid.Row="1"
+            Margin="0,10"
+            ItemsSource="{Binding MessageCollection}"
+            ScrollViewer.CanContentScroll="False"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
 
-            <ListBox
-                x:Name="ClientMessageListBox"
-                Grid.Row="1"
-                Margin="0,10"
-                ItemsSource="{Binding MessageCollection}"
-                ScrollViewer.CanContentScroll="False"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
-                                    <TextBlock
-                                        Margin="3,1"
-                                        FontSize="10"
-                                        FontWeight="Light"
-                                        Foreground="White"
-                                        Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
-                                </Border>
-
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
                                 <TextBlock
-                                    Margin="5,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="12"
-                                    Foreground="{DynamicResource SecondaryTextBrush}"
-                                    Text="{Binding Time, StringFormat=[{0}]}" />
-                            </StackPanel>
+                                    Margin="3,1"
+                                    FontSize="10"
+                                    FontWeight="Light"
+                                    Foreground="White"
+                                    Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                            </Border>
 
                             <TextBlock
-                                Grid.Row="1"
-                                Margin="0,2,0,0"
+                                Margin="5,0,0,0"
+                                VerticalAlignment="Center"
                                 FontSize="12"
-                                Text="{Binding Content}"
-                                TextWrapping="Wrap">
-                                <TextBlock.ContextMenu>
-                                    <ContextMenu Style="{x:Null}">
-                                        <MenuItem
-                                            Click="MenuItem_Click"
-                                            Header="复制"
-                                            Style="{x:Null}" />
-                                    </ContextMenu>
-                                </TextBlock.ContextMenu>
-                            </TextBlock>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Text="{Binding Time, StringFormat=[{0}]}" />
+                        </StackPanel>
 
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                    <Border x:Name="ItemContainerBorder" Padding="3">
-                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                    </Border>
+                        <TextBlock
+                            Grid.Row="1"
+                            Margin="0,2,0,0"
+                            FontSize="12"
+                            Text="{Binding Content}"
+                            TextWrapping="Wrap">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu Style="{x:Null}">
+                                    <MenuItem
+                                        Click="MenuItem_Click"
+                                        Header="复制"
+                                        Style="{x:Null}" />
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
 
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border x:Name="ItemContainerBorder" Padding="3">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                </Border>
 
-                <!--  自动滑动到最底部  -->
-                <b:Interaction.Behaviors>
-                    <ut:AutoScrollToBottomBehavior />
-                </b:Interaction.Behaviors>
-            </ListBox>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
 
-            <Grid Grid.Row="2" Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <!--  自动滑动到最底部  -->
+            <b:Interaction.Behaviors>
+                <ut:AutoScrollToBottomBehavior />
+            </b:Interaction.Behaviors>
+        </ListBox>
+
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <CheckBox
+                x:Name="LoopCheckBox"
+                Grid.Column="0"
+                Content="循环发送"
+                IsChecked="{Binding LoopSend}">
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="Unchecked">
+                        <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </CheckBox>
+
+            <hc:TextBox
+                Grid.Column="1"
+                MinWidth="70"
+                Margin="10,0"
+                hc:InfoElement.ShowClearButton="True"
+                IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
+                <TextBox.Text>
+                    <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <ut:NumberValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </hc:TextBox>
+
+            <TextBlock
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Text="毫秒/次" />
+
+            <Ellipse
+                Grid.Column="3"
+                Width="18"
+                Height="18"
+                Margin="10,0,0,0"
+                HorizontalAlignment="Right"
+                Fill="{Binding ConnectionStateColor}" />
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <hc:TextBox
+                Grid.Column="0"
+                Padding="4"
+                VerticalContentAlignment="Top"
+                Text="{Binding UserInputText}"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto" />
+
+            <Grid Grid.Column="1" Margin="10,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
 
                 <Button
-                    Grid.Column="0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ExtensionCommand}"
-                    Content="指令扩展"
-                    Style="{StaticResource ButtonPrimary}" />
-
-                <Button
-                    Grid.Column="1"
-                    Margin="10,0"
+                    Grid.Row="0"
+                    Margin="0,0,0,7"
                     HorizontalAlignment="Stretch"
                     Command="{Binding ClearMessageCommand}"
-                    Content="清空数据"
-                    Style="{StaticResource ButtonDanger}" />
-
-                <CheckBox
-                    x:Name="LoopCheckBox"
-                    Grid.Column="2"
-                    Content="循环发送"
-                    IsChecked="{Binding LoopSend}">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="Unchecked">
-                            <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </CheckBox>
-
-                <hc:TextBox
-                    Grid.Column="3"
-                    MinWidth="70"
-                    Margin="10,0"
-                    hc:InfoElement.ShowClearButton="True"
-                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
-                    <TextBox.Text>
-                        <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <ut:NumberValidationRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </hc:TextBox>
-
-                <TextBlock
-                    Grid.Column="4"
-                    VerticalAlignment="Center"
-                    Text="毫秒/次" />
-
-                <Ellipse
-                    Grid.Column="5"
-                    Width="18"
-                    Height="18"
-                    Margin="10,0,0,0"
-                    Fill="{Binding ConnectionStateColor}" />
-            </Grid>
-
-            <Grid Grid.Row="3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <hc:TextBox
-                    Grid.Column="0"
-                    Padding="4"
-                    VerticalContentAlignment="Top"
-                    Text="{Binding UserInputText}"
-                    TextWrapping="Wrap"
-                    VerticalScrollBarVisibility="Auto" />
+                    Content="清屏" />
 
                 <Button
-                    Grid.Column="1"
-                    Margin="10,0,0,0"
+                    Grid.Row="1"
                     Background="{DynamicResource BackgroundBrush}"
                     BorderThickness="0"
                     Command="{Binding SendMessageCommand}"
                     Content="发送"
                     Foreground="{DynamicResource SuccessBrush}" />
             </Grid>
-        </Grid>
-
-        <!--  WebSocket 服务端  -->
-        <Grid Grid.Column="1" Margin="5,10,10,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Text="本机地址" />
-
-                <hc:ComboBox
-                    Grid.Column="1"
-                    Margin="10,0"
-                    ItemsSource="{Binding LocalAddressCollection}"
-                    SelectedIndex="0" />
-
-                <Ellipse
-                    Grid.Column="2"
-                    Width="18"
-                    Height="18"
-                    Fill="{Binding ListenStateColor}" />
-            </Grid>
-
-            <Grid Grid.Row="1" Margin="0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Text="监听端口" />
-
-                <hc:TextBox
-                    Grid.Column="1"
-                    MinWidth="50"
-                    Margin="10,0"
-                    hc:InfoElement.Placeholder="端口"
-                    hc:InfoElement.ShowClearButton="True"
-                    Text="{Binding ListenPort}"
-                    TextWrapping="NoWrap" />
-
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding ServerListenCommand}"
-                    Content="{Binding ListenState}"
-                    Style="{StaticResource ButtonPrimary}" />
-            </Grid>
-
-            <ListBox
-                x:Name="ClientListBox"
-                Grid.Row="2"
-                HorizontalContentAlignment="Stretch"
-                ItemsSource="{Binding WebSocketClientCollection}"
-                ScrollViewer.CanContentScroll="False"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="MouseDoubleClick">
-                        <b:InvokeCommandAction Command="{Binding ItemDoubleClickCommand}" CommandParameter="{Binding SelectedItem, ElementName=ClientListBox}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Height="45">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                FontSize="14">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}:{1}">
-                                        <Binding Path="Ip" />
-                                        <Binding Path="Port" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-
-                            <Border
-                                Grid.Column="1"
-                                Width="24"
-                                Height="18"
-                                Background="Red"
-                                CornerRadius="9"
-                                Visibility="{Binding MessageCount, Converter={StaticResource MessageTagConverterKey}}">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontSize="10"
-                                    Foreground="White"
-                                    Text="{Binding MessageCount, Converter={StaticResource MessageCountConverterKey}}"
-                                    TextAlignment="Center" />
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-
-                <!--  自动滑动到最底部  -->
-                <b:Interaction.Behaviors>
-                    <ut:AutoScrollToBottomBehavior />
-                </b:Interaction.Behaviors>
-            </ListBox>
         </Grid>
     </Grid>
 </UserControl>
