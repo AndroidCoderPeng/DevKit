@@ -30,6 +30,7 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket服务端" },
                 new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口通信" },
                 new MainMenuModel { MenuIcon = "\ue672", MenuName = "图标" },
+                new MainMenuModel { MenuIcon = "\ue72a", MenuName = "二维码" },
                 new MainMenuModel { MenuIcon = "\ue602", MenuName = "转码" },
                 new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
             };

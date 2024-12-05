@@ -151,6 +151,12 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="zxing, Version=0.16.9.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.0.16.9\lib\net48\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.16.9.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.0.16.9\lib\net48\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -208,6 +214,7 @@
     <Compile Include="ViewModels\GenerateIconViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\QrCodeViewModel.cs" />
     <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
@@ -231,6 +238,9 @@
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Views\QrCodeView.xaml.cs">
+      <DependentUpon>QrCodeView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SerialPortView.xaml.cs">
       <DependentUpon>SerialPortView.xaml</DependentUpon>
@@ -288,6 +298,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\QrCodeView.xaml" />
     <Page Include="Views\SerialPortView.xaml" />
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />

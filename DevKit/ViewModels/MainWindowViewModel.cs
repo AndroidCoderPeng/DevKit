@@ -69,9 +69,12 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("GenerateIconView");
                     break;
                 case 10:
-                    region.RequestNavigate("TranscodingView");
+                    region.RequestNavigate("QrCodeView");
                     break;
                 case 11:
+                    region.RequestNavigate("TranscodingView");
+                    break;
+                case 12:
                     region.RequestNavigate("ColorResourceView");
                     break;
             }
