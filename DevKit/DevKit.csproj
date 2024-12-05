@@ -201,7 +201,6 @@
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
-    <Compile Include="Events\UdpClientMessageEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
@@ -235,7 +234,8 @@
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
     <Compile Include="ViewModels\UdpServerViewModel.cs" />
-    <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\WebSocketClientViewModel.cs" />
+    <Compile Include="ViewModels\WebSocketServerViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
       <DependentUpon>AndroidDebugBridgeView.xaml</DependentUpon>
     </Compile>
@@ -270,8 +270,11 @@
     <Compile Include="Views\UdpServerView.xaml.cs">
       <DependentUpon>UdpServerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\WebSocketCommunicateView.xaml.cs">
-      <DependentUpon>WebSocketCommunicateView.xaml</DependentUpon>
+    <Compile Include="Views\WebSocketClientView.xaml.cs">
+      <DependentUpon>WebSocketClientView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WebSocketServerView.xaml.cs">
+      <DependentUpon>WebSocketServerView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -311,7 +314,8 @@
     <Page Include="Views\TranscodingView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />
     <Page Include="Views\UdpServerView.xaml" />
-    <Page Include="Views\WebSocketCommunicateView.xaml" />
+    <Page Include="Views\WebSocketClientView.xaml" />
+    <Page Include="Views\WebSocketServerView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\launcher.ico" />

@@ -91,7 +91,8 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
             containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterForNavigation<WebSocketCommunicateView, WebSocketCommunicateViewModel>();
+            containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
+            containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
             containerRegistry.RegisterForNavigation<SerialPortCommunicateView, SerialPortCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<GenerateIconView, GenerateIconViewModel>();
             containerRegistry.RegisterForNavigation<TranscodingView, TranscodingViewModel>();

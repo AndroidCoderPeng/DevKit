@@ -4,9 +4,9 @@ using DevKit.Models;
 
 namespace DevKit.Views
 {
-    public partial class WebSocketCommunicateView : UserControl
+    public partial class WebSocketClientView : UserControl
     {
-        public WebSocketCommunicateView()
+        public WebSocketClientView()
         {
             InitializeComponent();
         }

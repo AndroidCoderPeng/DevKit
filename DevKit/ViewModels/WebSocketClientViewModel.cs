@@ -14,7 +14,7 @@ using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class WebSocketCommunicateViewModel : BindableBase
+    public class WebSocketClientViewModel : BindableBase
     {
         #region VM
 
@@ -183,7 +183,7 @@ namespace DevKit.ViewModels
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
 
-        public WebSocketCommunicateViewModel(IAppDataService dataService, IDialogService dialogService,
+        public WebSocketClientViewModel(IAppDataService dataService, IDialogService dialogService,
             IEventAggregator eventAggregator)
         {
             _dataService = dataService;
