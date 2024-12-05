@@ -26,6 +26,7 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
+        <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -35,7 +36,7 @@
         </Grid.RowDefinitions>
 
         <ListBox
-            x:Name="ClientMessageListBox"
+            x:Name="MessageListBox"
             Grid.Row="0"
             Margin="10"
             ItemsSource="{Binding MessageCollection}"
@@ -233,12 +234,12 @@
             <Grid Grid.Column="1" Margin="10,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -258,20 +259,12 @@
                         Grid.Column="1"
                         Margin="10,0"
                         HorizontalAlignment="Stretch"
-                        Command="{Binding ExtensionCommand}"
-                        Content="指令扩展"
-                        Style="{StaticResource ButtonPrimary}" />
-
-                    <Button
-                        Grid.Column="2"
-                        HorizontalAlignment="Stretch"
                         Command="{Binding ClearMessageCommand}"
                         Content="清空数据"
                         Style="{StaticResource ButtonDanger}" />
 
                     <CheckBox
-                        Grid.Column="3"
-                        Margin="10,0"
+                        Grid.Column="2"
                         Content="HEX显示"
                         IsChecked="{Binding ShowHex}">
                         <b:Interaction.Triggers>
@@ -287,8 +280,9 @@
 
                     <CheckBox
                         x:Name="LoopCheckBox"
-                        Grid.Column="4"
-                        Content="循环"
+                        Grid.Column="3"
+                        Margin="10,0"
+                        Content="循环发送"
                         IsChecked="{Binding LoopSend}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="Unchecked">
@@ -297,10 +291,7 @@
                         </b:Interaction.Triggers>
                     </CheckBox>
 
-                    <hc:TextBox
-                        Grid.Column="5"
-                        Margin="10,0"
-                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
+                    <hc:TextBox Grid.Column="4" IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
                         <TextBox.Text>
                             <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
                                 <Binding.ValidationRules>
@@ -311,12 +302,71 @@
                     </hc:TextBox>
 
                     <TextBlock
-                        Grid.Column="6"
+                        Grid.Column="5"
+                        Margin="10,0,0,0"
                         VerticalAlignment="Center"
-                        Text="毫秒/次" />
+                        Text="ms/次" />
                 </Grid>
 
-                <Grid Grid.Row="1">
+                <Grid Grid.Row="1" Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox
+                        x:Name="ExCommandComboBox"
+                        Grid.Column="0"
+                        HorizontalContentAlignment="Stretch"
+                        ItemsSource="{Binding ExCommandCollection}"
+                        SelectedIndex="0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Text="{Binding Annotation}" />
+
+                                    <Button
+                                        Grid.Column="1"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ExCommandComboBox}"
+                                        CommandParameter="{Binding Id}"
+                                        Content="&#xe6dc;"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="16"
+                                        Foreground="{DynamicResource DangerBrush}"
+                                        Visibility="{Binding Annotation, Converter={StaticResource DeleteExCmdBtnVisibleConverterKey}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="DropDownOpened">
+                                <b:InvokeCommandAction Command="{Binding DropDownOpenedCommand}" />
+                            </b:EventTrigger>
+
+                            <b:EventTrigger EventName="DropDownClosed">
+                                <b:InvokeCommandAction Command="{Binding DropDownClosedCommand}" CommandParameter="{Binding ElementName=ExCommandComboBox}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </ComboBox>
+
+                    <Button
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        Command="{Binding AddExtensionCommand}"
+                        Content="添加扩展指令" />
+                </Grid>
+
+                <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
@@ -336,6 +386,12 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
+
+                        <Ellipse
+                            Grid.Row="0"
+                            Width="18"
+                            Height="18"
+                            Fill="{Binding ConnectionStateColor}" />
 
                         <CheckBox
                             Grid.Row="1"

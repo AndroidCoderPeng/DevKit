@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Linq;
+using System.Text;
 using System.Timers;
 using System.Windows;
+using System.Windows.Controls;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
@@ -12,6 +14,9 @@ using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using TouchSocket.Core;
+using TouchSocket.SerialPorts;
+using TouchSocket.Sockets;
 using SerialPortClient = TouchSocket.SerialPorts.SerialPortClient;
 
 namespace DevKit.ViewModels
@@ -140,6 +145,18 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
+        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
+
+        public ObservableCollection<ExCommandCache> ExCommandCollection
+        {
+            set
+            {
+                _exCommandCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _exCommandCollection;
+        }
+
         private string _userInputText = string.Empty;
 
         public string UserInputText
@@ -150,6 +167,18 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _userInputText;
+        }
+
+        private string _connectionStateColor = "DarkGray";
+
+        public string ConnectionStateColor
+        {
+            set
+            {
+                _connectionStateColor = value;
+                RaisePropertyChanged();
+            }
+            get => _connectionStateColor;
         }
 
         private bool _sendHex = true;
@@ -174,11 +203,14 @@ namespace DevKit.ViewModels
         public DelegateCommand<object> ParityItemSelectedCommand { set; get; }
         public DelegateCommand<object> StopBitItemSelectedCommand { set; get; }
         public DelegateCommand OpenSerialPortCommand { set; get; }
-        public DelegateCommand ExtensionCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand ShowHexCheckedCommand { set; get; }
         public DelegateCommand ShowHexUncheckedCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
+        public DelegateCommand DropDownOpenedCommand { set; get; }
+        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
+        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
+        public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
@@ -187,7 +219,7 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
-        private readonly SerialPortClient _serialPortClient = new SerialPortClient();
+        private readonly SerialPortClient _spc = new SerialPortClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
 
         private readonly Dictionary<float, StopBits> _stopBitMap = new Dictionary<float, StopBits>
@@ -223,11 +255,14 @@ namespace DevKit.ViewModels
             ParityItemSelectedCommand = new DelegateCommand<object>(ParityItemSelected);
             StopBitItemSelectedCommand = new DelegateCommand<object>(StopBitItemSelected);
             OpenSerialPortCommand = new DelegateCommand(OpenSerialPort);
-            ExtensionCommand = new DelegateCommand(AddExtensionCommand);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
             ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            AddExtensionCommand = new DelegateCommand(AddExtension);
+            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
+            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
             SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
             SendMessageCommand = new DelegateCommand(SendMessage);
@@ -245,9 +280,38 @@ namespace DevKit.ViewModels
             _dataBits = _dataBitArray.First();
             _stopBits = _stopBitMap[_stopBitArray.First()];
 
-            // _serialPortKit.DataReceivedEvent += delegate(byte[] bytes) { };
-
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.SerialPort)
+                .ToObservableCollection();
+            
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
+
+            _spc.Connected = (client, e) =>
+            {
+                ConnectionStateColor = "LimeGreen";
+                ButtonState = "关闭串口";
+                return EasyTask.CompletedTask;
+            };
+            _spc.Received = (client, e) =>
+            {
+                var byteBlock = e.ByteBlock;
+                var messageModel = new MessageModel
+                {
+                    Content = _clientCache.ShowHex == 1
+                        ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                        : byteBlock.Span.ToString(Encoding.UTF8),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                return EasyTask.CompletedTask;
+            };
+            _spc.Closed = (client, e) =>
+            {
+                ConnectionStateColor = "DarkGray";
+                ButtonState = "打开串口";
+                return EasyTask.CompletedTask;
+            };
         }
 
         private void PortItemSelected(string portName)
@@ -277,29 +341,34 @@ namespace DevKit.ViewModels
 
         private void OpenSerialPort()
         {
-            // if (_serialPortKit.IsOpen)
-            // {
-            //     _serialPortKit.Close();
-            // }
-            // else
-            // {
-            //     if (string.IsNullOrEmpty(_portName))
-            //     {
-            //         MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         return;
-            //     }
-            //
-            //     _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
-            // }
-        }
-
-        private void AddExtensionCommand()
-        {
-            var dialogParameters = new DialogParameters
+            if (_spc.Online)
             {
-                { "ConnectionType", ConnectionType.SerialPort }
-            };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { });
+                _spc.Close();
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(_portName))
+                {
+                    MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var config = new TouchSocketConfig()
+                    .SetSerialPortOption(new SerialPortOption()
+                    {
+                        PortName = _portName,
+                        BaudRate = _baudRate,
+                        Parity = _parity,
+                        DataBits = _dataBits,
+                        StopBits = _stopBits
+                    })
+                    .SetSerialDataHandlingAdapter(() => new PeriodPackageAdapter
+                    {
+                        CacheTimeout = TimeSpan.FromMilliseconds(100)
+                    });
+                _spc.Setup(config);
+                _spc.Connect();
+            }
         }
 
         private void ShowHexChecked()
@@ -362,7 +431,6 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var message = new MessageModel();
             if (_clientCache.SendHex == 1)
             {
                 if (!_userInputText.IsHex())
@@ -370,18 +438,63 @@ namespace DevKit.ViewModels
                     MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
+
+                _spc.Send(_userInputText.HexToBytes());
+            }
+            else
+            {
+                _spc.Send(_userInputText);
             }
 
-            // _tcpClient.SendAsync(_userInputText);
-            message.Content = _userInputText;
-            message.Time = DateTime.Now.ToString("HH:mm:ss.fff");
-            message.IsSend = true;
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
 
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+        }
+
+        private void DropDownOpened()
+        {
+            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.SerialPort)
+                .ToObservableCollection();
+        }
+
+        private void DeleteExCmd(object obj)
+        {
+            var result = MessageBox.Show(
+                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
+            );
+            if (result == MessageBoxResult.OK)
+            {
+                _dataService.DeleteExtensionCommandCache(ConnectionType.SerialPort, (int)obj);
+            }
+        }
+
+        private void DropDownClosed(ComboBox box)
+        {
+            if (box.SelectedIndex == -1)
+            {
+                box.SelectedIndex = 0;
+            }
+
+            var commandCache = _exCommandCollection[box.SelectedIndex];
+            UserInputText = commandCache.CommandValue;
+        }
+
+        private void AddExtension()
+        {
+            var dialogParameters = new DialogParameters
+            {
+                { "ConnectionType", ConnectionType.SerialPort }
+            };
+            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { });
         }
 
         private void SendHexChecked()
@@ -404,6 +517,50 @@ namespace DevKit.ViewModels
         {
             _clientCache.Type = ConnectionType.SerialPort;
             _dataService.SaveCacheConfig(_clientCache);
+
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_buttonState.Equals("打开串口"))
+            {
+                MessageBox.Show("串口未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_loopSend)
+            {
+                Console.WriteLine(@"开启循环发送指令");
+                _loopSendMessageTimer.Interval = _commandInterval;
+                _loopSendMessageTimer.Enabled = true;
+            }
+            else
+            {
+                if (_clientCache.SendHex == 1)
+                {
+                    if (!_userInputText.IsHex())
+                    {
+                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    _spc.Send(_userInputText.HexToBytes());
+                }
+                else
+                {
+                    _spc.Send(_userInputText);
+                }
+
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(message);
+            }
         }
     }
 }
