@@ -12,6 +12,7 @@ using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using SerialPortClient = TouchSocket.SerialPorts.SerialPortClient;
 
 namespace DevKit.ViewModels
 {
@@ -186,6 +187,7 @@ namespace DevKit.ViewModels
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
+        private readonly SerialPortClient _serialPortClient = new SerialPortClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
 
         private readonly Dictionary<float, StopBits> _stopBitMap = new Dictionary<float, StopBits>
@@ -195,7 +197,6 @@ namespace DevKit.ViewModels
             { 2, StopBits.Two }
         };
 
-        private readonly SerialPortKit _serialPortKit = new SerialPortKit();
         private ClientConfigCache _clientCache;
         private string _portName;
         private int _baudRate;
@@ -244,7 +245,7 @@ namespace DevKit.ViewModels
             _dataBits = _dataBitArray.First();
             _stopBits = _stopBitMap[_stopBitArray.First()];
 
-            _serialPortKit.DataReceivedEvent += delegate(byte[] bytes) { };
+            // _serialPortKit.DataReceivedEvent += delegate(byte[] bytes) { };
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
         }
@@ -276,30 +277,29 @@ namespace DevKit.ViewModels
 
         private void OpenSerialPort()
         {
-            if (_serialPortKit.IsOpen)
-            {
-                _serialPortKit.Close();
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(_portName))
-                {
-                    MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
-            }
+            // if (_serialPortKit.IsOpen)
+            // {
+            //     _serialPortKit.Close();
+            // }
+            // else
+            // {
+            //     if (string.IsNullOrEmpty(_portName))
+            //     {
+            //         MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     _serialPortKit.Open(_portName, _baudRate, _parity, _dataBits, _stopBits);
+            // }
         }
 
         private void AddExtensionCommand()
         {
             var dialogParameters = new DialogParameters
             {
-                { "ParentId", _clientCache.Id },
                 { "ConnectionType", ConnectionType.SerialPort }
             };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { }, "ExCommandWindow");
+            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { });
         }
 
         private void ShowHexChecked()
