@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using DevKit.Cache;
@@ -284,8 +285,28 @@ namespace DevKit.ViewModels
                 {
                     if (tcp.Id == client.Id)
                     {
-                        tcp.MessageCollection.Add(e.ByteBlock.ToArray());
-                        tcp.MessageCount++;
+                        var bytes = e.ByteBlock.ToArray();
+                        //内容界面不可见时，才需要更新消息数量
+                        if (_isEmptyImageVisible.Equals("Visible"))
+                        {
+                            tcp.MessageCollection.Add(bytes);
+                            tcp.MessageCount++;
+                        }
+
+                        if (_isContentViewVisible.Equals("Visible"))
+                        {
+                            var messageModel = new MessageModel
+                            {
+                                Content = _showHex
+                                    ? BitConverter.ToString(bytes).Replace("-", " ")
+                                    : Encoding.UTF8.GetString(bytes),
+                                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                                IsSend = false
+                            };
+
+                            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                        }
+
                         break;
                     }
                 }
@@ -333,25 +354,32 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            client.MessageCount = 0;
             _connectedClient = client;
             if (client.IsConnected)
             {
                 IsContentViewVisible = "Visible";
                 IsEmptyImageVisible = "Collapsed";
+
+                foreach (var bytes in client.MessageCollection)
+                {
+                    var messageModel = new MessageModel
+                    {
+                        Content = _showHex
+                            ? BitConverter.ToString(bytes).Replace("-", " ")
+                            : Encoding.UTF8.GetString(bytes),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = false
+                    };
+
+                    MessageCollection.Add(messageModel);
+                }
             }
             else
             {
                 IsContentViewVisible = "Collapsed";
                 IsEmptyImageVisible = "Visible";
             }
-
-            // var dialogParameters = new DialogParameters
-            // {
-            //     { "ClientModel", client }
-            // };
-            // _dialogService.Show("TcpClientMessageDialog", dialogParameters, delegate { });
-            // client.MessageCount = 0;
-            // RuntimeCache.IsClientViewShowing = true;
         }
     }
 }
