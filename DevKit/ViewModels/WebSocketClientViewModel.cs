@@ -8,7 +8,6 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
@@ -177,15 +176,13 @@ namespace DevKit.ViewModels
         #endregion
 
         private readonly IAppDataService _dataService;
-        private readonly IDialogService _dialogService;
         private readonly WebSocketClient _webSocketClient = new WebSocketClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ClientConfigCache _clientCache;
 
-        public WebSocketClientViewModel(IAppDataService dataService, IDialogService dialogService)
+        public WebSocketClientViewModel(IAppDataService dataService)
         {
             _dataService = dataService;
-            _dialogService = dialogService;
 
             InitDefaultConfig();
 

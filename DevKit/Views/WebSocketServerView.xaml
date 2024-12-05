@@ -29,7 +29,6 @@
         <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
         <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
         <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
-        <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -224,6 +223,179 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource BorderTipSuccess}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="已连接" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Margin="10,0"
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource SuccessBrush}"
+                        Text="{Binding ConnectedClientAddress}"
+                        TextWrapping="NoWrap" />
+                </Grid>
+            </Border>
+
+            <ListBox
+                x:Name="MessageListBox"
+                Grid.Row="1"
+                Margin="0,10"
+                ItemsSource="{Binding MessageCollection}"
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
+                                    <TextBlock
+                                        Margin="3,1"
+                                        FontSize="10"
+                                        FontWeight="Light"
+                                        Foreground="White"
+                                        Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                                </Border>
+
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Foreground="{DynamicResource SecondaryTextBrush}"
+                                    Text="{Binding Time, StringFormat=[{0}]}" />
+                            </StackPanel>
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,2,0,0"
+                                FontSize="12"
+                                Text="{Binding Content}"
+                                TextWrapping="Wrap">
+                                <TextBlock.ContextMenu>
+                                    <ContextMenu Style="{x:Null}">
+                                        <MenuItem
+                                            Click="MenuItem_Click"
+                                            Header="复制"
+                                            Style="{x:Null}" />
+                                    </ContextMenu>
+                                </TextBlock.ContextMenu>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <Border x:Name="ItemContainerBorder" Padding="3">
+                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <!--  自动滑动到最底部  -->
+                <b:Interaction.Behaviors>
+                    <ut:AutoScrollToBottomBehavior />
+                </b:Interaction.Behaviors>
+            </ListBox>
+
+            <Grid Grid.Row="2" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox
+                    x:Name="LoopCheckBox"
+                    Grid.Column="0"
+                    Content="循环发送"
+                    IsChecked="{Binding LoopSend}">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="Unchecked">
+                            <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </CheckBox>
+
+                <hc:TextBox
+                    Grid.Column="1"
+                    Margin="10,0"
+                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
+                    <TextBox.Text>
+                        <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <ut:NumberValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </hc:TextBox>
+
+                <TextBlock
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Text="ms/次" />
+            </Grid>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <hc:TextBox
+                    Grid.Column="0"
+                    Padding="4"
+                    VerticalContentAlignment="Top"
+                    Text="{Binding UserInputText}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto" />
+
+                <Grid Grid.Column="1" Margin="10,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Button
+                        Grid.Row="1"
+                        Margin="0,0,0,7"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding ClearMessageCommand}"
+                        Content="清屏" />
+
+                    <Button
+                        Grid.Row="2"
+                        Background="{DynamicResource BackgroundBrush}"
+                        BorderThickness="0"
+                        Command="{Binding SendMessageCommand}"
+                        Content="发送"
+                        Foreground="{DynamicResource SuccessBrush}" />
+                </Grid>
+            </Grid>
         </Grid>
 
         <Grid

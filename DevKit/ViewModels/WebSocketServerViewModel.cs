@@ -8,8 +8,9 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using TouchSocket.Core;
+using TouchSocket.Http;
+using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
 using WebSocketServer = TouchSocket.Http.HttpService;
 
@@ -248,43 +249,28 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly IAppDataService _dataService;
-        private readonly IDialogService _dialogService;
         private readonly WebSocketServer _webSocketServer = new WebSocketServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private bool _isListening;
         private ConnectedClientModel _connectedClient;
-
-        public WebSocketServerViewModel(IAppDataService dataService, IDialogService dialogService)
-        {
-            _dataService = dataService;
-            _dialogService = dialogService;
-
-            InitDefaultConfig();
-
-            ServerListenCommand = new DelegateCommand(ServerListen);
-            // ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
-            // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            // ClearMessageCommand = new DelegateCommand(ClearMessage);
-            // SendMessageCommand = new DelegateCommand(SendMessage);
-        }
-
-        private void InitDefaultConfig()
+        
+        public WebSocketServerViewModel(IAppDataService dataService)
         {
             //获取本机所有IPv4地址
-            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
-                .ToObservableCollection();
+            LocalAddressCollection = dataService.GetAllIPv4Addresses().ToObservableCollection();
+            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            // _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
+            ServerListenCommand = new DelegateCommand(ServerListen);
+            ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
+            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            ClearMessageCommand = new DelegateCommand(ClearMessage);
+            SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void ServerListen()
         {
-            if (_isListening)
+            if (_webSocketServer.ServerState == ServerState.Running)
             {
                 _webSocketServer.Stop();
-                _isListening = false;
                 ListenState = "监听";
                 ListenStateColor = "DarkGray";
                 WebSocketUrl = string.Empty;
@@ -295,10 +281,94 @@ namespace DevKit.ViewModels
                 {
                     var socketConfig = new TouchSocketConfig()
                         .SetListenIPHosts(_listenPort)
-                        .ConfigurePlugins(cfg => { cfg.UseWebSocket().SetWSUrl($"/{_requestPath}"); });
+                        .ConfigurePlugins(cfg =>
+                        {
+                            cfg.UseWebSocket().SetWSUrl($"/{_requestPath}");
+                            cfg.Add(typeof(IWebSocketHandshakedPlugin),
+                                (IWebSocket webSocket, HttpContextEventArgs e) =>
+                                {
+                                    var session = webSocket.Client;
+                                    ConnectedClientAddress = $"{session.IP}:{session.Port}";
+                                    var clientModel = new ConnectedClientModel
+                                    {
+                                        Ip = session.IP,
+                                        Port = session.Port,
+                                        ConnectedWebSocket = webSocket,
+                                        IsConnected = true,
+                                        ConnectColorBrush = "LimeGreen"
+                                    };
+
+                                    Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
+                                    return EasyTask.CompletedTask;
+                                });
+
+                            cfg.Add(typeof(IWebSocketReceivedPlugin), (IWebSocket webSocket, WSDataFrameEventArgs e) =>
+                            {
+                                var session = webSocket.Client;
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    foreach (var client in _clientCollection)
+                                    {
+                                        if (client.Ip == session.IP && client.Port == session.Port)
+                                        {
+                                            if (_isEmptyImageVisible.Equals("Visible"))
+                                            {
+                                                client.TextMsgCollection.Add(e.DataFrame.ToText());
+                                                client.MessageCount++;
+                                            }
+
+                                            if (_isContentViewVisible.Equals("Visible"))
+                                            {
+                                                var messageModel = new MessageModel
+                                                {
+                                                    Content = e.DataFrame.ToText(),
+                                                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                                                    IsSend = false
+                                                };
+
+                                                Application.Current.Dispatcher.Invoke(() =>
+                                                {
+                                                    MessageCollection.Add(messageModel);
+                                                });
+                                            }
+
+                                            break;
+                                        }
+                                    }
+
+                                    MessageCollection.Clear();
+                                });
+                                return EasyTask.CompletedTask;
+                            });
+
+                            cfg.Add(typeof(IWebSocketClosedPlugin), (IWebSocket webSocket, ClosedEventArgs e) =>
+                            {
+                                var session = webSocket.Client;
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    foreach (var client in _clientCollection)
+                                    {
+                                        if (client.Ip == session.IP && client.Port == session.Port)
+                                        {
+                                            client.IsConnected = false;
+                                            client.ConnectColorBrush = "DarkGray";
+                                            client.MessageCount = 0;
+                                            client.ConnectedWebSocket = null;
+                                            client.MessageCollection.Clear();
+                                            //显示空白图
+                                            IsContentViewVisible = "Collapsed";
+                                            IsEmptyImageVisible = "Visible";
+                                            break;
+                                        }
+                                    }
+
+                                    MessageCollection.Clear();
+                                });
+                                return EasyTask.CompletedTask;
+                            });
+                        });
                     _webSocketServer.Setup(socketConfig);
                     _webSocketServer.Start();
-                    _isListening = true;
                     ListenState = "停止";
                     ListenStateColor = "LimeGreen";
                     WebSocketUrl =
@@ -308,6 +378,89 @@ namespace DevKit.ViewModels
                 {
                     MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void ClientItemSelectionChanged(ConnectedClientModel client)
+        {
+            if (client == null)
+            {
+                return;
+            }
+
+            client.MessageCount = 0;
+            _connectedClient = client;
+            if (client.IsConnected)
+            {
+                IsContentViewVisible = "Visible";
+                IsEmptyImageVisible = "Collapsed";
+
+                foreach (var msg in client.TextMsgCollection)
+                {
+                    var messageModel = new MessageModel
+                    {
+                        Content = msg,
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = false
+                    };
+
+                    MessageCollection.Add(messageModel);
+                }
+            }
+            else
+            {
+                IsContentViewVisible = "Collapsed";
+                IsEmptyImageVisible = "Visible";
+            }
+        }
+
+        private void LoopUnchecked()
+        {
+            Console.WriteLine(@"取消循环发送指令");
+            _loopSendMessageTimer.Enabled = false;
+        }
+
+        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        {
+            _connectedClient.ConnectedWebSocket?.SendAsync(_userInputText);
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+        }
+
+        private void ClearMessage()
+        {
+            MessageCollection?.Clear();
+        }
+
+        private void SendMessage()
+        {
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_loopSend)
+            {
+                Console.WriteLine(@"开启循环发送指令");
+                _loopSendMessageTimer.Interval = _commandInterval;
+                _loopSendMessageTimer.Enabled = true;
+            }
+            else
+            {
+                _connectedClient.ConnectedWebSocket?.SendAsync(_userInputText);
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(message);
             }
         }
     }
