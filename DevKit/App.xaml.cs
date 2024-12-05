@@ -99,7 +99,6 @@ namespace DevKit
             //Dialog or Window
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();
-            containerRegistry.RegisterDialog<TcpClientMessageDialog, TcpClientMessageDialogViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
         }
     }

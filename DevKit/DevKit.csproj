@@ -199,12 +199,7 @@
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\TcpClientMessageDialog.xaml.cs">
-      <DependentUpon>TcpClientMessageDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
-    <Compile Include="Events\TcpClientMessageEvent.cs" />
-    <Compile Include="Events\TcpServerMessageEvent.cs" />
     <Compile Include="Events\UdpClientMessageEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
@@ -234,7 +229,6 @@
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SerialPortCommunicateViewModel.cs" />
-    <Compile Include="ViewModels\TcpClientMessageDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
@@ -298,7 +292,6 @@
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
-    <Page Include="Dialogs\TcpClientMessageDialog.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ColorResourceView.xaml" />
