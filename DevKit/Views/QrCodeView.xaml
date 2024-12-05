@@ -55,8 +55,8 @@
                     Grid.Row="0"
                     Padding="4"
                     VerticalContentAlignment="Top"
-                    hc:InfoElement.Placeholder="请输入需要编码的内容，不超过1024个字符"
-                    MaxLength="1024" />
+                    hc:InfoElement.Placeholder="请输入需要编码的内容，不超过512个字符"
+                    TextWrapping="Wrap" />
 
                 <Grid Grid.Row="1" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
@@ -161,7 +161,8 @@
                 VerticalContentAlignment="Top"
                 hc:InfoElement.Placeholder="左侧选择二维码图片，会自动识别二维码内容"
                 IsReadOnly="True"
-                Text="{Binding QrCodeContent}" />
+                Text="{Binding QrCodeContent}"
+                TextWrapping="Wrap" />
         </Grid>
     </Grid>
 </UserControl>
