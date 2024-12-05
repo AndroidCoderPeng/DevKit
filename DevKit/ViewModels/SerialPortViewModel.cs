@@ -15,7 +15,7 @@ using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class SerialPortCommunicateViewModel : BindableBase
+    public class SerialPortViewModel : BindableBase
     {
         #region VM
 
@@ -203,7 +203,7 @@ namespace DevKit.ViewModels
         private int _dataBits;
         private StopBits _stopBits;
 
-        public SerialPortCommunicateViewModel(IAppDataService dataService, IDialogService dialogService)
+        public SerialPortViewModel(IAppDataService dataService, IDialogService dialogService)
         {
             _dataService = dataService;
             _dialogService = dialogService;

@@ -4,9 +4,9 @@ using DevKit.Models;
 
 namespace DevKit.Views
 {
-    public partial class SerialPortCommunicateView : UserControl
+    public partial class SerialPortView : UserControl
     {
-        public SerialPortCommunicateView()
+        public SerialPortView()
         {
             InitializeComponent();
         }

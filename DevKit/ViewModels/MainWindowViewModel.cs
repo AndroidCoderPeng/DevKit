@@ -63,7 +63,7 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("WebSocketServerView");
                     break;
                 case 8:
-                    region.RequestNavigate("SerialPortCommunicateView");
+                    region.RequestNavigate("SerialPortView");
                     break;
                 case 9:
                     region.RequestNavigate("GenerateIconView");
