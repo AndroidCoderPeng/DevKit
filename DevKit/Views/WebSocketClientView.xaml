@@ -26,8 +26,6 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
-        <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
-        <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
     </UserControl.Resources>
 
     <Grid Margin="10,10,5,10">

@@ -9,7 +9,10 @@ using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using WebSocketClient=TouchSocket.Http.WebSockets.WebSocketClient;
+using TouchSocket.Core;
+using TouchSocket.Http.WebSockets;
+using TouchSocket.Sockets;
+using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
 namespace DevKit.ViewModels
 {
@@ -199,33 +202,32 @@ namespace DevKit.ViewModels
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            // _webSocketClient.OnConnected += delegate
-            // {
-            //     ConnectionStateColor = "LimeGreen";
-            //     ButtonState = "断开";
-            // };
-            // _webSocketClient.OnDisconnected += delegate
-            // {
-            //     ConnectionStateColor = "DarkGray";
-            //     ButtonState = "连接";
-            // };
-            // _webSocketClient.OnConnectFailed += delegate(object sender, Exception exception)
-            // {
-            //     ConnectionStateColor = "DarkGray";
-            //     ButtonState = "连接";
-            //     MessageBox.Show(exception.Message, "出错了", MessageBoxButton.OK, MessageBoxImage.Error);
-            // };
-            // _webSocketClient.OnDataReceived += delegate(object sender, string message)
-            // {
-            //     var messageModel = new MessageModel
-            //     {
-            //         Content = message,
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = false
-            //     };
-            //
-            //     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-            // };
+            _webSocketClient.Handshaked = (client, e) =>
+            {
+                ConnectionStateColor = "LimeGreen";
+                ButtonState = "断开";
+                return EasyTask.CompletedTask;
+            };
+
+            _webSocketClient.Received = (client, e) =>
+            {
+                var messageModel = new MessageModel
+                {
+                    Content = e.DataFrame.ToText(),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                return EasyTask.CompletedTask;
+            };
+
+            _webSocketClient.Closed = (client, e) =>
+            {
+                ConnectionStateColor = "DarkGray";
+                ButtonState = "连接";
+                return EasyTask.CompletedTask;
+            };
 
             //获取本机所有IPv4地址
             LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
@@ -239,14 +241,22 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // if (_webSocketClient.IsRunning())
-            // {
-            //     _webSocketClient.Close();
-            // }
-            // else
-            // {
-            //     _webSocketClient.Start(_remoteAddress);
-            // }
+            if (_webSocketClient.Online)
+            {
+                _webSocketClient.Close();
+            }
+            else
+            {
+                _webSocketClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}"));
+                try
+                {
+                    _webSocketClient.Connect();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void ClearMessage()
@@ -278,41 +288,41 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // if (_loopSend)
-            // {
-            //     Console.WriteLine(@"开启循环发送指令");
-            //     _loopSendMessageTimer.Interval = _commandInterval;
-            //     _loopSendMessageTimer.Enabled = true;
-            // }
-            // else
-            // {
-            //     _webSocketClient.SendAsync(_userInputText);
-            //     var message = new MessageModel
-            //     {
-            //         Content = _userInputText,
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = true
-            //     };
-            //     MessageCollection.Add(message);
-            // }
+            if (_loopSend)
+            {
+                Console.WriteLine(@"开启循环发送指令");
+                _loopSendMessageTimer.Interval = _commandInterval;
+                _loopSendMessageTimer.Enabled = true;
+            }
+            else
+            {
+                _webSocketClient.SendAsync(_userInputText);
+                var message = new MessageModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                MessageCollection.Add(message);
+            }
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            // if (_buttonState.Equals("连接"))
-            // {
-            //     Console.WriteLine(@"WebSocket未连接");
-            //     return;
-            // }
-            //
-            // _webSocketClient.SendAsync(_userInputText);
-            // var message = new MessageModel
-            // {
-            //     Content = _userInputText,
-            //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //     IsSend = true
-            // };
-            // Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            if (_buttonState.Equals("连接"))
+            {
+                Console.WriteLine(@"WebSocket未连接");
+                return;
+            }
+
+            _webSocketClient.SendAsync(_userInputText);
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
     }
 }
