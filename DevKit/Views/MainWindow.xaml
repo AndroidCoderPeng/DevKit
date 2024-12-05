@@ -22,7 +22,7 @@
     <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="175" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
@@ -52,15 +52,15 @@
 
                             <TextBlock
                                 Grid.Column="0"
-                                Padding="10,15.5"
+                                Padding="5,10"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
-                                FontSize="30"
+                                FontSize="25"
                                 Text="{Binding MenuIcon}" />
 
                             <TextBlock
                                 Grid.Column="1"
-                                Padding="5,0"
+                                Margin="8,0"
                                 VerticalAlignment="Center"
                                 FontSize="16"
                                 Text="{Binding MenuName}" />

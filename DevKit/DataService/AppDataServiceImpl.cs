@@ -11,7 +11,6 @@ using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
 using Newtonsoft.Json;
-using Enumerable = System.Linq.Enumerable;
 
 namespace DevKit.DataService
 {
@@ -23,9 +22,12 @@ namespace DevKit.DataService
             {
                 new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
                 new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP" },
-                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP Client" },
+                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP Server" },
+                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP Client" },
+                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP Server" },
+                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS Client" },
+                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS Server" },
                 new MainMenuModel { MenuIcon = "\ue8a7", MenuName = "串口" },
                 new MainMenuModel { MenuIcon = "\ue672", MenuName = "图标" },
                 new MainMenuModel { MenuIcon = "\ue602", MenuName = "转码" },
@@ -39,7 +41,7 @@ namespace DevKit.DataService
             {
                 //表里要么没有数据要么只有一条数据
                 var queryResult = dataBase.Table<ApkConfigCache>();
-                if (Enumerable.Any(queryResult))
+                if (queryResult.Any())
                 {
                     return queryResult.First();
                 }
@@ -53,7 +55,7 @@ namespace DevKit.DataService
             using (var dataBase = new DataBaseConnection())
             {
                 var queryResult = dataBase.Table<ClientConfigCache>().Where(x => x.Type == connectionType);
-                if (Enumerable.Any(queryResult))
+                if (queryResult.Any())
                 {
                     return queryResult.First();
                 }

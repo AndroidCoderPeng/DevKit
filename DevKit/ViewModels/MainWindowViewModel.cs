@@ -48,21 +48,30 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("TcpCommunicateView");
                     break;
                 case 3:
-                    region.RequestNavigate("UdpCommunicateView");
+                    
                     break;
                 case 4:
-                    region.RequestNavigate("WebSocketCommunicateView");
+                    region.RequestNavigate("UdpCommunicateView");
                     break;
                 case 5:
-                    region.RequestNavigate("SerialPortCommunicateView");
+                    
                     break;
                 case 6:
-                    region.RequestNavigate("GenerateIconView");
+                    region.RequestNavigate("WebSocketCommunicateView");
                     break;
                 case 7:
-                    region.RequestNavigate("TranscodingView");
+                    
                     break;
                 case 8:
+                    region.RequestNavigate("SerialPortCommunicateView");
+                    break;
+                case 9:
+                    region.RequestNavigate("GenerateIconView");
+                    break;
+                case 10:
+                    region.RequestNavigate("TranscodingView");
+                    break;
+                case 11:
                     region.RequestNavigate("ColorResourceView");
                     break;
             }
