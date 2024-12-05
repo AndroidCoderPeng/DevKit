@@ -87,7 +87,8 @@ namespace DevKit
             //Navigation
             containerRegistry.RegisterForNavigation<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterForNavigation<ApplicationPackageView, ApplicationPackageViewModel>();
-            containerRegistry.RegisterForNavigation<TcpCommunicateView, TcpCommunicateViewModel>();
+            containerRegistry.RegisterForNavigation<TcpClientView, TcpClientViewModel>();
+            containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
             containerRegistry.RegisterForNavigation<UdpCommunicateView, UdpCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketCommunicateView, WebSocketCommunicateViewModel>();
             containerRegistry.RegisterForNavigation<SerialPortCommunicateView, SerialPortCommunicateViewModel>();

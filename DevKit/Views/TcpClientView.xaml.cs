@@ -4,16 +4,16 @@ using DevKit.Models;
 
 namespace DevKit.Views
 {
-    public partial class TcpCommunicateView : UserControl
+    public partial class TcpClientView : UserControl
     {
-        public TcpCommunicateView()
+        public TcpClientView()
         {
             InitializeComponent();
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (!(ClientMessageListBox.SelectedItem is MessageModel message)) return;
+            if (!(MessageListBox.SelectedItem is MessageModel message)) return;
             var content = message.Content;
             Clipboard.SetText(content);
         }

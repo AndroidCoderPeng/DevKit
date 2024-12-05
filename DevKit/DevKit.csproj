@@ -235,7 +235,8 @@
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\SerialPortCommunicateViewModel.cs" />
     <Compile Include="ViewModels\TcpClientMessageDialogViewModel.cs" />
-    <Compile Include="ViewModels\TcpCommunicateViewModel.cs" />
+    <Compile Include="ViewModels\TcpClientViewModel.cs" />
+    <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
     <Compile Include="ViewModels\UdpCommunicateViewModel.cs" />
     <Compile Include="ViewModels\WebSocketCommunicateViewModel.cs" />
@@ -258,8 +259,11 @@
     <Compile Include="Views\SerialPortCommunicateView.xaml.cs">
       <DependentUpon>SerialPortCommunicateView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TcpCommunicateView.xaml.cs">
-      <DependentUpon>TcpCommunicateView.xaml</DependentUpon>
+    <Compile Include="Views\TcpClientView.xaml.cs">
+      <DependentUpon>TcpClientView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TcpServerView.xaml.cs">
+      <DependentUpon>TcpServerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TranscodingView.xaml.cs">
       <DependentUpon>TranscodingView.xaml</DependentUpon>
@@ -304,7 +308,8 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\SerialPortCommunicateView.xaml" />
-    <Page Include="Views\TcpCommunicateView.xaml" />
+    <Page Include="Views\TcpClientView.xaml" />
+    <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\TranscodingView.xaml" />
     <Page Include="Views\UdpCommunicateView.xaml" />
     <Page Include="Views\WebSocketCommunicateView.xaml" />

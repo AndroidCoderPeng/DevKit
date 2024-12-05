@@ -45,10 +45,10 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("ApplicationPackageView");
                     break;
                 case 2:
-                    region.RequestNavigate("TcpCommunicateView");
+                    region.RequestNavigate("TcpClientView");
                     break;
                 case 3:
-                    
+                    region.RequestNavigate("TcpServerView");
                     break;
                 case 4:
                     region.RequestNavigate("UdpCommunicateView");
