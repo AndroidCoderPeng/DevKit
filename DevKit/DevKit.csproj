@@ -205,9 +205,7 @@
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
-    <Compile Include="Utils\NumberValidationRule.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
-    <Compile Include="Utils\RuntimeCache.cs" />
     <Compile Include="Utils\ConnectionType.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
