@@ -47,9 +47,9 @@ namespace DevKit.ViewModels
             get => _listenStateColor;
         }
 
-        private int _listenPort = 5000;
+        private string _listenPort = "5000";
 
-        public int ListenPort
+        public string ListenPort
         {
             set
             {
@@ -168,9 +168,9 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -219,7 +219,7 @@ namespace DevKit.ViewModels
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
-        
+
         #endregion
 
         private readonly IAppDataService _dataService;
@@ -256,9 +256,9 @@ namespace DevKit.ViewModels
 
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpServer)
                 .ToObservableCollection();
-            
+
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-            
+
             _udpServer.Received = (client, e) =>
             {
                 _connectedClientEndPoint = e.EndPoint;
@@ -299,7 +299,7 @@ namespace DevKit.ViewModels
                                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                                 IsSend = false
                             };
-                            
+
                             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                         }
 
@@ -313,6 +313,12 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
+            if (!_listenPort.IsNumber())
+            {
+                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (_isListening)
             {
                 _udpServer.Stop();
@@ -324,7 +330,7 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    _udpServer.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(_listenPort)));
+                    _udpServer.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(int.Parse(_listenPort))));
                     _udpServer.Start();
                     _isListening = true;
                     ListenState = "停止";
@@ -332,7 +338,7 @@ namespace DevKit.ViewModels
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -359,11 +365,11 @@ namespace DevKit.ViewModels
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
-            
+
                 MessageCollection.Add(messageModel);
             }
         }
-        
+
         private void ShowHexChecked()
         {
             var boxResult = MessageBox.Show(
@@ -411,7 +417,7 @@ namespace DevKit.ViewModels
                 MessageCollection = collection;
             }
         }
-        
+
         private void DropDownOpened()
         {
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpServer)
@@ -439,7 +445,7 @@ namespace DevKit.ViewModels
             var commandCache = _exCommandCollection[box.SelectedIndex];
             UserInputText = commandCache.CommandValue;
         }
-        
+
         private void AddExtension()
         {
             var dialogParameters = new DialogParameters
@@ -448,13 +454,12 @@ namespace DevKit.ViewModels
             };
             _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
         }
-        
+
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
-        
+
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
             if (_sendHex)
@@ -480,12 +485,12 @@ namespace DevKit.ViewModels
             };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
-        
+
         private void ClearMessage()
         {
             MessageCollection?.Clear();
         }
-        
+
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))
@@ -496,8 +501,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else

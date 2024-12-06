@@ -80,11 +80,12 @@
 
                 <hc:TextBox
                     Grid.Column="1"
-                    MinWidth="50"
+                    MinWidth="90"
                     Margin="10,0"
                     hc:InfoElement.Placeholder="端口"
                     hc:InfoElement.ShowClearButton="True"
                     IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
+                    MaxLength="4"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
@@ -372,15 +373,9 @@
                 <hc:TextBox
                     Grid.Column="3"
                     Margin="10,0"
-                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
-                    <TextBox.Text>
-                        <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <ut:NumberValidationRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </hc:TextBox>
+                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
+                    MaxLength="5"
+                    Text="{Binding CommandInterval}" />
 
                 <TextBlock
                     Grid.Column="4"
