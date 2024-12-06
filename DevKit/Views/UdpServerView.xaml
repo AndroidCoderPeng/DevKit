@@ -20,10 +20,6 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
         <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
@@ -57,9 +53,10 @@
                     VerticalAlignment="Center"
                     Text="本机地址" />
 
-                <hc:ComboBox
+                <ComboBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
+                    FontSize="14"
                     IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     ItemsSource="{Binding LocalAddressCollection}"
                     SelectedIndex="0" />
@@ -84,6 +81,7 @@
                     Margin="10,0"
                     hc:InfoElement.Placeholder="端口"
                     hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
                     IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     MaxLength="4"
                     Text="{Binding ListenPort}"
@@ -308,6 +306,7 @@
                     x:Name="ExCommandComboBox"
                     Grid.Column="0"
                     HorizontalContentAlignment="Stretch"
+                    FontSize="14"
                     ItemsSource="{Binding ExCommandCollection}"
                     SelectedIndex="0">
                     <ComboBox.ItemTemplate>
@@ -373,6 +372,7 @@
                 <hc:TextBox
                     Grid.Column="3"
                     Margin="10,0"
+                    FontSize="14"
                     IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                     MaxLength="5"
                     Text="{Binding CommandInterval}" />
@@ -393,6 +393,7 @@
                     Grid.Column="0"
                     Padding="4"
                     VerticalContentAlignment="Top"
+                    FontSize="14"
                     Text="{Binding UserInputText}"
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />

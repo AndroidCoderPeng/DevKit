@@ -17,10 +17,6 @@
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
         </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -39,6 +35,7 @@
             Grid.Row="0"
             Margin="10"
             hc:InfoElement.Placeholder="请输入待转码的字符，字节码数组格式，如：[71, 101, 116, 68, 97, 116, 97]"
+            FontSize="14"
             TextWrapping="Wrap">
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="TextChanged">
@@ -83,6 +80,7 @@
                 Margin="10,10,10,0"
                 HorizontalAlignment="Left"
                 Content="{Binding HexCodeValue}"
+                FontSize="14"
                 Style="{StaticResource LabelSuccess}" />
 
             <Grid Grid.Row="1" Margin="10,10,10,0">
@@ -95,7 +93,8 @@
                 <hc:TextBox
                     x:Name="ByteArrayTextBox"
                     Grid.Column="0"
-                    hc:InfoElement.Placeholder="请输入待转码的字符，格式如上" />
+                    hc:InfoElement.Placeholder="请输入待转码的字符，格式如上"
+                    FontSize="14" />
 
                 <Button
                     Grid.Column="1"
@@ -107,6 +106,7 @@
 
                 <hc:TextBox
                     Grid.Column="2"
+                    FontSize="14"
                     IsReadOnly="True"
                     Text="{Binding UnsignedByteArray}" />
             </Grid>
@@ -148,6 +148,7 @@
                 Margin="10,0"
                 HorizontalAlignment="Left"
                 Content="{Binding AsciiCodeValue}"
+                FontSize="14"
                 Style="{StaticResource LabelSuccess}" />
 
             <Grid Grid.Row="1">
@@ -165,6 +166,7 @@
                     Margin="10"
                     HorizontalAlignment="Left"
                     hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
                     MaxLength="2"
                     Style="{StaticResource SearchBarPlus}"
                     Text="{Binding HexValue}">
@@ -236,6 +238,7 @@
                 VerticalContentAlignment="Top"
                 hc:InfoElement.Placeholder="图片转码Base64，支持右键复制转码结果"
                 BorderBrush="{DynamicResource BorderBrush}"
+                FontSize="14"
                 IsReadOnly="True"
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 Text="{Binding Base64Result}"

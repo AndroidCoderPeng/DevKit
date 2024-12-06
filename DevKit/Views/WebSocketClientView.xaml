@@ -20,10 +20,6 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
     </UserControl.Resources>
@@ -54,6 +50,7 @@
                 Margin="10,0"
                 hc:InfoElement.Placeholder="远程WebSocket Server Address"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 Text="{Binding RemoteAddress}"
                 TextWrapping="NoWrap" />
 
@@ -167,6 +164,7 @@
                 MinWidth="100"
                 Margin="10,0"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                 MaxLength="5"
                 Text="{Binding CommandInterval}" />
@@ -195,6 +193,7 @@
                 Grid.Column="0"
                 Padding="4"
                 VerticalContentAlignment="Top"
+                FontSize="14"
                 Text="{Binding UserInputText}"
                 TextWrapping="Wrap"
                 VerticalScrollBarVisibility="Auto" />

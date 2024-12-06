@@ -20,10 +20,6 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
         <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
@@ -134,9 +130,10 @@
                         VerticalAlignment="Center"
                         Text="串口名：" />
 
-                    <hc:ComboBox
+                    <ComboBox
                         x:Name="PortComboBox"
                         VerticalAlignment="Center"
+                        FontSize="14"
                         ItemsSource="{Binding PortArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
@@ -144,7 +141,7 @@
                                 <b:InvokeCommandAction Command="{Binding PortItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=PortComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                    </ComboBox>
                 </DockPanel>
 
                 <DockPanel
@@ -156,8 +153,9 @@
                         VerticalAlignment="Center"
                         Text="波特率：" />
 
-                    <hc:ComboBox
+                    <ComboBox
                         x:Name="BaudRateComboBox"
+                        FontSize="14"
                         ItemsSource="{Binding BaudRateArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
@@ -165,7 +163,7 @@
                                 <b:InvokeCommandAction Command="{Binding BaudRateItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=BaudRateComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                    </ComboBox>
                 </DockPanel>
 
                 <DockPanel Grid.Row="2" LastChildFill="True">
@@ -174,9 +172,10 @@
                         VerticalAlignment="Center"
                         Text="数据位：" />
 
-                    <hc:ComboBox
+                    <ComboBox
                         x:Name="DataBitComboBox"
                         VerticalAlignment="Center"
+                        FontSize="14"
                         ItemsSource="{Binding DataBitArray}"
                         SelectedIndex="3">
                         <b:Interaction.Triggers>
@@ -184,7 +183,7 @@
                                 <b:InvokeCommandAction Command="{Binding DataBitItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=DataBitComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                    </ComboBox>
                 </DockPanel>
 
                 <DockPanel
@@ -196,9 +195,10 @@
                         VerticalAlignment="Center"
                         Text="校验位：" />
 
-                    <hc:ComboBox
+                    <ComboBox
                         x:Name="ParityComboBox"
                         VerticalAlignment="Center"
+                        FontSize="14"
                         ItemsSource="{Binding ParityArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
@@ -206,7 +206,7 @@
                                 <b:InvokeCommandAction Command="{Binding ParityItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=ParityComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                    </ComboBox>
                 </DockPanel>
 
                 <DockPanel Grid.Row="4" LastChildFill="True">
@@ -215,9 +215,10 @@
                         VerticalAlignment="Center"
                         Text="停止位：" />
 
-                    <hc:ComboBox
+                    <ComboBox
                         x:Name="StopBitComboBox"
                         VerticalAlignment="Center"
+                        FontSize="14"
                         ItemsSource="{Binding StopBitArray}"
                         SelectedIndex="0">
                         <b:Interaction.Triggers>
@@ -225,7 +226,7 @@
                                 <b:InvokeCommandAction Command="{Binding StopBitItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=StopBitComboBox}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                    </ComboBox>
                 </DockPanel>
 
 
@@ -295,6 +296,7 @@
                         Grid.Column="4"
                         MinWidth="100"
                         hc:InfoElement.ShowClearButton="True"
+                        FontSize="14"
                         IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                         MaxLength="5"
                         Text="{Binding CommandInterval}" />
@@ -316,6 +318,7 @@
                         x:Name="ExCommandComboBox"
                         Grid.Column="0"
                         HorizontalContentAlignment="Stretch"
+                        FontSize="14"
                         ItemsSource="{Binding ExCommandCollection}"
                         SelectedIndex="0">
                         <ComboBox.ItemTemplate>
@@ -374,6 +377,7 @@
                         Grid.Column="0"
                         Padding="6,4"
                         VerticalContentAlignment="Top"
+                        FontSize="14"
                         Text="{Binding UserInputText}"
                         TextWrapping="Wrap"
                         VerticalScrollBarVisibility="Auto" />

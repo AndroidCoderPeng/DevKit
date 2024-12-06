@@ -17,10 +17,6 @@
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
         </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
     </UserControl.Resources>
 
     <Grid Margin="10">
@@ -56,6 +52,7 @@
                     Padding="4"
                     VerticalContentAlignment="Top"
                     hc:InfoElement.Placeholder="请输入需要编码的内容，不超过512个字符"
+                    FontSize="14"
                     TextWrapping="Wrap" />
 
                 <Grid Grid.Row="1" Margin="0,10,0,0">
@@ -159,6 +156,7 @@
                 Padding="4"
                 VerticalContentAlignment="Top"
                 hc:InfoElement.Placeholder="左侧选择二维码图片，会自动识别二维码内容"
+                FontSize="14"
                 IsReadOnly="True"
                 Text="{Binding QrCodeContent}"
                 TextWrapping="Wrap" />

@@ -17,10 +17,6 @@
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
         </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -127,6 +123,7 @@
             <ComboBox
                 x:Name="TypeComboBox"
                 Grid.Column="0"
+                FontSize="14"
                 IsEnabled="{Binding HasValue, ElementName=ImageSelector}"
                 ItemsSource="{Binding PlatformTypes}"
                 SelectedIndex="0">

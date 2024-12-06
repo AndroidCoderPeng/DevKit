@@ -19,10 +19,6 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
@@ -62,6 +58,7 @@
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
+                        FontSize="14"
                         Maximum="255"
                         Minimum="0"
                         Style="{StaticResource NumericUpDownPlus}"
@@ -89,6 +86,7 @@
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
+                        FontSize="14"
                         Maximum="255"
                         Minimum="0"
                         Style="{StaticResource NumericUpDownPlus}"
@@ -116,6 +114,7 @@
                         Grid.Column="1"
                         Margin="7,0,0,0"
                         hc:InfoElement.ShowClearButton="True"
+                        FontSize="14"
                         Maximum="255"
                         Minimum="0"
                         Style="{StaticResource NumericUpDownPlus}"
@@ -219,6 +218,7 @@
                 Grid.Column="0"
                 hc:InfoElement.Placeholder="请输入待转换的颜色值，格式为RGB，如：#000000"
                 hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
                 MaxLength="7" />
 
             <Button
@@ -240,6 +240,7 @@
             <ComboBox
                 x:Name="ColorSchemeComboBox"
                 Grid.Column="0"
+                FontSize="14"
                 ItemsSource="{Binding ColorSchemes}"
                 SelectedIndex="0">
                 <b:Interaction.Triggers>

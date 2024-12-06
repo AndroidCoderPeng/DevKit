@@ -8,7 +8,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="400"
-    Height="125"
+    Height="135"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     Background="White"
     mc:Ignorable="d">
@@ -32,7 +32,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10,10,10,0">
@@ -52,6 +52,7 @@
                     Padding="4,2"
                     hc:InfoElement.Placeholder="此项必填"
                     hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
                     Text="{Binding UserCommandValue}"
                     TextWrapping="NoWrap" />
             </Grid>
@@ -73,6 +74,7 @@
                     Padding="4,2"
                     hc:InfoElement.Placeholder="此项非必填"
                     hc:InfoElement.ShowClearButton="True"
+                    FontSize="14"
                     Text="{Binding CommandAnnotation}"
                     TextWrapping="NoWrap" />
             </Grid>
@@ -85,12 +87,14 @@
 
                 <Button
                     Grid.Column="0"
+                    HorizontalAlignment="Stretch"
                     Command="{Binding ExtensionCommandSaveCommand}"
                     Content="保存指令"
                     Style="{StaticResource ButtonPrimary}" />
 
                 <CheckBox
                     Grid.Column="1"
+                    Margin="10,0,0,0"
                     Content="HEX"
                     IsChecked="{Binding IsHexChecked}" />
             </Grid>

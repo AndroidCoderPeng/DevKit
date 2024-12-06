@@ -47,6 +47,7 @@
                     x:Name="DeviceComboBox"
                     Grid.Column="1"
                     Margin="10,0"
+                    VerticalContentAlignment="Center"
                     FontSize="14"
                     ItemsSource="{Binding DeviceItems}">
                     <b:Interaction.Triggers>
