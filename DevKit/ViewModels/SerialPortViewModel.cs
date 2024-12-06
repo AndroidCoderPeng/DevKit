@@ -133,9 +133,9 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -509,7 +509,6 @@ namespace DevKit.ViewModels
 
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
@@ -532,8 +531,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else

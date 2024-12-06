@@ -291,15 +291,13 @@
                         </b:Interaction.Triggers>
                     </CheckBox>
 
-                    <hc:TextBox Grid.Column="4" IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
-                        <TextBox.Text>
-                            <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
-                                <Binding.ValidationRules>
-                                    <ut:NumberValidationRule />
-                                </Binding.ValidationRules>
-                            </Binding>
-                        </TextBox.Text>
-                    </hc:TextBox>
+                    <hc:TextBox
+                        Grid.Column="4"
+                        MinWidth="100"
+                        hc:InfoElement.ShowClearButton="True"
+                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
+                        MaxLength="5"
+                        Text="{Binding CommandInterval}" />
 
                     <TextBlock
                         Grid.Column="5"
