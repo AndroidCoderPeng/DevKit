@@ -305,7 +305,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            //判断是否是IP和端口和理性
+            //判断是否是IP和端口合理性
             if (!_remoteAddress.IsIp())
             {
                 MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
