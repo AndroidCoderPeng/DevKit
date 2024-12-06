@@ -69,6 +69,7 @@
                         Grid.Column="0"
                         HorizontalAlignment="Stretch"
                         Command="{Binding UploadLogoCommand}"
+                        CommandParameter="{Binding Text, ElementName=UserInputTextBox}"
                         Content="上传Logo"
                         IsEnabled="{Binding IsOptionButtonEnabled}"
                         Style="{StaticResource ButtonInfo}" />

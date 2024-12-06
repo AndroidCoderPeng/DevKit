@@ -17,7 +17,7 @@ namespace DevKit.ViewModels
     {
         #region DelegateCommand
 
-        public DelegateCommand UploadLogoCommand { set; get; }
+        public DelegateCommand<string> UploadLogoCommand { set; get; }
         public DelegateCommand<string> GenerateQrCodeCommand { set; get; }
         public DelegateCommand SaveQrCodeCommand { set; get; }
         public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
@@ -69,15 +69,30 @@ namespace DevKit.ViewModels
 
         public QrCodeViewModel()
         {
-            UploadLogoCommand = new DelegateCommand(UploadLogo);
+            UploadLogoCommand = new DelegateCommand<string>(UploadLogo);
             GenerateQrCodeCommand = new DelegateCommand<string>(GenerateQrCode);
             SaveQrCodeCommand = new DelegateCommand(SaveQrCode);
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
             ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
         }
 
-        private void UploadLogo()
+        private void UploadLogo(string content)
         {
+            var dialog = new OpenFileDialog
+            {
+                Multiselect = false,
+                Title = @"请选择Logo文件",
+                Filter = @"Logo(*.png;*.jpg)|*.png;*.jpg"
+            };
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                var qrCodeData = _qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M, true);
+                var qrCode = new QRCode(qrCodeData);
+                var icon = new Bitmap(dialog.FileName);
+                var qrCodeBitmap = qrCode.GetGraphic(15, Color.Black, Color.White, icon, 20, 5, false);
+                QrCodeBitmapImage = qrCodeBitmap.ToBitmapImage();
+            }
         }
 
         private void GenerateQrCode(string content)
