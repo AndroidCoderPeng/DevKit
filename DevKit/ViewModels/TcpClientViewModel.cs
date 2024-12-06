@@ -278,7 +278,9 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                var boxResult = MessageBox.Show(
+                    "确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                );
                 if (boxResult == MessageBoxResult.OK)
                 {
                     var collection = new ObservableCollection<MessageModel>();

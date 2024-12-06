@@ -204,8 +204,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<object> StopBitItemSelectedCommand { set; get; }
         public DelegateCommand OpenSerialPortCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand ShowHexCheckedCommand { set; get; }
-        public DelegateCommand ShowHexUncheckedCommand { set; get; }
+        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
@@ -256,8 +255,7 @@ namespace DevKit.ViewModels
             StopBitItemSelectedCommand = new DelegateCommand<object>(StopBitItemSelected);
             OpenSerialPortCommand = new DelegateCommand(OpenSerialPort);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
-            ShowHexCheckedCommand = new DelegateCommand(ShowHexChecked);
-            ShowHexUncheckedCommand = new DelegateCommand(ShowHexUnchecked);
+            ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             AddExtensionCommand = new DelegateCommand(AddExtension);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
@@ -282,7 +280,7 @@ namespace DevKit.ViewModels
 
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.SerialPort)
                 .ToObservableCollection();
-            
+
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             _spc.Connected = (client, e) =>
@@ -371,55 +369,57 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ShowHexChecked()
+        private void ShowHexCheckBoxClick()
         {
-            var boxResult = MessageBox.Show(
-                "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-            );
-            if (boxResult == MessageBoxResult.OK)
+            if (_showHex)
             {
-                var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
+                var boxResult = MessageBox.Show(
+                    "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                );
+                if (boxResult == MessageBoxResult.OK)
                 {
-                    //将model.Content视为string
-                    var hex = model.Content.StringToHex();
-                    var msg = new MessageModel
+                    var collection = new ObservableCollection<MessageModel>();
+                    foreach (var model in MessageCollection)
                     {
-                        Content = hex.Replace("-", " "),
-                        Time = model.Time,
-                        IsSend = model.IsSend
-                    };
-                    collection.Add(msg);
+                        //将model.Content视为string
+                        var hex = model.Content.StringToHex();
+                        var msg = new MessageModel
+                        {
+                            Content = hex.Replace("-", " "),
+                            Time = model.Time,
+                            IsSend = model.IsSend
+                        };
+                        collection.Add(msg);
+                    }
+
+                    MessageCollection = collection;
+                    _clientCache.ShowHex = 1;
                 }
-
-                MessageCollection = collection;
-
-                _clientCache.ShowHex = 1;
             }
-        }
-
-        private void ShowHexUnchecked()
-        {
-            var boxResult = MessageBox.Show("确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-            if (boxResult == MessageBoxResult.OK)
+            else
             {
-                var collection = new ObservableCollection<MessageModel>();
-                foreach (var model in MessageCollection)
+                var boxResult = MessageBox.Show(
+                    "确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                );
+                if (boxResult == MessageBoxResult.OK)
                 {
-                    //将model.Content视为Hex，先转bytes[]，再转string
-                    var bytes = model.Content.HexToBytes();
-                    var msg = new MessageModel
+                    var collection = new ObservableCollection<MessageModel>();
+                    foreach (var model in MessageCollection)
                     {
-                        Content = bytes.ByteArrayToString(),
-                        Time = model.Time,
-                        IsSend = model.IsSend
-                    };
-                    collection.Add(msg);
+                        //将model.Content视为Hex，先转bytes[]，再转string
+                        var bytes = model.Content.HexToBytes();
+                        var msg = new MessageModel
+                        {
+                            Content = bytes.ByteArrayToString(),
+                            Time = model.Time,
+                            IsSend = model.IsSend
+                        };
+                        collection.Add(msg);
+                    }
+
+                    MessageCollection = collection;
+                    _clientCache.ShowHex = 0;
                 }
-
-                MessageCollection = collection;
-
-                _clientCache.ShowHex = 0;
             }
         }
 
@@ -536,7 +536,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
