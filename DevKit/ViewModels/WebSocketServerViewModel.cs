@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Timers;
 using System.Windows;
-using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -44,9 +43,9 @@ namespace DevKit.ViewModels
             get => _comboBoxSelectedIndex;
         }
 
-        private int _listenPort = 9000;
+        private string _listenPort = "9000";
 
-        public int ListenPort
+        public string ListenPort
         {
             set
             {
@@ -153,18 +152,6 @@ namespace DevKit.ViewModels
             get => _connectedClientAddress;
         }
 
-        private bool _showHex = true;
-
-        public bool ShowHex
-        {
-            set
-            {
-                _showHex = value;
-                RaisePropertyChanged();
-            }
-            get => _showHex;
-        }
-
         private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
 
         public ObservableCollection<MessageModel> MessageCollection
@@ -175,18 +162,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _messageCollection;
-        }
-
-        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
-
-        public ObservableCollection<ExCommandCache> ExCommandCollection
-        {
-            set
-            {
-                _exCommandCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _exCommandCollection;
         }
 
         private bool _loopSend;
@@ -201,9 +176,9 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -225,18 +200,6 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _sendHex = true;
-
-        public bool SendHex
-        {
-            set
-            {
-                _sendHex = value;
-                RaisePropertyChanged();
-            }
-            get => _sendHex;
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -252,7 +215,7 @@ namespace DevKit.ViewModels
         private readonly WebSocketServer _webSocketServer = new WebSocketServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private ConnectedClientModel _connectedClient;
-        
+
         public WebSocketServerViewModel(IAppDataService dataService)
         {
             //获取本机所有IPv4地址
@@ -268,6 +231,12 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
+            if (!_listenPort.IsNumber())
+            {
+                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (_webSocketServer.ServerState == ServerState.Running)
             {
                 _webSocketServer.Stop();
@@ -280,7 +249,7 @@ namespace DevKit.ViewModels
                 try
                 {
                     var socketConfig = new TouchSocketConfig()
-                        .SetListenIPHosts(_listenPort)
+                        .SetListenIPHosts(int.Parse(ListenPort))
                         .ConfigurePlugins(cfg =>
                         {
                             cfg.UseWebSocket().SetWSUrl($"/{_requestPath}");
@@ -376,7 +345,7 @@ namespace DevKit.ViewModels
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -416,7 +385,6 @@ namespace DevKit.ViewModels
 
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
@@ -447,8 +415,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else
