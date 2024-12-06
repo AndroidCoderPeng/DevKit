@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
-using ZXing;
-using ZXing.Common;
+using QRCoder;
 
 namespace DevKit.ViewModels
 {
@@ -61,6 +61,8 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private readonly QRCodeGenerator _qrGenerator = new QRCodeGenerator();
+
         public QrCodeViewModel()
         {
             UploadLogoCommand = new DelegateCommand(UploadLogo);
@@ -88,17 +90,10 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var writer = new BarcodeWriter
-            {
-                Format = BarcodeFormat.QR_CODE,
-                Options = new EncodingOptions
-                {
-                    Width = 1024,
-                    Height = 1024
-                }
-            };
-            var qrCodeBitmap = writer.Write(content);
-            //需要重新规定尺寸
+            // 生成QRCodeData对象，设置纠错级别为中等
+            var qrCodeData = _qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M, true);
+            var qrCode = new QRCode(qrCodeData);
+            var qrCodeBitmap = qrCode.GetGraphic(15, Color.Black, Color.White, false);
             QrCodeBitmapImage = qrCodeBitmap.ToBitmapImage();
             IsOptionButtonEnabled = true;
         }
