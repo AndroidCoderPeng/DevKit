@@ -23,6 +23,18 @@ namespace DevKit.ViewModels
 
         #region VM
 
+        private bool _isOptionButtonEnabled;
+
+        public bool IsOptionButtonEnabled
+        {
+            set
+            {
+                _isOptionButtonEnabled = value;
+                RaisePropertyChanged();
+            }
+            get => _isOptionButtonEnabled;
+        }
+
         private BitmapImage _qrCodeBitmapImage;
 
         public BitmapImage QrCodeBitmapImage
@@ -88,6 +100,7 @@ namespace DevKit.ViewModels
             var qrCodeBitmap = writer.Write(content);
             //需要重新规定尺寸
             QrCodeBitmapImage = qrCodeBitmap.ToBitmapImage();
+            IsOptionButtonEnabled = true;
         }
 
         private void SaveQrCode()

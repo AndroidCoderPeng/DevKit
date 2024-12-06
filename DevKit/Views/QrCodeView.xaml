@@ -70,6 +70,7 @@
                         HorizontalAlignment="Stretch"
                         Command="{Binding UploadLogoCommand}"
                         Content="上传Logo"
+                        IsEnabled="{Binding IsOptionButtonEnabled}"
                         Style="{StaticResource ButtonInfo}" />
 
                     <Button
@@ -86,6 +87,7 @@
                         HorizontalAlignment="Stretch"
                         Command="{Binding SaveQrCodeCommand}"
                         Content="保存二维码"
+                        IsEnabled="{Binding IsOptionButtonEnabled}"
                         Style="{StaticResource ButtonSuccess}" />
                 </Grid>
             </Grid>
