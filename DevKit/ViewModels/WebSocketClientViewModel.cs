@@ -79,9 +79,9 @@ namespace DevKit.ViewModels
             get => _connectionStateColor;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -101,67 +101,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _userInputText;
-        }
-
-        private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
-
-        public ObservableCollection<string> LocalAddressCollection
-        {
-            set
-            {
-                _localAddressCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _localAddressCollection;
-        }
-
-        private string _listenStateColor = "DarkGray";
-
-        public string ListenStateColor
-        {
-            set
-            {
-                _listenStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _listenStateColor;
-        }
-
-        private int _listenPort;
-
-        public int ListenPort
-        {
-            set
-            {
-                _listenPort = value;
-                RaisePropertyChanged();
-            }
-            get => _listenPort;
-        }
-
-        private string _listenState = "监听";
-
-        public string ListenState
-        {
-            set
-            {
-                _listenState = value;
-                RaisePropertyChanged();
-            }
-            get => _listenState;
-        }
-
-        private ObservableCollection<ConnectedClientModel> _websocketClientCollection =
-            new ObservableCollection<ConnectedClientModel>();
-
-        public ObservableCollection<ConnectedClientModel> WebSocketClientCollection
-        {
-            set
-            {
-                _websocketClientCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _websocketClientCollection;
         }
 
         #endregion
@@ -225,9 +164,6 @@ namespace DevKit.ViewModels
                 ButtonState = "连接";
                 return EasyTask.CompletedTask;
             };
-
-            //获取本机所有IPv4地址
-            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
         }
 
         private void ConnectRemote()
@@ -263,7 +199,6 @@ namespace DevKit.ViewModels
 
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
@@ -287,8 +222,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else

@@ -164,23 +164,17 @@
 
             <hc:TextBox
                 Grid.Column="1"
-                MinWidth="70"
+                MinWidth="100"
                 Margin="10,0"
                 hc:InfoElement.ShowClearButton="True"
-                IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}">
-                <TextBox.Text>
-                    <Binding Path="CommandInterval" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <ut:NumberValidationRule />
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>
-            </hc:TextBox>
+                IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
+                MaxLength="5"
+                Text="{Binding CommandInterval}" />
 
             <TextBlock
                 Grid.Column="2"
                 VerticalAlignment="Center"
-                Text="毫秒/次" />
+                Text="ms/次" />
 
             <Ellipse
                 Grid.Column="3"
