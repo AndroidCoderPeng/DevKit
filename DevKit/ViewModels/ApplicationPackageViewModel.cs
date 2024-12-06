@@ -13,10 +13,12 @@ using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using Application = System.Windows.Application;
 using DialogResult = System.Windows.Forms.DialogResult;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
@@ -234,7 +236,7 @@ namespace DevKit.ViewModels
             executor.Execute("keytool");
         }
 
-        private async void SelectApkRootFolder()
+        private void SelectApkRootFolder()
         {
             using (var folderDialog = new FolderBrowserDialog())
             {
@@ -246,15 +248,28 @@ namespace DevKit.ViewModels
                     _configCache.ApkRootFolder = _apkRootFolderPath;
                     _dataService.SaveCacheConfig(_configCache);
 
+                    ApkFileCollection?.Clear();
+                    
                     //异步遍历文件夹下面的apk文件
                     var dialogParameters = new DialogParameters
                     {
                         { "LoadingMessage", "文件检索中，请稍后......" }
                     };
                     _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-                    var totalFiles = await GetApkFilesAsync();
-                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                    ApkFileCollection = totalFiles.ToObservableCollection();
+                    Task.Run(async () =>
+                    {
+                        var totalFiles = await GetApkFilesAsync();
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                            if (!totalFiles.Any())
+                            {
+                                Growl.Info("该文件夹下面不包含Android安装包");
+                            }
+
+                            ApkFileCollection = totalFiles.ToObservableCollection();
+                        });
+                    });
                 }
             }
         }
@@ -291,10 +306,11 @@ namespace DevKit.ViewModels
             }
         }
 
-        private async void RefreshApkFiles()
+        private void RefreshApkFiles()
         {
             if (string.IsNullOrWhiteSpace(_apkRootFolderPath))
             {
+                MessageBox.Show("Android安装包根目录路径为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -305,9 +321,19 @@ namespace DevKit.ViewModels
                 { "LoadingMessage", "文件检索中，请稍后......" }
             };
             _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-            var totalFiles = await GetApkFilesAsync();
-            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-            ApkFileCollection = totalFiles.ToObservableCollection();
+            Task.Run(async () =>
+            {
+                var totalFiles = await GetApkFilesAsync();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                    if (!totalFiles.Any())
+                    {
+                        Growl.Info("该文件夹下面不包含Android安装包");
+                    }
+                    ApkFileCollection = totalFiles.ToObservableCollection();
+                });
+            });
         }
 
         private void OpenFileFolder(string path)
