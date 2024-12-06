@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using QRCoder;
+using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
@@ -100,7 +104,19 @@ namespace DevKit.ViewModels
 
         private void SaveQrCode()
         {
-            // qrCodeImage.Save("qrcode.png", System.Drawing.Imaging.ImageFormat.Png);
+            var dialog = new SaveFileDialog
+            {
+                Filter = @"二维码图片(*.png)|*.png",
+                DefaultExt = ".png",
+                FileName = "QrCode"
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                var stream = _qrCodeBitmapImage.StreamSource;
+                var image = Image.FromStream(stream);
+                image.Save(dialog.FileName, ImageFormat.Png);
+                Growl.Success("二维码保存成功");
+            }
         }
 
         private void ImageSelected(Uri uri)
