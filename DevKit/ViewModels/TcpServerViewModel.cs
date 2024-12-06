@@ -33,9 +33,9 @@ namespace DevKit.ViewModels
             get => _localAddressCollection;
         }
 
-        private int _listenPort = 9000;
+        private string _listenPort = "9000";
 
-        public int ListenPort
+        public string ListenPort
         {
             set
             {
@@ -166,9 +166,9 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -231,7 +231,7 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
             _dialogService = dialogService;
-            
+
             InitDefaultConfig();
 
             ServerListenCommand = new DelegateCommand(ServerListen);
@@ -291,7 +291,7 @@ namespace DevKit.ViewModels
                             break;
                         }
                     }
-                    
+
                     MessageCollection.Clear();
                 });
                 return EasyTask.CompletedTask;
@@ -335,6 +335,12 @@ namespace DevKit.ViewModels
 
         private void ServerListen()
         {
+            if (!_listenPort.IsNumber())
+            {
+                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
             if (_isListening)
             {
                 _tcpServer.Stop();
@@ -346,7 +352,7 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    _tcpServer.Setup(new TouchSocketConfig().SetListenIPHosts(_listenPort));
+                    _tcpServer.Setup(new TouchSocketConfig().SetListenIPHosts(int.Parse(_listenPort)));
                     _tcpServer.Start();
                     _isListening = true;
                     ListenState = "停止";
@@ -354,7 +360,7 @@ namespace DevKit.ViewModels
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -478,10 +484,9 @@ namespace DevKit.ViewModels
             };
             _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
         }
-        
+
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
@@ -510,12 +515,12 @@ namespace DevKit.ViewModels
             };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
         }
-        
+
         private void ClearMessage()
         {
             MessageCollection?.Clear();
         }
-        
+
         private void SendMessage()
         {
             if (string.IsNullOrWhiteSpace(_userInputText))
@@ -526,8 +531,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else
