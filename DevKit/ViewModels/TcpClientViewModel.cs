@@ -8,6 +8,7 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using HandyControl.Tools;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -129,9 +130,9 @@ namespace DevKit.ViewModels
             get => _connectionStateColor;
         }
 
-        private long _commandInterval = 1000;
+        private string _commandInterval = "1000";
 
-        public long CommandInterval
+        public string CommandInterval
         {
             set
             {
@@ -304,6 +305,19 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            //判断是否是IP和端口和理性
+            if (!_remoteAddress.IsIp())
+            {
+                MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!_remotePort.IsNumber())
+            {
+                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (_tcpClient.Online)
             {
                 _tcpClient.Close();
@@ -317,7 +331,7 @@ namespace DevKit.ViewModels
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -376,7 +390,6 @@ namespace DevKit.ViewModels
 
         private void LoopUnchecked()
         {
-            Console.WriteLine(@"取消循环发送指令");
             _loopSendMessageTimer.Enabled = false;
         }
 
@@ -401,8 +414,13 @@ namespace DevKit.ViewModels
 
             if (_loopSend)
             {
-                Console.WriteLine(@"开启循环发送指令");
-                _loopSendMessageTimer.Interval = _commandInterval;
+                if (!_commandInterval.IsNumber())
+                {
+                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
             else
@@ -411,7 +429,7 @@ namespace DevKit.ViewModels
                 {
                     if (!_userInputText.IsHex())
                     {
-                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("错误的HEX格式数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
