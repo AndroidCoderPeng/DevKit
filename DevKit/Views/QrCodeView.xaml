@@ -150,10 +150,6 @@
                     <b:EventTrigger EventName="ImageSelected">
                         <b:InvokeCommandAction Command="{Binding ImageSelectedCommand}" CommandParameter="{Binding Uri, ElementName=ImageSelector}" />
                     </b:EventTrigger>
-
-                    <b:EventTrigger EventName="ImageUnselected">
-                        <b:InvokeCommandAction Command="{Binding ImageUnselectedCommand}" />
-                    </b:EventTrigger>
                 </b:Interaction.Triggers>
             </hc:ImageSelector>
 

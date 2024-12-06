@@ -9,6 +9,7 @@ using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using QRCoder;
+using ZXing;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
@@ -21,7 +22,6 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> GenerateQrCodeCommand { set; get; }
         public DelegateCommand SaveQrCodeCommand { set; get; }
         public DelegateCommand<Uri> ImageSelectedCommand { set; get; }
-        public DelegateCommand ImageUnselectedCommand { set; get; }
 
         #endregion
 
@@ -73,7 +73,6 @@ namespace DevKit.ViewModels
             GenerateQrCodeCommand = new DelegateCommand<string>(GenerateQrCode);
             SaveQrCodeCommand = new DelegateCommand(SaveQrCode);
             ImageSelectedCommand = new DelegateCommand<Uri>(ImageSelected);
-            ImageUnselectedCommand = new DelegateCommand(ImageUnselected);
         }
 
         private void UploadLogo(string content)
@@ -136,10 +135,19 @@ namespace DevKit.ViewModels
 
         private void ImageSelected(Uri uri)
         {
-        }
-
-        private void ImageUnselected()
-        {
+            using (var bitmap = new Bitmap(uri.LocalPath))
+            {
+                var codeReader = new BarcodeReader();
+                var result = codeReader.Decode(bitmap);
+                if (result != null)
+                {
+                    QrCodeContent = result.Text;
+                }
+                else
+                {
+                    MessageBox.Show("解析二维码失败，请确认二维码是否正确的", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }
