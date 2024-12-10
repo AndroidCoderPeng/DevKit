@@ -296,11 +296,11 @@ namespace DevKit.ViewModels
 
             _tcpServer.Received = (client, e) =>
             {
+                var bytes = e.ByteBlock.ToArray();
                 foreach (var tcp in _clientCollection)
                 {
                     if (tcp.Id == client.Id)
                     {
-                        var bytes = e.ByteBlock.ToArray();
                         //内容界面不可见时，才需要更新消息数量
                         if (_isEmptyImageVisible.Equals("Visible"))
                         {
@@ -308,22 +308,23 @@ namespace DevKit.ViewModels
                             tcp.MessageCount++;
                         }
 
-                        if (_isContentViewVisible.Equals("Visible"))
-                        {
-                            var messageModel = new MessageModel
-                            {
-                                Content = _showHex
-                                    ? BitConverter.ToString(bytes).Replace("-", " ")
-                                    : Encoding.UTF8.GetString(bytes),
-                                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                                IsSend = false
-                            };
-
-                            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                        }
-
                         break;
                     }
+                }
+
+                //如果客户端界面可见了，只更新可见客户端的消息
+                if (_isContentViewVisible.Equals("Visible"))
+                {
+                    var messageModel = new MessageModel
+                    {
+                        Content = _showHex
+                            ? BitConverter.ToString(bytes).Replace("-", " ")
+                            : Encoding.UTF8.GetString(bytes),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = false
+                    };
+
+                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 }
 
                 return EasyTask.CompletedTask;
