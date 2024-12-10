@@ -226,7 +226,7 @@ namespace DevKit.ViewModels
         private readonly UdpServer _udpServer = new UdpServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private bool _isListening;
-        private EndPoint _connectedClientEndPoint;
+        private ConnectedClientModel _connectedClient;
 
         public UdpServerViewModel(IAppDataService dataService, IDialogService dialogService)
         {
@@ -259,25 +259,23 @@ namespace DevKit.ViewModels
 
             _udpServer.Received = (client, e) =>
             {
-                _connectedClientEndPoint = e.EndPoint;
+                var endPoint = e.EndPoint;
                 if (!_clientCollection.Any(udp =>
-                        udp.Ip == _connectedClientEndPoint.GetIP() &&
-                        udp.Port == _connectedClientEndPoint.GetPort()))
+                        udp.Ip == endPoint.GetIP() &&
+                        udp.Port == endPoint.GetPort()))
                 {
                     var clientModel = new ConnectedClientModel
                     {
-                        Ip = _connectedClientEndPoint.GetIP(),
-                        Port = _connectedClientEndPoint.GetPort()
+                        Ip = endPoint.GetIP(),
+                        Port = endPoint.GetPort()
                     };
 
-                    ConnectedClientAddress = $"{clientModel.Ip}:{clientModel.Port}";
                     Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
                 }
 
                 foreach (var udp in _clientCollection)
                 {
-                    if (udp.Ip == _connectedClientEndPoint.GetIP() &&
-                        udp.Port == _connectedClientEndPoint.GetPort())
+                    if (udp.Ip == endPoint.GetIP() && udp.Port == endPoint.GetPort())
                     {
                         var bytes = e.ByteBlock.ToArray();
                         //内容界面不可见时，才需要更新消息数量
@@ -349,6 +347,8 @@ namespace DevKit.ViewModels
             }
 
             client.MessageCount = 0;
+            _connectedClient = client;
+            ConnectedClientAddress = $"{client.Ip}:{client.Port}";
 
             IsContentViewVisible = "Visible";
             IsEmptyImageVisible = "Collapsed";
@@ -464,6 +464,7 @@ namespace DevKit.ViewModels
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
+            var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
             if (_sendHex)
             {
                 if (!_userInputText.IsHex())
@@ -472,11 +473,11 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                _udpServer.Send(_connectedClientEndPoint, _userInputText.HexToBytes());
+                _udpServer.Send(endPoint, _userInputText.HexToBytes());
             }
             else
             {
-                _udpServer.Send(_connectedClientEndPoint, _userInputText);
+                _udpServer.Send(endPoint, _userInputText);
             }
 
             var message = new MessageModel
@@ -491,6 +492,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+            _connectedClient.MessageCollection.Clear();
         }
 
         private void SendMessage()
@@ -514,6 +516,7 @@ namespace DevKit.ViewModels
             }
             else
             {
+                var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
                 if (_sendHex)
                 {
                     if (!_userInputText.IsHex())
@@ -522,11 +525,11 @@ namespace DevKit.ViewModels
                         return;
                     }
 
-                    _udpServer.Send(_connectedClientEndPoint, _userInputText.HexToBytes());
+                    _udpServer.Send(endPoint, _userInputText.HexToBytes());
                 }
                 else
                 {
-                    _udpServer.Send(_connectedClientEndPoint, _userInputText);
+                    _udpServer.Send(endPoint, _userInputText);
                 }
 
                 var message = new MessageModel

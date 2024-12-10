@@ -257,7 +257,6 @@ namespace DevKit.ViewModels
                                 (IWebSocket webSocket, HttpContextEventArgs e) =>
                                 {
                                     var session = webSocket.Client;
-                                    ConnectedClientAddress = $"{session.IP}:{session.Port}";
                                     var clientModel = new ConnectedClientModel
                                     {
                                         Ip = session.IP,
@@ -359,6 +358,7 @@ namespace DevKit.ViewModels
 
             client.MessageCount = 0;
             _connectedClient = client;
+            ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             if (client.IsConnected)
             {
                 IsContentViewVisible = "Visible";
@@ -403,6 +403,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+            _connectedClient.MessageCollection.Clear();
         }
 
         private void SendMessage()

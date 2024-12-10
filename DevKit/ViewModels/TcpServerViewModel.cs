@@ -257,7 +257,6 @@ namespace DevKit.ViewModels
             //有客户端成功连接
             _tcpServer.Connected = (client, e) =>
             {
-                ConnectedClientAddress = $"{client.IP}:{client.Port}";
                 var clientModel = new ConnectedClientModel
                 {
                     Id = client.Id,
@@ -372,6 +371,7 @@ namespace DevKit.ViewModels
 
             client.MessageCount = 0;
             _connectedClient = client;
+            ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             if (client.IsConnected)
             {
                 IsContentViewVisible = "Visible";
@@ -521,6 +521,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+            _connectedClient.MessageCollection.Clear();
         }
 
         private void SendMessage()
