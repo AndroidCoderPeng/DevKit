@@ -517,6 +517,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+            //无需将MessageCount置为0，因为在切换客户端时候会重置
             _connectedClient.MessageCollection.Clear();
         }
 
