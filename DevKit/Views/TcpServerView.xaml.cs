@@ -11,7 +11,7 @@ namespace DevKit.Views
             InitializeComponent();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void MessageItem_RightClick(object sender, RoutedEventArgs e)
         {
             if (!(MessageListBox.SelectedItem is MessageModel message)) return;
             var content = message.Content;

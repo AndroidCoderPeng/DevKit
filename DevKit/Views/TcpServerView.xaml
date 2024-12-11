@@ -256,7 +256,7 @@
                                 <TextBlock.ContextMenu>
                                     <ContextMenu Style="{x:Null}">
                                         <MenuItem
-                                            Click="MenuItem_Click"
+                                            Click="MessageItem_RightClick"
                                             Header="复制"
                                             Style="{x:Null}" />
                                     </ContextMenu>
