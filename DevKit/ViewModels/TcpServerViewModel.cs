@@ -378,6 +378,7 @@ namespace DevKit.ViewModels
                 IsContentViewVisible = "Visible";
                 IsEmptyImageVisible = "Collapsed";
 
+                MessageCollection.Clear();
                 foreach (var bytes in client.MessageCollection)
                 {
                     var messageModel = new MessageModel
