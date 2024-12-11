@@ -261,8 +261,7 @@ namespace DevKit.ViewModels
             {
                 var endPoint = e.EndPoint;
                 if (!_clientCollection.Any(udp =>
-                        udp.Ip == endPoint.GetIP() &&
-                        udp.Port == endPoint.GetPort()))
+                        udp.Ip == endPoint.GetIP() && udp.Port == endPoint.GetPort()))
                 {
                     var clientModel = new ConnectedClientModel
                     {
@@ -273,34 +272,31 @@ namespace DevKit.ViewModels
                     Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
                 }
 
+                var bytes = e.ByteBlock.ToArray();
                 foreach (var udp in _clientCollection)
                 {
                     if (udp.Ip == endPoint.GetIP() && udp.Port == endPoint.GetPort())
                     {
-                        var bytes = e.ByteBlock.ToArray();
-                        //内容界面不可见时，才需要更新消息数量
-                        if (_isEmptyImageVisible.Equals("Visible"))
-                        {
-                            udp.MessageCollection.Add(bytes);
-                            udp.MessageCount++;
-                        }
-
-                        if (_isContentViewVisible.Equals("Visible"))
-                        {
-                            var messageModel = new MessageModel
-                            {
-                                Content = _showHex
-                                    ? BitConverter.ToString(bytes).Replace("-", " ")
-                                    : Encoding.UTF8.GetString(bytes),
-                                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                                IsSend = false
-                            };
-
-                            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                        }
-
+                        udp.MessageCollection.Add(bytes);
+                        udp.MessageCount++;
                         break;
                     }
+                }
+
+                if (_isContentViewVisible.Equals("Visible") &&
+                    _connectedClient.Ip == endPoint.GetIP() &&
+                    _connectedClient.Port == endPoint.GetPort())
+                {
+                    var messageModel = new MessageModel
+                    {
+                        Content = _showHex
+                            ? BitConverter.ToString(bytes).Replace("-", " ")
+                            : Encoding.UTF8.GetString(bytes),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = false
+                    };
+
+                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 }
 
                 return EasyTask.CompletedTask;
@@ -346,13 +342,14 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            client.MessageCount = 0;
             _connectedClient = client;
+            _connectedClient.MessageCount = 0;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
 
             IsContentViewVisible = "Visible";
             IsEmptyImageVisible = "Collapsed";
 
+            MessageCollection.Clear();
             foreach (var bytes in client.MessageCollection)
             {
                 var messageModel = new MessageModel
@@ -492,6 +489,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
+            _connectedClient.MessageCount = 0;
             _connectedClient.MessageCollection.Clear();
         }
 
