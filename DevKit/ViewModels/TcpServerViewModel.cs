@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Windows;
@@ -274,20 +275,13 @@ namespace DevKit.ViewModels
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    foreach (var tcp in _clientCollection)
-                    {
-                        if (tcp.Id == client.Id)
-                        {
-                            tcp.IsConnected = false;
-                            tcp.ConnectColorBrush = "DarkGray";
-                            tcp.MessageCount = 0;
-                            tcp.MessageCollection.Clear();
-                            //显示空白图
-                            IsContentViewVisible = "Collapsed";
-                            IsEmptyImageVisible = "Visible";
-                            break;
-                        }
-                    }
+                    var tcp = _clientCollection.First(x => x.Id == client.Id);
+                    tcp.IsConnected = false;
+                    tcp.ConnectColorBrush = "DarkGray";
+                    tcp.MessageCount = 0;
+                    //显示空白图
+                    IsContentViewVisible = "Collapsed";
+                    IsEmptyImageVisible = "Visible";
 
                     MessageCollection.Clear();
                 });
@@ -297,14 +291,23 @@ namespace DevKit.ViewModels
             _tcpServer.Received = (client, e) =>
             {
                 var bytes = e.ByteBlock.ToArray();
-                foreach (var tcp in _clientCollection)
+                var tcp = _clientCollection.First(x => x.Id == client.Id);
+                tcp.MessageCount++;
+                using (var dataBase = new DataBaseConnection())
                 {
-                    if (tcp.Id == client.Id)
+                    var cache = new ClientMessageCache
                     {
-                        tcp.MessageCollection.Add(bytes);
-                        tcp.MessageCount++;
-                        break;
-                    }
+                        ClientId = client.Id,
+                        ClientIp = client.IP,
+                        ClientPort = client.Port,
+                        MessageContent = _showHex
+                            ? BitConverter.ToString(bytes).Replace("-", " ")
+                            : Encoding.UTF8.GetString(bytes),
+                        ByteArrayContent = BitConverter.ToString(bytes),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 0
+                    };
+                    dataBase.Insert(cache);
                 }
 
                 if (_isContentViewVisible.Equals("Visible") && client.Id == _connectedClient.Id)
@@ -373,18 +376,28 @@ namespace DevKit.ViewModels
                 IsEmptyImageVisible = "Collapsed";
 
                 MessageCollection.Clear();
-                foreach (var bytes in client.MessageCollection)
+                using (var dataBase = new DataBaseConnection())
                 {
-                    var messageModel = new MessageModel
+                    var queryResult = dataBase.Table<ClientMessageCache>()
+                        .Where(x =>
+                            x.ClientId == _connectedClient.Id &&
+                            x.ClientIp == _connectedClient.Ip &&
+                            x.ClientPort == _connectedClient.Port
+                        );
+                    if (queryResult.Any())
                     {
-                        Content = _showHex
-                            ? BitConverter.ToString(bytes).Replace("-", " ")
-                            : Encoding.UTF8.GetString(bytes),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = false
-                    };
+                        foreach (var cache in queryResult)
+                        {
+                            var messageModel = new MessageModel
+                            {
+                                Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
+                                Time = cache.Time,
+                                IsSend = cache.IsSend == 1
+                            };
 
-                    MessageCollection.Add(messageModel);
+                            MessageCollection.Add(messageModel);
+                        }
+                    }
                 }
             }
             else
@@ -419,6 +432,10 @@ namespace DevKit.ViewModels
 
                     MessageCollection = collection;
                 }
+                else
+                {
+                    ShowHex = false;
+                }
             }
             else
             {
@@ -442,6 +459,10 @@ namespace DevKit.ViewModels
                     }
 
                     MessageCollection = collection;
+                }
+                else
+                {
+                    ShowHex = true;
                 }
             }
         }
@@ -490,35 +511,21 @@ namespace DevKit.ViewModels
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            if (_sendHex)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
-            }
-            else
-            {
-                _tcpServer.Send(_connectedClient.Id, _userInputText);
-            }
-
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            Send(false);
         }
 
         private void ClearMessage()
         {
             MessageCollection?.Clear();
             _connectedClient.MessageCount = 0;
-            _connectedClient.MessageCollection.Clear();
+            using (var dataBase = new DataBaseConnection())
+            {
+                dataBase.Table<ClientMessageCache>().Where(x =>
+                    x.ClientId == _connectedClient.Id &&
+                    x.ClientIp == _connectedClient.Ip &&
+                    x.ClientPort == _connectedClient.Port
+                ).Delete();
+            }
         }
 
         private void SendMessage()
@@ -542,28 +549,56 @@ namespace DevKit.ViewModels
             }
             else
             {
-                if (_sendHex)
-                {
-                    if (!_userInputText.IsHex())
-                    {
-                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
+                Send(true);
+            }
+        }
 
-                    _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
-                }
-                else
+        private void Send(bool isMainThread)
+        {
+            if (_sendHex)
+            {
+                if (!_userInputText.IsHex())
                 {
-                    _tcpServer.Send(_connectedClient.Id, _userInputText);
+                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
-                var message = new MessageModel
+                _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
+            }
+            else
+            {
+                _tcpServer.Send(_connectedClient.Id, _userInputText);
+            }
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                var cache = new ClientMessageCache
                 {
-                    Content = _userInputText,
+                    ClientId = _connectedClient.Id,
+                    ClientIp = _connectedClient.Ip,
+                    ClientPort = _connectedClient.Port,
+                    MessageContent = _userInputText,
+                    ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
+                    IsSend = 1
                 };
+                dataBase.Insert(cache);
+            }
+
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+
+            if (isMainThread)
+            {
                 MessageCollection.Add(message);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
             }
         }
     }

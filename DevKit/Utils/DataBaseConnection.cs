@@ -10,6 +10,7 @@ namespace DevKit.Utils
         {
             CreateTable<ApkConfigCache>();
             CreateTable<ClientConfigCache>();
+            CreateTable<ClientMessageCache>();
             CreateTable<ExCommandCache>();
             CreateTable<ColorResourceCache>();
         }
