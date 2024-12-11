@@ -301,19 +301,13 @@ namespace DevKit.ViewModels
                 {
                     if (tcp.Id == client.Id)
                     {
-                        //内容界面不可见时，才需要更新消息数量
-                        if (_isEmptyImageVisible.Equals("Visible"))
-                        {
-                            tcp.MessageCollection.Add(bytes);
-                            tcp.MessageCount++;
-                        }
-
+                        tcp.MessageCollection.Add(bytes);
+                        tcp.MessageCount++;
                         break;
                     }
                 }
 
-                //如果客户端界面可见了，只更新可见客户端的消息
-                if (_isContentViewVisible.Equals("Visible"))
+                if (_isContentViewVisible.Equals("Visible") && client.Id == _connectedClient.Id)
                 {
                     var messageModel = new MessageModel
                     {
