@@ -186,29 +186,7 @@ namespace DevKit.ViewModels
 
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
-            if (!string.IsNullOrWhiteSpace(_remoteAddress) && !string.IsNullOrWhiteSpace(_remotePort))
-            {
-                _udpClient.Setup(new TouchSocketConfig().SetRemoteIPHost(
-                    new IPHost($"{_remoteAddress}:{_remotePort}"))
-                );
-                _udpClient.Start();
-            }
-
-            _udpClient.Received = (client, e) =>
-            {
-                var byteBlock = e.ByteBlock;
-                var messageModel = new MessageModel
-                {
-                    Content = _clientCache.ShowHex == 1
-                        ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
-                        : byteBlock.Span.ToString(Encoding.UTF8),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
-
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                return EasyTask.CompletedTask;
-            };
+            SetupUdpConfig();
         }
 
         private void ShowHexCheckBoxClick()
@@ -343,10 +321,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            _udpClient.Setup(new TouchSocketConfig().SetRemoteIPHost(
-                new IPHost($"{_remoteAddress}:{_remotePort}"))
-            );
-            _udpClient.Start();
+            SetupUdpConfig();
 
             _clientCache.Type = ConnectionType.UdpClient;
             _clientCache.RemoteAddress = _remoteAddress;
@@ -399,11 +374,7 @@ namespace DevKit.ViewModels
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            _udpClient.Setup(new TouchSocketConfig().SetRemoteIPHost(
-                new IPHost($"{_remoteAddress}:{_remotePort}"))
-            );
-            _udpClient.Start();
-
+            SetupUdpConfig();
             if (_clientCache.SendHex == 1)
             {
                 if (!_userInputText.IsHex())
@@ -426,6 +397,32 @@ namespace DevKit.ViewModels
                 IsSend = true
             };
             Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+        }
+
+        private void SetupUdpConfig()
+        {
+            if (!string.IsNullOrWhiteSpace(_remoteAddress) && !string.IsNullOrWhiteSpace(_remotePort))
+            {
+                _udpClient.Setup(new TouchSocketConfig().UseUdpReceive().SetRemoteIPHost(
+                    new IPHost($"{_remoteAddress}:{_remotePort}"))
+                );
+                _udpClient.Received = (client, e) =>
+                {
+                    var byteBlock = e.ByteBlock;
+                    var messageModel = new MessageModel
+                    {
+                        Content = _clientCache.ShowHex == 1
+                            ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                            : byteBlock.Span.ToString(Encoding.UTF8),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = false
+                    };
+
+                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                    return EasyTask.CompletedTask;
+                };
+                _udpClient.Start();
+            }
         }
     }
 }
