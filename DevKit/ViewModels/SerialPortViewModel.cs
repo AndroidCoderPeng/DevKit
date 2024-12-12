@@ -37,9 +37,9 @@ namespace DevKit.ViewModels
             get => _messageCollection;
         }
 
-        private string[] _portArray;
+        private List<string> _portArray;
 
-        public string[] PortArray
+        public List<string> PortArray
         {
             set
             {
@@ -240,7 +240,7 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
 
-            PortArray = SerialPort.GetPortNames();
+            PortArray = SerialPort.GetPortNames().OrderBy(x => x).ToList();
             BaudRateArray = new List<int> { 9600, 14400, 19200, 38400, 56000, 57600, 115200, 128000, 230400 };
             DataBitArray = new List<int> { 5, 6, 7, 8 };
             ParityArray = new List<Parity> { Parity.None, Parity.Odd, Parity.Even, Parity.Mark, Parity.Space };
