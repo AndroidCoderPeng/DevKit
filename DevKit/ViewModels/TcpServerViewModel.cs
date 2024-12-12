@@ -263,8 +263,7 @@ namespace DevKit.ViewModels
                     Id = client.Id,
                     Ip = client.IP,
                     Port = client.Port,
-                    IsConnected = true,
-                    ConnectColorBrush = "LimeGreen"
+                    IsConnected = true
                 };
 
                 Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
@@ -277,13 +276,12 @@ namespace DevKit.ViewModels
                 {
                     var tcp = _clientCollection.First(x => x.Id == client.Id);
                     tcp.IsConnected = false;
-                    tcp.ConnectColorBrush = "DarkGray";
-                    tcp.MessageCount = 0;
+                    // tcp.MessageCount = 0;
                     //显示空白图
-                    IsContentViewVisible = "Collapsed";
-                    IsEmptyImageVisible = "Visible";
+                    // IsContentViewVisible = "Collapsed";
+                    // IsEmptyImageVisible = "Visible";
 
-                    MessageCollection.Clear();
+                    // MessageCollection.Clear();
                 });
                 return EasyTask.CompletedTask;
             };

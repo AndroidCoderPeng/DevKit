@@ -24,6 +24,7 @@
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
         <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
         <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
+        <cvt:ConnectStateConverter x:Key="ConnectStateConverterKey" />
         <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
         <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
@@ -130,7 +131,7 @@
                                 Width="15"
                                 Height="15"
                                 Margin="0,0,10,0"
-                                Fill="{Binding ConnectColorBrush}" />
+                                Fill="{Binding IsConnected, Converter={StaticResource ConnectStateConverterKey}}" />
 
                             <TextBlock
                                 Grid.Column="1"
