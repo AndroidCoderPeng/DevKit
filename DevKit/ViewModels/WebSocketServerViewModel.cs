@@ -205,6 +205,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
+        public DelegateCommand CopyWebSocketUrlCommand { set; get; }
         public DelegateCommand<ConnectedClientModel> ClientItemSelectionChangedCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
@@ -223,6 +224,7 @@ namespace DevKit.ViewModels
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             ServerListenCommand = new DelegateCommand(ServerListen);
+            CopyWebSocketUrlCommand = new DelegateCommand(CopyWebSocketUrl);
             ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
@@ -345,6 +347,17 @@ namespace DevKit.ViewModels
                     MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void CopyWebSocketUrl()
+        {
+            if (string.IsNullOrWhiteSpace(_webSocketUrl))
+            {
+                MessageBox.Show("请先开启监听", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Clipboard.SetText(_webSocketUrl);
         }
 
         private void ClientItemSelectionChanged(ConnectedClientModel client)
