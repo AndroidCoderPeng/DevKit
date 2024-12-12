@@ -113,7 +113,7 @@
                 <TextBlock
                     Grid.Column="0"
                     VerticalAlignment="Center"
-                    Text="自定义路径" />
+                    Text="路径" />
 
                 <hc:TextBox
                     Grid.Column="1"
@@ -235,7 +235,6 @@
 
             <Border Grid.Row="0" Style="{StaticResource BorderTipSuccess}">
                 <TextBlock
-                    Margin="10,0"
                     FontWeight="Bold"
                     Foreground="{DynamicResource SuccessBrush}"
                     Text="{Binding ConnectedClientAddress}"

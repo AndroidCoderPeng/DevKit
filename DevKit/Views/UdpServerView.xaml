@@ -181,7 +181,6 @@
 
                 <Border Grid.Column="0" Style="{StaticResource BorderTipSuccess}">
                     <TextBlock
-                        Margin="10,0"
                         FontWeight="Bold"
                         Foreground="{DynamicResource SuccessBrush}"
                         Text="{Binding ConnectedClientAddress}"

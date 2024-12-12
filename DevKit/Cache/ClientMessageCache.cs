@@ -14,6 +14,8 @@ namespace DevKit.Cache
 
         public int ClientPort { get; set; }
 
+        public int ClientType { get; set; }
+
         /// <summary>
         /// 消息文本内容
         /// </summary>

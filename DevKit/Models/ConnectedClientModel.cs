@@ -12,13 +12,13 @@ namespace DevKit.Models
 
         private IWebSocket _connectedWebSocket;
 
-        public IWebSocket ConnectedWebSocket
+        public IWebSocket WebSocket
         {
             get => _connectedWebSocket;
             set
             {
                 _connectedWebSocket = value;
-                OnPropertyChanged(nameof(ConnectedWebSocket));
+                OnPropertyChanged(nameof(WebSocket));
             }
         }
 
@@ -44,18 +44,6 @@ namespace DevKit.Models
                 OnPropertyChanged(nameof(MessageCollection));
             }
             get => _messageCollection;
-        }
-
-        private ObservableCollection<string> _textMsgCollection = new ObservableCollection<string>();
-
-        public ObservableCollection<string> TextMsgCollection
-        {
-            set
-            {
-                _textMsgCollection = value;
-                OnPropertyChanged(nameof(TextMsgCollection));
-            }
-            get => _textMsgCollection;
         }
 
         private int _messageCount;

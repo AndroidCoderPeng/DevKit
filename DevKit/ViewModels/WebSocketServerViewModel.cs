@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Timers;
 using System.Windows;
+using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -255,6 +257,8 @@ namespace DevKit.ViewModels
                         .ConfigurePlugins(cfg =>
                         {
                             cfg.UseWebSocket().SetWSUrl($"/{_requestPath}");
+
+                            //连接
                             cfg.Add(typeof(IWebSocketHandshakedPlugin),
                                 (IWebSocket webSocket, HttpContextEventArgs e) =>
                                 {
@@ -263,7 +267,7 @@ namespace DevKit.ViewModels
                                     {
                                         Ip = session.IP,
                                         Port = session.Port,
-                                        ConnectedWebSocket = webSocket,
+                                        WebSocket = webSocket,
                                         IsConnected = true
                                     };
 
@@ -271,67 +275,52 @@ namespace DevKit.ViewModels
                                     return EasyTask.CompletedTask;
                                 });
 
+                            //收到消息
                             cfg.Add(typeof(IWebSocketReceivedPlugin), (IWebSocket webSocket, WSDataFrameEventArgs e) =>
                             {
                                 var session = webSocket.Client;
-                                Application.Current.Dispatcher.Invoke(() =>
+                                var client = _clientCollection.First(x => x.Ip == session.IP && x.Port == session.Port);
+                                client.MessageCount++;
+                                using (var dataBase = new DataBaseConnection())
                                 {
-                                    foreach (var client in _clientCollection)
+                                    var cache = new ClientMessageCache
                                     {
-                                        if (client.Ip == session.IP && client.Port == session.Port)
-                                        {
-                                            if (_isEmptyImageVisible.Equals("Visible"))
-                                            {
-                                                client.TextMsgCollection.Add(e.DataFrame.ToText());
-                                                client.MessageCount++;
-                                            }
+                                        ClientIp = session.IP,
+                                        ClientPort = session.Port,
+                                        ClientType = ConnectionType.WebSocketClient,
+                                        MessageContent = e.DataFrame.ToText(),
+                                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                                        IsSend = 0
+                                    };
+                                    dataBase.Insert(cache);
+                                }
 
-                                            if (_isContentViewVisible.Equals("Visible"))
-                                            {
-                                                var messageModel = new MessageModel
-                                                {
-                                                    Content = e.DataFrame.ToText(),
-                                                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                                                    IsSend = false
-                                                };
+                                if (_isContentViewVisible.Equals("Visible") &&
+                                    _connectedClient.Ip == session.IP && _connectedClient.Port == session.Port)
+                                {
+                                    var messageModel = new MessageModel
+                                    {
+                                        Content = e.DataFrame.ToText(),
+                                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                                        IsSend = false
+                                    };
 
-                                                Application.Current.Dispatcher.Invoke(() =>
-                                                {
-                                                    MessageCollection.Add(messageModel);
-                                                });
-                                            }
+                                    Application.Current.Dispatcher.Invoke(() =>
+                                    {
+                                        MessageCollection.Add(messageModel);
+                                    });
+                                }
 
-                                            break;
-                                        }
-                                    }
-
-                                    MessageCollection.Clear();
-                                });
                                 return EasyTask.CompletedTask;
                             });
 
+                            //断开
                             cfg.Add(typeof(IWebSocketClosedPlugin), (IWebSocket webSocket, ClosedEventArgs e) =>
                             {
                                 var session = webSocket.Client;
-                                Application.Current.Dispatcher.Invoke(() =>
-                                {
-                                    foreach (var client in _clientCollection)
-                                    {
-                                        if (client.Ip == session.IP && client.Port == session.Port)
-                                        {
-                                            client.IsConnected = false;
-                                            client.MessageCount = 0;
-                                            client.ConnectedWebSocket = null;
-                                            client.MessageCollection.Clear();
-                                            //显示空白图
-                                            IsContentViewVisible = "Collapsed";
-                                            IsEmptyImageVisible = "Visible";
-                                            break;
-                                        }
-                                    }
-
-                                    MessageCollection.Clear();
-                                });
+                                _clientCollection.First(
+                                    x => x.Ip == session.IP && x.Port == session.Port
+                                ).IsConnected = false;
                                 return EasyTask.CompletedTask;
                             });
                         });
@@ -370,27 +359,37 @@ namespace DevKit.ViewModels
             client.MessageCount = 0;
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-            if (client.IsConnected)
+            MessageCollection.Clear();
+            using (var dataBase = new DataBaseConnection())
             {
-                IsContentViewVisible = "Visible";
-                IsEmptyImageVisible = "Collapsed";
-
-                foreach (var msg in client.TextMsgCollection)
+                var queryResult = dataBase.Table<ClientMessageCache>()
+                    .Where(x =>
+                        x.ClientIp == _connectedClient.Ip &&
+                        x.ClientPort == _connectedClient.Port &&
+                        x.ClientType == ConnectionType.WebSocketClient
+                    );
+                if (queryResult.Any())
                 {
-                    var messageModel = new MessageModel
-                    {
-                        Content = msg,
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = false
-                    };
+                    IsContentViewVisible = "Visible";
+                    IsEmptyImageVisible = "Collapsed";
 
-                    MessageCollection.Add(messageModel);
+                    foreach (var cache in queryResult)
+                    {
+                        var messageModel = new MessageModel
+                        {
+                            Content = cache.MessageContent,
+                            Time = cache.Time,
+                            IsSend = cache.IsSend == 1
+                        };
+
+                        MessageCollection.Add(messageModel);
+                    }
                 }
-            }
-            else
-            {
-                IsContentViewVisible = "Collapsed";
-                IsEmptyImageVisible = "Visible";
+                else
+                {
+                    IsContentViewVisible = "Collapsed";
+                    IsEmptyImageVisible = "Visible";
+                }
             }
         }
 
@@ -401,20 +400,21 @@ namespace DevKit.ViewModels
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            _connectedClient.ConnectedWebSocket?.SendAsync(_userInputText);
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            Send(false);
         }
 
         private void ClearMessage()
         {
             MessageCollection?.Clear();
-            _connectedClient.MessageCollection.Clear();
+            _connectedClient.MessageCount = 0;
+            using (var dataBase = new DataBaseConnection())
+            {
+                dataBase.Table<ClientMessageCache>().Where(x =>
+                    x.ClientIp == _connectedClient.Ip &&
+                    x.ClientPort == _connectedClient.Port &&
+                    x.ClientType == ConnectionType.WebSocketClient
+                ).Delete();
+            }
         }
 
         private void SendMessage()
@@ -438,14 +438,42 @@ namespace DevKit.ViewModels
             }
             else
             {
-                _connectedClient.ConnectedWebSocket?.SendAsync(_userInputText);
-                var message = new MessageModel
+                Send(true);
+            }
+        }
+
+        private void Send(bool isMainThread)
+        {
+            _connectedClient.WebSocket?.SendAsync(_userInputText);
+                
+            using (var dataBase = new DataBaseConnection())
+            {
+                var cache = new ClientMessageCache
                 {
-                    Content = _userInputText,
+                    ClientIp = _connectedClient.Ip,
+                    ClientPort = _connectedClient.Port,
+                    ClientType = ConnectionType.WebSocketClient,
+                    MessageContent = _userInputText,
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
+                    IsSend = 1
                 };
+                dataBase.Insert(cache);
+            }
+                
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+           
+            if (isMainThread)
+            {
                 MessageCollection.Add(message);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
             }
         }
     }

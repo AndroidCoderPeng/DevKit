@@ -288,6 +288,7 @@ namespace DevKit.ViewModels
                         ClientId = client.Id,
                         ClientIp = client.IP,
                         ClientPort = client.Port,
+                        ClientType = ConnectionType.TcpClient,
                         MessageContent = _showHex
                             ? BitConverter.ToString(bytes).Replace("-", " ")
                             : Encoding.UTF8.GetString(bytes),
@@ -365,7 +366,8 @@ namespace DevKit.ViewModels
                     .Where(x =>
                         x.ClientId == _connectedClient.Id &&
                         x.ClientIp == _connectedClient.Ip &&
-                        x.ClientPort == _connectedClient.Port
+                        x.ClientPort == _connectedClient.Port &&
+                        x.ClientType == ConnectionType.TcpClient
                     );
                 if (queryResult.Any())
                 {
@@ -508,7 +510,8 @@ namespace DevKit.ViewModels
                 dataBase.Table<ClientMessageCache>().Where(x =>
                     x.ClientId == _connectedClient.Id &&
                     x.ClientIp == _connectedClient.Ip &&
-                    x.ClientPort == _connectedClient.Port
+                    x.ClientPort == _connectedClient.Port &&
+                    x.ClientType == ConnectionType.TcpClient
                 ).Delete();
             }
         }
@@ -562,6 +565,7 @@ namespace DevKit.ViewModels
                     ClientId = _connectedClient.Id,
                     ClientIp = _connectedClient.Ip,
                     ClientPort = _connectedClient.Port,
+                    ClientType = ConnectionType.TcpClient,
                     MessageContent = _userInputText,
                     ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
