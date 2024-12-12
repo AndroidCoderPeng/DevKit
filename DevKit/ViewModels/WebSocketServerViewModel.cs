@@ -262,8 +262,7 @@ namespace DevKit.ViewModels
                                         Ip = session.IP,
                                         Port = session.Port,
                                         ConnectedWebSocket = webSocket,
-                                        IsConnected = true,
-                                        ConnectColorBrush = "LimeGreen"
+                                        IsConnected = true
                                     };
 
                                     Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
@@ -319,7 +318,6 @@ namespace DevKit.ViewModels
                                         if (client.Ip == session.IP && client.Port == session.Port)
                                         {
                                             client.IsConnected = false;
-                                            client.ConnectColorBrush = "DarkGray";
                                             client.MessageCount = 0;
                                             client.ConnectedWebSocket = null;
                                             client.MessageCollection.Clear();

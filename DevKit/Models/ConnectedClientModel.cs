@@ -34,18 +34,6 @@ namespace DevKit.Models
             }
         }
 
-        private string _connectColorBrush;
-
-        public string ConnectColorBrush
-        {
-            get => _connectColorBrush;
-            set
-            {
-                _connectColorBrush = value;
-                OnPropertyChanged(nameof(ConnectColorBrush));
-            }
-        }
-
         private ObservableCollection<byte[]> _messageCollection = new ObservableCollection<byte[]>();
 
         public ObservableCollection<byte[]> MessageCollection
