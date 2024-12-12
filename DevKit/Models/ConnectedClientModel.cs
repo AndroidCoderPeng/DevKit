@@ -30,7 +30,7 @@ namespace DevKit.Models
             set
             {
                 _isConnected = value;
-                OnPropertyChanged(nameof(ConnectColorBrush));
+                OnPropertyChanged(nameof(IsConnected));
             }
         }
 
