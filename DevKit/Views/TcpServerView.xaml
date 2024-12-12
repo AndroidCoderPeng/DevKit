@@ -189,22 +189,11 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Style="{StaticResource BorderTipSuccess}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="已连接" />
-
-                        <TextBlock
-                            Grid.Column="1"
-                            Margin="10,0"
-                            FontWeight="Bold"
-                            Foreground="{DynamicResource SuccessBrush}"
-                            Text="{Binding ConnectedClientAddress}"
-                            TextWrapping="NoWrap" />
-                    </Grid>
+                    <TextBlock
+                        FontWeight="Bold"
+                        Foreground="{DynamicResource SuccessBrush}"
+                        Text="{Binding ConnectedClientAddress}"
+                        TextWrapping="NoWrap" />
                 </Border>
 
                 <CheckBox

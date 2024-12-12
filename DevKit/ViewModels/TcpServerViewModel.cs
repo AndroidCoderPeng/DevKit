@@ -272,17 +272,7 @@ namespace DevKit.ViewModels
 
             _tcpServer.Closed = (client, e) =>
             {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    var tcp = _clientCollection.First(x => x.Id == client.Id);
-                    tcp.IsConnected = false;
-                    // tcp.MessageCount = 0;
-                    //显示空白图
-                    // IsContentViewVisible = "Collapsed";
-                    // IsEmptyImageVisible = "Visible";
-
-                    // MessageCollection.Clear();
-                });
+                _clientCollection.First(x => x.Id == client.Id).IsConnected = false;
                 return EasyTask.CompletedTask;
             };
 
