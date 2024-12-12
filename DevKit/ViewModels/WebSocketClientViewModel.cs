@@ -174,6 +174,12 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            if (!_remoteAddress.IsWebSocketUrl())
+            {
+                MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (_webSocketClient.Online)
             {
                 _webSocketClient.Close();
