@@ -309,7 +309,6 @@ namespace DevKit.ViewModels
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                         IsSend = false
                     };
-
                     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 }
 
@@ -396,60 +395,62 @@ namespace DevKit.ViewModels
 
         private void ShowHexCheckBoxClick()
         {
-            if (_showHex)
+            using (var dataBase = new DataBaseConnection())
             {
-                var boxResult = MessageBox.Show(
-                    "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
+                    x.ClientId == _connectedClient.Id &&
+                    x.ClientIp == _connectedClient.Ip &&
+                    x.ClientPort == _connectedClient.Port &&
+                    x.ClientType == ConnectionType.TcpClient
                 );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
-                    {
-                        //将model.Content视为string
-                        var hex = model.Content.StringToHex();
-                        var msg = new MessageModel
-                        {
-                            Content = hex.Replace("-", " "),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        collection.Add(msg);
-                    }
 
-                    MessageCollection = collection;
+                if (_showHex)
+                {
+                    var boxResult = MessageBox.Show(
+                        "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    );
+                    if (boxResult == MessageBoxResult.OK)
+                    {
+                        MessageCollection.Clear();
+                        foreach (var cache in queryResult)
+                        {
+                            var msg = new MessageModel
+                            {
+                                Content = cache.MessageContent,
+                                Time = cache.Time,
+                                IsSend = cache.IsSend == 1
+                            };
+                            MessageCollection.Add(msg);
+                        }
+                    }
+                    else
+                    {
+                        ShowHex = false;
+                    }
                 }
                 else
                 {
-                    ShowHex = false;
-                }
-            }
-            else
-            {
-                var boxResult = MessageBox.Show(
-                    "确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
+                    var boxResult = MessageBox.Show(
+                        "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    );
+                    if (boxResult == MessageBoxResult.OK)
                     {
-                        //将model.Content视为Hex，先转bytes[]，再转string
-                        var bytes = model.Content.HexToBytes();
-                        var msg = new MessageModel
+                        MessageCollection.Clear();
+                        foreach (var cache in queryResult)
                         {
-                            Content = bytes.ByteArrayToString(),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        collection.Add(msg);
+                            var msg = new MessageModel
+                            {
+                                Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
+                                Time = cache.Time,
+                                IsSend = cache.IsSend == 1
+                            };
+                            MessageCollection.Add(msg);
+                        }
                     }
-
-                    MessageCollection = collection;
-                }
-                else
-                {
-                    ShowHex = true;
+                    else
+                    {
+                        ShowHex = true;
+                    }
                 }
             }
         }

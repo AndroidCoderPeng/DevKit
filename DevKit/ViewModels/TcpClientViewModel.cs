@@ -177,7 +177,7 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private List<MessageModel> _messageTemp = new List<MessageModel>();
+        private readonly List<MessageModel> _messageTemp = new List<MessageModel>();
         private ClientConfigCache _clientCache;
 
         public TcpClientViewModel(IAppDataService dataService, IDialogService dialogService)
