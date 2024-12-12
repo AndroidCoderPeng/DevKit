@@ -358,40 +358,37 @@ namespace DevKit.ViewModels
             client.MessageCount = 0;
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-            if (client.IsConnected)
+            MessageCollection.Clear();
+            using (var dataBase = new DataBaseConnection())
             {
-                IsContentViewVisible = "Visible";
-                IsEmptyImageVisible = "Collapsed";
-
-                MessageCollection.Clear();
-                using (var dataBase = new DataBaseConnection())
+                var queryResult = dataBase.Table<ClientMessageCache>()
+                    .Where(x =>
+                        x.ClientId == _connectedClient.Id &&
+                        x.ClientIp == _connectedClient.Ip &&
+                        x.ClientPort == _connectedClient.Port
+                    );
+                if (queryResult.Any())
                 {
-                    var queryResult = dataBase.Table<ClientMessageCache>()
-                        .Where(x =>
-                            x.ClientId == _connectedClient.Id &&
-                            x.ClientIp == _connectedClient.Ip &&
-                            x.ClientPort == _connectedClient.Port
-                        );
-                    if (queryResult.Any())
-                    {
-                        foreach (var cache in queryResult)
-                        {
-                            var messageModel = new MessageModel
-                            {
-                                Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
-                                Time = cache.Time,
-                                IsSend = cache.IsSend == 1
-                            };
+                    IsContentViewVisible = "Visible";
+                    IsEmptyImageVisible = "Collapsed";
 
-                            MessageCollection.Add(messageModel);
-                        }
+                    foreach (var cache in queryResult)
+                    {
+                        var messageModel = new MessageModel
+                        {
+                            Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
+                            Time = cache.Time,
+                            IsSend = cache.IsSend == 1
+                        };
+
+                        MessageCollection.Add(messageModel);
                     }
                 }
-            }
-            else
-            {
-                IsContentViewVisible = "Collapsed";
-                IsEmptyImageVisible = "Visible";
+                else
+                {
+                    IsContentViewVisible = "Collapsed";
+                    IsEmptyImageVisible = "Visible";
+                }
             }
         }
 
