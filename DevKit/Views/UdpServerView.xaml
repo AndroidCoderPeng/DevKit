@@ -387,7 +387,7 @@
 
                     <CheckBox
                         Grid.Row="0"
-                        Content="HEX"
+                        Content="HEX发送"
                         IsChecked="{Binding SendHex}" />
 
                     <Button
@@ -399,6 +399,7 @@
 
                     <Button
                         Grid.Row="2"
+                        HorizontalAlignment="Stretch"
                         Background="{DynamicResource BackgroundBrush}"
                         BorderThickness="0"
                         Command="{Binding SendMessageCommand}"
