@@ -21,6 +21,7 @@
         </Style>
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
+        <cvt:SerialPortStateConverter x:Key="SerialPortStateConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
         <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
@@ -115,7 +116,7 @@
                 <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0">
+            <Grid Grid.Column="0" IsEnabled="{Binding ButtonState, Converter={StaticResource SerialPortStateConverterKey}}">
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition />
@@ -228,8 +229,6 @@
                         </b:Interaction.Triggers>
                     </ComboBox>
                 </DockPanel>
-
-
             </Grid>
 
             <Grid Grid.Column="1" Margin="10,0,0,0">
