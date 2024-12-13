@@ -57,7 +57,7 @@ namespace DevKit.ViewModels
             get => _listenPort;
         }
 
-        private string _listenStateColor = "DarkGray";
+        private string _listenStateColor = "LightGray";
 
         public string ListenStateColor
         {
@@ -245,7 +245,7 @@ namespace DevKit.ViewModels
             {
                 _webSocketServer.Stop();
                 ListenState = "监听";
-                ListenStateColor = "DarkGray";
+                ListenStateColor = "LightGray";
                 WebSocketUrl = string.Empty;
             }
             else
@@ -327,7 +327,7 @@ namespace DevKit.ViewModels
                     _webSocketServer.Setup(socketConfig);
                     _webSocketServer.Start();
                     ListenState = "停止";
-                    ListenStateColor = "LimeGreen";
+                    ListenStateColor = "Lime";
                     WebSocketUrl =
                         $"ws://{_localAddressCollection[_comboBoxSelectedIndex]}:{_listenPort}/{_requestPath}";
                 }

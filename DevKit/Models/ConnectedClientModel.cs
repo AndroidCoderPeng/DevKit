@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TouchSocket.Http.WebSockets;
 
 namespace DevKit.Models
@@ -32,18 +31,6 @@ namespace DevKit.Models
                 _isConnected = value;
                 OnPropertyChanged(nameof(IsConnected));
             }
-        }
-
-        private ObservableCollection<byte[]> _messageCollection = new ObservableCollection<byte[]>();
-
-        public ObservableCollection<byte[]> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                OnPropertyChanged(nameof(MessageCollection));
-            }
-            get => _messageCollection;
         }
 
         private int _messageCount;

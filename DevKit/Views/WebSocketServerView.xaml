@@ -59,7 +59,7 @@
                     Grid.Column="1"
                     Margin="10,0,0,0"
                     FontSize="14"
-                    IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
+                    IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
                     ItemsSource="{Binding LocalAddressCollection}"
                     SelectedIndex="{Binding ComboBoxSelectedIndex}" />
             </Grid>
@@ -68,7 +68,6 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -84,24 +83,33 @@
                     hc:InfoElement.Placeholder="端口"
                     hc:InfoElement.ShowClearButton="True"
                     FontSize="14"
-                    IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
+                    IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
                     MaxLength="4"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
-                <Ellipse
-                    Grid.Column="2"
-                    Width="18"
-                    Height="18"
-                    Margin="0,0,10,0"
-                    Fill="{Binding ListenStateColor}" />
-
                 <Button
-                    x:Name="ListenStateButton"
-                    Grid.Column="3"
+                    Grid.Column="2"
                     Command="{Binding ServerListenCommand}"
-                    Content="{Binding ListenState}"
-                    Style="{StaticResource ButtonPrimary}" />
+                    Style="{StaticResource ButtonPrimary}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse
+                            Grid.Column="0"
+                            Width="15"
+                            Height="15"
+                            Fill="{Binding ListenStateColor}" />
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="10,0,0,0"
+                            Text="{Binding ListenState}" />
+                    </Grid>
+                </Button>
             </Grid>
 
             <Grid Grid.Row="2">
@@ -149,7 +157,8 @@
 
                 <Button
                     Grid.Column="2"
-                    Margin="10,0,0,0"
+                    Background="Transparent"
+                    BorderThickness="0"
                     Command="{Binding CopyWebSocketUrlCommand}"
                     Content="复制" />
             </Grid>
