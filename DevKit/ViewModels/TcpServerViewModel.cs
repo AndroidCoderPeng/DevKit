@@ -46,7 +46,7 @@ namespace DevKit.ViewModels
             get => _listenPort;
         }
 
-        private string _listenStateColor = "DarkGray";
+        private string _listenStateColor = "LightGray";
 
         public string ListenStateColor
         {
@@ -329,7 +329,7 @@ namespace DevKit.ViewModels
                 _tcpServer.Stop();
                 _isListening = false;
                 ListenState = "监听";
-                ListenStateColor = "DarkGray";
+                ListenStateColor = "LightGray";
             }
             else
             {
@@ -339,7 +339,7 @@ namespace DevKit.ViewModels
                     _tcpServer.Start();
                     _isListening = true;
                     ListenState = "停止";
-                    ListenStateColor = "LimeGreen";
+                    ListenStateColor = "Lime";
                 }
                 catch (Exception e)
                 {

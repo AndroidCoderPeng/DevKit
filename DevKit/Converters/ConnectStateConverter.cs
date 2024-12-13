@@ -12,10 +12,10 @@ namespace DevKit.Converters
             Debug.Assert(value != null, nameof(value) + " != null");
             if ((bool)value)
             {
-                return "LimeGreen";
+                return "Lime";
             }
 
-            return "DarkGray";
+            return "LightGray";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
