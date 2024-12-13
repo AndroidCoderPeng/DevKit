@@ -74,18 +74,18 @@
                 Content="HEX显示"
                 IsChecked="{Binding ShowHex}" />
 
-            <Button
+            <Ellipse
                 Grid.Column="4"
+                Width="18"
+                Height="18"
+                Fill="{Binding ConnectionStateColor}" />
+
+            <Button
+                Grid.Column="5"
+                Margin="10,0,0,0"
                 Command="{Binding ConnectRemoteCommand}"
                 Content="{Binding ButtonState}"
                 Style="{StaticResource ButtonPrimary}" />
-
-            <Ellipse
-                Grid.Column="5"
-                Width="18"
-                Height="18"
-                Margin="10,0,0,0"
-                Fill="{Binding ConnectionStateColor}" />
         </Grid>
 
         <ListBox
@@ -304,7 +304,7 @@
 
                 <Button
                     Grid.Row="1"
-                    Margin="0,7,0,0"
+                    Margin="0,10,0,0"
                     Background="{DynamicResource BackgroundBrush}"
                     BorderThickness="0"
                     Command="{Binding SendMessageCommand}"
