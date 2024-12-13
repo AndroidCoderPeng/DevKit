@@ -5,10 +5,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows.Media.Imaging;
 
 namespace DevKit.Utils
@@ -156,26 +154,7 @@ namespace DevKit.Utils
 
         public static bool IsWebSocketUrl(this string url)
         {
-            try
-            {
-                using (var webSocket = new ClientWebSocket())
-                {
-                    webSocket.ConnectAsync(new Uri(url), CancellationToken.None);
-                    return webSocket.State == WebSocketState.Open;
-                }
-            }
-            catch (UriFormatException)
-            {
-                return false;
-            }
-            catch (WebSocketException)
-            {
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            return url.StartsWith("ws") || url.StartsWith("wss");
         }
     }
 }

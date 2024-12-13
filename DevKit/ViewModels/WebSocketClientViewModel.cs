@@ -174,11 +174,11 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // if (!_remoteAddress.IsWebSocketUrl())
-            // {
-            //     MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
+            if (!_remoteAddress.IsWebSocketUrl())
+            {
+                MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             if (_webSocketClient.Online)
             {
@@ -239,14 +239,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                _webSocketClient.SendAsync(_userInputText);
-                var message = new MessageModel
-                {
-                    Content = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                MessageCollection.Add(message);
+                Send(true);
             }
         }
 
@@ -258,6 +251,11 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            Send(false);
+        }
+
+        private void Send(bool isMainThread)
+        {
             _webSocketClient.SendAsync(_userInputText);
             var message = new MessageModel
             {
@@ -265,7 +263,15 @@ namespace DevKit.ViewModels
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                 IsSend = true
             };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+
+            if (isMainThread)
+            {
+                MessageCollection.Add(message);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            }
         }
     }
 }
