@@ -67,7 +67,7 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private string _connectionStateColor = "DarkGray";
+        private string _connectionStateColor = "LightGray";
 
         public string ConnectionStateColor
         {
@@ -140,7 +140,7 @@ namespace DevKit.ViewModels
 
             _webSocketClient.Handshaked = (client, e) =>
             {
-                ConnectionStateColor = "LimeGreen";
+                ConnectionStateColor = "Lime";
                 ButtonState = "断开";
                 return EasyTask.CompletedTask;
             };
@@ -160,7 +160,7 @@ namespace DevKit.ViewModels
 
             _webSocketClient.Closed = (client, e) =>
             {
-                ConnectionStateColor = "DarkGray";
+                ConnectionStateColor = "LightGray";
                 ButtonState = "连接";
                 return EasyTask.CompletedTask;
             };
@@ -174,11 +174,11 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (!_remoteAddress.IsWebSocketUrl())
-            {
-                MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            // if (!_remoteAddress.IsWebSocketUrl())
+            // {
+            //     MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+            //     return;
+            // }
 
             if (_webSocketClient.Online)
             {
