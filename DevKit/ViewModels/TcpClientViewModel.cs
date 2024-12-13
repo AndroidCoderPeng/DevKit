@@ -119,7 +119,7 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private string _connectionStateColor = "DarkGray";
+        private string _connectionStateColor = "LightGray";
 
         public string ConnectionStateColor
         {
@@ -216,7 +216,7 @@ namespace DevKit.ViewModels
             //成功连接到服务器
             _tcpClient.Connected = (client, e) =>
             {
-                ConnectionStateColor = "LimeGreen";
+                ConnectionStateColor = "Lime";
                 ButtonState = "断开";
                 return EasyTask.CompletedTask;
             };
@@ -224,7 +224,7 @@ namespace DevKit.ViewModels
             //从服务器断开连接，当连接不成功时不会触发。
             _tcpClient.Closed = (client, e) =>
             {
-                ConnectionStateColor = "DarkGray";
+                ConnectionStateColor = "LightGray";
                 ButtonState = "连接";
                 return EasyTask.CompletedTask;
             };
