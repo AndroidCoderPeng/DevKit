@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
@@ -32,7 +33,6 @@ namespace DevKit.ViewModels
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
         public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
         public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
-        public DelegateCommand<string> DimColorListBoxItemButtonClickCommand { set; get; }
 
         #endregion
 
@@ -112,42 +112,6 @@ namespace DevKit.ViewModels
             get => _colorCount;
         }
 
-        private string _isTraditionColorListBoxVisible = "Visible";
-
-        public string IsTraditionColorListBoxVisible
-        {
-            set
-            {
-                _isTraditionColorListBoxVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isTraditionColorListBoxVisible;
-        }
-
-        private string _isDimColorListBoxVisible = "Collapsed";
-
-        public string IsDimColorListBoxVisible
-        {
-            set
-            {
-                _isDimColorListBoxVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isDimColorListBoxVisible;
-        }
-
-        private string _isGradientColorListBoxVisible = "Collapsed";
-
-        public string IsGradientColorListBoxVisible
-        {
-            set
-            {
-                _isGradientColorListBoxVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isGradientColorListBoxVisible;
-        }
-
         private ObservableCollection<ColorResourceCache> _colorResources =
             new ObservableCollection<ColorResourceCache>();
 
@@ -184,6 +148,11 @@ namespace DevKit.ViewModels
         /// </summary>
         private const int PerPageItemCount = 30;
 
+        private DateTime _lastClickTime;
+
+        //按钮防抖
+        private const int ThrottleInterval = 500;
+
         public ColorResourceViewModel(IAppDataService dataService)
         {
             _dataService = dataService;
@@ -209,7 +178,6 @@ namespace DevKit.ViewModels
             PageUpdatedCommand = new DelegateCommand<FunctionEventArgs<int>>(PageUpdated);
             TraditionColorListBoxItemButtonClickCommand =
                 new DelegateCommand<string>(TraditionColorListBoxItemButtonClick);
-            DimColorListBoxItemButtonClickCommand = new DelegateCommand<string>(DimColorListBoxItemButtonClick);
         }
 
         private void ColorRedValueChanged(NumericUpDown numeric)
@@ -297,10 +265,6 @@ namespace DevKit.ViewModels
             switch (text)
             {
                 case "中国传统色系":
-                    IsTraditionColorListBoxVisible = "Visible";
-                    IsDimColorListBoxVisible = "Collapsed";
-                    IsGradientColorListBoxVisible = "Collapsed";
-
                     Task.Run(async () =>
                     {
                         _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
@@ -311,10 +275,6 @@ namespace DevKit.ViewModels
 
                     break;
                 case "低调色系":
-                    IsTraditionColorListBoxVisible = "Collapsed";
-                    IsDimColorListBoxVisible = "Visible";
-                    IsGradientColorListBoxVisible = "Collapsed";
-
                     Task.Run(async () =>
                     {
                         _colorResCaches = await _dataService.GetColorsByScheme("低调色系");
@@ -337,14 +297,13 @@ namespace DevKit.ViewModels
 
         private void TraditionColorListBoxItemButtonClick(string colorVale)
         {
-            Clipboard.SetText(colorVale);
-            Growl.Success("颜色值已复制");
-        }
-
-        private void DimColorListBoxItemButtonClick(string colorVale)
-        {
-            Clipboard.SetText(colorVale);
-            Growl.Success("颜色值已复制");
+            var now = DateTime.Now;
+            if ((now - _lastClickTime).TotalMilliseconds >= ThrottleInterval)
+            {
+                Clipboard.SetText(colorVale);
+                Growl.Success("颜色值已复制");
+                _lastClickTime = now;
+            }
         }
     }
 }
