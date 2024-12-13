@@ -220,6 +220,7 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly SerialPortClient _spc = new SerialPortClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
+        private readonly List<MessageModel> _messageTemp = new List<MessageModel>();
 
         private readonly Dictionary<float, StopBits> _stopBitMap = new Dictionary<float, StopBits>
         {
@@ -298,10 +299,13 @@ namespace DevKit.ViewModels
                     Content = _clientCache.ShowHex == 1
                         ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
                         : byteBlock.Span.ToString(Encoding.UTF8),
+                    Bytes = byteBlock.ToArray(),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
 
+                //缓存收到的消息
+                _messageTemp.Add(messageModel);
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 return EasyTask.CompletedTask;
             };
@@ -375,25 +379,22 @@ namespace DevKit.ViewModels
             if (_showHex)
             {
                 var boxResult = MessageBox.Show(
-                    "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
                 );
                 if (boxResult == MessageBoxResult.OK)
                 {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
+                    MessageCollection.Clear();
+                    foreach (var model in _messageTemp)
                     {
-                        //将model.Content视为string
-                        var hex = model.Content.StringToHex();
                         var msg = new MessageModel
                         {
-                            Content = hex.Replace("-", " "),
+                            Content = model.Content,
                             Time = model.Time,
                             IsSend = model.IsSend
                         };
-                        collection.Add(msg);
+                        MessageCollection.Add(msg);
                     }
 
-                    MessageCollection = collection;
                     _clientCache.ShowHex = 1;
                 }
                 else
@@ -404,25 +405,22 @@ namespace DevKit.ViewModels
             else
             {
                 var boxResult = MessageBox.Show(
-                    "确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
                 );
                 if (boxResult == MessageBoxResult.OK)
                 {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
+                    MessageCollection.Clear();
+                    foreach (var model in _messageTemp)
                     {
-                        //将model.Content视为Hex，先转bytes[]，再转string
-                        var bytes = model.Content.HexToBytes();
                         var msg = new MessageModel
                         {
-                            Content = bytes.ByteArrayToString(),
+                            Content = model.Bytes.ByteArrayToString(),
                             Time = model.Time,
                             IsSend = model.IsSend
                         };
-                        collection.Add(msg);
+                        MessageCollection.Add(msg);
                     }
 
-                    MessageCollection = collection;
                     _clientCache.ShowHex = 0;
                 }
                 else
@@ -432,40 +430,10 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
-        {
-            if (_buttonState.Equals("打开串口"))
-            {
-                Console.WriteLine(@"串口未打开");
-                return;
-            }
-
-            if (_clientCache.SendHex == 1)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _spc.Send(_userInputText.HexToBytes());
-            }
-            else
-            {
-                _spc.Send(_userInputText);
-            }
-
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-        }
-
         private void ClearMessage()
         {
+            //清空消息缓存
+            _messageTemp?.Clear();
             MessageCollection?.Clear();
         }
 
@@ -551,28 +519,56 @@ namespace DevKit.ViewModels
             }
             else
             {
-                if (_clientCache.SendHex == 1)
-                {
-                    if (!_userInputText.IsHex())
-                    {
-                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
+                Send(true);
+            }
+        }
+        
+        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        {
+            if (_buttonState.Equals("打开串口"))
+            {
+                Console.WriteLine(@"串口未打开");
+                return;
+            }
 
-                    _spc.Send(_userInputText.HexToBytes());
-                }
-                else
+            Send(false);
+        }
+
+        private void Send(bool isMainThread)
+        {
+            if (_clientCache.SendHex == 1)
+            {
+                if (!_userInputText.IsHex())
                 {
-                    _spc.Send(_userInputText);
+                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
-                var message = new MessageModel
-                {
-                    Content = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
+                _spc.Send(_userInputText.HexToBytes());
+            }
+            else
+            {
+                _spc.Send(_userInputText);
+            }
+
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Bytes = _userInputText.HexToBytes(),
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+            
+            //缓存发送的消息
+            _messageTemp.Add(message);
+
+            if (isMainThread)
+            {
                 MessageCollection.Add(message);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
             }
         }
     }
