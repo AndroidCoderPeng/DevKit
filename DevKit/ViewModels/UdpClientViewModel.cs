@@ -215,6 +215,10 @@ namespace DevKit.ViewModels
                     MessageCollection = collection;
                     _clientCache.ShowHex = 1;
                 }
+                else
+                {
+                    ShowHex = false;
+                }
             }
             else
             {
@@ -239,6 +243,10 @@ namespace DevKit.ViewModels
 
                     MessageCollection = collection;
                     _clientCache.ShowHex = 0;
+                }
+                else
+                {
+                    ShowHex = true;
                 }
             }
         }

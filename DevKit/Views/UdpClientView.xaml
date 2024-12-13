@@ -266,7 +266,7 @@
 
                 <CheckBox
                     Grid.Row="0"
-                    Content="HEX"
+                    Content="HEX发送"
                     IsChecked="{Binding SendHex}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="Checked">
@@ -288,6 +288,7 @@
 
                 <Button
                     Grid.Row="2"
+                    HorizontalAlignment="Stretch"
                     Background="{DynamicResource BackgroundBrush}"
                     BorderThickness="0"
                     Command="{Binding SendMessageCommand}"
