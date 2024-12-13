@@ -244,8 +244,8 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
@@ -253,27 +253,36 @@
                         Grid.Column="0"
                         HorizontalAlignment="Stretch"
                         Command="{Binding OpenSerialPortCommand}"
-                        Content="{Binding ButtonState}"
-                        Style="{StaticResource ButtonPrimary}" />
+                        Style="{StaticResource ButtonPrimary}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <Ellipse
+                                Grid.Column="0"
+                                Width="15"
+                                Height="15"
+                                Fill="{Binding ConnectionStateColor}" />
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="10,0,0,0"
+                                Text="{Binding ButtonState}" />
+                        </Grid>
+                    </Button>
 
                     <Button
                         Grid.Column="1"
                         Margin="10,0"
                         HorizontalAlignment="Stretch"
                         Command="{Binding ClearMessageCommand}"
-                        Content="清空数据"
-                        Style="{StaticResource ButtonDanger}" />
-
-                    <CheckBox
-                        Grid.Column="2"
-                        Command="{Binding ShowHexCheckBoxClickCommand}"
-                        Content="HEX显示"
-                        IsChecked="{Binding ShowHex}" />
+                        Content="清空数据" />
 
                     <CheckBox
                         x:Name="LoopCheckBox"
-                        Grid.Column="3"
-                        Margin="10,0"
+                        Grid.Column="2"
                         Content="循环发送"
                         IsChecked="{Binding LoopSend}">
                         <b:Interaction.Triggers>
@@ -284,24 +293,30 @@
                     </CheckBox>
 
                     <hc:TextBox
-                        Grid.Column="4"
-                        MinWidth="100"
-                        hc:InfoElement.ShowClearButton="True"
+                        Grid.Column="3"
+                        Margin="10,0"
                         FontSize="14"
                         IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                         MaxLength="5"
                         Text="{Binding CommandInterval}" />
 
                     <TextBlock
-                        Grid.Column="5"
-                        Margin="10,0,0,0"
+                        Grid.Column="4"
                         VerticalAlignment="Center"
                         Text="ms/次" />
+
+                    <CheckBox
+                        Grid.Column="5"
+                        Margin="10,0,0,0"
+                        Command="{Binding ShowHexCheckBoxClickCommand}"
+                        Content="HEX显示"
+                        IsChecked="{Binding ShowHex}" />
                 </Grid>
 
                 <Grid Grid.Row="1" Margin="0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
@@ -353,9 +368,24 @@
 
                     <Button
                         Grid.Column="1"
-                        Margin="10,0,0,0"
+                        Margin="10,0"
                         Command="{Binding AddExtensionCommand}"
                         Content="添加扩展指令" />
+
+                    <CheckBox
+                        Grid.Column="2"
+                        Content="HEX发送"
+                        IsChecked="{Binding SendHex}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="Checked">
+                                <b:InvokeCommandAction Command="{Binding SendHexCheckedCommand}" />
+                            </b:EventTrigger>
+
+                            <b:EventTrigger EventName="Unchecked">
+                                <b:InvokeCommandAction Command="{Binding SendHexUncheckedCommand}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </CheckBox>
                 </Grid>
 
                 <Grid Grid.Row="2">
@@ -377,33 +407,10 @@
                         <Grid.RowDefinitions>
                             <RowDefinition />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <Ellipse
-                            Grid.Row="0"
-                            Width="18"
-                            Height="18"
-                            Fill="{Binding ConnectionStateColor}" />
-
-                        <CheckBox
-                            Grid.Row="1"
-                            Margin="0,0,0,10"
-                            Content="HEX"
-                            IsChecked="{Binding SendHex}">
-                            <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="Checked">
-                                    <b:InvokeCommandAction Command="{Binding SendHexCheckedCommand}" />
-                                </b:EventTrigger>
-
-                                <b:EventTrigger EventName="Unchecked">
-                                    <b:InvokeCommandAction Command="{Binding SendHexUncheckedCommand}" />
-                                </b:EventTrigger>
-                            </b:Interaction.Triggers>
-                        </CheckBox>
-
                         <Button
-                            Grid.Row="2"
+                            Grid.Row="1"
                             Background="{DynamicResource BackgroundBrush}"
                             BorderThickness="0"
                             Command="{Binding SendMessageCommand}"
