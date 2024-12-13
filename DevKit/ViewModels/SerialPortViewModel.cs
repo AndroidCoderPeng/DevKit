@@ -169,7 +169,7 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private string _connectionStateColor = "DarkGray";
+        private string _connectionStateColor = "LightGray";
 
         public string ConnectionStateColor
         {
@@ -285,7 +285,7 @@ namespace DevKit.ViewModels
 
             _spc.Connected = (client, e) =>
             {
-                ConnectionStateColor = "LimeGreen";
+                ConnectionStateColor = "Lime";
                 ButtonState = "关闭串口";
                 return EasyTask.CompletedTask;
             };
@@ -306,7 +306,7 @@ namespace DevKit.ViewModels
             };
             _spc.Closed = (client, e) =>
             {
-                ConnectionStateColor = "DarkGray";
+                ConnectionStateColor = "LightGray";
                 ButtonState = "打开串口";
                 return EasyTask.CompletedTask;
             };
