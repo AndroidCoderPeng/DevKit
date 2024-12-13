@@ -35,7 +35,7 @@ namespace DevKit.ViewModels
             get => _localAddressCollection;
         }
 
-        private string _listenStateColor = "DarkGray";
+        private string _listenStateColor = "LightGray";
 
         public string ListenStateColor
         {
@@ -260,8 +260,9 @@ namespace DevKit.ViewModels
             _udpServer.Received = (client, e) =>
             {
                 var endPoint = e.EndPoint;
-                if (!_clientCollection.Any(udp =>
-                        udp.Ip == endPoint.GetIP() && udp.Port == endPoint.GetPort()))
+                if (!_clientCollection.Any(
+                        x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort())
+                   )
                 {
                     var clientModel = new ConnectedClientModel
                     {
@@ -273,19 +274,28 @@ namespace DevKit.ViewModels
                 }
 
                 var bytes = e.ByteBlock.ToArray();
-                foreach (var udp in _clientCollection)
+                var udp = _clientCollection.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
+                udp.MessageCount++;
+                using (var dataBase = new DataBaseConnection())
                 {
-                    if (udp.Ip == endPoint.GetIP() && udp.Port == endPoint.GetPort())
+                    var cache = new ClientMessageCache
                     {
-                        udp.MessageCollection.Add(bytes);
-                        udp.MessageCount++;
-                        break;
-                    }
+                        ClientIp = endPoint.GetIP(),
+                        ClientPort = endPoint.GetPort(),
+                        ClientType = ConnectionType.UdpClient,
+                        MessageContent = _showHex
+                            ? BitConverter.ToString(bytes).Replace("-", " ")
+                            : Encoding.UTF8.GetString(bytes),
+                        ByteArrayContent = BitConverter.ToString(bytes),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 0
+                    };
+                    dataBase.Insert(cache);
                 }
 
                 if (_isContentViewVisible.Equals("Visible") &&
-                    _connectedClient.Ip == endPoint.GetIP() &&
-                    _connectedClient.Port == endPoint.GetPort())
+                    endPoint.GetIP() == _connectedClient.Ip &&
+                    endPoint.GetPort() == _connectedClient.Port)
                 {
                     var messageModel = new MessageModel
                     {
@@ -316,7 +326,7 @@ namespace DevKit.ViewModels
                 _udpServer.Stop();
                 _isListening = false;
                 ListenState = "监听";
-                ListenStateColor = "DarkGray";
+                ListenStateColor = "LightGray";
             }
             else
             {
@@ -326,7 +336,7 @@ namespace DevKit.ViewModels
                     _udpServer.Start();
                     _isListening = true;
                     ListenState = "停止";
-                    ListenStateColor = "LimeGreen";
+                    ListenStateColor = "Lime";
                 }
                 catch (Exception e)
                 {
@@ -342,77 +352,100 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            client.MessageCount = 0;
             _connectedClient = client;
-            _connectedClient.MessageCount = 0;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-
-            IsContentViewVisible = "Visible";
-            IsEmptyImageVisible = "Collapsed";
-
             MessageCollection.Clear();
-            foreach (var bytes in client.MessageCollection)
+            using (var dataBase = new DataBaseConnection())
             {
-                var messageModel = new MessageModel
+                var queryResult = dataBase.Table<ClientMessageCache>()
+                    .Where(x =>
+                        x.ClientIp == _connectedClient.Ip &&
+                        x.ClientPort == _connectedClient.Port &&
+                        x.ClientType == ConnectionType.UdpClient
+                    );
+                if (queryResult.Any())
                 {
-                    Content = _showHex
-                        ? BitConverter.ToString(bytes).Replace("-", " ")
-                        : Encoding.UTF8.GetString(bytes),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
+                    IsContentViewVisible = "Visible";
+                    IsEmptyImageVisible = "Collapsed";
 
-                MessageCollection.Add(messageModel);
+                    foreach (var cache in queryResult)
+                    {
+                        var messageModel = new MessageModel
+                        {
+                            Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
+                            Time = cache.Time,
+                            IsSend = cache.IsSend == 1
+                        };
+
+                        MessageCollection.Add(messageModel);
+                    }
+                }
+                else
+                {
+                    IsContentViewVisible = "Collapsed";
+                    IsEmptyImageVisible = "Visible";
+                }
             }
         }
 
         private void ShowHexCheckBoxClick()
         {
-            if (_showHex)
+            using (var dataBase = new DataBaseConnection())
             {
-                var boxResult = MessageBox.Show(
-                    "切换到HEX显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
+                    x.ClientIp == _connectedClient.Ip &&
+                    x.ClientPort == _connectedClient.Port &&
+                    x.ClientType == ConnectionType.UdpClient
                 );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
-                    {
-                        //将model.Content视为string
-                        var hex = model.Content.StringToHex();
-                        var msg = new MessageModel
-                        {
-                            Content = hex.Replace("-", " "),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        collection.Add(msg);
-                    }
 
-                    MessageCollection = collection;
+                if (_showHex)
+                {
+                    var boxResult = MessageBox.Show(
+                        "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    );
+                    if (boxResult == MessageBoxResult.OK)
+                    {
+                        MessageCollection.Clear();
+                        foreach (var cache in queryResult)
+                        {
+                            var msg = new MessageModel
+                            {
+                                Content = cache.MessageContent,
+                                Time = cache.Time,
+                                IsSend = cache.IsSend == 1
+                            };
+                            MessageCollection.Add(msg);
+                        }
+                    }
+                    else
+                    {
+                        ShowHex = false;
+                    }
                 }
-            }
-            else
-            {
-                var boxResult = MessageBox.Show(
-                    "确定切换到字符串显示？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
+                else
                 {
-                    var collection = new ObservableCollection<MessageModel>();
-                    foreach (var model in MessageCollection)
+                    var boxResult = MessageBox.Show(
+                        "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                    );
+                    if (boxResult == MessageBoxResult.OK)
                     {
-                        //将model.Content视为Hex，先转bytes[]，再转string
-                        var bytes = model.Content.HexToBytes();
-                        var msg = new MessageModel
+                        MessageCollection.Clear();
+                        foreach (var cache in queryResult)
                         {
-                            Content = bytes.ByteArrayToString(),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        collection.Add(msg);
+                            var msg = new MessageModel
+                            {
+                                Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
+                                Time = cache.Time,
+                                IsSend = cache.IsSend == 1
+                            };
+                            MessageCollection.Add(msg);
+                        }
                     }
-
-                    MessageCollection = collection;
+                    else
+                    {
+                        ShowHex = true;
+                    }
                 }
             }
         }
@@ -461,36 +494,21 @@ namespace DevKit.ViewModels
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
-            var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
-            if (_sendHex)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _udpServer.Send(endPoint, _userInputText.HexToBytes());
-            }
-            else
-            {
-                _udpServer.Send(endPoint, _userInputText);
-            }
-
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            Send(false);
         }
 
         private void ClearMessage()
         {
             MessageCollection?.Clear();
             _connectedClient.MessageCount = 0;
-            _connectedClient.MessageCollection.Clear();
+            using (var dataBase = new DataBaseConnection())
+            {
+                dataBase.Table<ClientMessageCache>().Where(x =>
+                    x.ClientIp == _connectedClient.Ip &&
+                    x.ClientPort == _connectedClient.Port &&
+                    x.ClientType == ConnectionType.UdpClient
+                ).Delete();
+            }
         }
 
         private void SendMessage()
@@ -514,29 +532,57 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
-                if (_sendHex)
-                {
-                    if (!_userInputText.IsHex())
-                    {
-                        MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
+                Send(true);
+            }
+        }
 
-                    _udpServer.Send(endPoint, _userInputText.HexToBytes());
-                }
-                else
+        private void Send(bool isMainThread)
+        {
+            var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
+            if (_sendHex)
+            {
+                if (!_userInputText.IsHex())
                 {
-                    _udpServer.Send(endPoint, _userInputText);
+                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
-                var message = new MessageModel
+                _udpServer.Send(endPoint, _userInputText.HexToBytes());
+            }
+            else
+            {
+                _udpServer.Send(endPoint, _userInputText);
+            }
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                var cache = new ClientMessageCache
                 {
-                    Content = _userInputText,
+                    ClientIp = _connectedClient.Ip,
+                    ClientPort = _connectedClient.Port,
+                    ClientType = ConnectionType.UdpClient,
+                    MessageContent = _userInputText,
+                    ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
+                    IsSend = 1
                 };
+                dataBase.Insert(cache);
+            }
+
+            var message = new MessageModel
+            {
+                Content = _userInputText,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = true
+            };
+
+            if (isMainThread)
+            {
                 MessageCollection.Add(message);
+            }
+            else
+            {
+                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
             }
         }
     }
