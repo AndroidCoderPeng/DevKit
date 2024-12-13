@@ -40,7 +40,6 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -74,18 +73,28 @@
                 Content="HEX显示"
                 IsChecked="{Binding ShowHex}" />
 
-            <Ellipse
-                Grid.Column="4"
-                Width="18"
-                Height="18"
-                Fill="{Binding ConnectionStateColor}" />
-
             <Button
-                Grid.Column="5"
-                Margin="10,0,0,0"
+                Grid.Column="4"
                 Command="{Binding ConnectRemoteCommand}"
-                Content="{Binding ButtonState}"
-                Style="{StaticResource ButtonPrimary}" />
+                Style="{StaticResource ButtonPrimary}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Ellipse
+                        Grid.Column="0"
+                        Width="15"
+                        Height="15"
+                        Fill="{Binding ConnectionStateColor}" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        Text="{Binding ButtonState}" />
+                </Grid>
+            </Button>
         </Grid>
 
         <ListBox
