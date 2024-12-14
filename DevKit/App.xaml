@@ -22,9 +22,10 @@
                 LeftClickCommand="{Binding ShowWindowCommand}"
                 ToolTipText="DevKit">
                 <tb:TaskbarIcon.ContextMenu>
-                    <ContextMenu Width="180">
+                    <ContextMenu Width="150">
                         <MenuItem Command="{Binding ShowWindowCommand}" Header="显示主界面" />
-                        <MenuItem Command="{Binding ExitApplicationCommand}" Header="退出DevKit程序" />
+
+                        <MenuItem Command="{Binding ExitApplicationCommand}" Header="退出DevKit" />
                     </ContextMenu>
                 </tb:TaskbarIcon.ContextMenu>
             </tb:TaskbarIcon>

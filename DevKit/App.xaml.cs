@@ -23,19 +23,6 @@ namespace DevKit
     /// </summary>
     public partial class App : PrismApplication
     {
-        // private static Mutex _mutex;
-
-        // protected override void OnInitialized()
-        // {
-        //     _mutex = new Mutex(true, "Global\\DevKitMutexName", out var createdNew);
-        //     if (!createdNew)
-        //     {
-        //         // 如果互斥锁已经存在，即有其他实例在运行，则打开当前实例主界面
-        //         Console.WriteLine(@"互斥锁已经存在，即有其他实例在运行，则打开当前实例主界面");
-        //         return;
-        //     }
-        // }
-
         protected override Window CreateShell()
         {
             var mainWindow = Container.Resolve<MainWindow>();
