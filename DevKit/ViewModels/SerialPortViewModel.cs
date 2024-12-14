@@ -350,7 +350,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                if (string.IsNullOrEmpty(_portName))
+                if (string.IsNullOrWhiteSpace(_portName))
                 {
                     MessageBox.Show("串口名称异常，无法打开", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
