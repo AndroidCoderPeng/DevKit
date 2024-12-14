@@ -10,6 +10,7 @@ using DevKit.Models;
 using DevKit.Utils;
 using DevKit.ViewModels;
 using DevKit.Views;
+using Hardcodet.Wpf.TaskbarNotification;
 using Newtonsoft.Json;
 using Prism.DryIoc;
 using Prism.Ioc;
@@ -22,6 +23,19 @@ namespace DevKit
     /// </summary>
     public partial class App : PrismApplication
     {
+        // private static Mutex _mutex;
+
+        // protected override void OnInitialized()
+        // {
+        //     _mutex = new Mutex(true, "Global\\DevKitMutexName", out var createdNew);
+        //     if (!createdNew)
+        //     {
+        //         // 如果互斥锁已经存在，即有其他实例在运行，则打开当前实例主界面
+        //         Console.WriteLine(@"互斥锁已经存在，即有其他实例在运行，则打开当前实例主界面");
+        //         return;
+        //     }
+        // }
+
         protected override Window CreateShell()
         {
             var mainWindow = Container.Resolve<MainWindow>();
@@ -29,6 +43,12 @@ namespace DevKit
             {
                 var regionManager = Container.Resolve<IRegionManager>();
                 regionManager.RequestNavigate("ContentRegion", "AndroidDebugBridgeView");
+
+                var trayIcon = (TaskbarIcon)FindResource("TrayIcon");
+                if (trayIcon != null)
+                {
+                    trayIcon.DataContext = new TrayIconViewModel(mainWindow);
+                }
 
                 using (var dataBase = new DataBaseConnection())
                 {
