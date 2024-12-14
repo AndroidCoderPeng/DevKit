@@ -274,7 +274,11 @@ namespace DevKit.ViewModels
             SendHex = _clientCache.SendHex == 1;
 
             //默认值
-            _portName = PortArray.First();
+            if (PortArray.Any())
+            {
+                _portName = PortArray.First();
+            }
+
             _baudRate = _baudRateArray.First();
             _parity = _parityArray.First();
             _dataBits = _dataBitArray.First();
