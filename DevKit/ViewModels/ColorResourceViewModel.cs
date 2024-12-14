@@ -218,7 +218,7 @@ namespace DevKit.ViewModels
 
         private void AlphaValueChanged(Slider slider)
         {
-            _alpha = (byte)(slider.Value * byte.MaxValue);
+            _alpha = (byte)slider.Value;
             GenerateColor();
         }
 
