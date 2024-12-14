@@ -9,12 +9,14 @@ using System.Windows;
 using DevKit.Events;
 using DevKit.Utils;
 using HandyControl.Controls;
-using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
+using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using Timer = System.Timers.Timer;
 
 namespace DevKit.ViewModels
 {
@@ -522,11 +524,25 @@ namespace DevKit.ViewModels
         {
             var argument = new ArgumentCreator();
             //截取屏幕截图并保存到指定位置
-            //adb shell screencap -p /sdcard/screen.png 
-            argument.Append("-s").Append(_selectedDevice)
-                .Append("shell").Append("screencap").Append("-p").Append($"/sdcard/{DateTime.Now:yyyyMMddHHmmss}.png");
+            //adb shell screencap -p /sdcard/20241214112123.png 
+            var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
+            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p").Append($"/sdcard/{fileName}");
             new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-            Growl.Success("屏幕抓取成功");
+            PullScreenshot(fileName);
+        }
+
+        private void PullScreenshot(string fileName)
+        {
+            var boxResult = MessageBox.Show(
+                "屏幕截取成功，是否导出到电脑？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+            );
+            if (boxResult == MessageBoxResult.OK)
+            {
+                var argument = new ArgumentCreator();
+                var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/{fileName}";
+                argument.Append("pull").Append($"/sdcard/{fileName}").Append(filePath);
+                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+            }
         }
 
         private void UninstallApplication()
