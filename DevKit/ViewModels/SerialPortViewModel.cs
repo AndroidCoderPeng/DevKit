@@ -357,7 +357,7 @@ namespace DevKit.ViewModels
                 }
 
                 var config = new TouchSocketConfig()
-                    .SetSerialPortOption(new SerialPortOption()
+                    .SetSerialPortOption(new SerialPortOption
                     {
                         PortName = _portName,
                         BaudRate = _baudRate,
@@ -370,7 +370,14 @@ namespace DevKit.ViewModels
                         CacheTimeout = TimeSpan.FromMilliseconds(100)
                     });
                 _spc.Setup(config);
-                _spc.Connect();
+                try
+                {
+                    _spc.Connect();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -522,7 +529,7 @@ namespace DevKit.ViewModels
                 Send(true);
             }
         }
-        
+
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
         {
             if (_buttonState.Equals("打开串口"))
@@ -558,7 +565,7 @@ namespace DevKit.ViewModels
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                 IsSend = true
             };
-            
+
             //缓存发送的消息
             _messageTemp.Add(message);
 
