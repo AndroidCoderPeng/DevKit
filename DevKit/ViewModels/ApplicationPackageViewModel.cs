@@ -215,11 +215,17 @@ namespace DevKit.ViewModels
                     }
                 }
 
+                if (builder.ToString().Contains("Exception"))
+                {
+                    MessageBox.Show(builder.ToString(), "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 OutputResult = builder.ToString();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -249,7 +255,7 @@ namespace DevKit.ViewModels
                     _dataService.SaveCacheConfig(_configCache);
 
                     ApkFileCollection?.Clear();
-                    
+
                     //异步遍历文件夹下面的apk文件
                     var dialogParameters = new DialogParameters
                     {
@@ -331,6 +337,7 @@ namespace DevKit.ViewModels
                     {
                         Growl.Info("该文件夹下面不包含Android安装包");
                     }
+
                     ApkFileCollection = totalFiles.ToObservableCollection();
                 });
             });
