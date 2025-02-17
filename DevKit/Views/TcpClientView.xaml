@@ -235,10 +235,7 @@
                 Grid.Column="1"
                 Margin="10,0"
                 Command="{Binding AddExtensionCommand}"
-                Content="&#xe6aa;"
-                FontFamily="/DevKit;component/Fonts/#iconfont"
-                Foreground="{DynamicResource PrimaryBrush}"
-                ToolTip="添加扩展指令" />
+                Content="添加扩展指令" />
 
             <CheckBox
                 x:Name="LoopCheckBox"
