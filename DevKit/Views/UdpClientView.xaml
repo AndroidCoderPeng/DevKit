@@ -61,7 +61,7 @@
                 hc:InfoElement.Placeholder="端口"
                 hc:InfoElement.ShowClearButton="True"
                 FontSize="14"
-                MaxLength="4"
+                MaxLength="5"
                 Text="{Binding RemotePort}"
                 TextWrapping="NoWrap" />
 

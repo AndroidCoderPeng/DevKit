@@ -84,7 +84,7 @@
                     hc:InfoElement.ShowClearButton="True"
                     FontSize="14"
                     IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
-                    MaxLength="4"
+                    MaxLength="5"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
