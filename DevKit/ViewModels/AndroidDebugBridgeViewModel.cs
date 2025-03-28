@@ -468,6 +468,11 @@ namespace DevKit.ViewModels
 
         private void GetDeviceApplication()
         {
+            if (_applicationPackages.Any())
+            {
+                ApplicationPackages.Clear();
+            }
+
             Task.Run(() =>
             {
                 var argument = new ArgumentCreator();

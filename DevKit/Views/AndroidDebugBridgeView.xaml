@@ -285,7 +285,8 @@
                 Margin="0,0,10,0"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
-                ItemsSource="{Binding ApplicationPackages}">
+                ItemsSource="{Binding ApplicationPackages}"
+                ScrollViewer.CanContentScroll="False">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" TextWrapping="Wrap" />
