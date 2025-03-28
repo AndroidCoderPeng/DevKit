@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using System.Timers;
 using System.Windows;
 using DevKit.Events;
 using DevKit.Utils;
-using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -258,6 +258,11 @@ namespace DevKit.ViewModels
         /// <returns></returns>
         private void RefreshDevice()
         {
+            if (DeviceItems.Any())
+            {
+                DeviceItems.Clear();
+            }
+
             var argument = new ArgumentCreator();
             argument.Append("devices");
             var executor = new CommandExecutor(argument.ToCommandLine());
@@ -535,35 +540,71 @@ namespace DevKit.ViewModels
 
         private void TakeScreenshot()
         {
-            var argument = new ArgumentCreator();
-            //截取屏幕截图并保存到指定位置
-            //adb shell screencap -p /sdcard/20241214112123.png 
-            var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p")
-                .Append($"/sdcard/{fileName}");
-            new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-            PullScreenshot(fileName);
-        }
-
-        private void PullScreenshot(string fileName)
-        {
-            var boxResult = MessageBox.Show(
-                "屏幕截取成功，是否导出到电脑？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-            );
-            if (boxResult == MessageBoxResult.OK)
+            Task.Run(() =>
             {
                 var argument = new ArgumentCreator();
-                var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/{fileName}";
-                argument.Append("pull").Append($"/sdcard/{fileName}").Append(filePath);
+                //截取屏幕截图并保存到指定位置
+                //adb shell screencap -p /sdcard/20241214112123.png 
+                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
+                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p")
+                    .Append($"/sdcard/{fileName}");
                 new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+                PullScreenshot();
+            });
+        }
+
+        private void PullScreenshot()
+        {
+            var screenshots = new List<string>();
+
+            var argument = new ArgumentCreator();
+            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("ls").Append("/sdcard/*.png");
+            var executor = new CommandExecutor(argument.ToCommandLine());
+            executor.OnStandardOutput += delegate(string value) { screenshots.Add(value); };
+            executor.Execute("adb");
+
+            if (screenshots.Any())
+            {
+                ShowSelectedScreenShotDialog(screenshots);
             }
+            else
+            {
+                MessageBox.Show("没有找到屏幕截图", "操作失败");
+            }
+        }
+
+        private void ShowSelectedScreenShotDialog(List<string> screenshots)
+        {
+            var dialogParameters = new DialogParameters
+            {
+                { "screenshots", screenshots }
+            };
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _dialogService.ShowDialog("ScreenShotListDialog", dialogParameters, dialogResult =>
+                {
+                    if (dialogResult.Result == ButtonResult.OK)
+                    {
+                        var selectedImage = dialogResult.Parameters.GetValue<string>("selectedImage");
+                        var fileName = Path.GetFileName(selectedImage);
+                        var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/{fileName}";
+                        Task.Run(() =>
+                        {
+                            var argument = new ArgumentCreator();
+                            argument.Append("-s").Append(_selectedDevice).Append("pull").Append(selectedImage)
+                                .Append(filePath);
+                            new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+                        });
+                    }
+                });
+            }));
         }
 
         private void UninstallApplication()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
             {
-                Growl.Fatal("操作失败", "请先选择需要卸载的应用");
+                MessageBox.Show("请先选择需要卸载的应用", "操作失败");
                 return;
             }
 
@@ -582,7 +623,7 @@ namespace DevKit.ViewModels
                         Application.Current.Dispatcher.Invoke(delegate
                         {
                             ApplicationPackages.Remove(_selectedPackage);
-                            Growl.Success(value);
+                            MessageBox.Show(value);
                         });
                     };
                     executor.Execute("adb");
@@ -603,7 +644,7 @@ namespace DevKit.ViewModels
             var filePath = fileDialog.FileName;
             if (string.IsNullOrEmpty(filePath))
             {
-                Growl.Error("安装包路径错误，请重新选择");
+                MessageBox.Show("安装包路径错误，请重新选择");
                 return;
             }
 
@@ -626,7 +667,7 @@ namespace DevKit.ViewModels
                         Application.Current.Dispatcher.Invoke(delegate
                         {
                             _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                            Growl.Success(value);
+                            MessageBox.Show(value);
                         });
                         GetDeviceApplication();
                     }
