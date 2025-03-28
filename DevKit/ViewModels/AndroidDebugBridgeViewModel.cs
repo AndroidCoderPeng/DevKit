@@ -283,201 +283,209 @@ namespace DevKit.ViewModels
             Task.Run(() => { executor.Execute("adb"); });
         }
 
-        private async void DeviceSelected(string device)
+        private void DeviceSelected(string device)
         {
             _selectedDevice = device;
             HasSelectedDevice = true;
             //获取设备详情
-            await Task.Run(GetDeviceDetail);
+            GetDeviceDetail();
 
             //获取第三方应用列表
-            await Task.Run(GetDeviceApplication);
+            GetDeviceApplication();
         }
 
         private void GetDeviceDetail()
         {
+            Task.Run(() =>
             {
-                var argument = new ArgumentCreator();
-                //查看 android id
-                //adb shell settings get secure android_id 
-                argument.Append("-s").Append(_selectedDevice)
-                    .Append("shell").Append("settings").Append("get").Append("secure").Append("android_id");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value) { AndroidId = value; };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取设备型号
-                //adb shell getprop ro.product.model
-                argument.Append("-s").Append(_selectedDevice)
-                    .Append("shell").Append("getprop").Append("ro.product.model");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value) { DeviceModel = value; };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取设备品牌
-                //adb shell getprop ro.product.brand
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                    .Append("ro.product.brand");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value) { DeviceBrand = value; };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取CPU支持的abi架构列表
-                //adb shell getprop ro.product.cpu.abilist
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                    .Append("ro.product.cpu.abilist");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value) { DeviceAbi = value; };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取设备Android系统版本
-                //adb shell getprop ro.build.version.release
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                    .Append("ro.build.version.release");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value) { AndroidVersion = value; };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取设备屏幕分辨率
-                //adb shell wm size
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("size");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value)
                 {
-                    //Physical size: 1240x2772
-                    DeviceSize = value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
-                };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取设备屏幕密度
-                //adb shell wm density
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("density");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value)
-                {
-                    //Physical density: 560
-                    DeviceDensity = $"{value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim()}";
-                };
-                executor.Execute("adb");
-            }
-
-            {
-                var argument = new ArgumentCreator();
-                //获取手机内存信息
-                //adb shell cat /proc/meminfo
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("cat").Append("/proc/meminfo");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                var available = 0.0;
-                var total = 0.0;
-                executor.OnStandardOutput += delegate(string value)
-                {
-                    var dictionary = value.ToDictionary();
-                    foreach (var kvp in dictionary)
-                    {
-                        switch (kvp.Key)
-                        {
-                            case "MemAvailable":
-                                available = kvp.Value.FormatMemoryValue();
-                                break;
-
-                            case "MemTotal":
-                                //进一取整
-                                total = Math.Ceiling(kvp.Value.FormatMemoryValue());
-                                break;
-                        }
-                    }
-                };
-                executor.Execute("adb");
-                if (total == 0)
-                {
-                    MemoryProgress = 0;
+                    var argument = new ArgumentCreator();
+                    //查看 android id
+                    //adb shell settings get secure android_id 
+                    argument.Append("-s").Append(_selectedDevice)
+                        .Append("shell").Append("settings").Append("get").Append("secure").Append("android_id");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { AndroidId = value; };
+                    executor.Execute("adb");
                 }
-                else
+
                 {
-                    MemoryProgress = Math.Round((total - available) / total, 2) * 100;
+                    var argument = new ArgumentCreator();
+                    //获取设备型号
+                    //adb shell getprop ro.product.model
+                    argument.Append("-s").Append(_selectedDevice)
+                        .Append("shell").Append("getprop").Append("ro.product.model");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { DeviceModel = value; };
+                    executor.Execute("adb");
                 }
-            }
 
-            {
-                var argument = new ArgumentCreator();
-                //监控电池信息
-                //adb shell dumpsys battery
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("dumpsys").Append("battery");
-                var executor = new CommandExecutor(argument.ToCommandLine());
-                executor.OnStandardOutput += delegate(string value)
                 {
-                    var dictionary = value.ToDictionary();
-                    foreach (var kvp in dictionary)
+                    var argument = new ArgumentCreator();
+                    //获取设备品牌
+                    //adb shell getprop ro.product.brand
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
+                        .Append("ro.product.brand");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { DeviceBrand = value; };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取CPU支持的abi架构列表
+                    //adb shell getprop ro.product.cpu.abilist
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
+                        .Append("ro.product.cpu.abilist");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { DeviceAbi = value; };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取设备Android系统版本
+                    //adb shell getprop ro.build.version.release
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
+                        .Append("ro.build.version.release");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { AndroidVersion = value; };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取设备屏幕分辨率
+                    //adb shell wm size
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("size");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value)
                     {
-                        switch (kvp.Key)
+                        //Physical size: 1240x2772
+                        DeviceSize = value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim();
+                    };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取设备屏幕密度
+                    //adb shell wm density
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("density");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value)
+                    {
+                        //Physical density: 560
+                        DeviceDensity =
+                            $"{value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim()}";
+                    };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取手机内存信息
+                    //adb shell cat /proc/meminfo
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("cat").Append("/proc/meminfo");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var available = 0.0;
+                    var total = 0.0;
+                    executor.OnStandardOutput += delegate(string value)
+                    {
+                        var dictionary = value.ToDictionary();
+                        foreach (var kvp in dictionary)
                         {
-                            case "status":
-                                // 2:正充电；3：没插充电器；4：不充电； 5：电池充满
-                                switch (kvp.Value)
-                                {
-                                    case "2":
-                                        BatteryState = "正在充电";
-                                        break;
+                            switch (kvp.Key)
+                            {
+                                case "MemAvailable":
+                                    available = kvp.Value.FormatMemoryValue();
+                                    break;
 
-                                    case "5":
-                                        BatteryState = "充电完成";
-                                        break;
-
-                                    default:
-                                        BatteryState = "未充电";
-                                        break;
-                                }
-
-                                break;
-                            case "level":
-                                BatteryProgress = double.Parse(kvp.Value);
-                                break;
-
-                            case "temperature":
-                                var temperature = int.Parse(kvp.Value) * 0.1;
-                                BatteryTemperature = $"{temperature}℃";
-                                break;
+                                case "MemTotal":
+                                    //进一取整
+                                    total = Math.Ceiling(kvp.Value.FormatMemoryValue());
+                                    break;
+                            }
                         }
+                    };
+                    executor.Execute("adb");
+                    if (total == 0)
+                    {
+                        MemoryProgress = 0;
                     }
-                };
-                executor.Execute("adb");
-            }
+                    else
+                    {
+                        MemoryProgress = Math.Round((total - available) / total, 2) * 100;
+                    }
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //监控电池信息
+                    //adb shell dumpsys battery
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("dumpsys").Append("battery");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value)
+                    {
+                        var dictionary = value.ToDictionary();
+                        foreach (var kvp in dictionary)
+                        {
+                            switch (kvp.Key)
+                            {
+                                case "status":
+                                    // 2:正充电；3：没插充电器；4：不充电； 5：电池充满
+                                    switch (kvp.Value)
+                                    {
+                                        case "2":
+                                            BatteryState = "正在充电";
+                                            break;
+
+                                        case "5":
+                                            BatteryState = "充电完成";
+                                            break;
+
+                                        default:
+                                            BatteryState = "未充电";
+                                            break;
+                                    }
+
+                                    break;
+                                case "level":
+                                    BatteryProgress = double.Parse(kvp.Value);
+                                    break;
+
+                                case "temperature":
+                                    var temperature = int.Parse(kvp.Value) * 0.1;
+                                    BatteryTemperature = $"{temperature}℃";
+                                    break;
+                            }
+                        }
+                    };
+                    executor.Execute("adb");
+                }
+            });
         }
 
         private void GetDeviceApplication()
         {
-            var argument = new ArgumentCreator();
-            //列出第三方的应用
-            //adb shell pm list package -3
-            argument.Append("shell").Append("pm").Append("list").Append("package").Append("-3");
-            var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += delegate(string value)
+            Task.Run(() =>
             {
-                var package = value.Split(new[] { ":" }, StringSplitOptions.None)[1];
-                if (!_applicationPackages.Contains(package))
+                var argument = new ArgumentCreator();
+                //列出第三方的应用
+                //adb shell pm list package -3
+                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("pm").Append("list")
+                    .Append("package").Append("-3");
+                var executor = new CommandExecutor(argument.ToCommandLine());
+                executor.OnStandardOutput += delegate(string value)
                 {
-                    Application.Current.Dispatcher.Invoke(delegate { ApplicationPackages.Add(package); });
-                }
-            };
-            executor.Execute("adb");
+                    var package = value.Split(new[] { ":" }, StringSplitOptions.None)[1];
+                    if (!_applicationPackages.Contains(package))
+                    {
+                        Application.Current.Dispatcher.Invoke(delegate { ApplicationPackages.Add(package); });
+                    }
+                };
+                executor.Execute("adb");
+            });
         }
 
         private void SortApplication()
@@ -526,7 +534,8 @@ namespace DevKit.ViewModels
             //截取屏幕截图并保存到指定位置
             //adb shell screencap -p /sdcard/20241214112123.png 
             var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p").Append($"/sdcard/{fileName}");
+            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p")
+                .Append($"/sdcard/{fileName}");
             new CommandExecutor(argument.ToCommandLine()).Execute("adb");
             PullScreenshot(fileName);
         }
