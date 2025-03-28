@@ -29,6 +29,18 @@ namespace DevKit.ViewModels
     {
         #region VM
 
+        private string _jdkPath = string.Empty;
+
+        public string JdkPath
+        {
+            get => _jdkPath;
+            set
+            {
+                _jdkPath = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _keyFilePath = string.Empty;
 
         public string KeyFilePath
@@ -105,6 +117,7 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand SelectJdkCommand { set; get; }
         public DelegateCommand CreateKeyCommand { set; get; }
         public DelegateCommand SelectKeyCommand { set; get; }
         public DelegateCommand ShowSha1Command { set; get; }
@@ -128,6 +141,7 @@ namespace DevKit.ViewModels
 
             InitDefaultConfig();
 
+            SelectJdkCommand = new DelegateCommand(SelectJdk);
             CreateKeyCommand = new DelegateCommand(CreateKey);
             SelectKeyCommand = new DelegateCommand(SelectKey);
             ShowSha1Command = new DelegateCommand(ShowSha1Async);
@@ -139,10 +153,30 @@ namespace DevKit.ViewModels
         private void InitDefaultConfig()
         {
             _configCache = _dataService.LoadApkCacheConfig();
+            JdkPath = _configCache.JdkPath;
             KeyFilePath = _configCache.KeyPath;
             KeyAlias = _configCache.Alias;
             KeyPassword = _configCache.Password;
             ApkRootFolderPath = _configCache.ApkRootFolder;
+        }
+
+        private void SelectJdk()
+        {
+            using (var folderDialog = new FolderBrowserDialog())
+            {
+                if (folderDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //C:\Program Files\Java\jdk1.8.0_311
+                    //C:\Program Files\Java\jdk1.8.0_311\bin
+                    var selectedPath = folderDialog.SelectedPath;
+                    if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedPath = Path.Combine(selectedPath, "bin");
+                    }
+
+                    JdkPath = selectedPath;
+                }
+            }
         }
 
         private void CreateKey()
@@ -183,6 +217,7 @@ namespace DevKit.ViewModels
                 }
 
                 //保存配置
+                _configCache.JdkPath = _jdkPath;
                 _configCache.KeyPath = _keyFilePath;
                 _configCache.Alias = _keyAlias;
                 _configCache.Password = _keyPassword;
@@ -231,6 +266,13 @@ namespace DevKit.ViewModels
 
         private void ExecuteCommand(List<string> list)
         {
+            var keytoolPath = Path.Combine(_jdkPath, "keytool.exe");
+            if (!File.Exists(keytoolPath))
+            {
+                MessageBox.Show("keytool 未找到，请检查 JDK 路径是否正确。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             var argument = new ArgumentCreator();
             argument.Append("-v")
                 .Append("-list")
@@ -239,7 +281,7 @@ namespace DevKit.ViewModels
                 .Append("-storepass").Append(_keyPassword);
             var executor = new CommandExecutor(argument.ToCommandLine());
             executor.OnStandardOutput += list.Add;
-            executor.Execute("keytool");
+            executor.Execute(keytoolPath);
         }
 
         private void SelectApkRootFolder()

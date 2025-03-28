@@ -25,10 +25,38 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Text="JDK目录" />
+
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0"
+                VerticalContentAlignment="Center"
+                hc:InfoElement.ShowClearButton="True"
+                FontSize="14"
+                Text="{Binding JdkPath}" />
+
+            <Button
+                Grid.Column="2"
+                Command="{Binding SelectJdkCommand}"
+                Content="设置"
+                Style="{StaticResource ButtonPrimary}" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="10,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
@@ -67,7 +95,7 @@
                 Style="{StaticResource ButtonPrimary}" />
         </Grid>
 
-        <Grid Grid.Row="1" Margin="10,0">
+        <Grid Grid.Row="2" Margin="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
@@ -114,8 +142,8 @@
         </Grid>
 
         <hc:TextBox
-            Grid.Row="2"
-            Margin="10"
+            Grid.Row="3"
+            Margin="10,0"
             Padding="5,3"
             VerticalContentAlignment="Top"
             Background="#0C0C0C"
@@ -128,15 +156,21 @@
             TextWrapping="NoWrap"
             VerticalScrollBarVisibility="Auto" />
 
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4" Margin="10">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <hc:TextBox
+            <TextBlock
                 Grid.Column="0"
+                VerticalAlignment="Center"
+                Text="根目录" />
+
+            <hc:TextBox
+                Grid.Column="1"
                 Margin="10,0"
                 VerticalAlignment="Center"
                 VerticalContentAlignment="Center"
@@ -146,14 +180,14 @@
                 Text="{Binding ApkRootFolderPath}" />
 
             <Button
-                Grid.Column="1"
+                Grid.Column="2"
                 Command="{Binding SelectApkRootFolderCommand}"
                 Content="选择"
                 Style="{StaticResource ButtonPrimary}" />
 
             <Button
-                Grid.Column="2"
-                Margin="10,0,10,0"
+                Grid.Column="3"
+                Margin="10,0,0,0"
                 Command="{Binding RefreshApkFilesCommand}"
                 Content="&#xe602;"
                 FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -163,8 +197,8 @@
 
         <ListBox
             x:Name="TargetListBox"
-            Grid.Row="4"
-            Margin="10"
+            Grid.Row="5"
+            Margin="10,0"
             HorizontalContentAlignment="Stretch"
             BorderThickness="0"
             ItemsSource="{Binding ApkFileCollection}"
