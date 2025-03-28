@@ -10,7 +10,6 @@ using DevKit.Models;
 using DevKit.Utils;
 using DevKit.ViewModels;
 using DevKit.Views;
-using Hardcodet.Wpf.TaskbarNotification;
 using Newtonsoft.Json;
 using Prism.DryIoc;
 using Prism.Ioc;
@@ -30,13 +29,6 @@ namespace DevKit
             {
                 var regionManager = Container.Resolve<IRegionManager>();
                 regionManager.RequestNavigate("ContentRegion", "AndroidDebugBridgeView");
-
-                var trayIcon = (TaskbarIcon)FindResource("TrayIcon");
-                if (trayIcon != null)
-                {
-                    trayIcon.DataContext = new TrayIconViewModel(mainWindow);
-                }
-
                 using (var dataBase = new DataBaseConnection())
                 {
                     if (!dataBase.Table<ColorResourceCache>().Any())
