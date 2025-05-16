@@ -304,5 +304,8 @@
   <ItemGroup>
     <Resource Include="Images\empty.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shell\build_release_script.bat" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
