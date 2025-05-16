@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="400"
-    Height="180"
+    Width="450"
+    Height="240"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     Background="White"
     mc:Ignorable="d">
@@ -28,12 +28,11 @@
     </UserControl.Resources>
 
     <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
-        <Grid>
+        <Grid Margin="20">
             <Grid.RowDefinitions>
+                <RowDefinition Height="100" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10,10,10,0">
@@ -44,28 +43,22 @@
 
                 <TextBlock
                     Grid.Column="0"
+                    Width="80"
                     VerticalAlignment="Center"
                     Text="指令值" />
 
                 <hc:TextBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
-                    Padding="4,2"
-                    hc:InfoElement.Placeholder="此项必填"
-                    hc:InfoElement.ShowClearButton="True"
+                    Padding="7,5"
+                    VerticalContentAlignment="Top"
+                    hc:InfoElement.Placeholder="请输入16进制格式指令"
                     FontSize="14"
                     Text="{Binding UserCommandValue}"
                     TextWrapping="NoWrap" />
             </Grid>
 
-            <CheckBox
-                Grid.Row="1"
-                Margin="10"
-                HorizontalAlignment="Right"
-                Content="HEX"
-                IsChecked="{Binding IsHexChecked}" />
-
-            <Grid Grid.Row="2" Margin="10,0">
+            <Grid Grid.Row="1" Margin="10,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
@@ -73,28 +66,41 @@
 
                 <TextBlock
                     Grid.Column="0"
+                    Width="80"
                     VerticalAlignment="Center"
-                    Text="指令注释" />
+                    Text="备注" />
 
                 <hc:TextBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
-                    Padding="4,2"
-                    hc:InfoElement.Placeholder="此项非必填"
-                    hc:InfoElement.ShowClearButton="True"
+                    Padding="7,5"
+                    hc:InfoElement.Placeholder="可选"
                     FontSize="14"
                     Text="{Binding CommandAnnotation}"
                     TextWrapping="NoWrap" />
             </Grid>
 
-            <Button
-                Grid.Row="3"
-                Margin="10,0,10,10"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
-                Command="{Binding ExtensionCommandSaveCommand}"
-                Content="保存指令"
-                Style="{StaticResource ButtonPrimary}" />
+            <UniformGrid
+                Grid.Row="2"
+                Width="300"
+                Margin="10,0"
+                HorizontalAlignment="Right"
+                Columns="2"
+                Rows="1">
+                <Button
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding CommandSaveCommand}"
+                    Content="保存"
+                    Style="{StaticResource ButtonPrimary}" />
+
+                <Button
+                    Margin="10,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding CancelDialogCommand}"
+                    Content="取消"
+                    Style="{StaticResource ButtonWarning}" />
+            </UniformGrid>
         </Grid>
     </Border>
 </UserControl>

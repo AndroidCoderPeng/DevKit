@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Events;
-using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Prism.Commands;
@@ -101,9 +100,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ApkFileModel> _apkFileCollection;
+        private ObservableCollection<string> _apkFileCollection;
 
-        public ObservableCollection<ApkFileModel> ApkFileCollection
+        public ObservableCollection<string> ApkFileCollection
         {
             get => _apkFileCollection;
             set
@@ -322,11 +321,11 @@ namespace DevKit.ViewModels
             }
         }
 
-        private async Task<List<ApkFileModel>> GetApkFilesAsync()
+        private async Task<List<string>> GetApkFilesAsync()
         {
-            var list = new List<ApkFileModel>();
+            var list = new List<string>();
             await Task.Run(() => TraverseFolder(_apkRootFolderPath, list));
-            return list.OrderBy(file => file.CreationTime).Reverse().ToList();
+            return list;
         }
 
         /// <summary>
@@ -334,23 +333,15 @@ namespace DevKit.ViewModels
         /// </summary>
         /// <param name="folderPath"></param>
         /// <param name="apkFiles"></param>
-        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles)
+        private void TraverseFolder(string folderPath, List<string> apkFiles)
         {
             var files = new DirectoryInfo(folderPath).GetFiles("*.apk", SearchOption.AllDirectories)
-                .OrderBy(file => file.CreationTime)
+                .OrderBy(file => file.LastWriteTime)
                 .Reverse();
             foreach (var file in files)
             {
                 if (file.FullName.Contains("debug") || file.Name.StartsWith(".")) continue;
-                var apkFile = new ApkFileModel
-                {
-                    FileName = file.Name,
-                    FullPath = file.FullName,
-                    FileSize = file.Length.FormatFileSize(),
-                    CreationTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
-                };
-
-                apkFiles.Add(apkFile);
+                apkFiles.Add(file.FullName);
             }
         }
 

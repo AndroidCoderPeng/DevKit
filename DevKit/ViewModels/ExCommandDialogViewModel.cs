@@ -11,7 +11,7 @@ namespace DevKit.ViewModels
 {
     public class ExCommandDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => "扩展指令";
+        public string Title => "添加扩展指令";
 
         public event Action<IDialogResult> RequestClose;
 
@@ -57,7 +57,8 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ExtensionCommandSaveCommand { set; get; }
+        public DelegateCommand CommandSaveCommand { set; get; }
+        public DelegateCommand CancelDialogCommand { set; get; }
 
         #endregion
 
@@ -82,7 +83,8 @@ namespace DevKit.ViewModels
         {
             _dataService = dataService;
 
-            ExtensionCommandSaveCommand = new DelegateCommand(ExtensionCommandSave);
+            CommandSaveCommand = new DelegateCommand(ExtensionCommandSave);
+            CancelDialogCommand = new DelegateCommand(CancelDialog);
         }
 
         private void ExtensionCommandSave()
@@ -118,6 +120,11 @@ namespace DevKit.ViewModels
 
             _dataService.SaveCacheConfig(cache);
             RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+        }
+
+        private void CancelDialog()
+        {
+            RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
         }
     }
 }

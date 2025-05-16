@@ -84,9 +84,6 @@
     <Reference Include="Prism.Wpf, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Wpf.8.1.97\lib\net47\Prism.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="QRCoder, Version=1.6.0.0, Culture=neutral, PublicKeyToken=c4ed5b9ae8358a28, processorArchitecture=MSIL">
-      <HintPath>..\packages\QRCoder.1.6.0\lib\net40\QRCoder.dll</HintPath>
-    </Reference>
     <Reference Include="SQLite-net, Version=1.9.172.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\sqlite-net-pcl.1.9.172\lib\netstandard2.0\SQLite-net.dll</HintPath>
     </Reference>
@@ -148,18 +145,9 @@
     <Reference Include="TouchSocket.Http, Version=3.0.6.0, Culture=neutral, PublicKeyToken=ecea290704fb8ddd, processorArchitecture=MSIL">
       <HintPath>..\packages\TouchSocket.Http.3.0.6\lib\net472\TouchSocket.Http.dll</HintPath>
     </Reference>
-    <Reference Include="TouchSocket.SerialPorts, Version=3.0.6.0, Culture=neutral, PublicKeyToken=b0dfdf1c6b51c716, processorArchitecture=MSIL">
-      <HintPath>..\packages\TouchSocket.SerialPorts.3.0.6\lib\net472\TouchSocket.SerialPorts.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="zxing, Version=0.16.9.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZXing.Net.0.16.9\lib\net48\zxing.dll</HintPath>
-    </Reference>
-    <Reference Include="zxing.presentation, Version=0.16.9.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZXing.Net.0.16.9\lib\net48\zxing.presentation.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -200,7 +188,6 @@
       <DependentUpon>ScreenShotListDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
-    <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
@@ -220,12 +207,9 @@
     <Compile Include="ViewModels\ColorResourceViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
-    <Compile Include="ViewModels\GenerateIconViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\QrCodeViewModel.cs" />
     <Compile Include="ViewModels\ScreenShotListDialogViewModel.cs" />
-    <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
@@ -243,18 +227,9 @@
     <Compile Include="Views\ColorResourceView.xaml.cs">
       <DependentUpon>ColorResourceView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\GenerateIconView.xaml.cs">
-      <DependentUpon>GenerateIconView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Views\QrCodeView.xaml.cs">
-      <DependentUpon>QrCodeView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SerialPortView.xaml.cs">
-      <DependentUpon>SerialPortView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TcpClientView.xaml.cs">
       <DependentUpon>TcpClientView.xaml</DependentUpon>
@@ -305,13 +280,10 @@
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ColorResourceView.xaml" />
-    <Page Include="Views\GenerateIconView.xaml" />
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\QrCodeView.xaml" />
-    <Page Include="Views\SerialPortView.xaml" />
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\TranscodingView.xaml" />

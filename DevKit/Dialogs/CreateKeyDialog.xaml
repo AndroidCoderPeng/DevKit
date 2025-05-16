@@ -9,7 +9,7 @@
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="400"
-    Height="305"
+    Height="335"
     d:DataContext="{d:DesignInstance Type=vm:CreateKeyDialogViewModel}"
     Background="White"
     mc:Ignorable="d">
@@ -30,7 +30,7 @@
     </UserControl.Resources>
 
     <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
-        <Grid>
+        <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -44,6 +44,7 @@
 
             <DockPanel Grid.Row="0" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center"
                     Text="Key别名" />
@@ -60,6 +61,7 @@
 
             <DockPanel Grid.Row="1" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0"
                     VerticalAlignment="Center"
                     Text="密码" />
@@ -77,6 +79,7 @@
 
             <DockPanel Grid.Row="2" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center"
                     Text="创建证书者姓氏" />
@@ -93,6 +96,7 @@
 
             <DockPanel Grid.Row="3" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0"
                     VerticalAlignment="Center"
                     Text="公司名" />
@@ -109,6 +113,7 @@
 
             <DockPanel Grid.Row="4" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center"
                     Text="行政区" />
@@ -125,6 +130,7 @@
 
             <DockPanel Grid.Row="5" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0"
                     VerticalAlignment="Center"
                     Text="省（市）" />
@@ -141,6 +147,7 @@
 
             <DockPanel Grid.Row="6" LastChildFill="True">
                 <TextBlock
+                    Width="100"
                     Margin="10,0,0,0"
                     VerticalAlignment="Center"
                     Text="存储位置" />
@@ -154,7 +161,9 @@
 
             <UniformGrid
                 Grid.Row="7"
-                Margin="10,0"
+                Width="250"
+                Margin="10"
+                HorizontalAlignment="Right"
                 Columns="2"
                 Rows="1">
                 <Button

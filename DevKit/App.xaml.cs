@@ -92,9 +92,6 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
-            containerRegistry.RegisterForNavigation<SerialPortView, SerialPortViewModel>();
-            containerRegistry.RegisterForNavigation<GenerateIconView, GenerateIconViewModel>();
-            containerRegistry.RegisterForNavigation<QrCodeView, QrCodeViewModel>();
             containerRegistry.RegisterForNavigation<TranscodingView, TranscodingViewModel>();
             containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
 

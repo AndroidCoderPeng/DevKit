@@ -63,18 +63,9 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("WebSocketServerView");
                     break;
                 case 8:
-                    region.RequestNavigate("SerialPortView");
-                    break;
-                case 9:
-                    region.RequestNavigate("GenerateIconView");
-                    break;
-                case 10:
-                    region.RequestNavigate("QrCodeView");
-                    break;
-                case 11:
                     region.RequestNavigate("TranscodingView");
                     break;
-                case 12:
+                case 9:
                     region.RequestNavigate("ColorResourceView");
                     break;
             }
