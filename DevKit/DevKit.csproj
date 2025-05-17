@@ -213,7 +213,6 @@
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\TranscodingViewModel.cs" />
-    <Compile Include="ViewModels\TrayIconViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
     <Compile Include="ViewModels\UdpServerViewModel.cs" />
     <Compile Include="ViewModels\WebSocketClientViewModel.cs" />

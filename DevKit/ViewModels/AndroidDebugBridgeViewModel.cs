@@ -48,30 +48,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _androidId;
-
-        public string AndroidId
-        {
-            get => _androidId;
-            set
-            {
-                _androidId = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _deviceModel;
-
-        public string DeviceModel
-        {
-            get => _deviceModel;
-            set
-            {
-                _deviceModel = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private string _deviceBrand;
 
         public string DeviceBrand
@@ -128,18 +104,6 @@ namespace DevKit.ViewModels
             set
             {
                 _deviceDensity = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private double _memoryProgress;
-
-        public double MemoryProgress
-        {
-            get => _memoryProgress;
-            set
-            {
-                _memoryProgress = value;
                 RaisePropertyChanged();
             }
         }
@@ -305,28 +269,6 @@ namespace DevKit.ViewModels
             {
                 {
                     var argument = new ArgumentCreator();
-                    //查看 android id
-                    //adb shell settings get secure android_id 
-                    argument.Append("-s").Append(_selectedDevice)
-                        .Append("shell").Append("settings").Append("get").Append("secure").Append("android_id");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
-                    executor.OnStandardOutput += delegate(string value) { AndroidId = value; };
-                    executor.Execute("adb");
-                }
-
-                {
-                    var argument = new ArgumentCreator();
-                    //获取设备型号
-                    //adb shell getprop ro.product.model
-                    argument.Append("-s").Append(_selectedDevice)
-                        .Append("shell").Append("getprop").Append("ro.product.model");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
-                    executor.OnStandardOutput += delegate(string value) { DeviceModel = value; };
-                    executor.Execute("adb");
-                }
-
-                {
-                    var argument = new ArgumentCreator();
                     //获取设备品牌
                     //adb shell getprop ro.product.brand
                     argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
@@ -385,43 +327,6 @@ namespace DevKit.ViewModels
                             $"{value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim()}";
                     };
                     executor.Execute("adb");
-                }
-
-                {
-                    var argument = new ArgumentCreator();
-                    //获取手机内存信息
-                    //adb shell cat /proc/meminfo
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("cat").Append("/proc/meminfo");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
-                    var available = 0.0;
-                    var total = 0.0;
-                    executor.OnStandardOutput += delegate(string value)
-                    {
-                        var dictionary = value.ToDictionary();
-                        foreach (var kvp in dictionary)
-                        {
-                            switch (kvp.Key)
-                            {
-                                case "MemAvailable":
-                                    available = kvp.Value.FormatMemoryValue();
-                                    break;
-
-                                case "MemTotal":
-                                    //进一取整
-                                    total = Math.Ceiling(kvp.Value.FormatMemoryValue());
-                                    break;
-                            }
-                        }
-                    };
-                    executor.Execute("adb");
-                    if (total == 0)
-                    {
-                        MemoryProgress = 0;
-                    }
-                    else
-                    {
-                        MemoryProgress = Math.Round((total - available) / total, 2) * 100;
-                    }
                 }
 
                 {

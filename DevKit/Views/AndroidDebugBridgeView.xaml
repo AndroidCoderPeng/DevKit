@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
@@ -29,6 +28,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10">
@@ -70,12 +70,10 @@
                 Grid.Row="1"
                 Margin="10,0,10,10"
                 BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1">
+                BorderThickness="1"
+                CornerRadius="4">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -94,40 +92,6 @@
                         <TextBlock
                             Grid.Column="0"
                             VerticalAlignment="Center"
-                            Text="Android ID" />
-
-                        <TextBlock
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            Text="{Binding AndroidId}" />
-                    </Grid>
-
-                    <Grid Grid.Row="1" Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Text="设备型号" />
-
-                        <TextBlock
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            Text="{Binding DeviceModel}" />
-                    </Grid>
-
-                    <Grid Grid.Row="2" Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
                             Text="设备品牌" />
 
                         <TextBlock
@@ -136,7 +100,7 @@
                             Text="{Binding DeviceBrand}" />
                     </Grid>
 
-                    <Grid Grid.Row="3" Margin="10">
+                    <Grid Grid.Row="1" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -154,7 +118,7 @@
                             TextWrapping="Wrap" />
                     </Grid>
 
-                    <Grid Grid.Row="4" Margin="10">
+                    <Grid Grid.Row="2" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -171,7 +135,7 @@
                             Text="{Binding AndroidVersion}" />
                     </Grid>
 
-                    <Grid Grid.Row="5" Margin="10">
+                    <Grid Grid.Row="3" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -188,7 +152,7 @@
                             Text="{Binding DeviceSize}" />
                     </Grid>
 
-                    <Grid Grid.Row="6" Margin="10">
+                    <Grid Grid.Row="4" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -205,24 +169,7 @@
                             Text="{Binding DeviceDensity}" />
                     </Grid>
 
-                    <Grid Grid.Row="7" Margin="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="2*" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="内存信息" />
-
-                        <hc:WaveProgressBar
-                            Grid.Column="1"
-                            Width="128"
-                            Height="128"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource ProgressBarSuccessWave}"
-                            Value="{Binding MemoryProgress}" />
-                    </Grid>
-
-                    <Grid Grid.Row="8" Margin="10">
+                    <Grid Grid.Row="5" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -230,17 +177,32 @@
 
                         <TextBlock Grid.Column="0" Text="电池状态" />
 
-                        <StackPanel Grid.Column="1" Orientation="Vertical">
-                            <TextBlock VerticalAlignment="Center" Text="{Binding BatteryState}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Border
+                                Width="40"
+                                Height="18"
+                                BorderBrush="{DynamicResource SecondaryBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="2">
+                                <ProgressBar
+                                    Margin="1"
+                                    VerticalAlignment="Center"
+                                    Background="Transparent"
+                                    Foreground="{DynamicResource SuccessBrush}"
+                                    Value="{Binding BatteryProgress}" />
+                            </Border>
 
-                            <ProgressBar
-                                Margin="0,5,0,0"
-                                Style="{StaticResource ProgressBarSuccess}"
-                                Value="{Binding BatteryProgress}" />
+                            <Border
+                                Width="2"
+                                Height="10"
+                                BorderBrush="{DynamicResource SecondaryBorderBrush}"
+                                BorderThickness="1" />
+
+                            <TextBlock Margin="10,0" Text="{Binding BatteryState}" />
                         </StackPanel>
                     </Grid>
 
-                    <Grid Grid.Row="9" Margin="10">
+                    <Grid Grid.Row="6" Margin="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
@@ -258,13 +220,60 @@
                     </Grid>
                 </Grid>
             </Border>
+
+            <UniformGrid
+                Grid.Row="2"
+                Margin="10,0,10,10"
+                Columns="2"
+                IsEnabled="{Binding HasSelectedDevice}"
+                Rows="3">
+
+                <Button
+                    Margin="0,0,5,5"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding RebootDeviceCommand}"
+                    Content="重启设备"
+                    Style="{StaticResource ButtonWarning}" />
+
+                <Button
+                    Margin="5,0,0,5"
+                    HorizontalAlignment="Stretch"
+                    Content="" />
+
+                <Button
+                    Margin="0,0,5,5"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding RebootDeviceCommand}"
+                    Content="导出截屏"
+                    Style="{StaticResource ButtonInfo}" />
+
+                <Button
+                    Margin="5,0,0,5"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding ScreenshotCommand}"
+                    Content="截取屏幕"
+                    Style="{StaticResource ButtonSuccess}" />
+
+                <Button
+                    Margin="0,5,5,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding UninstallCommand}"
+                    Content="卸载软件"
+                    Style="{StaticResource ButtonDanger}" />
+
+                <Button
+                    Margin="5,5,0,0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding InstallCommand}"
+                    Content="安装软件"
+                    Style="{StaticResource ButtonPrimary}" />
+            </UniformGrid>
         </Grid>
 
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="10">
@@ -282,7 +291,7 @@
             <ListBox
                 x:Name="PackageListBox"
                 Grid.Row="1"
-                Margin="0,0,10,0"
+                Margin="0,0,10,10"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 ItemsSource="{Binding ApplicationPackages}"
@@ -299,42 +308,6 @@
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
             </ListBox>
-
-            <UniformGrid
-                Grid.Row="2"
-                Margin="0,10,10,10"
-                Columns="2"
-                IsEnabled="{Binding HasSelectedDevice}"
-                Rows="2">
-
-                <Button
-                    Margin="0,0,5,5"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding RebootDeviceCommand}"
-                    Content="重启设备"
-                    Style="{StaticResource ButtonWarning}" />
-
-                <Button
-                    Margin="5,0,0,5"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ScreenshotCommand}"
-                    Content="截屏"
-                    Style="{StaticResource ButtonSuccess}" />
-
-                <Button
-                    Margin="0,5,5,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding UninstallCommand}"
-                    Content="卸载"
-                    Style="{StaticResource ButtonDanger}" />
-
-                <Button
-                    Margin="5,5,0,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding InstallCommand}"
-                    Content="安装"
-                    Style="{StaticResource ButtonPrimary}" />
-            </UniformGrid>
         </Grid>
     </Grid>
 </UserControl>
