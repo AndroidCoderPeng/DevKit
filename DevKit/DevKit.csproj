@@ -306,6 +306,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Shell\build_release_script.bat" />
+    <Content Include="Shell\DevKit.iss" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
