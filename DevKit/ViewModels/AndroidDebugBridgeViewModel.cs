@@ -166,8 +166,8 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
-        public DelegateCommand UninstallCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
+        public DelegateCommand UninstallCommand { set; get; }
 
         #endregion
 
@@ -199,8 +199,8 @@ namespace DevKit.ViewModels
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
-            UninstallCommand = new DelegateCommand(UninstallApplication);
             InstallCommand = new DelegateCommand(InstallApplication);
+            UninstallCommand = new DelegateCommand(UninstallApplication);
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)

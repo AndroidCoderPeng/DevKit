@@ -226,29 +226,17 @@
                 Margin="10,0,10,10"
                 Columns="2"
                 IsEnabled="{Binding HasSelectedDevice}"
-                Rows="3">
+                Rows="2">
 
                 <Button
-                    Margin="0,0,5,5"
+                    Margin="0,0,5,0"
                     HorizontalAlignment="Stretch"
-                    Command="{Binding RebootDeviceCommand}"
-                    Content="重启设备"
-                    Style="{StaticResource ButtonWarning}" />
-
-                <Button
-                    Margin="5,0,0,5"
-                    HorizontalAlignment="Stretch"
-                    Content="" />
-
-                <Button
-                    Margin="0,0,5,5"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding RebootDeviceCommand}"
+                    Command="{Binding OutputImageCommand}"
                     Content="导出截屏"
                     Style="{StaticResource ButtonInfo}" />
 
                 <Button
-                    Margin="5,0,0,5"
+                    Margin="5,0,0,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding ScreenshotCommand}"
                     Content="截取屏幕"
@@ -257,8 +245,8 @@
                 <Button
                     Margin="0,5,5,0"
                     HorizontalAlignment="Stretch"
-                    Command="{Binding UninstallCommand}"
-                    Content="卸载软件"
+                    Command="{Binding RebootDeviceCommand}"
+                    Content="重启设备"
                     Style="{StaticResource ButtonDanger}" />
 
                 <Button
@@ -301,6 +289,16 @@
                         <TextBlock Text="{Binding}" TextWrapping="Wrap" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem
+                            Width="95"
+                            Command="{Binding UninstallCommand}"
+                            CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}"
+                            Header="卸载" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
 
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="SelectionChanged">
