@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Cache;
@@ -29,13 +28,13 @@ namespace DevKit
             {
                 var regionManager = Container.Resolve<IRegionManager>();
                 regionManager.RequestNavigate("ContentRegion", "AndroidDebugBridgeView");
-                using (var dataBase = new DataBaseConnection())
-                {
-                    if (!dataBase.Table<ColorResourceCache>().Any())
-                    {
-                        _ = StoreColorCacheAsync();
-                    }
-                }
+                // using (var dataBase = new DataBaseConnection())
+                // {
+                //     if (!dataBase.Table<ColorResourceCache>().Any())
+                //     {
+                //         _ = StoreColorCacheAsync();
+                //     }
+                // }
             };
             return mainWindow;
         }
@@ -92,7 +91,6 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
-            containerRegistry.RegisterForNavigation<TranscodingView, TranscodingViewModel>();
             containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
 
             //Dialog or Window

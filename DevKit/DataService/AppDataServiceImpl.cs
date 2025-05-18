@@ -28,7 +28,6 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket客户端" },
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket服务端" },
-                new MainMenuModel { MenuIcon = "\ue602", MenuName = "转码" },
                 new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
             };
         }

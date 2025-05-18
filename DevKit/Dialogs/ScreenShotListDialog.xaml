@@ -27,7 +27,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
+    <Border BorderThickness="0,1,0,0">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -73,16 +73,14 @@
                     Grid.Column="0"
                     HorizontalAlignment="Left"
                     Command="{Binding SortScreenshotsCommand}"
-                    Content="排序"
-                    Style="{StaticResource ButtonPrimary}" />
+                    Content="排序" />
 
                 <Button
                     Grid.Column="1"
                     HorizontalAlignment="Right"
                     Command="{Binding OutputScreenshotCommand}"
                     CommandParameter="{Binding ElementName=ScreenshotsListBox, Path=SelectedItem}"
-                    Content="导出到电脑"
-                    Style="{StaticResource ButtonSuccess}" />
+                    Content="导出到电脑" />
             </Grid>
         </Grid>
     </Border>

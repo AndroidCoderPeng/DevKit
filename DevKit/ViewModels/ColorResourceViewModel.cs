@@ -10,8 +10,6 @@ using System.Windows.Media;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Utils;
-using HandyControl.Controls;
-using HandyControl.Data;
 using Prism.Commands;
 using Prism.Mvvm;
 using Color = System.Windows.Media.Color;
@@ -24,14 +22,14 @@ namespace DevKit.ViewModels
     {
         #region DelegateCommand
 
-        public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
-        public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
-        public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
+        // public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
+        // public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
+        // public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
         public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
         public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
-        public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
+        // public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
         public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
 
         #endregion
@@ -168,53 +166,53 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(_red, _green, _blue);
             ColorBrush = new SolidColorBrush(color);
 
-            ColorRedValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorRedValueChanged);
-            ColorGreenValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorGreenValueChanged);
-            ColorBlueValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorBlueValueChanged);
+            // ColorRedValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorRedValueChanged);
+            // ColorGreenValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorGreenValueChanged);
+            // ColorBlueValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorBlueValueChanged);
             AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
             ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
-            PageUpdatedCommand = new DelegateCommand<FunctionEventArgs<int>>(PageUpdated);
+            // PageUpdatedCommand = new DelegateCommand<FunctionEventArgs<int>>(PageUpdated);
             TraditionColorListBoxItemButtonClickCommand =
                 new DelegateCommand<string>(TraditionColorListBoxItemButtonClick);
         }
 
-        private void ColorRedValueChanged(NumericUpDown numeric)
-        {
-            var value = numeric.Value;
-            if (value > 255)
-            {
-                value = 255;
-            }
+        // private void ColorRedValueChanged(NumericUpDown numeric)
+        // {
+        //     var value = numeric.Value;
+        //     if (value > 255)
+        //     {
+        //         value = 255;
+        //     }
+        //
+        //     _red = (byte)value;
+        //     GenerateColor();
+        // }
 
-            _red = (byte)value;
-            GenerateColor();
-        }
+        // private void ColorGreenValueChanged(NumericUpDown numeric)
+        // {
+        //     var value = numeric.Value;
+        //     if (value > 255)
+        //     {
+        //         value = 255;
+        //     }
+        //
+        //     _green = (byte)value;
+        //     GenerateColor();
+        // }
 
-        private void ColorGreenValueChanged(NumericUpDown numeric)
-        {
-            var value = numeric.Value;
-            if (value > 255)
-            {
-                value = 255;
-            }
-
-            _green = (byte)value;
-            GenerateColor();
-        }
-
-        private void ColorBlueValueChanged(NumericUpDown numeric)
-        {
-            var value = numeric.Value;
-            if (value > 255)
-            {
-                value = 255;
-            }
-
-            _blue = (byte)value;
-            GenerateColor();
-        }
+        // private void ColorBlueValueChanged(NumericUpDown numeric)
+        // {
+        //     var value = numeric.Value;
+        //     if (value > 255)
+        //     {
+        //         value = 255;
+        //     }
+        //
+        //     _blue = (byte)value;
+        //     GenerateColor();
+        // }
 
         private void AlphaValueChanged(Slider slider)
         {
@@ -232,7 +230,7 @@ namespace DevKit.ViewModels
         private void CopyColorHexValue(string colorVale)
         {
             Clipboard.SetText(colorVale);
-            Growl.Success("颜色值已复制");
+            // Growl.Success("颜色值已复制");
         }
 
         private void ColorHexToRgb(string colorValue)
@@ -286,14 +284,14 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void PageUpdated(FunctionEventArgs<int> args)
-        {
-            ColorResources = _colorResCaches
-                .Skip((args.Info - 1) * PerPageItemCount)
-                .Take(PerPageItemCount)
-                .ToList()
-                .ToObservableCollection();
-        }
+        // private void PageUpdated(FunctionEventArgs<int> args)
+        // {
+        //     ColorResources = _colorResCaches
+        //         .Skip((args.Info - 1) * PerPageItemCount)
+        //         .Take(PerPageItemCount)
+        //         .ToList()
+        //         .ToObservableCollection();
+        // }
 
         private void TraditionColorListBoxItemButtonClick(string colorVale)
         {
@@ -301,7 +299,7 @@ namespace DevKit.ViewModels
             if ((now - _lastClickTime).TotalMilliseconds >= ThrottleInterval)
             {
                 Clipboard.SetText(colorVale);
-                Growl.Success("颜色值已复制");
+                // Growl.Success("颜色值已复制");
                 _lastClickTime = now;
             }
         }

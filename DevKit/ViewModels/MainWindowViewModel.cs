@@ -63,9 +63,6 @@ namespace DevKit.ViewModels
                     region.RequestNavigate("WebSocketServerView");
                     break;
                 case 8:
-                    region.RequestNavigate("TranscodingView");
-                    break;
-                case 9:
                     region.RequestNavigate("ColorResourceView");
                     break;
             }

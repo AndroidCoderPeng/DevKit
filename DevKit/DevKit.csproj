@@ -40,9 +40,6 @@
     <Reference Include="DryIoc, Version=4.7.7.0, Culture=neutral, PublicKeyToken=dfbf2bd50fcf7768, processorArchitecture=MSIL">
       <HintPath>..\packages\DryIoc.dll.4.7.7\lib\net45\DryIoc.dll</HintPath>
     </Reference>
-    <Reference Include="HandyControl, Version=3.5.1.0, Culture=neutral, PublicKeyToken=45be8712787a1e5b, processorArchitecture=MSIL">
-      <HintPath>..\packages\HandyControl.3.5.1\lib\net48\HandyControl.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.5.0.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
@@ -212,7 +209,6 @@
     <Compile Include="ViewModels\ScreenShotListDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
-    <Compile Include="ViewModels\TranscodingViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
     <Compile Include="ViewModels\UdpServerViewModel.cs" />
     <Compile Include="ViewModels\WebSocketClientViewModel.cs" />
@@ -235,9 +231,6 @@
     </Compile>
     <Compile Include="Views\TcpServerView.xaml.cs">
       <DependentUpon>TcpServerView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TranscodingView.xaml.cs">
-      <DependentUpon>TranscodingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UdpClientView.xaml.cs">
       <DependentUpon>UdpClientView.xaml</DependentUpon>
@@ -285,7 +278,6 @@
     </Page>
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />
-    <Page Include="Views\TranscodingView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />
     <Page Include="Views\UdpServerView.xaml" />
     <Page Include="Views\WebSocketClientView.xaml" />

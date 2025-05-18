@@ -9,7 +9,6 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using HandyControl.Tools;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -315,11 +314,11 @@ namespace DevKit.ViewModels
             }
 
             //判断是否是IP和端口合理性
-            if (!_remoteAddress.IsIp())
-            {
-                MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            // if (!_remoteAddress.IsIp())
+            // {
+            //     MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+            //     return;
+            // }
 
             if (!_remotePort.IsNumber())
             {

@@ -5,7 +5,6 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
@@ -74,22 +73,19 @@
                     VerticalAlignment="Center"
                     Text="监听端口" />
 
-                <hc:TextBox
+                <!--  hc:InfoElement.Placeholder="端口"  -->
+                <!--  hc:InfoElement.ShowClearButton="True"  -->
+                <TextBox
                     Grid.Column="1"
                     MinWidth="90"
                     Margin="10,0"
-                    hc:InfoElement.Placeholder="端口"
-                    hc:InfoElement.ShowClearButton="True"
                     FontSize="14"
                     IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
                     MaxLength="5"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding ServerListenCommand}"
-                    Style="{StaticResource ButtonPrimary}">
+                <Button Grid.Column="2" Command="{Binding ServerListenCommand}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
@@ -187,10 +183,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Style="{StaticResource BorderTipSuccess}">
+                <Border Grid.Column="0">
                     <TextBlock
                         FontWeight="Bold"
-                        Foreground="{DynamicResource SuccessBrush}"
                         Text="{Binding ConnectedClientAddress}"
                         TextWrapping="NoWrap" />
                 </Border>
@@ -232,7 +227,6 @@
                                     Margin="5,0,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="{DynamicResource SecondaryTextBrush}"
                                     Text="{Binding Time, StringFormat=[{0}]}" />
                             </StackPanel>
 
@@ -264,11 +258,11 @@
                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                                     </Border>
 
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
+                                    <!-- <ControlTemplate.Triggers> -->
+                                    <!--     <Trigger Property="IsMouseOver" Value="True"> -->
+                                    <!--         <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" /> -->
+                                    <!--     </Trigger> -->
+                                    <!-- </ControlTemplate.Triggers> -->
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
@@ -319,7 +313,6 @@
                                     Content="&#xe6dc;"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="16"
-                                    Foreground="{DynamicResource DangerBrush}"
                                     Visibility="{Binding Annotation, Converter={StaticResource DeleteExCmdBtnVisibleConverterKey}}" />
                             </Grid>
                         </DataTemplate>
@@ -342,7 +335,6 @@
                     Command="{Binding AddExtensionCommand}"
                     Content="&#xe6aa;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    Foreground="{DynamicResource PrimaryBrush}"
                     ToolTip="添加扩展指令" />
 
                 <CheckBox
@@ -357,7 +349,7 @@
                     </b:Interaction.Triggers>
                 </CheckBox>
 
-                <hc:TextBox
+                <TextBox
                     Grid.Column="3"
                     Margin="10,0"
                     FontSize="14"
@@ -377,7 +369,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <hc:TextBox
+                <TextBox
                     Grid.Column="0"
                     Padding="4"
                     VerticalContentAlignment="Top"
@@ -408,11 +400,9 @@
                     <Button
                         Grid.Row="2"
                         HorizontalAlignment="Stretch"
-                        Background="{DynamicResource BackgroundBrush}"
                         BorderThickness="0"
                         Command="{Binding SendMessageCommand}"
-                        Content="发送"
-                        Foreground="{DynamicResource SuccessBrush}" />
+                        Content="发送" />
                 </Grid>
             </Grid>
         </Grid>

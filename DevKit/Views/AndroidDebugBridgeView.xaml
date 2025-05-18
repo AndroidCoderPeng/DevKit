@@ -62,14 +62,12 @@
                     Command="{Binding RefreshDeviceCommand}"
                     Content="&#xe602;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    FontSize="16"
-                    Style="{StaticResource ButtonPrimary}" />
+                    FontSize="16" />
             </Grid>
 
             <Border
                 Grid.Row="1"
                 Margin="10,0,10,10"
-                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="4">
                 <Grid>
@@ -181,22 +179,22 @@
                             <Border
                                 Width="40"
                                 Height="18"
-                                BorderBrush="{DynamicResource SecondaryBorderBrush}"
+                                BorderBrush="Black"
                                 BorderThickness="1"
                                 CornerRadius="2">
                                 <ProgressBar
+                                    Height="16"
                                     Margin="1"
                                     VerticalAlignment="Center"
                                     Background="Transparent"
-                                    Foreground="{DynamicResource SuccessBrush}"
+                                    BorderThickness="0"
                                     Value="{Binding BatteryProgress}" />
                             </Border>
 
                             <Border
                                 Width="2"
                                 Height="10"
-                                BorderBrush="{DynamicResource SecondaryBorderBrush}"
-                                BorderThickness="1" />
+                                Background="Black" />
 
                             <TextBlock Margin="10,0" Text="{Binding BatteryState}" />
                         </StackPanel>
@@ -232,29 +230,25 @@
                     Margin="0,0,5,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding OutputImageCommand}"
-                    Content="导出截屏"
-                    Style="{StaticResource ButtonInfo}" />
+                    Content="导出截屏" />
 
                 <Button
                     Margin="5,0,0,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding ScreenshotCommand}"
-                    Content="截取屏幕"
-                    Style="{StaticResource ButtonSuccess}" />
+                    Content="截取屏幕" />
 
                 <Button
                     Margin="0,5,5,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding RebootDeviceCommand}"
-                    Content="重启设备"
-                    Style="{StaticResource ButtonDanger}" />
+                    Content="重启设备" />
 
                 <Button
                     Margin="5,5,0,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding InstallCommand}"
-                    Content="安装软件"
-                    Style="{StaticResource ButtonPrimary}" />
+                    Content="安装软件" />
             </UniformGrid>
         </Grid>
 
@@ -272,15 +266,13 @@
                     Command="{Binding SortApplicationCommand}"
                     Content="&#xe612;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    FontSize="16"
-                    Style="{StaticResource ButtonPrimary}" />
+                    FontSize="16" />
             </Grid>
 
             <ListBox
                 x:Name="PackageListBox"
                 Grid.Row="1"
                 Margin="0,0,10,10"
-                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 ItemsSource="{Binding ApplicationPackages}"
                 ScrollViewer.CanContentScroll="False">

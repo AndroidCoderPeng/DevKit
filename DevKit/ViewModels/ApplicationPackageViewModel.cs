@@ -12,7 +12,6 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Utils;
-using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -311,7 +310,7 @@ namespace DevKit.ViewModels
                             _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
                             if (!totalFiles.Any())
                             {
-                                Growl.Info("该文件夹下面不包含Android安装包");
+                                // Growl.Info("该文件夹下面不包含Android安装包");
                             }
 
                             ApkFileCollection = totalFiles.ToObservableCollection();
@@ -368,7 +367,7 @@ namespace DevKit.ViewModels
                     _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
                     if (!totalFiles.Any())
                     {
-                        Growl.Info("该文件夹下面不包含Android安装包");
+                        // Growl.Info("该文件夹下面不包含Android安装包");
                     }
 
                     ApkFileCollection = totalFiles.ToObservableCollection();

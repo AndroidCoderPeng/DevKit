@@ -14,12 +14,11 @@
     MinWidth="900"
     MinHeight="610"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
-    Background="{DynamicResource DarkDefaultBrush}"
     ResizeMode="CanMinimize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <Border BorderBrush="{DynamicResource DarkDefaultBrush}" BorderThickness="0,1,0,0">
+    <Border BorderThickness="0,1,0,0">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />

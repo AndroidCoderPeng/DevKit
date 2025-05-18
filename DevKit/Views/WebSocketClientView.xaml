@@ -5,7 +5,6 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ut="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
@@ -44,19 +43,16 @@
                 VerticalAlignment="Center"
                 Text="服务端" />
 
-            <hc:TextBox
+            <!--  hc:InfoElement.Placeholder="远程WebSocket Server Address"  -->
+            <!--  hc:InfoElement.ShowClearButton="True"  -->
+            <TextBox
                 Grid.Column="1"
                 Margin="10,0"
-                hc:InfoElement.Placeholder="远程WebSocket Server Address"
-                hc:InfoElement.ShowClearButton="True"
                 FontSize="14"
                 Text="{Binding RemoteAddress}"
                 TextWrapping="NoWrap" />
 
-            <Button
-                Grid.Column="2"
-                Command="{Binding ConnectRemoteCommand}"
-                Style="{StaticResource ButtonPrimary}">
+            <Button Grid.Column="2" Command="{Binding ConnectRemoteCommand}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
@@ -106,7 +102,6 @@
                                 Margin="5,0,0,0"
                                 VerticalAlignment="Center"
                                 FontSize="12"
-                                Foreground="{DynamicResource SecondaryTextBrush}"
                                 Text="{Binding Time, StringFormat=[{0}]}" />
                         </StackPanel>
 
@@ -138,11 +133,11 @@
                                     <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                                 </Border>
 
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
+                                <!-- <ControlTemplate.Triggers> -->
+                                <!--     <Trigger Property="IsMouseOver" Value="True"> -->
+                                <!--         <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" /> -->
+                                <!--     </Trigger> -->
+                                <!-- </ControlTemplate.Triggers> -->
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -180,11 +175,11 @@
                     </b:Interaction.Triggers>
                 </CheckBox>
 
-                <hc:TextBox
+                <!--  hc:InfoElement.ShowClearButton="True"  -->
+                <TextBox
                     Grid.Column="1"
                     MinWidth="100"
                     Margin="10,0"
-                    hc:InfoElement.ShowClearButton="True"
                     FontSize="14"
                     IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                     MaxLength="5"
@@ -212,18 +207,16 @@
                 <Button
                     Grid.Column="1"
                     HorizontalAlignment="Stretch"
-                    Background="{DynamicResource BackgroundBrush}"
                     BorderThickness="0"
                     Command="{Binding SendMessageCommand}"
-                    Content="发送"
-                    Foreground="{DynamicResource SuccessBrush}" />
+                    Content="发送" />
             </Grid>
         </Grid>
 
-        <hc:TextBox
+        <!--  hc:InfoElement.ShowClearButton="True"  -->
+        <TextBox
             Grid.Row="3"
             Padding="4"
-            hc:InfoElement.ShowClearButton="True"
             FontSize="14"
             Text="{Binding UserInputText}"
             TextWrapping="Wrap"
