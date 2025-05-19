@@ -20,6 +20,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand AndroidToolsMouseDoubleClickCommand { set; get; }
         public DelegateCommand SocketToolsMouseDoubleClickCommand { set; get; }
+        public DelegateCommand OtherToolsMouseDoubleClickCommand { set; get; }
 
         #endregion
 

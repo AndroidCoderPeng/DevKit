@@ -8,12 +8,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    x:Name="TargetWindow"
     Title="DevKit（开发者工具集）"
     Width="412"
     Height="654"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
-    Background="#f3f9fe"
+    Background="#F3F9FE"
     ResizeMode="CanMinimize"
     WindowStartupLocation="Manual"
     mc:Ignorable="d">
@@ -90,7 +89,8 @@
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
                             Foreground="#1B1B1B"
-                            Text="{Binding MenuIcon}" />
+                            Text="{Binding MenuIcon}"
+                            TextAlignment="Center" />
 
                         <TextBlock
                             Grid.Row="1"
@@ -177,7 +177,8 @@
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
                             Foreground="#1B1B1B"
-                            Text="{Binding MenuIcon}" />
+                            Text="{Binding MenuIcon}"
+                            TextAlignment="Center" />
 
                         <TextBlock
                             Grid.Row="1"
@@ -264,7 +265,8 @@
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
                             Foreground="#1B1B1B"
-                            Text="{Binding MenuIcon}" />
+                            Text="{Binding MenuIcon}"
+                            TextAlignment="Center" />
 
                         <TextBlock
                             Grid.Row="1"
