@@ -199,6 +199,7 @@
     <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
+    <Compile Include="Utils\ListBoxItemMarginBehavior.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="Utils\ConnectionType.cs" />

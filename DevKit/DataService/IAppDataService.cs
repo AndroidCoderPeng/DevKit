@@ -8,7 +8,7 @@ namespace DevKit.DataService
 {
     public interface IAppDataService
     {
-        List<MainMenuModel> GetMainMenu();
+        List<MainMenuModel> GetAndroidTools();
 
         ApkConfigCache LoadApkCacheConfig();
 

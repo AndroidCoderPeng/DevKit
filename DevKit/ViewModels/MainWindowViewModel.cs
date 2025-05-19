@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Controls;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Regions;
 
 namespace DevKit.ViewModels
 {
@@ -12,60 +10,19 @@ namespace DevKit.ViewModels
     {
         #region VM
 
-        public List<MainMenuModel> MenuModels { get; }
+        public List<MainMenuModel> AndroidTools { get; }
 
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand<ListBox> ItemSelectedCommand { set; get; }
+        public DelegateCommand AndroidToolsMouseDoubleClickCommand { set; get; }
 
         #endregion
 
-        private readonly IRegionManager _regionManager;
-
-        public MainWindowViewModel(IRegionManager regionManager, IAppDataService dataService)
+        public MainWindowViewModel(IAppDataService dataService)
         {
-            _regionManager = regionManager;
-
-            MenuModels = dataService.GetMainMenu();
-
-            ItemSelectedCommand = new DelegateCommand<ListBox>(OnItemSelected);
-        }
-
-        private void OnItemSelected(ListBox box)
-        {
-            var region = _regionManager.Regions["ContentRegion"];
-            switch (box.SelectedIndex)
-            {
-                case 0:
-                    region.RequestNavigate("AndroidDebugBridgeView");
-                    break;
-                case 1:
-                    region.RequestNavigate("ApplicationPackageView");
-                    break;
-                case 2:
-                    region.RequestNavigate("TcpClientView");
-                    break;
-                case 3:
-                    region.RequestNavigate("TcpServerView");
-                    break;
-                case 4:
-                    region.RequestNavigate("UdpClientView");
-                    break;
-                case 5:
-                    region.RequestNavigate("UdpServerView");
-                    break;
-                case 6:
-                    region.RequestNavigate("WebSocketClientView");
-                    break;
-                case 7:
-                    region.RequestNavigate("WebSocketServerView");
-                    break;
-                case 8:
-                    region.RequestNavigate("ColorResourceView");
-                    break;
-            }
+            AndroidTools = dataService.GetAndroidTools();
         }
     }
 }

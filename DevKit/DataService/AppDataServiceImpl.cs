@@ -16,19 +16,28 @@ namespace DevKit.DataService
 {
     public class AppDataServiceImpl : IAppDataService
     {
-        public List<MainMenuModel> GetMainMenu()
+        // public List<MainMenuModel> GetMainMenu()
+        // {
+        //     return new List<MainMenuModel>
+        //     {
+        //         new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
+        //         new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
+        //         new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP客户端" },
+        //         new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
+        //         new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
+        //         new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
+        //         new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket客户端" },
+        //         new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket服务端" },
+        //         new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
+        //     };
+        // }
+        
+        public List<MainMenuModel> GetAndroidTools()
         {
             return new List<MainMenuModel>
             {
                 new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
-                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP客户端" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
-                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
-                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket客户端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket服务端" },
-                new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
+                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" }
             };
         }
 
