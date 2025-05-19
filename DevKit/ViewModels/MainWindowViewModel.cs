@@ -11,18 +11,23 @@ namespace DevKit.ViewModels
         #region VM
 
         public List<MainMenuModel> AndroidTools { get; }
+        public List<MainMenuModel> SocketTools { get; }
+        public List<MainMenuModel> OtherTools { get; }
 
         #endregion
 
         #region DelegateCommand
 
         public DelegateCommand AndroidToolsMouseDoubleClickCommand { set; get; }
+        public DelegateCommand SocketToolsMouseDoubleClickCommand { set; get; }
 
         #endregion
 
         public MainWindowViewModel(IAppDataService dataService)
         {
             AndroidTools = dataService.GetAndroidTools();
+            SocketTools = dataService.GetSocketTools();
+            OtherTools = dataService.GetOtherTools();
         }
     }
 }
