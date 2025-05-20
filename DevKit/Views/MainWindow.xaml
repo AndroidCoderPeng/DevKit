@@ -135,10 +135,7 @@
 
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F8F8F8" />
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#E7F4FF" />
+                            <Setter Property="Background" Value="#F5F7F9" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -223,10 +220,7 @@
 
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F8F8F8" />
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#E7F4FF" />
+                            <Setter Property="Background" Value="#F5F7F9" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
@@ -311,10 +305,7 @@
 
                     <Style.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F8F8F8" />
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#E7F4FF" />
+                            <Setter Property="Background" Value="#F5F7F9" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
