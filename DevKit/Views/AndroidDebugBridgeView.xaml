@@ -273,12 +273,6 @@
                             Header="卸载" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
-
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="SelectionChanged">
-                        <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
             </ListBox>
         </Grid>
     </Grid>

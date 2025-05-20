@@ -24,7 +24,7 @@ namespace DevKit.ViewModels
     {
         public string Title => "ADB";
         public event Action<IDialogResult> RequestClose;
-        
+
         public bool CanCloseDialog()
         {
             return true;
@@ -32,10 +32,14 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            _refreshDeviceTimer.Elapsed -= TimerElapsedEvent_Handler;
+            _refreshDeviceTimer.Enabled = false;
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
+            _refreshDeviceTimer.Elapsed += TimerElapsedEvent_Handler;
+            _refreshDeviceTimer.Enabled = true;
         }
 
 
@@ -177,47 +181,36 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand RefreshDeviceCommand { set; get; }
         public DelegateCommand<string> DeviceSelectedCommand { set; get; }
-        public DelegateCommand SortApplicationCommand { set; get; }
-        public DelegateCommand<string> PackageSelectedCommand { set; get; }
-        public DelegateCommand RebootDeviceCommand { set; get; }
+        public DelegateCommand RefreshDeviceCommand { set; get; }
+        public DelegateCommand OutputImageCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
+        public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
-        public DelegateCommand UninstallCommand { set; get; }
+        public DelegateCommand SortApplicationCommand { set; get; }
+        public DelegateCommand<string> UninstallCommand { set; get; }
 
         #endregion
 
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
-        private string _selectedDevice = string.Empty;
-        private string _selectedPackage = string.Empty;
-        private bool _isAscending;
-
-        /// <summary>
-        /// DispatcherTimer与窗体为同一个线程，故如果频繁的执行DispatcherTimer的话，会造成主线程的卡顿。
-        /// 用System.Timers.Timer来初始化一个异步的时钟，初始化一个时钟的事件，在时钟的事件中采用BeginInvoke来进行异步委托。
-        /// 这样就能防止timer控件的同步事件不停的刷新时，界面的卡顿
-        /// </summary>
         private readonly Timer _refreshDeviceTimer = new Timer(1000);
+        private string _selectedDevice = string.Empty;
+        private bool _isAscending;
 
         public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
 
-            //定时刷新设备列表，可能会为空，因为开发者模式可能没开
-            _refreshDeviceTimer.Elapsed += TimerElapsedEvent_Handler;
-            _refreshDeviceTimer.Enabled = true;
-
-            RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
             DeviceSelectedCommand = new DelegateCommand<string>(DeviceSelected);
-            SortApplicationCommand = new DelegateCommand(SortApplication);
-            PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
-            RebootDeviceCommand = new DelegateCommand(RebootDevice);
+            RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
+            OutputImageCommand = new DelegateCommand(OutputImage);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
+            RebootDeviceCommand = new DelegateCommand(RebootDevice);
             InstallCommand = new DelegateCommand(InstallApplication);
-            UninstallCommand = new DelegateCommand(UninstallApplication);
+            SortApplicationCommand = new DelegateCommand(SortApplication);
+            UninstallCommand = new DelegateCommand<string>(UninstallApplication);
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
@@ -231,42 +224,6 @@ namespace DevKit.ViewModels
                 Console.WriteLine(@"已获取设备列表，停止自动刷新");
                 _refreshDeviceTimer.Enabled = false;
             }
-        }
-
-        /// <summary>
-        /// 刷新设备列表
-        /// </summary>
-        /// <returns></returns>
-        private void RefreshDevice()
-        {
-            if (DeviceItems.Any())
-            {
-                DeviceItems.Clear();
-            }
-
-            var argument = new ArgumentCreator();
-            argument.Append("devices");
-            var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += delegate(string value)
-            {
-                if (string.IsNullOrEmpty(value) || value.Equals("List of devices attached"))
-                {
-                    return;
-                }
-
-                var newLine = Regex.Replace(value, @"\s", "*");
-                var split = newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    if (_deviceItems.Contains(split[0]))
-                    {
-                        return;
-                    }
-
-                    DeviceItems.Add(split[0]);
-                });
-            };
-            Task.Run(() => { executor.Execute("adb"); });
         }
 
         private void DeviceSelected(string device)
@@ -419,45 +376,46 @@ namespace DevKit.ViewModels
                 executor.Execute("adb");
             });
         }
-
-        private void SortApplication()
+        
+        /// <summary>
+        /// 刷新设备列表
+        /// </summary>
+        /// <returns></returns>
+        private void RefreshDevice()
         {
-            var list = _applicationPackages.ToList();
-
-            if (_isAscending)
+            if (DeviceItems.Any())
             {
-                list.Sort((x, y) => Comparer<string>.Default.Compare(y, x));
-                _isAscending = false;
-            }
-            else
-            {
-                list.Sort();
-                _isAscending = true;
+                DeviceItems.Clear();
             }
 
-            ApplicationPackages.Clear();
-            foreach (var item in list)
+            var argument = new ArgumentCreator();
+            argument.Append("devices");
+            var executor = new CommandExecutor(argument.ToCommandLine());
+            executor.OnStandardOutput += delegate(string value)
             {
-                ApplicationPackages.Add(item);
-            }
+                if (string.IsNullOrEmpty(value) || value.Equals("List of devices attached"))
+                {
+                    return;
+                }
+
+                var newLine = Regex.Replace(value, @"\s", "*");
+                var split = newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    if (_deviceItems.Contains(split[0]))
+                    {
+                        return;
+                    }
+
+                    DeviceItems.Add(split[0]);
+                });
+            };
+            Task.Run(() => { executor.Execute("adb"); });
         }
 
-        private void PackageSelected(string package)
+        private void OutputImage()
         {
-            _selectedPackage = package;
-        }
-
-        private void RebootDevice()
-        {
-            var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-            if (result == MessageBoxResult.OK)
-            {
-                var argument = new ArgumentCreator();
-                //重启设备
-                //adb reboot 
-                argument.Append("-s").Append(_selectedDevice).Append("reboot");
-                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-            }
+            
         }
 
         private void TakeScreenshot()
@@ -521,38 +479,20 @@ namespace DevKit.ViewModels
                 });
             }));
         }
-
-        private void UninstallApplication()
+        
+        private void RebootDevice()
         {
-            if (string.IsNullOrEmpty(_selectedPackage))
-            {
-                MessageBox.Show("请先选择需要卸载的应用", "操作失败");
-                return;
-            }
-
-            var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.OK)
             {
-                Task.Run(() =>
-                {
-                    var argument = new ArgumentCreator();
-                    //卸载应用（应用包名）
-                    //adb -s <设备序列号> uninstall 
-                    argument.Append("-s").Append(_selectedDevice).Append("uninstall").Append(_selectedPackage);
-                    var executor = new CommandExecutor(argument.ToCommandLine());
-                    executor.OnStandardOutput += delegate(string value)
-                    {
-                        Application.Current.Dispatcher.Invoke(delegate
-                        {
-                            ApplicationPackages.Remove(_selectedPackage);
-                            MessageBox.Show(value);
-                        });
-                    };
-                    executor.Execute("adb");
-                });
+                var argument = new ArgumentCreator();
+                //重启设备
+                //adb reboot 
+                argument.Append("-s").Append(_selectedDevice).Append("reboot");
+                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
             }
         }
-
+        
         private void InstallApplication()
         {
             var fileDialog = new OpenFileDialog
@@ -596,6 +536,53 @@ namespace DevKit.ViewModels
                 };
                 executor.Execute("adb");
             });
+        }
+        
+        private void SortApplication()
+        {
+            var list = _applicationPackages.ToList();
+
+            if (_isAscending)
+            {
+                list.Sort((x, y) => Comparer<string>.Default.Compare(y, x));
+                _isAscending = false;
+            }
+            else
+            {
+                list.Sort();
+                _isAscending = true;
+            }
+
+            ApplicationPackages.Clear();
+            foreach (var item in list)
+            {
+                ApplicationPackages.Add(item);
+            }
+        }
+
+        private void UninstallApplication(string packageName)
+        {
+            var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (result == MessageBoxResult.OK)
+            {
+                Task.Run(() =>
+                {
+                    var argument = new ArgumentCreator();
+                    //卸载应用（应用包名）
+                    //adb -s <设备序列号> uninstall 
+                    argument.Append("-s").Append(_selectedDevice).Append("uninstall").Append(packageName);
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value)
+                    {
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            ApplicationPackages.Remove(packageName);
+                            MessageBox.Show(value);
+                        });
+                    };
+                    executor.Execute("adb");
+                });
+            }
         }
     }
 }
