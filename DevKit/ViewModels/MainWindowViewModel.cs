@@ -4,6 +4,7 @@ using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
@@ -25,8 +26,12 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        public MainWindowViewModel(IAppDataService dataService)
+        private readonly IDialogService _dialogService;
+
+        public MainWindowViewModel(IAppDataService dataService, IDialogService dialogService)
         {
+            _dialogService = dialogService;
+
             AndroidTools = dataService.GetAndroidTools();
             SocketTools = dataService.GetSocketTools();
             OtherTools = dataService.GetOtherTools();
@@ -36,10 +41,16 @@ namespace DevKit.ViewModels
             OtherToolClickedCommand = new DelegateCommand<MainMenuModel>(OnOtherToolClicked);
         }
 
+        private readonly Dictionary<string, string> _androidToolMap = new Dictionary<string, string>
+        {
+            { "ADB", "AndroidDebugBridgeView" },
+            { "APK", "ApplicationPackageView" }
+        };
+
         private void OnAndroidToolClicked(MainMenuModel model)
         {
-            if (model == null) return;
-            Console.WriteLine($@"点击了 Android 工具：{model.MenuName}");
+            if (model == null || !_androidToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            _dialogService.Show(viewName);
         }
 
         private void OnSocketToolClicked(MainMenuModel model)

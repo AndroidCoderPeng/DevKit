@@ -23,8 +23,24 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
-    public class ApplicationPackageViewModel : BindableBase
+    public class ApplicationPackageViewModel : BindableBase, IDialogAware
     {
+        public string Title => "APK";
+        public event Action<IDialogResult> RequestClose;
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private string _jdkPath = string.Empty;

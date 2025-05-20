@@ -20,8 +20,25 @@ using Timer = System.Timers.Timer;
 
 namespace DevKit.ViewModels
 {
-    public class AndroidDebugBridgeViewModel : BindableBase
+    public class AndroidDebugBridgeViewModel : BindableBase, IDialogAware
     {
+        public string Title => "ADB";
+        public event Action<IDialogResult> RequestClose;
+        
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+
+
         #region VM
 
         private ObservableCollection<string> _deviceItems = new ObservableCollection<string>();
