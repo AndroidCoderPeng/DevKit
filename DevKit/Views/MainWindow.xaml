@@ -17,6 +17,38 @@
     WindowStartupLocation="Manual"
     mc:Ignorable="d">
 
+    <Window.Resources>
+        <Style x:Key="ListBoxItemStyleKey" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Width" Value="114" />
+            <Setter Property="Height" Value="80" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="utils:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Border
+                            x:Name="ItemContainerBorder"
+                            Margin="{TemplateBinding Margin}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="#EEEFF0"
+                            BorderThickness="1"
+                            CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F5F7F9" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -69,6 +101,7 @@
             Grid.Row="2"
             Background="Transparent"
             BorderThickness="0"
+            ItemContainerStyle="{StaticResource ListBoxItemStyleKey}"
             ItemsSource="{Binding AndroidTools}">
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="MouseDoubleClick">
@@ -108,38 +141,6 @@
                     <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
-
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="Width" Value="114" />
-                    <Setter Property="Height" Value="80" />
-                    <Setter Property="Background" Value="White" />
-                    <Setter Property="utils:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border
-                                    x:Name="ItemContainerBorder"
-                                    Margin="{TemplateBinding Margin}"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="#EEEFF0"
-                                    BorderThickness="1"
-                                    CornerRadius="5">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F5F7F9" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
         </ListBox>
 
         <TextBlock
@@ -154,6 +155,7 @@
             Grid.Row="4"
             Background="Transparent"
             BorderThickness="0"
+            ItemContainerStyle="{StaticResource ListBoxItemStyleKey}"
             ItemsSource="{Binding SocketTools}">
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="MouseDoubleClick">
@@ -193,38 +195,6 @@
                     <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
-
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="Width" Value="114" />
-                    <Setter Property="Height" Value="80" />
-                    <Setter Property="Background" Value="White" />
-                    <Setter Property="utils:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border
-                                    x:Name="ItemContainerBorder"
-                                    Margin="{TemplateBinding Margin}"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="#EEEFF0"
-                                    BorderThickness="1"
-                                    CornerRadius="5">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F5F7F9" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
         </ListBox>
 
         <TextBlock
@@ -239,6 +209,7 @@
             Grid.Row="6"
             Background="Transparent"
             BorderThickness="0"
+            ItemContainerStyle="{StaticResource ListBoxItemStyleKey}"
             ItemsSource="{Binding OtherTools}">
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="MouseDoubleClick">
@@ -278,38 +249,6 @@
                     <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
-
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="Width" Value="114" />
-                    <Setter Property="Height" Value="80" />
-                    <Setter Property="Background" Value="White" />
-                    <Setter Property="utils:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border
-                                    x:Name="ItemContainerBorder"
-                                    Margin="{TemplateBinding Margin}"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="#EEEFF0"
-                                    BorderThickness="1"
-                                    CornerRadius="5">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#F5F7F9" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
         </ListBox>
     </Grid>
 </Window>
