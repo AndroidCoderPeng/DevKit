@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="615"
-    Height="395"
+    Width="365"
+    Height="400"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -28,11 +28,6 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.25*" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -200,41 +195,44 @@
             <UniformGrid
                 Grid.Row="2"
                 Margin="10,0,10,10"
-                Columns="2"
                 IsEnabled="{Binding HasSelectedDevice}"
                 Rows="2">
 
                 <Button
-                    Margin="0,0,5,0"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding OutputImageCommand}"
                     Content="导出截屏" />
 
                 <Button
-                    Margin="5,0,0,0"
+                    Margin="5,3"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding ScreenshotCommand}"
                     Content="截取屏幕" />
 
                 <Button
-                    Margin="0,5,5,0"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Command="{Binding RebootDeviceCommand}"
-                    Content="重启设备" />
+                    Command="{Binding AppManagerCommand}"
+                    Content="软件管理" />
 
                 <Button
-                    Margin="5,5,0,0"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding InstallCommand}"
                     Content="安装软件" />
+
+                <Button
+                    Margin="5,3"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding RebootDeviceCommand}"
+                    Content="重启设备" />
             </UniformGrid>
         </Grid>
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

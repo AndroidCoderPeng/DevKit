@@ -234,14 +234,6 @@ namespace DevKit.ViewModels
             _selectedDevice = device;
             HasSelectedDevice = true;
             //获取设备详情
-            GetDeviceDetail();
-
-            //获取第三方应用列表
-            GetDeviceApplication();
-        }
-
-        private void GetDeviceDetail()
-        {
             Task.Run(() =>
             {
                 {
@@ -566,7 +558,7 @@ namespace DevKit.ViewModels
         {
             _selectedPackage = package;
         }
-        
+
         private void UninstallApplication()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
@@ -574,6 +566,7 @@ namespace DevKit.ViewModels
                 MessageBox.Show("请先选择需要卸载的应用", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
             var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.OK)
             {
