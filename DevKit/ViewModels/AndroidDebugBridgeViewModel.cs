@@ -188,7 +188,8 @@ namespace DevKit.ViewModels
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
-        public DelegateCommand<string> UninstallCommand { set; get; }
+        public DelegateCommand<string> PackageSelectedCommand { set; get; }
+        public DelegateCommand UninstallCommand { set; get; }
 
         #endregion
 
@@ -196,6 +197,7 @@ namespace DevKit.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly Timer _refreshDeviceTimer = new Timer(1000);
         private string _selectedDevice = string.Empty;
+        private string _selectedPackage = string.Empty;
         private bool _isAscending;
 
         public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
@@ -210,7 +212,8 @@ namespace DevKit.ViewModels
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
             InstallCommand = new DelegateCommand(InstallApplication);
             SortApplicationCommand = new DelegateCommand(SortApplication);
-            UninstallCommand = new DelegateCommand<string>(UninstallApplication);
+            PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
+            UninstallCommand = new DelegateCommand(UninstallApplication);
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
@@ -376,7 +379,7 @@ namespace DevKit.ViewModels
                 executor.Execute("adb");
             });
         }
-        
+
         /// <summary>
         /// 刷新设备列表
         /// </summary>
@@ -415,7 +418,6 @@ namespace DevKit.ViewModels
 
         private void OutputImage()
         {
-            
         }
 
         private void TakeScreenshot()
@@ -479,7 +481,7 @@ namespace DevKit.ViewModels
                 });
             }));
         }
-        
+
         private void RebootDevice()
         {
             var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
@@ -492,7 +494,7 @@ namespace DevKit.ViewModels
                 new CommandExecutor(argument.ToCommandLine()).Execute("adb");
             }
         }
-        
+
         private void InstallApplication()
         {
             var fileDialog = new OpenFileDialog
@@ -537,7 +539,7 @@ namespace DevKit.ViewModels
                 executor.Execute("adb");
             });
         }
-        
+
         private void SortApplication()
         {
             var list = _applicationPackages.ToList();
@@ -560,8 +562,18 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void UninstallApplication(string packageName)
+        private void PackageSelected(string package)
         {
+            _selectedPackage = package;
+        }
+        
+        private void UninstallApplication()
+        {
+            if (string.IsNullOrEmpty(_selectedPackage))
+            {
+                MessageBox.Show("请先选择需要卸载的应用", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result == MessageBoxResult.OK)
             {
@@ -570,14 +582,14 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //卸载应用（应用包名）
                     //adb -s <设备序列号> uninstall 
-                    argument.Append("-s").Append(_selectedDevice).Append("uninstall").Append(packageName);
+                    argument.Append("-s").Append(_selectedDevice).Append("uninstall").Append(_selectedPackage);
                     var executor = new CommandExecutor(argument.ToCommandLine());
                     executor.OnStandardOutput += delegate(string value)
                     {
                         Application.Current.Dispatcher.Invoke(delegate
                         {
-                            ApplicationPackages.Remove(packageName);
-                            MessageBox.Show(value);
+                            ApplicationPackages.Remove(_selectedPackage);
+                            MessageBox.Show(value, "卸载应用", MessageBoxButton.OK, MessageBoxImage.Information);
                         });
                     };
                     executor.Execute("adb");

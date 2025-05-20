@@ -258,6 +258,12 @@
                 BorderThickness="1"
                 ItemsSource="{Binding ApplicationPackages}"
                 ScrollViewer.CanContentScroll="False">
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" TextWrapping="Wrap" />
@@ -269,7 +275,6 @@
                         <MenuItem
                             Width="95"
                             Command="{Binding UninstallCommand}"
-                            CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}"
                             Header="卸载" />
                     </ContextMenu>
                 </ListBox.ContextMenu>

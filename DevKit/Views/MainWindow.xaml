@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="DevKit（开发者工具集）"
     Width="412"
-    Height="654"
+    Height="618"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="CanMinimize"
