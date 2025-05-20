@@ -269,6 +269,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Colors\ColorBrushes.xaml" />
+    <Page Include="Colors\DarkColor.xaml" />
+    <Page Include="Colors\LightColor.xaml" />
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />

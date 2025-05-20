@@ -12,7 +12,7 @@
     Width="412"
     Height="654"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
-    Background="#F3F9FE"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="CanMinimize"
     WindowStartupLocation="Manual"
     mc:Ignorable="d">
@@ -32,7 +32,7 @@
                             x:Name="ItemContainerBorder"
                             Margin="{TemplateBinding Margin}"
                             Background="{TemplateBinding Background}"
-                            BorderBrush="#EEEFF0"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -43,7 +43,7 @@
 
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F5F7F9" />
+                    <Setter Property="Background" Value="{DynamicResource DevKitMouseOverBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -62,7 +62,7 @@
         <Border
             Grid.Row="0"
             Background="White"
-            BorderBrush="#EEEFF0"
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
             BorderThickness="1"
             CornerRadius="5">
             <Grid Margin="12">
@@ -77,7 +77,7 @@
                 <TextBlock
                     Grid.Column="1"
                     VerticalAlignment="Center"
-                    Foreground="#1B1B1B"
+                    Foreground="{DynamicResource DevKitTextBrush}"
                     Text="置顶显示" />
 
                 <ToggleButton
@@ -93,7 +93,7 @@
             Grid.Row="1"
             Margin="5,25,0,8"
             FontSize="15"
-            Foreground="#1B1B1B"
+            Foreground="{DynamicResource DevKitTextBrush}"
             Text="Android工具" />
 
         <ListBox
@@ -121,7 +121,7 @@
                             Grid.Row="0"
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuIcon}"
                             TextAlignment="Center" />
 
@@ -129,7 +129,7 @@
                             Grid.Row="1"
                             Margin="0,10,0,0"
                             FontSize="14"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuName}" />
                     </Grid>
                 </DataTemplate>
@@ -147,7 +147,7 @@
             Grid.Row="3"
             Margin="5,25,0,8"
             FontSize="15"
-            Foreground="#1B1B1B"
+            Foreground="{DynamicResource DevKitTextBrush}"
             Text="Socket通信工具" />
 
         <ListBox
@@ -175,7 +175,7 @@
                             Grid.Row="0"
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuIcon}"
                             TextAlignment="Center" />
 
@@ -183,7 +183,7 @@
                             Grid.Row="1"
                             Margin="0,10,0,0"
                             FontSize="14"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuName}" />
                     </Grid>
                 </DataTemplate>
@@ -201,7 +201,7 @@
             Grid.Row="5"
             Margin="5,25,0,8"
             FontSize="15"
-            Foreground="#1B1B1B"
+            Foreground="{DynamicResource DevKitTextBrush}"
             Text="其他工具" />
 
         <ListBox
@@ -229,7 +229,7 @@
                             Grid.Row="0"
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="30"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuIcon}"
                             TextAlignment="Center" />
 
@@ -237,7 +237,7 @@
                             Grid.Row="1"
                             Margin="0,10,0,0"
                             FontSize="14"
-                            Foreground="#1B1B1B"
+                            Foreground="{DynamicResource DevKitTextBrush}"
                             Text="{Binding MenuName}" />
                     </Grid>
                 </DataTemplate>

@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:o="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitBackgroundBrush" Color="{DynamicResource DevKitBackgroundColor}" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitBorderBrush" Color="{DynamicResource DevKitBorderColor}" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitMouseOverBrush" Color="{DynamicResource DevKitMouseOverColor}" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTextBrush" Color="{DynamicResource DevKitTextColor}" />
+</ResourceDictionary>

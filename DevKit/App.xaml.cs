@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,6 +38,22 @@ namespace DevKit
                 // }
             };
             return mainWindow;
+        }
+
+        private void SwitchTheme(string themeName)
+        {
+            var resourceDict = new ResourceDictionary();
+            switch (themeName)
+            {
+                case "Dark":
+                    resourceDict.Source = new Uri("Colors/DarkColor.xaml", UriKind.Relative);
+                    break;
+                default:
+                    resourceDict.Source = new Uri("Colors/LightColor.xaml", UriKind.Relative);
+                    break;
+            }
+
+            Current.Resources.MergedDictionaries[1] = resourceDict;
         }
 
         /// <summary>
