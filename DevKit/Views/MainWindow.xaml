@@ -105,7 +105,7 @@
             ItemsSource="{Binding AndroidTools}">
             <b:Interaction.Triggers>
                 <b:EventTrigger EventName="MouseDoubleClick">
-                    <b:InvokeCommandAction Command="{Binding AndroidToolsMouseDoubleClickCommand}" CommandParameter="{Binding ElementName=AndroidToolsListBox, Path=SelectedItem}" />
+                    <b:InvokeCommandAction Command="{Binding AndroidToolsClickedCommand}" CommandParameter="{Binding ElementName=AndroidToolsListBox, Path=SelectedItem}" />
                 </b:EventTrigger>
             </b:Interaction.Triggers>
 

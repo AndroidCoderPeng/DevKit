@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
@@ -18,7 +19,7 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand AndroidToolsMouseDoubleClickCommand { set; get; }
+        public DelegateCommand<MainMenuModel> AndroidToolsClickedCommand { set; get; }
         public DelegateCommand SocketToolsMouseDoubleClickCommand { set; get; }
         public DelegateCommand OtherToolsMouseDoubleClickCommand { set; get; }
 
@@ -29,6 +30,19 @@ namespace DevKit.ViewModels
             AndroidTools = dataService.GetAndroidTools();
             SocketTools = dataService.GetSocketTools();
             OtherTools = dataService.GetOtherTools();
+
+            AndroidToolsClickedCommand = new DelegateCommand<MainMenuModel>(AndroidToolsClicked);
+            SocketToolsMouseDoubleClickCommand = new DelegateCommand(SocketToolsMouseDoubleClicked);
+        }
+
+        private void AndroidToolsClicked(MainMenuModel menu)
+        {
+            Console.WriteLine(menu.MenuName);
+        }
+        
+        private void SocketToolsMouseDoubleClicked()
+        {
+            Console.WriteLine(@"SocketToolsMouseDoubleClicked");
         }
     }
 }

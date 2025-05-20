@@ -41,8 +41,8 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
                 new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
                 new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket客户端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WebSocket服务端" }
+                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
+                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS服务端" }
             };
         }
         
