@@ -72,10 +72,16 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" />
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                    FontSize="16"
+                    Text="&#xea89;" />
 
                 <TextBlock
                     Grid.Column="1"
+                    Margin="8,0,0,0"
                     VerticalAlignment="Center"
                     Foreground="{DynamicResource DevKitTextBrush}"
                     Text="置顶显示" />
