@@ -19,9 +19,9 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand<MainMenuModel> AndroidToolsClickedCommand { set; get; }
-        public DelegateCommand SocketToolsMouseDoubleClickCommand { set; get; }
-        public DelegateCommand OtherToolsMouseDoubleClickCommand { set; get; }
+        public DelegateCommand<MainMenuModel> AndroidToolClickedCommand { get; }
+        public DelegateCommand<MainMenuModel> SocketToolClickedCommand { get; }
+        public DelegateCommand<MainMenuModel> OtherToolClickedCommand { get; }
 
         #endregion
 
@@ -31,18 +31,27 @@ namespace DevKit.ViewModels
             SocketTools = dataService.GetSocketTools();
             OtherTools = dataService.GetOtherTools();
 
-            AndroidToolsClickedCommand = new DelegateCommand<MainMenuModel>(AndroidToolsClicked);
-            SocketToolsMouseDoubleClickCommand = new DelegateCommand(SocketToolsMouseDoubleClicked);
+            AndroidToolClickedCommand = new DelegateCommand<MainMenuModel>(OnAndroidToolClicked);
+            SocketToolClickedCommand = new DelegateCommand<MainMenuModel>(OnSocketToolClicked);
+            OtherToolClickedCommand = new DelegateCommand<MainMenuModel>(OnOtherToolClicked);
         }
 
-        private void AndroidToolsClicked(MainMenuModel menu)
+        private void OnAndroidToolClicked(MainMenuModel model)
         {
-            Console.WriteLine(menu.MenuName);
+            if (model == null) return;
+            Console.WriteLine($@"点击了 Android 工具：{model.MenuName}");
         }
-        
-        private void SocketToolsMouseDoubleClicked()
+
+        private void OnSocketToolClicked(MainMenuModel model)
         {
-            Console.WriteLine(@"SocketToolsMouseDoubleClicked");
+            if (model == null) return;
+            Console.WriteLine($@"点击了 Socket 工具：{model.MenuName}");
+        }
+
+        private void OnOtherToolClicked(MainMenuModel model)
+        {
+            if (model == null) return;
+            Console.WriteLine($@"点击了 Other 工具：{model.MenuName}");
         }
     }
 }

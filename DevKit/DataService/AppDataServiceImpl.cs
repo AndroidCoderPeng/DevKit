@@ -16,14 +16,6 @@ namespace DevKit.DataService
 {
     public class AppDataServiceImpl : IAppDataService
     {
-        // public List<MainMenuModel> GetMainMenu()
-        // {
-        //     return new List<MainMenuModel>
-        //     {
-        //         new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色" }
-        //     };
-        // }
-        
         public List<MainMenuModel> GetAndroidTools()
         {
             return new List<MainMenuModel>
