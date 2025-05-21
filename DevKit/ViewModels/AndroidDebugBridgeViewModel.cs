@@ -185,8 +185,9 @@ namespace DevKit.ViewModels
         public DelegateCommand RefreshDeviceCommand { set; get; }
         public DelegateCommand OutputImageCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
-        public DelegateCommand RebootDeviceCommand { set; get; }
+        public DelegateCommand AppManagerCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
+        public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
         public DelegateCommand UninstallCommand { set; get; }
@@ -209,8 +210,9 @@ namespace DevKit.ViewModels
             RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
             OutputImageCommand = new DelegateCommand(OutputImage);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
-            RebootDeviceCommand = new DelegateCommand(RebootDevice);
+            AppManagerCommand = new DelegateCommand(AppManager);
             InstallCommand = new DelegateCommand(InstallApplication);
+            RebootDeviceCommand = new DelegateCommand(RebootDevice);
             SortApplicationCommand = new DelegateCommand(SortApplication);
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             UninstallCommand = new DelegateCommand(UninstallApplication);
@@ -365,7 +367,10 @@ namespace DevKit.ViewModels
                     var package = value.Split(new[] { ":" }, StringSplitOptions.None)[1];
                     if (!_applicationPackages.Contains(package))
                     {
-                        Application.Current.Dispatcher.Invoke(delegate { ApplicationPackages.Add(package); });
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            ApplicationPackages.Add(package);
+                        }));
                     }
                 };
                 executor.Execute("adb");
@@ -395,7 +400,7 @@ namespace DevKit.ViewModels
 
                 var newLine = Regex.Replace(value, @"\s", "*");
                 var split = newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
-                Application.Current.Dispatcher.Invoke(delegate
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if (_deviceItems.Contains(split[0]))
                     {
@@ -403,7 +408,7 @@ namespace DevKit.ViewModels
                     }
 
                     DeviceItems.Add(split[0]);
-                });
+                }));
             };
             Task.Run(() => { executor.Execute("adb"); });
         }
@@ -436,15 +441,7 @@ namespace DevKit.ViewModels
             var executor = new CommandExecutor(argument.ToCommandLine());
             executor.OnStandardOutput += delegate(string value) { screenshots.Add(value); };
             executor.Execute("adb");
-
-            if (screenshots.Any())
-            {
-                ShowSelectedScreenShotDialog(screenshots);
-            }
-            else
-            {
-                MessageBox.Show("没有找到屏幕截图", "操作失败");
-            }
+            ShowSelectedScreenShotDialog(screenshots);
         }
 
         private void ShowSelectedScreenShotDialog(List<string> screenshots)
@@ -472,6 +469,11 @@ namespace DevKit.ViewModels
                     }
                 });
             }));
+        }
+
+        private void AppManager()
+        {
+            
         }
 
         private void RebootDevice()
