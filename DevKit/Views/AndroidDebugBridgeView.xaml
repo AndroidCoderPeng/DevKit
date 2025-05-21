@@ -30,8 +30,8 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LeftPanelColumn" Width="*" />
-            <ColumnDefinition x:Name="RightPanelColumn" Width="0" />
+            <ColumnDefinition x:Name="LeftPanelColumn" Width="1.25*" />
+            <ColumnDefinition x:Name="RightPanelColumn" Width="*" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -211,7 +211,7 @@
                     Content="导出截屏" />
 
                 <Button
-                    Margin="5,3"
+                    Margin="5,3,0,3"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding ScreenshotCommand}"
@@ -220,17 +220,11 @@
                 <Button
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Command="{Binding AppManagerCommand}"
-                    Content="软件管理" />
-
-                <Button
-                    HorizontalAlignment="Stretch"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding InstallCommand}"
                     Content="安装软件" />
 
                 <Button
-                    Margin="5,3"
+                    Margin="5,3,0,3"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding RebootDeviceCommand}"

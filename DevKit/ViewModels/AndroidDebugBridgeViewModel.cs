@@ -185,7 +185,6 @@ namespace DevKit.ViewModels
         public DelegateCommand RefreshDeviceCommand { set; get; }
         public DelegateCommand OutputImageCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
-        public DelegateCommand AppManagerCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
@@ -210,7 +209,6 @@ namespace DevKit.ViewModels
             RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
             OutputImageCommand = new DelegateCommand(OutputImage);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
-            AppManagerCommand = new DelegateCommand(AppManager);
             InstallCommand = new DelegateCommand(InstallApplication);
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
             SortApplicationCommand = new DelegateCommand(SortApplication);
@@ -475,7 +473,7 @@ namespace DevKit.ViewModels
 
         private void AppManager()
         {
-            _eventAggregator.GetEvent<ResizeGridWidthEvent>().Publish();
+            // _eventAggregator.GetEvent<ResizeGridWidthEvent>().Publish();
         }
 
         private void RebootDevice()
