@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using DevKit.Cache;
 using DevKit.Models;
@@ -25,12 +24,6 @@ namespace DevKit.DataService
         void DeleteExtensionCommandCache(int connectionType, int cacheId);
 
         List<string> GetAllIPv4Addresses();
-
-        List<string> GetPlatformTypes();
-
-        List<PlatformImageTypeModel> GetImageTypesByPlatform(string platform, Uri uri);
-
-        AsciiCodeModel QueryAsciiCodeByHex(string hexCode);
 
         List<string> GetColorSchemes();
 

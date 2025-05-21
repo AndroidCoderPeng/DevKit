@@ -3,14 +3,24 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ut="clr-namespace:DevKit.Utils"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Width="615"
+    Height="595"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
-    d:DesignHeight="560"
-    d:DesignWidth="600"
-    Background="white"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+        </Style>
+    </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -37,19 +47,22 @@
 
             <TextBlock
                 Grid.Column="0"
+                Width="60"
                 VerticalAlignment="Center"
                 Text="JDK目录" />
 
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
+            <hc:TextBox
                 Grid.Column="1"
                 Margin="10,0"
                 VerticalContentAlignment="Center"
+                hc:InfoElement.ShowClearButton="True"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 Text="{Binding JdkPath}" />
 
             <Button
                 Grid.Column="2"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding SelectJdkCommand}"
                 Content="设置" />
         </Grid>
@@ -64,22 +77,25 @@
 
             <TextBlock
                 Grid.Column="0"
+                Width="60"
                 VerticalAlignment="Center"
-                Text="证书" />
+                Text="证书路径" />
 
-            <!--  hc:InfoElement.Placeholder="请配置签名秘钥文件（*.jks）"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
+            <hc:TextBox
                 Grid.Column="1"
                 Margin="10,0"
                 VerticalAlignment="Center"
                 VerticalContentAlignment="Center"
+                hc:InfoElement.Placeholder="请配置签名秘钥文件（*.jks）"
+                hc:InfoElement.ShowClearButton="True"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 Text="{Binding KeyFilePath}"
                 ToolTip="{Binding KeyFilePath}" />
 
             <Button
                 Grid.Column="2"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding CreateKeyCommand}"
                 Content="&#xe6aa;"
                 FontFamily="/DevKit;component/Fonts/#iconfont" />
@@ -87,6 +103,7 @@
             <Button
                 Grid.Column="3"
                 Margin="10,0,0,0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding SelectKeyCommand}"
                 Content="选择" />
         </Grid>
@@ -102,15 +119,17 @@
 
             <TextBlock
                 Grid.Column="0"
+                Width="60"
                 VerticalAlignment="Center"
-                Text="别名" />
+                Text="签名别名" />
 
-            <!--  hc:InfoElement.Placeholder="请输入证书别名"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
+            <hc:TextBox
                 Grid.Column="1"
                 Margin="10,0"
                 VerticalContentAlignment="Center"
+                hc:InfoElement.Placeholder="请输入证书别名"
+                hc:InfoElement.ShowClearButton="True"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 Text="{Binding KeyAlias}" />
 
@@ -119,18 +138,19 @@
                 VerticalAlignment="Center"
                 Text="密码" />
 
-            <!--  hc:InfoElement.Placeholder="请输入密码"  -->
             <PasswordBox
                 Grid.Column="3"
                 Margin="10,0,0,0"
                 VerticalContentAlignment="Center"
-                ut:PasswordAttachAttribute.Attach="True"
-                ut:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                utils:PasswordAttachAttribute.Attach="True"
+                utils:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14" />
 
             <Button
                 Grid.Column="4"
                 Margin="10,0,0,0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding ShowSha1Command}"
                 Content="查看SHA1" />
         </Grid>
@@ -160,27 +180,31 @@
 
             <TextBlock
                 Grid.Column="0"
+                Width="60"
                 VerticalAlignment="Center"
                 Text="根目录" />
 
-            <!--  hc:InfoElement.Placeholder="请输入（选择）含有APK安装包的根目录"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
+            <hc:TextBox
                 Grid.Column="1"
                 Margin="10,0"
                 VerticalAlignment="Center"
                 VerticalContentAlignment="Center"
+                hc:InfoElement.Placeholder="请输入（选择）含有APK安装包的根目录"
+                hc:InfoElement.ShowClearButton="True"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 Text="{Binding ApkRootFolderPath}" />
 
             <Button
                 Grid.Column="2"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding SelectApkRootFolderCommand}"
                 Content="选择" />
 
             <Button
                 Grid.Column="3"
                 Margin="10,0,0,0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding RefreshApkFilesCommand}"
                 Content="&#xe602;"
                 FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -191,59 +215,84 @@
             x:Name="TargetListBox"
             Grid.Row="5"
             Margin="10,0"
-            HorizontalContentAlignment="Stretch"
+            Background="Transparent"
             BorderThickness="0"
             ItemsSource="{Binding ApkFileCollection}"
             ScrollViewer.CanContentScroll="False"
             ScrollViewer.VerticalScrollBarVisibility="Hidden">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                    <Grid ToolTip="{Binding FullName}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
 
-                        <TextBlock
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Text="{Binding}"
-                            TextWrapping="Wrap" />
+                        <Image Grid.Row="0" Source="/DevKit;component/Images/apk.png" />
 
-                        <Button
-                            Grid.Column="1"
-                            BorderThickness="0"
-                            Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
-                            CommandParameter="{Binding}"
-                            Content="&#xe701;"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16" />
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                Margin="10,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="12"
+                                Text="{Binding FileName}" />
+
+                            <Button
+                                Grid.Column="1"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
+                                CommandParameter="{Binding FullName}"
+                                Content="&#xe701;"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16" />
+                        </Grid>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
 
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    <Setter Property="Width" Value="193" />
+                    <Setter Property="Height" Value="93" />
+                    <Setter Property="Margin" Value="2" />
+                    <Setter Property="Background" Value="White" />
+
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                 <Border
                                     x:Name="ItemContainerBorder"
-                                    Padding="10"
-                                    BorderThickness="0"
+                                    Margin="{TemplateBinding Margin}"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                    BorderThickness="1"
                                     CornerRadius="5">
                                     <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                                 </Border>
-
-                                <!-- <ControlTemplate.Triggers> -->
-                                <!--     <Trigger Property="IsSelected" Value="True"> -->
-                                <!--         <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource DarkDefaultBrush}" /> -->
-                                <!--         <Setter TargetName="ItemContainerBorder" Property="TextBlock.Foreground" Value="{DynamicResource PrimaryBrush}" /> -->
-                                <!--     </Trigger> -->
-                                <!-- </ControlTemplate.Triggers> -->
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
+
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource DevKitMouseOverBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>

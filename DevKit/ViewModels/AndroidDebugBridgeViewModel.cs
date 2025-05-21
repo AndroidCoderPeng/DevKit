@@ -23,7 +23,11 @@ namespace DevKit.ViewModels
     public class AndroidDebugBridgeViewModel : BindableBase, IDialogAware
     {
         public string Title => "ADB";
-        public event Action<IDialogResult> RequestClose;
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
 
         public bool CanCloseDialog()
         {

@@ -11,7 +11,9 @@ using System.Windows.Forms;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Events;
+using DevKit.Models;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -26,7 +28,12 @@ namespace DevKit.ViewModels
     public class ApplicationPackageViewModel : BindableBase, IDialogAware
     {
         public string Title => "APK";
-        public event Action<IDialogResult> RequestClose;
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
 
         public bool CanCloseDialog()
         {
@@ -40,7 +47,7 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
         private string _jdkPath = string.Empty;
@@ -115,9 +122,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<string> _apkFileCollection;
+        private ObservableCollection<ApkFileModel> _apkFileCollection;
 
-        public ObservableCollection<string> ApkFileCollection
+        public ObservableCollection<ApkFileModel> ApkFileCollection
         {
             get => _apkFileCollection;
             set
@@ -336,9 +343,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private async Task<List<string>> GetApkFilesAsync()
+        private async Task<List<ApkFileModel>> GetApkFilesAsync()
         {
-            var list = new List<string>();
+            var list = new List<ApkFileModel>();
             await Task.Run(() => TraverseFolder(_apkRootFolderPath, list));
             return list;
         }
@@ -348,7 +355,7 @@ namespace DevKit.ViewModels
         /// </summary>
         /// <param name="folderPath"></param>
         /// <param name="apkFiles"></param>
-        private void TraverseFolder(string folderPath, List<string> apkFiles)
+        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles)
         {
             var files = new DirectoryInfo(folderPath).GetFiles("*.apk", SearchOption.AllDirectories)
                 .OrderBy(file => file.LastWriteTime)
@@ -356,7 +363,12 @@ namespace DevKit.ViewModels
             foreach (var file in files)
             {
                 if (file.FullName.Contains("debug") || file.Name.StartsWith(".")) continue;
-                apkFiles.Add(file.FullName);
+                var model = new ApkFileModel
+                {
+                    FileName = file.Name,
+                    FullName = file.FullName
+                };
+                apkFiles.Add(model);
             }
         }
 
@@ -383,7 +395,7 @@ namespace DevKit.ViewModels
                     _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
                     if (!totalFiles.Any())
                     {
-                        // Growl.Info("该文件夹下面不包含Android安装包");
+                        Growl.Info("该文件夹下面不包含Android安装包");
                     }
 
                     ApkFileCollection = totalFiles.ToObservableCollection();

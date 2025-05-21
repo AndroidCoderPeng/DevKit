@@ -189,11 +189,10 @@
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Events\ResizeGridWidthEvent.cs" />
-    <Compile Include="Models\AsciiCodeModel.cs" />
+    <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
-    <Compile Include="Models\PlatformImageTypeModel.cs" />
     <Compile Include="Models\ConnectedClientModel.cs" />
     <Compile Include="Models\ScreenshotModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
@@ -305,6 +304,7 @@
     <Resource Include="Images\empty.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Images\apk.png" />
     <Content Include="Shell\build_release_script.bat" />
     <Content Include="Shell\DevKit.iss" />
   </ItemGroup>
