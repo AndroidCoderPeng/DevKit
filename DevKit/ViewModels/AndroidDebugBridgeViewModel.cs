@@ -345,6 +345,8 @@ namespace DevKit.ViewModels
                     executor.Execute("adb");
                 }
             });
+            
+            GetDeviceApplication();
         }
 
         private void GetDeviceApplication()
@@ -473,7 +475,7 @@ namespace DevKit.ViewModels
 
         private void AppManager()
         {
-            
+            _eventAggregator.GetEvent<ResizeGridWidthEvent>().Publish();
         }
 
         private void RebootDevice()

@@ -188,6 +188,7 @@
       <DependentUpon>ScreenShotListDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
+    <Compile Include="Events\ResizeGridWidthEvent.cs" />
     <Compile Include="Models\AsciiCodeModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
