@@ -35,7 +35,7 @@
     </UserControl.Resources>
 
     <DockPanel Margin="10" LastChildFill="True">
-        <Grid Width="220">
+        <Grid Width="260">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -47,7 +47,7 @@
 
             <DockPanel Grid.Row="0" LastChildFill="True">
                 <TextBlock
-                    Width="60"
+                    Width="70"
                     VerticalAlignment="Center"
                     Text="服务端" />
 
@@ -66,7 +66,7 @@
                 Margin="0,10"
                 LastChildFill="True">
                 <TextBlock
-                    Width="60"
+                    Width="70"
                     VerticalAlignment="Center"
                     Text="端口号" />
 
@@ -83,7 +83,7 @@
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="70" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
@@ -93,7 +93,7 @@
                     <Ellipse
                         Width="15"
                         Height="15"
-                        Margin="5,0,0,0"
+                        Margin="15,0,0,0"
                         Fill="{Binding ConnectionStateColor}" />
                 </DockPanel>
 
@@ -143,9 +143,34 @@
 
             <DataGrid
                 Grid.Row="5"
+                Padding="0"
                 Margin="0,10,10,0"
+                hc:DataGridAttach.CanUnselectAllWithBlankArea="True"
+                AutoGenerateColumns="False"
                 Background="White"
-                BorderBrush="{DynamicResource DevKitBorderBrush}" />
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                ColumnHeaderHeight="30"
+                ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyleKey}"
+                GridLinesVisibility="All"
+                HorizontalGridLinesBrush="{DynamicResource DevKitBorderBrush}"
+                ItemsSource="{Binding ExCommandCollection}"
+                RowHeight="30"
+                VerticalGridLinesBrush="{DynamicResource DevKitBorderBrush}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="2*"
+                        Binding="{Binding CommandValue}"
+                        CanUserResize="False"
+                        Header="指令值"
+                        IsReadOnly="True" />
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding Annotation}"
+                        CanUserResize="False"
+                        Header="备注"
+                        IsReadOnly="True" />
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
 
         <Grid>

@@ -277,6 +277,8 @@
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Dialogs\ScreenShotListDialog.xaml" />
+    <Page Include="Styles\DataGridColumnHeaderStyle.xaml" />
+    <Page Include="Styles\DataGridTextColumnStyle.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ColorResourceView.xaml" />

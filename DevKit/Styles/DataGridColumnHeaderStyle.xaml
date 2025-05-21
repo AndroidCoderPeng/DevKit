@@ -1,0 +1,77 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Style x:Key="DataGridColumnHeaderStyleKey" TargetType="DataGridColumnHeader">
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <hc:SimplePanel>
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    RecognizesAccessKey="True"
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                <ToggleButton
+                                    x:Name="ToggleButtonSortDirection"
+                                    Grid.Column="1"
+                                    Width="20"
+                                    Padding="4,0"
+                                    VerticalAlignment="Center"
+                                    hc:IconSwitchElement.Geometry="{StaticResource DownGeometry}"
+                                    hc:IconSwitchElement.GeometrySelected="{StaticResource UpGeometry}"
+                                    Foreground="{DynamicResource PrimaryBrush}"
+                                    IsEnabled="False"
+                                    Opacity="1"
+                                    Style="{StaticResource ToggleButtonIconTransparent}" />
+                            </Grid>
+                        </Border>
+                        <Thumb
+                            x:Name="PART_LeftHeaderGripper"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource ColumnHeaderGripperStyle}" />
+                        <Thumb
+                            x:Name="PART_RightHeaderGripper"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource ColumnHeaderGripperStyle}" />
+                    </hc:SimplePanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="SortDirection" Value="{x:Null}">
+                            <Setter TargetName="ToggleButtonSortDirection" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="SortDirection" Value="Ascending">
+                            <Setter TargetName="ToggleButtonSortDirection" Property="IsChecked" Value="True" />
+                        </Trigger>
+                        <Trigger Property="SortDirection" Value="Descending">
+                            <Setter TargetName="ToggleButtonSortDirection" Property="IsChecked" Value="False" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="SortDirection" Value="Ascending">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+            </Trigger>
+            <Trigger Property="SortDirection" Value="Descending">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
