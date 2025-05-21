@@ -8,6 +8,7 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
@@ -15,8 +16,29 @@ using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
 namespace DevKit.ViewModels
 {
-    public class WebSocketClientViewModel : BindableBase
+    public class WebSocketClientViewModel : BindableBase, IDialogAware
     {
+        public string Title => "WS客户端";
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private string _remoteAddress = string.Empty;

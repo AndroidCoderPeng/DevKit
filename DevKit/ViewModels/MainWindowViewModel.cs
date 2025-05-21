@@ -53,10 +53,20 @@ namespace DevKit.ViewModels
             _dialogService.Show(viewName);
         }
 
+        private readonly Dictionary<string, string> _socketToolMap = new Dictionary<string, string>
+        {
+            { "TCP客户端", "TcpClientView" },
+            { "TCP服务端", "TcpServerView" },
+            { "UDP客户端", "UdpClientView" },
+            { "UDP服务端", "UdpServerView" },
+            { "WS客户端", "WebSocketClientView" },
+            { "WS服务端", "WebSocketServerView" }
+        };
+        
         private void OnSocketToolClicked(MainMenuModel model)
         {
-            if (model == null) return;
-            Console.WriteLine($@"点击了 Socket 工具：{model.MenuName}");
+            if (model == null || !_socketToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            _dialogService.Show(viewName);
         }
 
         private void OnOtherToolClicked(MainMenuModel model)

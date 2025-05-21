@@ -18,8 +18,29 @@ using TcpServer = TouchSocket.Sockets.TcpService;
 
 namespace DevKit.ViewModels
 {
-    public class TcpServerViewModel : BindableBase
+    public class TcpServerViewModel : BindableBase, IDialogAware
     {
+        public string Title => "TCP服务端";
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();

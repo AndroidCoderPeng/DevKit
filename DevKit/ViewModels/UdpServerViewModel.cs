@@ -19,8 +19,29 @@ using UdpServer = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
-    public class UdpServerViewModel : BindableBase
+    public class UdpServerViewModel : BindableBase, IDialogAware
     {
+        public string Title => "UDP服务端";
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();

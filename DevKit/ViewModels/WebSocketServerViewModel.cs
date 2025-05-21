@@ -9,6 +9,7 @@ using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Http;
 using TouchSocket.Http.WebSockets;
@@ -17,8 +18,29 @@ using WebSocketServer = TouchSocket.Http.HttpService;
 
 namespace DevKit.ViewModels
 {
-    public class WebSocketServerViewModel : BindableBase
+    public class WebSocketServerViewModel : BindableBase, IDialogAware
     {
+        public string Title => "WS服务端";
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();

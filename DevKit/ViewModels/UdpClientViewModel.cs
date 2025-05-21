@@ -18,8 +18,29 @@ using UdpClient = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
-    public class UdpClientViewModel : BindableBase
+    public class UdpClientViewModel : BindableBase, IDialogAware
     {
+        public string Title => "UDP客户端";
+
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private string _remoteAddress = string.Empty;
