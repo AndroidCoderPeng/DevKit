@@ -139,7 +139,7 @@ namespace DevKit.ViewModels
             get => _loopSend;
         }
 
-        private string _connectionStateColor = "LightGray";
+        private string _connectionStateColor = "red";
 
         public string ConnectionStateColor
         {
@@ -180,7 +180,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
-        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
+        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; } //TODO 暂时用不上
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
