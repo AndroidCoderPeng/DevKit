@@ -207,7 +207,7 @@ namespace DevKit.ViewModels
 
             DeviceSelectedCommand = new DelegateCommand<string>(DeviceSelected);
             RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
-            OutputImageCommand = new DelegateCommand(OutputImage);
+            OutputImageCommand = new DelegateCommand(PullScreenshot);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             InstallCommand = new DelegateCommand(InstallApplication);
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
@@ -411,10 +411,6 @@ namespace DevKit.ViewModels
                 }));
             };
             Task.Run(() => { executor.Execute("adb"); });
-        }
-
-        private void OutputImage()
-        {
         }
 
         private void TakeScreenshot()
