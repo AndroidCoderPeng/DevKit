@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +10,7 @@ using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Tools;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -325,8 +328,41 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void SaveCommunicationLog()
+        private async void SaveCommunicationLog()
         {
+            if (!_logs.Any())
+            {
+                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var fileDialog = new SaveFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Log文件(*.txt)|*.txt",
+                RestoreDirectory = true
+            };
+            if (fileDialog.ShowDialog() == true)
+            {
+                var savePath = fileDialog.FileName;
+                try
+                {
+                    using (var writer = new StreamWriter(savePath))
+                    {
+                        foreach (var log in _logs)
+                        {
+                            var logText = log.IsSend 
+                                ? $"{log.Time}【发送】{log.Content}" 
+                                : $"{log.Time}【接收】{log.Content}";
+                            await writer.WriteLineAsync(logText);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"保存日志时发生错误：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void ClearCommunicationLog()
