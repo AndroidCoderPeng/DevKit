@@ -31,7 +31,6 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
-        <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
 
     <DockPanel Margin="10" LastChildFill="True">
@@ -121,6 +120,7 @@
                     Margin="5,0,0,0"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding ClearMessageCommand}"
                     Content="清空消息" />
             </UniformGrid>
 
@@ -131,10 +131,7 @@
                 <TextBlock VerticalAlignment="Center" Text="扩展指令" />
 
                 <Button
-                    Width="30"
-                    Height="30"
                     HorizontalAlignment="Right"
-                    hc:BorderElement.CornerRadius="15"
                     Command="{Binding AddExtensionCommand}"
                     Content="&#xe6aa;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -143,32 +140,64 @@
 
             <DataGrid
                 Grid.Row="5"
-                Padding="0"
                 Margin="0,10,10,0"
-                hc:DataGridAttach.CanUnselectAllWithBlankArea="True"
+                Padding="0"
                 AutoGenerateColumns="False"
                 Background="White"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
-                ColumnHeaderHeight="30"
-                ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyleKey}"
+                BorderThickness="0"
                 GridLinesVisibility="All"
                 HorizontalGridLinesBrush="{DynamicResource DevKitBorderBrush}"
                 ItemsSource="{Binding ExCommandCollection}"
                 RowHeight="30"
                 VerticalGridLinesBrush="{DynamicResource DevKitBorderBrush}">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                    </Style>
+                </DataGrid.CellStyle>
+
                 <DataGrid.Columns>
                     <DataGridTextColumn
                         Width="2*"
                         Binding="{Binding CommandValue}"
                         CanUserResize="False"
                         Header="指令值"
-                        IsReadOnly="True" />
+                        IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
                     <DataGridTextColumn
                         Width="*"
                         Binding="{Binding Annotation}"
                         CanUserResize="False"
                         Header="备注"
-                        IsReadOnly="True" />
+                        IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
@@ -176,13 +205,14 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition />
-                <RowDefinition />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <ListBox
                 x:Name="MessageListBox"
                 Grid.Row="0"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
                 ItemsSource="{Binding MessageCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -256,7 +286,10 @@
                 </b:Interaction.Behaviors>
             </ListBox>
 
-            <Grid Grid.Row="1" Margin="0,10">
+            <Grid
+                Grid.Row="1"
+                Height="60"
+                Margin="0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -271,80 +304,33 @@
                     TextWrapping="Wrap"
                     VerticalScrollBarVisibility="Auto" />
 
-                <Grid Grid.Column="1" Margin="10,0,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-
-                    <Button
-                        Grid.Row="0"
-                        HorizontalAlignment="Stretch"
-                        Command="{Binding ClearMessageCommand}"
-                        Content="清屏" />
-
-                    <Button
-                        Grid.Row="1"
-                        Margin="0,10,0,0"
-                        BorderThickness="0"
-                        Command="{Binding SendMessageCommand}"
-                        Content="发送" />
-                </Grid>
+                <Button
+                    Grid.Column="1"
+                    Width="65"
+                    Height="60"
+                    Margin="10,0,0,0"
+                    BorderThickness="0"
+                    Command="{Binding SendMessageCommand}"
+                    Content="发送"
+                    Style="{StaticResource ButtonPrimary}" />
             </Grid>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <ComboBox
-                    x:Name="ExCommandComboBox"
+                <Button
                     Grid.Column="0"
-                    HorizontalContentAlignment="Stretch"
-                    FontSize="14"
-                    ItemsSource="{Binding ExCommandCollection}"
-                    SelectedIndex="0">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <TextBlock
-                                    Grid.Column="0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding Annotation}" />
-
-                                <Button
-                                    Grid.Column="1"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ExCommandComboBox}"
-                                    CommandParameter="{Binding Id}"
-                                    Content="&#xe6dc;"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="16"
-                                    Visibility="{Binding Annotation, Converter={StaticResource DeleteExCmdBtnVisibleConverterKey}}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="DropDownOpened">
-                            <b:InvokeCommandAction Command="{Binding DropDownOpenedCommand}" />
-                        </b:EventTrigger>
-
-                        <b:EventTrigger EventName="DropDownClosed">
-                            <b:InvokeCommandAction Command="{Binding DropDownClosedCommand}" CommandParameter="{Binding ElementName=ExCommandComboBox}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </ComboBox>
+                    HorizontalAlignment="Left"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Content="脚本"
+                    FontSize="14" />
 
                 <CheckBox
                     x:Name="LoopCheckBox"
@@ -359,10 +345,9 @@
                     </b:Interaction.Triggers>
                 </CheckBox>
 
-                <!--  hc:InfoElement.ShowClearButton="True"  -->
                 <TextBox
                     Grid.Column="2"
-                    MinWidth="100"
+                    Width="60"
                     FontSize="14"
                     IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                     MaxLength="5"
@@ -373,10 +358,20 @@
                     VerticalAlignment="Center"
                     Text="ms/次" />
 
-                <CheckBox
+                <ComboBox
                     Grid.Column="4"
+                    Width="80"
+                    Margin="10,0"
+                    SelectedIndex="0">
+                    <ComboBoxItem Content="16进制" />
+                    <ComboBoxItem Content="ASCII" />
+                </ComboBox>
+
+                <CheckBox
+                    Grid.Column="5"
                     Margin="10,0,0,0"
-                    Content="HEX发送"
+                    HorizontalAlignment="Right"
+                    Content="16进制"
                     IsChecked="{Binding SendHex}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="Checked">

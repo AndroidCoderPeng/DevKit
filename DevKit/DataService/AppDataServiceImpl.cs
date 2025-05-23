@@ -20,7 +20,7 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" }
             };
         }
-        
+
         public List<MainMenuModel> GetSocketTools()
         {
             return new List<MainMenuModel>
@@ -33,7 +33,7 @@ namespace DevKit.DataService
                 new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS服务端" }
             };
         }
-        
+
         public List<MainMenuModel> GetOtherTools()
         {
             return new List<MainMenuModel>
@@ -75,14 +75,8 @@ namespace DevKit.DataService
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ParentType == parentType);
-                var commandCaches = queryResult.ToList();
-                commandCaches.Insert(0, new ExCommandCache
-                {
-                    Annotation = "请选择"
-                });
-                return commandCaches;
+                var queryResult = dataBase.Table<ExCommandCache>().Where(x => x.ParentType == parentType);
+                return queryResult.ToList();
             }
         }
 

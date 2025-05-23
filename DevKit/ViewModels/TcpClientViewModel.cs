@@ -40,7 +40,7 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
         private string _remoteAddress = string.Empty;
