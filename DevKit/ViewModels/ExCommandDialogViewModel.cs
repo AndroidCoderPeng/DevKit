@@ -118,7 +118,7 @@ namespace DevKit.ViewModels
                 cache.IsHex = 0;
             }
 
-            _dataService.SaveCacheConfig(cache);
+            _dataService.SaveConfigCache(cache);
             RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
         }
 

@@ -42,21 +42,6 @@ namespace DevKit.DataService
             };
         }
 
-        public ApkConfigCache LoadApkCacheConfig()
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                //表里要么没有数据要么只有一条数据
-                var queryResult = dataBase.Table<ApkConfigCache>();
-                if (queryResult.Any())
-                {
-                    return queryResult.First();
-                }
-
-                return new ApkConfigCache();
-            }
-        }
-
         public ClientConfigCache LoadClientConfigCache(int connectionType)
         {
             using (var dataBase = new DataBaseConnection())
@@ -80,22 +65,11 @@ namespace DevKit.DataService
             }
         }
 
-        public void SaveCacheConfig<T>(T configCache)
+        public void SaveConfigCache<T>(T configCache)
         {
             using (var dataBase = new DataBaseConnection())
             {
-                if (configCache is ApkConfigCache)
-                {
-                    if (dataBase.Table<ApkConfigCache>().Any())
-                    {
-                        dataBase.Update(configCache);
-                    }
-                    else
-                    {
-                        dataBase.Insert(configCache);
-                    }
-                }
-                else if (configCache is ClientConfigCache client)
+                if (configCache is ClientConfigCache client)
                 {
                     var queryResult = dataBase.Table<ClientConfigCache>()
                         .Where(x => x.Id == client.Id && x.Type == client.Type);

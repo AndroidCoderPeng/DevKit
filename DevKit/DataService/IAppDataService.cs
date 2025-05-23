@@ -13,13 +13,11 @@ namespace DevKit.DataService
         
         List<MainMenuModel> GetOtherTools();
 
-        ApkConfigCache LoadApkCacheConfig();
-
         ClientConfigCache LoadClientConfigCache(int connectionType);
 
         List<ExCommandCache> LoadCommandExtensionCaches(int parentType);
 
-        void SaveCacheConfig<T>(T configCache);
+        void SaveConfigCache<T>(T configCache);
 
         void DeleteExtensionCommandCache(int connectionType, int cacheId);
 

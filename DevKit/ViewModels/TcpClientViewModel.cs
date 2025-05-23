@@ -429,7 +429,7 @@ namespace DevKit.ViewModels
             _clientCache.Type = ConnectionType.TcpClient;
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
-            _dataService.SaveCacheConfig(_clientCache);
+            _dataService.SaveConfigCache(_clientCache);
 
             if (string.IsNullOrWhiteSpace(_userInputText))
             {

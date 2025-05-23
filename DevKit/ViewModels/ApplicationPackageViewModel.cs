@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
@@ -148,19 +147,26 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
-        private ApkConfigCache _configCache;
 
-        public ApplicationPackageViewModel(IAppDataService dataService, IDialogService dialogService,
-            IEventAggregator eventAggregator)
+        public ApplicationPackageViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
-            _dataService = dataService;
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
 
-            InitDefaultConfig();
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<ApkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
+                if (queryResult != null)
+                {
+                    JdkPath = queryResult.JdkPath;
+                    KeyFilePath = queryResult.KeyPath;
+                    KeyAlias = queryResult.Alias;
+                    KeyPassword = queryResult.Password;
+                    ApkRootFolderPath = queryResult.ApkRootFolder;
+                }
+            }
 
             SelectJdkCommand = new DelegateCommand(SelectJdk);
             CreateKeyCommand = new DelegateCommand(CreateKey);
@@ -169,16 +175,6 @@ namespace DevKit.ViewModels
             SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
             RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
             OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
-        }
-
-        private void InitDefaultConfig()
-        {
-            _configCache = _dataService.LoadApkCacheConfig();
-            JdkPath = _configCache.JdkPath;
-            KeyFilePath = _configCache.KeyPath;
-            KeyAlias = _configCache.Alias;
-            KeyPassword = _configCache.Password;
-            ApkRootFolderPath = _configCache.ApkRootFolder;
         }
 
         private void SelectJdk()
@@ -196,6 +192,7 @@ namespace DevKit.ViewModels
                     }
 
                     JdkPath = selectedPath;
+                    UpdateConfigCache();
                 }
             }
         }
@@ -204,9 +201,15 @@ namespace DevKit.ViewModels
         {
             _dialogService.ShowDialog("CreateKeyDialog", null, delegate(IDialogResult result)
                 {
+                    if (result.Result != ButtonResult.OK)
+                    {
+                        return;
+                    }
+
                     KeyFilePath = result.Parameters.GetValue<string>("KeySavePath");
                     KeyAlias = result.Parameters.GetValue<string>("KeyAlias");
                     KeyPassword = result.Parameters.GetValue<string>("KeyPassword");
+                    UpdateConfigCache();
                 }
             );
         }
@@ -223,6 +226,7 @@ namespace DevKit.ViewModels
             if (result == true)
             {
                 KeyFilePath = fileDialog.FileName;
+                UpdateConfigCache();
             }
         }
 
@@ -237,12 +241,7 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                //保存配置
-                _configCache.JdkPath = _jdkPath;
-                _configCache.KeyPath = _keyFilePath;
-                _configCache.Alias = _keyAlias;
-                _configCache.Password = _keyPassword;
-                _dataService.SaveCacheConfig(_configCache);
+                UpdateConfigCache();
 
                 if (!string.IsNullOrEmpty(_outputResult))
                 {
@@ -313,9 +312,7 @@ namespace DevKit.ViewModels
                 if (folderDialog.ShowDialog() == DialogResult.OK)
                 {
                     ApkRootFolderPath = folderDialog.SelectedPath;
-
-                    _configCache.ApkRootFolder = _apkRootFolderPath;
-                    _dataService.SaveCacheConfig(_configCache);
+                    UpdateConfigCache();
 
                     ApkFileCollection?.Clear();
 
@@ -333,12 +330,41 @@ namespace DevKit.ViewModels
                             _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
                             if (!totalFiles.Any())
                             {
-                                // Growl.Info("该文件夹下面不包含Android安装包");
+                                Growl.Info("该文件夹下面不包含Android安装包");
                             }
 
                             ApkFileCollection = totalFiles.ToObservableCollection();
                         });
                     });
+                }
+            }
+        }
+
+        private void UpdateConfigCache()
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<ApkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
+                if (queryResult == null)
+                {
+                    var config = new ApkConfigCache
+                    {
+                        JdkPath = _jdkPath,
+                        KeyPath = _keyFilePath,
+                        Alias = _keyAlias,
+                        Password = KeyPassword,
+                        ApkRootFolder = _apkRootFolderPath
+                    };
+                    dataBase.Insert(config);
+                }
+                else
+                {
+                    queryResult.JdkPath = _jdkPath;
+                    queryResult.KeyPath = _keyFilePath;
+                    queryResult.Alias = _keyAlias;
+                    queryResult.Password = KeyPassword;
+                    queryResult.ApkRootFolder = _apkRootFolderPath;
+                    dataBase.Update(queryResult);
                 }
             }
         }
@@ -357,7 +383,8 @@ namespace DevKit.ViewModels
         /// <param name="apkFiles"></param>
         private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles)
         {
-            var files = new DirectoryInfo(folderPath).GetFiles("*.apk", SearchOption.AllDirectories)
+            var files = new DirectoryInfo(folderPath)
+                .GetFiles("*.apk", SearchOption.AllDirectories)
                 .OrderBy(file => file.LastWriteTime)
                 .Reverse();
             foreach (var file in files)
