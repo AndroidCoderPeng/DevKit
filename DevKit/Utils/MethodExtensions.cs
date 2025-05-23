@@ -30,21 +30,6 @@ namespace DevKit.Utils
         }
 
         /// <summary>
-        /// 格式化内存值
-        /// </summary>
-        /// <param name="memory"></param>
-        /// <returns></returns>
-        public static double FormatMemoryValue(this string memory)
-        {
-            var newLine = Regex.Replace(memory, @"\s", "*");
-
-            var temp = double.Parse(newLine.Split(new[] { "*" }, StringSplitOptions.RemoveEmptyEntries)[0]);
-
-            //转为GB
-            return Math.Round(temp / 1024 / 1024, 2);
-        }
-
-        /// <summary>
         /// 计算文件占用空间大小
         /// </summary>
         /// <param name="length"></param>
