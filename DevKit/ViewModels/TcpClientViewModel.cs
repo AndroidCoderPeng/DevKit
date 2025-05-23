@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Timers;
 using System.Windows;
@@ -103,16 +102,16 @@ namespace DevKit.ViewModels
             get => _exCommandCollection;
         }
 
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
 
-        public ObservableCollection<MessageModel> MessageCollection
+        public ObservableCollection<LogModel> Logs
         {
             set
             {
-                _messageCollection = value;
+                _logs = value;
                 RaisePropertyChanged();
             }
-            get => _messageCollection;
+            get => _logs;
         }
 
         private bool _loopSend;
@@ -200,8 +199,6 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private readonly List<MessageModel> _messageTemp = new List<MessageModel>();
-        private ClientConfigCache _clientCache;
 
         public TcpClientViewModel(IAppDataService dataService, IDialogService dialogService)
         {
@@ -294,20 +291,7 @@ namespace DevKit.ViewModels
 
             _tcpClient.Received = (client, e) =>
             {
-                var byteBlock = e.ByteBlock;
-                var messageModel = new MessageModel
-                {
-                    // Content = _clientCache.ShowHex == 1
-                    //     ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
-                    //     : byteBlock.Span.ToString(Encoding.UTF8),
-                    Bytes = byteBlock.ToArray(),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
-
-                //缓存收到的消息
-                _messageTemp.Add(messageModel);
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+                UpdateCommunicationLog(e.ByteBlock.ToArray(),  false);
                 return EasyTask.CompletedTask;
             };
         }
@@ -369,8 +353,7 @@ namespace DevKit.ViewModels
 
         private void ClearCommunicationLog()
         {
-            _messageTemp?.Clear();
-            MessageCollection?.Clear();
+            Logs.Clear();
         }
 
         private void AddExtension()
@@ -484,15 +467,15 @@ namespace DevKit.ViewModels
                     return;
                 }
                 
-                // var bytes = _userInputText.ByHexStringToBytes();
-                // _tcpClient.Send(bytes);
-                // UpdateCommunicationLog(bytes, "发");
+                var bytes = _userInputText.Replace(" ", "").ByHexStringToBytes();
+                _tcpClient.Send(bytes);
+                UpdateCommunicationLog(bytes, true);
             }
             else
             {
                 var bytes = _userInputText.ToUTF8Bytes();
                 _tcpClient.Send(bytes);
-                UpdateCommunicationLog(bytes, "发");
+                UpdateCommunicationLog(bytes, true);
             }
         }
 
@@ -507,74 +490,39 @@ namespace DevKit.ViewModels
             SendMessage();
         }
 
-        private void UpdateCommunicationLog(byte[] bytes, string direction)
+        private void UpdateCommunicationLog(byte[] bytes, bool isSend)
         {
-            var message = new MessageModel
+            if (isSend)
             {
-                Content = _userInputText,
-                Bytes = _userInputText.HexToBytes(),
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-
-            //缓存发送的消息
-            _messageTemp.Add(message);
-            Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+                var log = new LogModel
+                {
+                    Content = _userInputText,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+            }
+            else
+            {
+                // var log = new LogModel
+                // {
+                //     Content = _userInputText,
+                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                //     IsSend = true
+                // };
+                // Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+            }
         }
 
         private void ShowHexCheckBoxClick()
         {
             if (_showHex)
             {
-                var boxResult = MessageBox.Show(
-                    "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    MessageCollection.Clear();
-                    foreach (var model in _messageTemp)
-                    {
-                        var msg = new MessageModel
-                        {
-                            Content = model.Content,
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        MessageCollection.Add(msg);
-                    }
-
-                    // _clientCache.ShowHex = 1;
-                }
-                else
-                {
-                    ShowHex = false;
-                }
+                
             }
             else
             {
-                var boxResult = MessageBox.Show(
-                    "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    MessageCollection.Clear();
-                    foreach (var model in _messageTemp)
-                    {
-                        var msg = new MessageModel
-                        {
-                            Content = model.Bytes.ByteArrayToString(),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        MessageCollection.Add(msg);
-                    }
-
-                    // _clientCache.ShowHex = 0;
-                }
-                else
-                {
-                    ShowHex = true;
-                }
+                
             }
         }
 

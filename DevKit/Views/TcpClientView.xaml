@@ -242,7 +242,7 @@
                 x:Name="MessageListBox"
                 Grid.Row="0"
                 BorderBrush="{StaticResource DevKitBorderBrush}"
-                ItemsSource="{Binding MessageCollection}"
+                ItemsSource="{Binding Logs}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>

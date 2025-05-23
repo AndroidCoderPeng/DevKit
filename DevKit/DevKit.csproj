@@ -191,6 +191,7 @@
     <Compile Include="Events\ResizeGridWidthEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
+    <Compile Include="Models\LogModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\ConnectedClientModel.cs" />
