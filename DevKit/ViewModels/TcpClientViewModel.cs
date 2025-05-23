@@ -159,6 +159,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> ItemSelectionChangedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
         public DelegateCommand<string> CopyCommand { set; get; }
         public DelegateCommand<object> EditCommand { set; get; }
@@ -209,6 +210,7 @@ namespace DevKit.ViewModels
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
             ItemSelectionChangedCommand = new DelegateCommand<string>(OnCommandItemSelected);
+            CopyLogCommand = new DelegateCommand<string>(CopyLog);
             SendCommand = new DelegateCommand(SendMessage);
             CopyCommand = new DelegateCommand<string>(OnCopy);
             EditCommand = new DelegateCommand<object>(OnEdit);
@@ -367,9 +369,14 @@ namespace DevKit.ViewModels
             UserInputText = command;
         }
 
-        private void OnCopy(string value)
+        private void CopyLog(string log)
         {
-            Clipboard.SetText(value);
+            Clipboard.SetText(log);
+        }
+
+        private void OnCopy(string command)
+        {
+            Clipboard.SetText(command);
         }
 
         private void OnEdit(object id)

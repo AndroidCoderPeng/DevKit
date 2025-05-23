@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cache="clr-namespace:DevKit.Cache"
+    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -54,7 +55,7 @@
                 <hc:TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="格式：192.168.0.0"
+                    hc:InfoElement.Placeholder="格式：127.0.0.1"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Text="{Binding RemoteAddress}"
@@ -73,7 +74,7 @@
                 <hc:TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="格式：8888"
+                    hc:InfoElement.Placeholder="格式：9000"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     MaxLength="5"
@@ -239,7 +240,7 @@
             </Grid.RowDefinitions>
 
             <ListBox
-                x:Name="MessageListBox"
+                x:Name="CommunicationLogListBox"
                 Grid.Row="0"
                 BorderBrush="{StaticResource DevKitBorderBrush}"
                 ItemsSource="{Binding Logs}"
@@ -275,16 +276,7 @@
                                 Margin="0,2,0,0"
                                 FontSize="12"
                                 Text="{Binding Content}"
-                                TextWrapping="Wrap">
-                                <TextBlock.ContextMenu>
-                                    <ContextMenu Style="{x:Null}">
-                                        <MenuItem
-                                            Click="MenuItem_Click"
-                                            Header="复制"
-                                            Style="{x:Null}" />
-                                    </ContextMenu>
-                                </TextBlock.ContextMenu>
-                            </TextBlock>
+                                TextWrapping="Wrap" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -298,11 +290,11 @@
                                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                                     </Border>
 
-                                    <!-- <ControlTemplate.Triggers> -->
-                                    <!--     <Trigger Property="IsMouseOver" Value="True"> -->
-                                    <!--         <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" /> -->
-                                    <!--     </Trigger> -->
-                                    <!-- </ControlTemplate.Triggers> -->
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource DevKitBackgroundBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
@@ -313,6 +305,15 @@
                 <b:Interaction.Behaviors>
                     <utils:AutoScrollToBottomBehavior />
                 </b:Interaction.Behaviors>
+
+                <ListBox.ContextMenu>
+                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=CommunicationLogListBox}">
+                        <MenuItem
+                            Command="{Binding CopyLogCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:LogModel.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="复制" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
             </ListBox>
 
             <Grid
