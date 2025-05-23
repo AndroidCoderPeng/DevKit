@@ -134,10 +134,10 @@
 
                 <Button
                     HorizontalAlignment="Right"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding AddExtensionCommand}"
                     Content="&#xe6aa;"
-                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                    Style="{StaticResource ButtonSuccess}" />
+                    FontFamily="/DevKit;component/Fonts/#iconfont" />
             </DockPanel>
 
             <DataGrid

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
+using DevKit.Cache;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -9,8 +11,8 @@ namespace DevKit.ViewModels
 {
     public class ExCommandDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => "添加扩展指令";
-
+        public string Title { private set; get; }
+        
         public event Action<IDialogResult> RequestClose;
 
         #region VM
@@ -59,6 +61,17 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
+            if (parameters.Keys.Any())
+            {
+                Title = "编辑扩展指令";
+                var cache = parameters.GetValue<ExCommandCache>("ExCommandCache");
+                UserCommandValue = cache.CommandValue;
+                CommandAnnotation = cache.Annotation;
+            }
+            else
+            {
+                Title = "添加扩展指令";
+            }
         }
 
         public ExCommandDialogViewModel()

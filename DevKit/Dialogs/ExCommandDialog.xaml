@@ -54,7 +54,7 @@
                     VerticalContentAlignment="Top"
                     hc:InfoElement.Placeholder="请输入16进制格式指令"
                     Text="{Binding UserCommandValue}"
-                    TextWrapping="NoWrap" />
+                    TextWrapping="Wrap" />
             </Grid>
 
             <Grid Grid.Row="1" Margin="10,20">

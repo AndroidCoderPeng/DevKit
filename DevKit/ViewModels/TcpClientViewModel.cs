@@ -228,6 +228,8 @@ namespace DevKit.ViewModels
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
 
+            InitConnectStateEvent();
+            
             ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
@@ -244,12 +246,15 @@ namespace DevKit.ViewModels
             // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             // SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             // SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
+            
+            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
         }
 
-        private void InitDefaultConfig()
+        /// <summary>
+        /// 连接状态监听
+        /// </summary>
+        private void InitConnectStateEvent()
         {
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-
             //成功连接到服务器
             _tcpClient.Connected = (client, e) =>
             {
@@ -390,7 +395,37 @@ namespace DevKit.ViewModels
 
         private void OnEdit(object id)
         {
-            Console.WriteLine(id);
+            var dialogParameters = new DialogParameters();
+            ExCommandCache exCommand;
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
+                dialogParameters.Add("ExCommandCache", exCommand);
+            }
+
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+            {
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                var commandValue = result.Parameters.GetValue<string>("CommandValue");
+                var annotation = result.Parameters.GetValue<string>("Annotation");
+                exCommand.CommandValue = commandValue;
+                exCommand.Annotation = annotation;
+                using (var dataBase = new DataBaseConnection())
+                {
+                    dataBase.Update(exCommand);
+                    //刷新列表
+                    ExCommandCollection.Clear();
+                    var commandCache = dataBase.Table<ExCommandCache>()
+                        .Where(x => x.ClientType == "TCP")
+                        .ToList();
+                    ExCommandCollection = commandCache.ToObservableCollection();
+                }
+            });
         }
 
         private void OnDelete(object id)
