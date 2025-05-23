@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:cache="clr-namespace:DevKit.Cache"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -204,25 +205,22 @@
 
                 <!--  右键菜单  -->
                 <DataGrid.ContextMenu>
-                    <ContextMenu
-                        x:Name="DataGridContextMenu"
-                        Width="120"
-                        PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
+                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
                         <MenuItem
                             Command="{Binding SendCommand}"
-                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.CommandValue, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.CommandValue), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                             Header="发送" />
                         <MenuItem
                             Command="{Binding CopyCommand}"
-                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.CommandValue, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.CommandValue), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                             Header="复制" />
                         <MenuItem
                             Command="{Binding EditCommand}"
-                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.Id, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.Id), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                             Header="编辑" />
                         <MenuItem
                             Command="{Binding DeleteCommand}"
-                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.Id, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.Id), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                             Header="删除" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>

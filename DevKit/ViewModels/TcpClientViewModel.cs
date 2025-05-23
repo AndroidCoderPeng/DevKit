@@ -380,22 +380,31 @@ namespace DevKit.ViewModels
 
         private void OnSend(string value)
         {
-            Console.WriteLine(value);
+            //发送数据
         }
-        
+
         private void OnCopy(string value)
         {
-            Console.WriteLine(value);
+            Clipboard.SetText(value);
         }
-        
+
         private void OnEdit(object id)
         {
             Console.WriteLine(id);
         }
-        
+
         private void OnDelete(object id)
         {
-            Console.WriteLine(id);
+            using (var dataBase = new DataBaseConnection())
+            {
+                var itemToDelete = dataBase.Table<ExCommandCache>()
+                    .First(x => x.Id == (int)id);
+                dataBase.Delete(itemToDelete);
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == "TCP")
+                    .ToList();
+                ExCommandCollection = commandCache.ToObservableCollection();
+            }
         }
 
         private void ShowHexCheckBoxClick()
@@ -503,19 +512,19 @@ namespace DevKit.ViewModels
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveConfigCache(_clientCache);
-        
+
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-        
+
             if (_buttonState.Equals("连接"))
             {
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-        
+
             if (_loopSend)
             {
                 if (!_commandInterval.IsNumber())
@@ -523,7 +532,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-        
+
                 _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
@@ -561,7 +570,7 @@ namespace DevKit.ViewModels
             // {
             //     _tcpClient.Send(_userInputText);
             // }
-        
+
             var message = new MessageModel
             {
                 Content = _userInputText,
@@ -569,10 +578,10 @@ namespace DevKit.ViewModels
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                 IsSend = true
             };
-        
+
             //缓存发送的消息
             _messageTemp.Add(message);
-        
+
             if (isMainThread)
             {
                 MessageCollection.Add(message);
