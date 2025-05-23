@@ -204,11 +204,26 @@
 
                 <!--  右键菜单  -->
                 <DataGrid.ContextMenu>
-                    <ContextMenu Width="120">
-                        <MenuItem Command="{Binding SendCommand}" Header="发送" />
-                        <MenuItem Command="{Binding CopyCommand}" Header="复制" />
-                        <MenuItem Command="{Binding EditCommand}" Header="编辑" />
-                        <MenuItem Command="{Binding DeleteCommand}" Header="删除" />
+                    <ContextMenu
+                        x:Name="DataGridContextMenu"
+                        Width="120"
+                        PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
+                        <MenuItem
+                            Command="{Binding SendCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.CommandValue, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="发送" />
+                        <MenuItem
+                            Command="{Binding CopyCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.CommandValue, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="复制" />
+                        <MenuItem
+                            Command="{Binding EditCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.Id, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="编辑" />
+                        <MenuItem
+                            Command="{Binding DeleteCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.SelectedItem.Id, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="删除" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>
@@ -322,7 +337,7 @@
                     Height="60"
                     Margin="10,0,0,0"
                     BorderThickness="0"
-                    Command="{Binding SendMessageCommand}"
+                    Command="{Binding SendCommand}"
                     Content="发送"
                     Style="{StaticResource ButtonPrimary}" />
             </Grid>

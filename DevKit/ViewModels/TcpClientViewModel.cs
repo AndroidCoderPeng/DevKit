@@ -183,6 +183,10 @@ namespace DevKit.ViewModels
         public DelegateCommand SaveCommunicationCommand { set; get; }
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
+        public DelegateCommand<string> SendCommand { set; get; }
+        public DelegateCommand<string> CopyCommand { set; get; }
+        public DelegateCommand<object> EditCommand { set; get; }
+        public DelegateCommand<object> DeleteCommand { set; get; }
 
         public DelegateCommand ShowHexCheckBoxClickCommand { set; get; } //TODO 暂时用不上
         public DelegateCommand DropDownOpenedCommand { set; get; }
@@ -191,7 +195,6 @@ namespace DevKit.ViewModels
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
 
@@ -229,6 +232,10 @@ namespace DevKit.ViewModels
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
+            SendCommand = new DelegateCommand<string>(OnSend);
+            CopyCommand = new DelegateCommand<string>(OnCopy);
+            EditCommand = new DelegateCommand<object>(OnEdit);
+            DeleteCommand = new DelegateCommand<object>(OnDelete);
 
             // ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
@@ -237,7 +244,6 @@ namespace DevKit.ViewModels
             // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             // SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             // SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            // SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void InitDefaultConfig()
@@ -372,6 +378,26 @@ namespace DevKit.ViewModels
             });
         }
 
+        private void OnSend(string value)
+        {
+            Console.WriteLine(value);
+        }
+        
+        private void OnCopy(string value)
+        {
+            Console.WriteLine(value);
+        }
+        
+        private void OnEdit(object id)
+        {
+            Console.WriteLine(id);
+        }
+        
+        private void OnDelete(object id)
+        {
+            Console.WriteLine(id);
+        }
+
         private void ShowHexCheckBoxClick()
         {
             if (_showHex)
@@ -477,19 +503,19 @@ namespace DevKit.ViewModels
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveConfigCache(_clientCache);
-
+        
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
+        
             if (_buttonState.Equals("连接"))
             {
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
+        
             if (_loopSend)
             {
                 if (!_commandInterval.IsNumber())
@@ -497,7 +523,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-
+        
                 _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
                 _loopSendMessageTimer.Enabled = true;
             }
@@ -535,7 +561,7 @@ namespace DevKit.ViewModels
             // {
             //     _tcpClient.Send(_userInputText);
             // }
-
+        
             var message = new MessageModel
             {
                 Content = _userInputText,
@@ -543,10 +569,10 @@ namespace DevKit.ViewModels
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                 IsSend = true
             };
-
+        
             //缓存发送的消息
             _messageTemp.Add(message);
-
+        
             if (isMainThread)
             {
                 MessageCollection.Add(message);
