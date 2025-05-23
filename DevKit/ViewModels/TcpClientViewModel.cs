@@ -79,30 +79,18 @@ namespace DevKit.ViewModels
             get => _buttonState;
         }
 
-        private bool _showHex = true;
+        private string _connectionStateColor = "red";
 
-        public bool ShowHex
+        public string ConnectionStateColor
         {
             set
             {
-                _showHex = value;
+                _connectionStateColor = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
+            get => _connectionStateColor;
         }
-
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-
-        public ObservableCollection<MessageModel> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _messageCollection;
-        }
-
+        
         private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
 
         public ObservableCollection<ExCommandCache> ExCommandCollection
@@ -115,16 +103,16 @@ namespace DevKit.ViewModels
             get => _exCommandCollection;
         }
 
-        private bool _sendHex = true;
-
-        public bool SendHex
+        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
+        
+        public ObservableCollection<MessageModel> MessageCollection
         {
             set
             {
-                _sendHex = value;
+                _messageCollection = value;
                 RaisePropertyChanged();
             }
-            get => _sendHex;
+            get => _messageCollection;
         }
 
         private bool _loopSend;
@@ -137,18 +125,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _loopSend;
-        }
-
-        private string _connectionStateColor = "red";
-
-        public string ConnectionStateColor
-        {
-            set
-            {
-                _connectionStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _connectionStateColor;
         }
 
         private string _commandInterval = "1000";
@@ -175,6 +151,30 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private bool _showHex = true;
+        
+        public bool ShowHex
+        {
+            set
+            {
+                _showHex = value;
+                RaisePropertyChanged();
+            }
+            get => _showHex;
+        }
+        
+        private bool _sendHex = true;
+        
+        public bool SendHex
+        {
+            set
+            {
+                _sendHex = value;
+                RaisePropertyChanged();
+            }
+            get => _sendHex;
+        }
+        
         #endregion
 
         #region DelegateCommand
@@ -207,17 +207,17 @@ namespace DevKit.ViewModels
 
             InitDefaultConfig();
 
-            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
-            ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
-            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
-            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
-            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            AddExtensionCommand = new DelegateCommand(AddExtension);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
-            SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
+            // ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
+            // ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
+            // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
+            // DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
+            // DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
+            // AddExtensionCommand = new DelegateCommand(AddExtension);
+            // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
+            // SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
+            // SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
+            // ClearMessageCommand = new DelegateCommand(ClearMessage);
+            // SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void InitDefaultConfig()
