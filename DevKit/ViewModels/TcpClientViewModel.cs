@@ -183,6 +183,7 @@ namespace DevKit.ViewModels
         public DelegateCommand SaveCommunicationCommand { set; get; }
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
+        public DelegateCommand<string> ItemSelectionChangedCommand { set; get; }
         public DelegateCommand<string> SendCommand { set; get; }
         public DelegateCommand<string> CopyCommand { set; get; }
         public DelegateCommand<object> EditCommand { set; get; }
@@ -217,9 +218,11 @@ namespace DevKit.ViewModels
                     .Where(x => x.ClientType == "TCP")
                     .OrderByDescending(x => x.Id)
                     .FirstOrDefault();
-                if (queryResult == null) return;
-                RemoteAddress = queryResult.RemoteAddress;
-                RemotePort = queryResult.RemotePort.ToString();
+                if (queryResult != null)
+                {
+                    RemoteAddress = queryResult.RemoteAddress;
+                    RemotePort = queryResult.RemotePort.ToString();
+                }
 
                 //加载扩展指令缓存
                 var commandCache = dataBase.Table<ExCommandCache>()
@@ -234,6 +237,7 @@ namespace DevKit.ViewModels
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
+            ItemSelectionChangedCommand = new DelegateCommand<string>(OnCommandItemSelected);
             SendCommand = new DelegateCommand<string>(OnSend);
             CopyCommand = new DelegateCommand<string>(OnCopy);
             EditCommand = new DelegateCommand<object>(OnEdit);
@@ -255,7 +259,6 @@ namespace DevKit.ViewModels
         /// </summary>
         private void InitConnectStateEvent()
         {
-            //成功连接到服务器
             _tcpClient.Connected = (client, e) =>
             {
                 ConnectionStateColor = "Lime";
@@ -263,7 +266,6 @@ namespace DevKit.ViewModels
                 return EasyTask.CompletedTask;
             };
 
-            //从服务器断开连接，当连接不成功时不会触发。
             _tcpClient.Closed = (client, e) =>
             {
                 ConnectionStateColor = "LightGray";
@@ -271,7 +273,6 @@ namespace DevKit.ViewModels
                 return EasyTask.CompletedTask;
             };
 
-            //从服务器收到信息
             _tcpClient.Received = (client, e) =>
             {
                 var byteBlock = e.ByteBlock;
@@ -381,6 +382,11 @@ namespace DevKit.ViewModels
                     ExCommandCollection = commandCache.ToObservableCollection();
                 }
             });
+        }
+
+        private void OnCommandItemSelected(string command)
+        {
+            UserInputText = command;
         }
 
         private void OnSend(string value)

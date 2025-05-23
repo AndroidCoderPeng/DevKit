@@ -100,7 +100,6 @@ namespace DevKit
             containerRegistry.RegisterSingleton<IAppDataService, AppDataServiceImpl>();
 
             //Navigation
-            containerRegistry.RegisterForNavigation<TcpClientView, TcpClientViewModel>();
             containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
             containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
@@ -111,6 +110,7 @@ namespace DevKit
             //Window
             containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
+            containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
             
             //Dialog
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

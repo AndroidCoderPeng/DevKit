@@ -73,14 +73,16 @@
                     Grid.Column="0"
                     HorizontalAlignment="Left"
                     Command="{Binding SortScreenshotsCommand}"
-                    Content="排序" />
+                    Content="排序"
+                    Style="{StaticResource ButtonInfo}" />
 
                 <Button
                     Grid.Column="1"
                     HorizontalAlignment="Right"
                     Command="{Binding OutputScreenshotCommand}"
                     CommandParameter="{Binding ElementName=ScreenshotsListBox, Path=SelectedItem}"
-                    Content="导出到电脑" />
+                    Content="导出到电脑"
+                    Style="{StaticResource ButtonPrimary}" />
             </Grid>
         </Grid>
     </Border>

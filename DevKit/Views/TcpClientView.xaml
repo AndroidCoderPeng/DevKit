@@ -203,6 +203,13 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
 
+                <!--  选中事件  -->
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction Command="{Binding ItemSelectionChangedCommand}" CommandParameter="{Binding SelectedItem.CommandValue, ElementName=ExCommandDataGrid}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+
                 <!--  右键菜单  -->
                 <DataGrid.ContextMenu>
                     <ContextMenu Width="120" PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
