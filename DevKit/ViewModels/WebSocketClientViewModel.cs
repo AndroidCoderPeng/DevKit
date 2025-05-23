@@ -232,7 +232,6 @@ namespace DevKit.ViewModels
 
         private void SendMessage()
         {
-            _clientCache.Type = ConnectionType.WebSocketClient;
             _clientCache.RemoteAddress = _remoteAddress;
             _dataService.SaveConfigCache(_clientCache);
 

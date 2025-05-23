@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,6 +8,7 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using HandyControl.Tools;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -55,7 +55,7 @@ namespace DevKit.ViewModels
             get => _remoteAddress;
         }
 
-        private string _remotePort = string.Empty;
+        private string _remotePort = "8888";
 
         public string RemotePort
         {
@@ -90,7 +90,7 @@ namespace DevKit.ViewModels
             }
             get => _connectionStateColor;
         }
-        
+
         private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
 
         public ObservableCollection<ExCommandCache> ExCommandCollection
@@ -104,7 +104,7 @@ namespace DevKit.ViewModels
         }
 
         private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-        
+
         public ObservableCollection<MessageModel> MessageCollection
         {
             set
@@ -152,7 +152,7 @@ namespace DevKit.ViewModels
         }
 
         private bool _showHex = true;
-        
+
         public bool ShowHex
         {
             set
@@ -162,9 +162,9 @@ namespace DevKit.ViewModels
             }
             get => _showHex;
         }
-        
+
         private bool _sendHex = true;
-        
+
         public bool SendHex
         {
             set
@@ -174,21 +174,23 @@ namespace DevKit.ViewModels
             }
             get => _sendHex;
         }
-        
+
         #endregion
 
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
+        public DelegateCommand SaveCommunicationCommand { set; get; }
+        public DelegateCommand ClearCommunicationCommand { set; get; }
+        public DelegateCommand AddExtensionCommand { set; get; }
+
         public DelegateCommand ShowHexCheckBoxClickCommand { set; get; } //TODO 暂时用不上
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand SendHexCheckedCommand { set; get; }
         public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
 
         #endregion
@@ -205,32 +207,41 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
 
-            InitDefaultConfig();
+            using (var dataBase = new DataBaseConnection())
+            {
+                //加载连接配置缓存
+                var queryResult = dataBase.Table<ClientConfigCache>()
+                    .Where(x => x.ClientType == "TCP")
+                    .OrderByDescending(x => x.Id)
+                    .FirstOrDefault();
+                if (queryResult == null) return;
+                RemoteAddress = queryResult.RemoteAddress;
+                RemotePort = queryResult.RemotePort.ToString();
 
-            // ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
+                //加载扩展指令缓存
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == "TCP")
+                    .ToList();
+                ExCommandCollection = commandCache.ToObservableCollection();
+            }
+
+            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
+            SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
+            ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
+            AddExtensionCommand = new DelegateCommand(AddExtension);
+
             // ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             // DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
             // DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            // AddExtensionCommand = new DelegateCommand(AddExtension);
             // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             // SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
             // SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            // ClearMessageCommand = new DelegateCommand(ClearMessage);
             // SendMessageCommand = new DelegateCommand(SendMessage);
         }
 
         private void InitDefaultConfig()
         {
-            _clientCache = _dataService.LoadClientConfigCache(ConnectionType.TcpClient);
-            RemoteAddress = _clientCache.RemoteAddress;
-            RemotePort = _clientCache.RemotePort.ToString();
-            ShowHex = _clientCache.ShowHex == 1;
-            SendHex = _clientCache.SendHex == 1;
-
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
-                .ToObservableCollection();
-
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             //成功连接到服务器
@@ -255,9 +266,9 @@ namespace DevKit.ViewModels
                 var byteBlock = e.ByteBlock;
                 var messageModel = new MessageModel
                 {
-                    Content = _clientCache.ShowHex == 1
-                        ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
-                        : byteBlock.Span.ToString(Encoding.UTF8),
+                    // Content = _clientCache.ShowHex == 1
+                    //     ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                    //     : byteBlock.Span.ToString(Encoding.UTF8),
                     Bytes = byteBlock.ToArray(),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
@@ -268,6 +279,97 @@ namespace DevKit.ViewModels
                 Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
                 return EasyTask.CompletedTask;
             };
+        }
+
+        private void ConnectRemote()
+        {
+            if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
+            {
+                MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            //判断是否是IP和端口合理性
+            if (!_remoteAddress.IsIp())
+            {
+                MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!_remotePort.IsNumber())
+            {
+                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_tcpClient.Online)
+            {
+                _tcpClient.Close();
+            }
+            else
+            {
+                _tcpClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}:{_remotePort}"));
+                try
+                {
+                    _tcpClient.Connect();
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<ClientConfigCache>()
+                    .Where(x => x.ClientType == "TCP")
+                    .OrderByDescending(x => x.Id)
+                    .FirstOrDefault();
+                if (queryResult == null) return;
+                queryResult.RemoteAddress = _remoteAddress;
+                queryResult.RemotePort = Convert.ToInt32(_remotePort);
+                dataBase.Update(queryResult);
+            }
+        }
+
+        private void SaveCommunicationLog()
+        {
+        }
+
+        private void ClearCommunicationLog()
+        {
+            _messageTemp?.Clear();
+            MessageCollection?.Clear();
+        }
+
+        private void AddExtension()
+        {
+            _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
+            {
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                var commandValue = result.Parameters.GetValue<string>("CommandValue");
+                var annotation = result.Parameters.GetValue<string>("Annotation");
+                using (var dataBase = new DataBaseConnection())
+                {
+                    var exCommand = new ExCommandCache
+                    {
+                        ClientType = "TCP",
+                        CommandValue = commandValue,
+                        Annotation = annotation
+                    };
+                    dataBase.Insert(exCommand);
+                    //刷新列表
+                    ExCommandCollection.Clear();
+                    var commandCache = dataBase.Table<ExCommandCache>()
+                        .Where(x => x.ClientType == "TCP")
+                        .ToList();
+                    ExCommandCollection = commandCache.ToObservableCollection();
+                }
+            });
         }
 
         private void ShowHexCheckBoxClick()
@@ -291,7 +393,7 @@ namespace DevKit.ViewModels
                         MessageCollection.Add(msg);
                     }
 
-                    _clientCache.ShowHex = 1;
+                    // _clientCache.ShowHex = 1;
                 }
                 else
                 {
@@ -317,50 +419,11 @@ namespace DevKit.ViewModels
                         MessageCollection.Add(msg);
                     }
 
-                    _clientCache.ShowHex = 0;
+                    // _clientCache.ShowHex = 0;
                 }
                 else
                 {
                     ShowHex = true;
-                }
-            }
-        }
-
-        private void ConnectRemote()
-        {
-            if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
-            {
-                MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            //判断是否是IP和端口合理性
-            // if (!_remoteAddress.IsIp())
-            // {
-            //     MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
-
-            if (!_remotePort.IsNumber())
-            {
-                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_tcpClient.Online)
-            {
-                _tcpClient.Close();
-            }
-            else
-            {
-                _tcpClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}:{_remotePort}"));
-                try
-                {
-                    _tcpClient.Connect();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -393,30 +456,14 @@ namespace DevKit.ViewModels
             UserInputText = commandCache.CommandValue;
         }
 
-        private void AddExtension()
-        {
-            var dialogParameters = new DialogParameters
-            {
-                { "ConnectionType", ConnectionType.TcpClient }
-            };
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
-        }
-
-        private void ClearMessage()
-        {
-            //清空消息缓存
-            _messageTemp?.Clear();
-            MessageCollection?.Clear();
-        }
-
         private void SendHexChecked()
         {
-            _clientCache.SendHex = 1;
+            // _clientCache.SendHex = 1;
         }
 
         private void SendHexUnchecked()
         {
-            _clientCache.SendHex = 0;
+            // _clientCache.SendHex = 0;
         }
 
         private void LoopUnchecked()
@@ -426,7 +473,7 @@ namespace DevKit.ViewModels
 
         private void SendMessage()
         {
-            _clientCache.Type = ConnectionType.TcpClient;
+            // _clientCache.Type = ConnectionType.TcpClient;
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveConfigCache(_clientCache);
@@ -473,21 +520,21 @@ namespace DevKit.ViewModels
 
         private void Send(bool isMainThread)
         {
-            if (_clientCache.SendHex == 1)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的HEX格式数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                //以byte[]发送
-                _tcpClient.Send(_userInputText.HexToBytes());
-            }
-            else
-            {
-                _tcpClient.Send(_userInputText);
-            }
+            // if (_clientCache.SendHex == 1)
+            // {
+            //     if (!_userInputText.IsHex())
+            //     {
+            //         MessageBox.Show("错误的HEX格式数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     //以byte[]发送
+            //     _tcpClient.Send(_userInputText.HexToBytes());
+            // }
+            // else
+            // {
+            //     _tcpClient.Send(_userInputText);
+            // }
 
             var message = new MessageModel
             {

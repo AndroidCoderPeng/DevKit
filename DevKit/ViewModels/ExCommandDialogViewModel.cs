@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Windows;
-using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -27,18 +25,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _userCommandValue;
-        }
-
-        private bool _isHexChecked;
-
-        public bool IsHexChecked
-        {
-            set
-            {
-                _isHexChecked = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexChecked;
         }
 
         private string _commandAnnotation = string.Empty;
@@ -73,16 +59,10 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _type = parameters.GetValue<int>("ConnectionType");
         }
 
-        private readonly IAppDataService _dataService;
-        private int _type;
-
-        public ExCommandDialogViewModel(IAppDataService dataService)
+        public ExCommandDialogViewModel()
         {
-            _dataService = dataService;
-
             CommandSaveCommand = new DelegateCommand(ExtensionCommandSave);
             CancelDialogCommand = new DelegateCommand(CancelDialog);
         }
@@ -95,31 +75,18 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var cache = new ExCommandCache
+            if (!_userCommandValue.IsHex())
             {
-                ParentType = _type,
-                CommandValue = _userCommandValue,
-                Annotation = _commandAnnotation
+                MessageBox.Show("预设的指令不是正确的16进制", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var dialogParameters = new DialogParameters
+            {
+                { "CommandValue", _userCommandValue },
+                { "Annotation", _commandAnnotation }
             };
-
-            if (_isHexChecked)
-            {
-                //检查是否是正确的Hex指令
-                if (!_userCommandValue.IsHex())
-                {
-                    MessageBox.Show("预设的指令不是正确的HEX", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                cache.IsHex = 1;
-            }
-            else
-            {
-                cache.IsHex = 0;
-            }
-
-            _dataService.SaveConfigCache(cache);
-            RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+            RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
         }
 
         private void CancelDialog()

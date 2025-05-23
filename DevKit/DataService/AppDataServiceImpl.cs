@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Windows;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
@@ -46,12 +44,6 @@ namespace DevKit.DataService
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<ClientConfigCache>().Where(x => x.Type == connectionType);
-                if (queryResult.Any())
-                {
-                    return queryResult.First();
-                }
-
                 return new ClientConfigCache();
             }
         }
@@ -60,55 +52,19 @@ namespace DevKit.DataService
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<ExCommandCache>().Where(x => x.ParentType == parentType);
+                var queryResult = dataBase.Table<ExCommandCache>();
                 return queryResult.ToList();
             }
         }
 
         public void SaveConfigCache<T>(T configCache)
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                if (configCache is ClientConfigCache client)
-                {
-                    var queryResult = dataBase.Table<ClientConfigCache>()
-                        .Where(x => x.Id == client.Id && x.Type == client.Type);
-                    if (queryResult.Any())
-                    {
-                        dataBase.Update(client);
-                    }
-                    else
-                    {
-                        dataBase.Insert(client);
-                    }
-                }
-                else if (configCache is ExCommandCache command)
-                {
-                    var queryResult = dataBase.Table<ExCommandCache>()
-                        .Where(x =>
-                            x.ParentType == command.ParentType &&
-                            x.CommandValue == command.CommandValue
-                        );
-                    if (queryResult.Any())
-                    {
-                        MessageBox.Show("指令已存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    dataBase.Insert(command);
-                }
-            }
+            
         }
 
         public void DeleteExtensionCommandCache(int connectionType, int cacheId)
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                dataBase.Table<ExCommandCache>().Where(x =>
-                    x.ParentType == connectionType &&
-                    x.Id == cacheId
-                ).Delete();
-            }
+            
         }
 
         public List<string> GetAllIPv4Addresses()

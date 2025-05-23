@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -200,8 +199,6 @@ namespace DevKit.ViewModels
             _clientCache = _dataService.LoadClientConfigCache(ConnectionType.UdpClient);
             RemoteAddress = _clientCache.RemoteAddress;
             RemotePort = _clientCache.RemotePort.ToString();
-            ShowHex = _clientCache.ShowHex == 1;
-            SendHex = _clientCache.SendHex == 1;
 
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
                 .ToObservableCollection();
@@ -232,7 +229,7 @@ namespace DevKit.ViewModels
                         MessageCollection.Add(msg);
                     }
 
-                    _clientCache.ShowHex = 1;
+                    // _clientCache.ShowHex = 1;
                 }
                 else
                 {
@@ -258,7 +255,7 @@ namespace DevKit.ViewModels
                         MessageCollection.Add(msg);
                     }
 
-                    _clientCache.ShowHex = 0;
+                    // _clientCache.ShowHex = 0;
                 }
                 else
                 {
@@ -313,12 +310,12 @@ namespace DevKit.ViewModels
 
         private void SendHexChecked()
         {
-            _clientCache.SendHex = 1;
+            // _clientCache.SendHex = 1;
         }
 
         private void SendHexUnchecked()
         {
-            _clientCache.SendHex = 0;
+            // _clientCache.SendHex = 0;
         }
 
         private void LoopUnchecked()
@@ -347,7 +344,6 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            _clientCache.Type = ConnectionType.UdpClient;
             _clientCache.RemoteAddress = _remoteAddress;
             _clientCache.RemotePort = Convert.ToInt32(_remotePort);
             _dataService.SaveConfigCache(_clientCache);
@@ -383,20 +379,20 @@ namespace DevKit.ViewModels
         private void Send(bool isMainThread)
         {
             SetupUdpConfig();
-            if (_clientCache.SendHex == 1)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _udpClient.Send(_userInputText.HexToBytes());
-            }
-            else
-            {
-                _udpClient.Send(_userInputText);
-            }
+            // if (_clientCache.SendHex == 1)
+            // {
+            //     if (!_userInputText.IsHex())
+            //     {
+            //         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     _udpClient.Send(_userInputText.HexToBytes());
+            // }
+            // else
+            // {
+            //     _udpClient.Send(_userInputText);
+            // }
 
             var message = new MessageModel
             {
@@ -430,9 +426,9 @@ namespace DevKit.ViewModels
                     var byteBlock = e.ByteBlock;
                     var messageModel = new MessageModel
                     {
-                        Content = _clientCache.ShowHex == 1
-                            ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
-                            : byteBlock.Span.ToString(Encoding.UTF8),
+                        // Content = _clientCache.ShowHex == 1
+                        //     ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
+                        //     : byteBlock.Span.ToString(Encoding.UTF8),
                         Bytes = byteBlock.ToArray(),
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                         IsSend = false
