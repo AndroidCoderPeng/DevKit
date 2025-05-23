@@ -114,18 +114,6 @@ namespace DevKit.ViewModels
             get => _logs;
         }
 
-        private bool _loopSend;
-
-        public bool LoopSend
-        {
-            set
-            {
-                _loopSend = value;
-                RaisePropertyChanged();
-            }
-            get => _loopSend;
-        }
-
         private string _commandInterval = "1000";
 
         public string CommandInterval
@@ -148,18 +136,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _userInputText;
-        }
-
-        private bool _showHex = true;
-
-        public bool ShowHex
-        {
-            set
-            {
-                _showHex = value;
-                RaisePropertyChanged();
-            }
-            get => _showHex;
         }
 
         private bool _isHexSelected = true;
@@ -187,18 +163,19 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> CopyCommand { set; get; }
         public DelegateCommand<object> EditCommand { set; get; }
         public DelegateCommand<object> DeleteCommand { set; get; }
+        public DelegateCommand OpenScriptCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
 
-        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; } //TODO 暂时用不上
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
 
         #endregion
 
         private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
-        private readonly Timer _loopSendMessageTimer = new Timer();
+        private readonly Timer _loopSendCommandTimer = new Timer();
 
         public TcpClientViewModel(IAppDataService dataService, IDialogService dialogService)
         {
@@ -236,13 +213,12 @@ namespace DevKit.ViewModels
             CopyCommand = new DelegateCommand<string>(OnCopy);
             EditCommand = new DelegateCommand<object>(OnEdit);
             DeleteCommand = new DelegateCommand<object>(OnDelete);
+            OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
+            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
 
-            // ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             // DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            // LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
         }
 
         /// <summary>
@@ -291,7 +267,7 @@ namespace DevKit.ViewModels
 
             _tcpClient.Received = (client, e) =>
             {
-                UpdateCommunicationLog(e.ByteBlock.ToArray(),  false);
+                UpdateCommunicationLog(e.ByteBlock.ToArray(), false);
                 return EasyTask.CompletedTask;
             };
         }
@@ -466,7 +442,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 var bytes = _userInputText.Replace(" ", "").ByHexStringToBytes();
                 _tcpClient.Send(bytes);
                 UpdateCommunicationLog(bytes, true);
@@ -477,17 +453,6 @@ namespace DevKit.ViewModels
                 _tcpClient.Send(bytes);
                 UpdateCommunicationLog(bytes, true);
             }
-        }
-
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
-        {
-            if (!_tcpClient.Online)
-            {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            SendMessage();
         }
 
         private void UpdateCommunicationLog(byte[] bytes, bool isSend)
@@ -504,26 +469,49 @@ namespace DevKit.ViewModels
             }
             else
             {
-                // var log = new LogModel
-                // {
-                //     Content = _userInputText,
-                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                //     IsSend = true
-                // };
-                // Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+                //默认显示为UTF8编码
+                var log = new LogModel
+                {
+                    Content = bytes.ByBytesToHexString(" "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
             }
         }
 
-        private void ShowHexCheckBoxClick()
+        private void OpenScriptDialog()
         {
-            if (_showHex)
+        }
+
+        private void OnTimeChecked()
+        {
+            if (!_commandInterval.IsNumber())
             {
-                
+                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            else
+
+            _loopSendCommandTimer.Elapsed += TimerElapsedEvent_Handler;
+            _loopSendCommandTimer.Interval = double.Parse(_commandInterval);
+            _loopSendCommandTimer.Enabled = true;
+        }
+
+        private void OnTimeUnchecked()
+        {
+            _loopSendCommandTimer.Elapsed -= TimerElapsedEvent_Handler;
+            _loopSendCommandTimer.Enabled = false;
+        }
+
+        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        {
+            if (!_tcpClient.Online)
             {
-                
+                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            SendMessage();
         }
 
         private void DropDownOpened()
@@ -541,11 +529,6 @@ namespace DevKit.ViewModels
 
             var commandCache = _exCommandCollection[box.SelectedIndex];
             UserInputText = commandCache.CommandValue;
-        }
-
-        private void LoopUnchecked()
-        {
-            _loopSendMessageTimer.Enabled = false;
         }
     }
 }
