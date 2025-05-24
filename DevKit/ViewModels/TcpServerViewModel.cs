@@ -9,6 +9,7 @@ using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -229,7 +230,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<ConnectedClientModel> ClientItemSelectionChangedCommand { set; get; }
+        public DelegateCommand<ConnectedClientModel> ClientItemClickedCommand { set; get; }
         public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
@@ -256,7 +257,7 @@ namespace DevKit.ViewModels
             InitDefaultConfig();
 
             ServerListenCommand = new DelegateCommand(ServerListen);
-            ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
+            ClientItemClickedCommand = new DelegateCommand<ConnectedClientModel>(OnClientItemClicked);
             ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
@@ -369,13 +370,15 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ClientItemSelectionChanged(ConnectedClientModel client)
+        private void OnClientItemClicked(ConnectedClientModel client)
         {
             if (client == null)
             {
                 return;
             }
 
+            Console.WriteLine(JsonConvert.SerializeObject(client));
+            
             client.MessageCount = 0;
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
