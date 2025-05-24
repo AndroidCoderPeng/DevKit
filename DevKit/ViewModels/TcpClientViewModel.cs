@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -161,7 +162,7 @@ namespace DevKit.ViewModels
         public DelegateCommand SaveCommunicationCommand { set; get; }
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
-        public DelegateCommand<string> ItemSelectionChangedCommand { set; get; }
+        public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
         public DelegateCommand<string> CopyCommand { set; get; }
@@ -170,6 +171,7 @@ namespace DevKit.ViewModels
         public DelegateCommand OpenScriptCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
@@ -212,7 +214,7 @@ namespace DevKit.ViewModels
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
-            ItemSelectionChangedCommand = new DelegateCommand<string>(OnCommandItemSelected);
+            DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
             SendCommand = new DelegateCommand(SendMessage);
             CopyCommand = new DelegateCommand<string>(OnCopy);
@@ -221,6 +223,7 @@ namespace DevKit.ViewModels
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
 
             // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             // DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
@@ -351,8 +354,8 @@ namespace DevKit.ViewModels
                     {
                         foreach (var log in _logs)
                         {
-                            var logText = log.IsSend 
-                                ? $"{log.Time}【发送】{log.Content}" 
+                            var logText = log.IsSend
+                                ? $"{log.Time}【发送】{log.Content}"
                                 : $"{log.Time}【接收】{log.Content}";
                             await writer.WriteLineAsync(logText);
                         }
@@ -400,7 +403,7 @@ namespace DevKit.ViewModels
             });
         }
 
-        private void OnCommandItemSelected(string command)
+        private void OnDataGridItemSelected(string command)
         {
             UserInputText = command;
         }
@@ -555,6 +558,33 @@ namespace DevKit.ViewModels
             }
 
             SendMessage();
+        }
+
+        private void OnComboBoxItemSelected(object index)
+        {
+            if (index == null)
+            {
+                return;
+            }
+
+            if (index.ToString().Equals("0"))
+            {
+                //转为16进制显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.ToUTF8Bytes();
+                    log.Content = bytes.ByBytesToHexString(" ");
+                }
+            }
+            else if (index.ToString().Equals("1"))
+            {
+                //转为ASCII显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                    log.Content = Encoding.UTF8.GetString(bytes);
+                }
+            }
         }
 
         private void DropDownOpened()

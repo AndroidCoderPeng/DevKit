@@ -207,7 +207,7 @@
                 <!--  选中事件  -->
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="SelectionChanged">
-                        <b:InvokeCommandAction Command="{Binding ItemSelectionChangedCommand}" CommandParameter="{Binding SelectedItem.CommandValue, ElementName=ExCommandDataGrid}" />
+                        <b:InvokeCommandAction Command="{Binding DataGridItemSelectedCommand}" CommandParameter="{Binding SelectedItem.CommandValue, ElementName=ExCommandDataGrid}" />
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
 
@@ -391,12 +391,20 @@
                     Text="ms/次" />
 
                 <ComboBox
+                    x:Name="EncodeComboBox"
                     Grid.Column="4"
                     Width="80"
                     Margin="10,0"
                     SelectedIndex="0">
                     <ComboBoxItem Content="16进制" />
                     <ComboBoxItem Content="ASCII" />
+                    
+                    <!--  选中事件  -->
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SelectionChanged">
+                            <b:InvokeCommandAction Command="{Binding ComboBoxItemSelectedCommand}" CommandParameter="{Binding SelectedIndex, ElementName=EncodeComboBox}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </ComboBox>
 
                 <CheckBox
