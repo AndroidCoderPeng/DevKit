@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Timers;
 using System.Windows;
-using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -303,19 +302,19 @@ namespace DevKit.ViewModels
                                 var session = webSocket.Client;
                                 var client = _clientCollection.First(x => x.Ip == session.IP && x.Port == session.Port);
                                 client.MessageCount++;
-                                using (var dataBase = new DataBaseConnection())
-                                {
-                                    var cache = new ClientMessageCache
-                                    {
-                                        ClientIp = session.IP,
-                                        ClientPort = session.Port,
-                                        ClientType = ConnectionType.WebSocketClient,
-                                        MessageContent = e.DataFrame.ToText(),
-                                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                                        IsSend = 0
-                                    };
-                                    dataBase.Insert(cache);
-                                }
+                                // using (var dataBase = new DataBaseConnection())
+                                // {
+                                //     var cache = new ClientMessageCache
+                                //     {
+                                //         ClientIp = session.IP,
+                                //         ClientPort = session.Port,
+                                //         ClientType = ConnectionType.WebSocketClient,
+                                //         MessageContent = e.DataFrame.ToText(),
+                                //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                                //         IsSend = 0
+                                //     };
+                                //     dataBase.Insert(cache);
+                                // }
 
                                 if (_isContentViewVisible.Equals("Visible") &&
                                     _connectedClient.Ip == session.IP && _connectedClient.Port == session.Port)
@@ -382,37 +381,37 @@ namespace DevKit.ViewModels
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             MessageCollection.Clear();
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ClientMessageCache>()
-                    .Where(x =>
-                        x.ClientIp == _connectedClient.Ip &&
-                        x.ClientPort == _connectedClient.Port &&
-                        x.ClientType == ConnectionType.WebSocketClient
-                    );
-                if (queryResult.Any())
-                {
-                    IsContentViewVisible = "Visible";
-                    IsEmptyImageVisible = "Collapsed";
-
-                    foreach (var cache in queryResult)
-                    {
-                        var messageModel = new MessageModel
-                        {
-                            Content = cache.MessageContent,
-                            Time = cache.Time,
-                            IsSend = cache.IsSend == 1
-                        };
-
-                        MessageCollection.Add(messageModel);
-                    }
-                }
-                else
-                {
-                    IsContentViewVisible = "Collapsed";
-                    IsEmptyImageVisible = "Visible";
-                }
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     var queryResult = dataBase.Table<ClientMessageCache>()
+            //         .Where(x =>
+            //             x.ClientIp == _connectedClient.Ip &&
+            //             x.ClientPort == _connectedClient.Port &&
+            //             x.ClientType == ConnectionType.WebSocketClient
+            //         );
+            //     if (queryResult.Any())
+            //     {
+            //         IsContentViewVisible = "Visible";
+            //         IsEmptyImageVisible = "Collapsed";
+            //
+            //         foreach (var cache in queryResult)
+            //         {
+            //             var messageModel = new MessageModel
+            //             {
+            //                 Content = cache.MessageContent,
+            //                 Time = cache.Time,
+            //                 IsSend = cache.IsSend == 1
+            //             };
+            //
+            //             MessageCollection.Add(messageModel);
+            //         }
+            //     }
+            //     else
+            //     {
+            //         IsContentViewVisible = "Collapsed";
+            //         IsEmptyImageVisible = "Visible";
+            //     }
+            // }
         }
 
         private void LoopUnchecked()
@@ -429,14 +428,14 @@ namespace DevKit.ViewModels
         {
             MessageCollection?.Clear();
             _connectedClient.MessageCount = 0;
-            using (var dataBase = new DataBaseConnection())
-            {
-                dataBase.Table<ClientMessageCache>().Where(x =>
-                    x.ClientIp == _connectedClient.Ip &&
-                    x.ClientPort == _connectedClient.Port &&
-                    x.ClientType == ConnectionType.WebSocketClient
-                ).Delete();
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     dataBase.Table<ClientMessageCache>().Where(x =>
+            //         x.ClientIp == _connectedClient.Ip &&
+            //         x.ClientPort == _connectedClient.Port &&
+            //         x.ClientType == ConnectionType.WebSocketClient
+            //     ).Delete();
+            // }
         }
 
         private void SendMessage()
@@ -468,19 +467,19 @@ namespace DevKit.ViewModels
         {
             _connectedClient.WebSocket?.SendAsync(_userInputText);
                 
-            using (var dataBase = new DataBaseConnection())
-            {
-                var cache = new ClientMessageCache
-                {
-                    ClientIp = _connectedClient.Ip,
-                    ClientPort = _connectedClient.Port,
-                    ClientType = ConnectionType.WebSocketClient,
-                    MessageContent = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 1
-                };
-                dataBase.Insert(cache);
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     var cache = new ClientMessageCache
+            //     {
+            //         ClientIp = _connectedClient.Ip,
+            //         ClientPort = _connectedClient.Port,
+            //         ClientType = ConnectionType.WebSocketClient,
+            //         MessageContent = _userInputText,
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = 1
+            //     };
+            //     dataBase.Insert(cache);
+            // }
                 
             var message = new MessageModel
             {

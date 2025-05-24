@@ -304,20 +304,20 @@ namespace DevKit.ViewModels
                 tcp.MessageCount++;
                 using (var dataBase = new DataBaseConnection())
                 {
-                    var cache = new ClientMessageCache
-                    {
-                        ClientId = client.Id,
-                        ClientIp = client.IP,
-                        ClientPort = client.Port,
-                        ClientType = ConnectionType.TcpClient,
-                        MessageContent = _showHex
-                            ? BitConverter.ToString(bytes).Replace("-", " ")
-                            : Encoding.UTF8.GetString(bytes),
-                        ByteArrayContent = BitConverter.ToString(bytes),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 0
-                    };
-                    dataBase.Insert(cache);
+                    // var cache = new ClientMessageCache
+                    // {
+                    //     ClientId = client.Id,
+                    //     ClientIp = client.IP,
+                    //     ClientPort = client.Port,
+                    //     ClientType = ConnectionType.TcpClient,
+                    //     MessageContent = _showHex
+                    //         ? BitConverter.ToString(bytes).Replace("-", " ")
+                    //         : Encoding.UTF8.GetString(bytes),
+                    //     ByteArrayContent = BitConverter.ToString(bytes),
+                    //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    //     IsSend = 0
+                    // };
+                    // dataBase.Insert(cache);
                 }
 
                 if (_isContentViewVisible.Equals("Visible") && client.Id == _connectedClient.Id)
@@ -382,35 +382,35 @@ namespace DevKit.ViewModels
             MessageCollection.Clear();
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<ClientMessageCache>()
-                    .Where(x =>
-                        x.ClientId == _connectedClient.Id &&
-                        x.ClientIp == _connectedClient.Ip &&
-                        x.ClientPort == _connectedClient.Port &&
-                        x.ClientType == ConnectionType.TcpClient
-                    );
-                if (queryResult.Any())
-                {
-                    IsContentViewVisible = "Visible";
-                    IsEmptyImageVisible = "Collapsed";
-
-                    foreach (var cache in queryResult)
-                    {
-                        var messageModel = new MessageModel
-                        {
-                            Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
-                            Time = cache.Time,
-                            IsSend = cache.IsSend == 1
-                        };
-
-                        MessageCollection.Add(messageModel);
-                    }
-                }
-                else
-                {
-                    IsContentViewVisible = "Collapsed";
-                    IsEmptyImageVisible = "Visible";
-                }
+                // var queryResult = dataBase.Table<ClientMessageCache>()
+                //     .Where(x =>
+                //         x.ClientId == _connectedClient.Id &&
+                //         x.ClientIp == _connectedClient.Ip &&
+                //         x.ClientPort == _connectedClient.Port &&
+                //         x.ClientType == ConnectionType.TcpClient
+                //     );
+                // if (queryResult.Any())
+                // {
+                //     IsContentViewVisible = "Visible";
+                //     IsEmptyImageVisible = "Collapsed";
+                //
+                //     foreach (var cache in queryResult)
+                //     {
+                //         var messageModel = new MessageModel
+                //         {
+                //             Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
+                //             Time = cache.Time,
+                //             IsSend = cache.IsSend == 1
+                //         };
+                //
+                //         MessageCollection.Add(messageModel);
+                //     }
+                // }
+                // else
+                // {
+                //     IsContentViewVisible = "Collapsed";
+                //     IsEmptyImageVisible = "Visible";
+                // }
             }
         }
 
@@ -418,61 +418,61 @@ namespace DevKit.ViewModels
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
-                    x.ClientId == _connectedClient.Id &&
-                    x.ClientIp == _connectedClient.Ip &&
-                    x.ClientPort == _connectedClient.Port &&
-                    x.ClientType == ConnectionType.TcpClient
-                );
-
-                if (_showHex)
-                {
-                    var boxResult = MessageBox.Show(
-                        "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                    );
-                    if (boxResult == MessageBoxResult.OK)
-                    {
-                        MessageCollection.Clear();
-                        foreach (var cache in queryResult)
-                        {
-                            var msg = new MessageModel
-                            {
-                                Content = cache.MessageContent,
-                                Time = cache.Time,
-                                IsSend = cache.IsSend == 1
-                            };
-                            MessageCollection.Add(msg);
-                        }
-                    }
-                    else
-                    {
-                        ShowHex = false;
-                    }
-                }
-                else
-                {
-                    var boxResult = MessageBox.Show(
-                        "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                    );
-                    if (boxResult == MessageBoxResult.OK)
-                    {
-                        MessageCollection.Clear();
-                        foreach (var cache in queryResult)
-                        {
-                            var msg = new MessageModel
-                            {
-                                Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
-                                Time = cache.Time,
-                                IsSend = cache.IsSend == 1
-                            };
-                            MessageCollection.Add(msg);
-                        }
-                    }
-                    else
-                    {
-                        ShowHex = true;
-                    }
-                }
+                // var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
+                //     x.ClientId == _connectedClient.Id &&
+                //     x.ClientIp == _connectedClient.Ip &&
+                //     x.ClientPort == _connectedClient.Port &&
+                //     x.ClientType == ConnectionType.TcpClient
+                // );
+                //
+                // if (_showHex)
+                // {
+                //     var boxResult = MessageBox.Show(
+                //         "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                //     );
+                //     if (boxResult == MessageBoxResult.OK)
+                //     {
+                //         MessageCollection.Clear();
+                //         foreach (var cache in queryResult)
+                //         {
+                //             var msg = new MessageModel
+                //             {
+                //                 Content = cache.MessageContent,
+                //                 Time = cache.Time,
+                //                 IsSend = cache.IsSend == 1
+                //             };
+                //             MessageCollection.Add(msg);
+                //         }
+                //     }
+                //     else
+                //     {
+                //         ShowHex = false;
+                //     }
+                // }
+                // else
+                // {
+                //     var boxResult = MessageBox.Show(
+                //         "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
+                //     );
+                //     if (boxResult == MessageBoxResult.OK)
+                //     {
+                //         MessageCollection.Clear();
+                //         foreach (var cache in queryResult)
+                //         {
+                //             var msg = new MessageModel
+                //             {
+                //                 Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
+                //                 Time = cache.Time,
+                //                 IsSend = cache.IsSend == 1
+                //             };
+                //             MessageCollection.Add(msg);
+                //         }
+                //     }
+                //     else
+                //     {
+                //         ShowHex = true;
+                //     }
+                // }
             }
         }
 
@@ -527,15 +527,15 @@ namespace DevKit.ViewModels
         {
             MessageCollection?.Clear();
             _connectedClient.MessageCount = 0;
-            using (var dataBase = new DataBaseConnection())
-            {
-                dataBase.Table<ClientMessageCache>().Where(x =>
-                    x.ClientId == _connectedClient.Id &&
-                    x.ClientIp == _connectedClient.Ip &&
-                    x.ClientPort == _connectedClient.Port &&
-                    x.ClientType == ConnectionType.TcpClient
-                ).Delete();
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     dataBase.Table<ClientMessageCache>().Where(x =>
+            //         x.ClientId == _connectedClient.Id &&
+            //         x.ClientIp == _connectedClient.Ip &&
+            //         x.ClientPort == _connectedClient.Port &&
+            //         x.ClientType == ConnectionType.TcpClient
+            //     ).Delete();
+            // }
         }
 
         private void SendMessage()
@@ -580,21 +580,21 @@ namespace DevKit.ViewModels
                 _tcpServer.Send(_connectedClient.Id, _userInputText);
             }
 
-            using (var dataBase = new DataBaseConnection())
-            {
-                var cache = new ClientMessageCache
-                {
-                    ClientId = _connectedClient.Id,
-                    ClientIp = _connectedClient.Ip,
-                    ClientPort = _connectedClient.Port,
-                    ClientType = ConnectionType.TcpClient,
-                    MessageContent = _userInputText,
-                    ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 1
-                };
-                dataBase.Insert(cache);
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     var cache = new ClientMessageCache
+            //     {
+            //         ClientId = _connectedClient.Id,
+            //         ClientIp = _connectedClient.Ip,
+            //         ClientPort = _connectedClient.Port,
+            //         ClientType = ConnectionType.TcpClient,
+            //         MessageContent = _userInputText,
+            //         ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = 1
+            //     };
+            //     dataBase.Insert(cache);
+            // }
 
             var message = new MessageModel
             {
