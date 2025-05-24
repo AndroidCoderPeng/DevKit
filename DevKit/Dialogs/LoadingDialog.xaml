@@ -9,6 +9,7 @@
     Width="400"
     Height="100"
     d:DataContext="{d:DesignInstance Type=vm:LoadingDialogViewModel}"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
@@ -36,6 +37,8 @@
             Grid.Row="1"
             Height="10"
             Margin="15"
+            Background="White"
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
             IsIndeterminate="True" />
     </Grid>
 </UserControl>

@@ -9,7 +9,7 @@
     Width="615"
     Height="400"
     d:DataContext="{d:DesignInstance Type=vm:ScreenShotListDialogViewModel}"
-    Background="White"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
@@ -27,63 +27,62 @@
         </Style>
     </UserControl.Resources>
 
-    <Border BorderThickness="0,1,0,0">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <TextBlock
-                Grid.Row="0"
-                Margin="10"
-                HorizontalAlignment="Center"
-                Text="请选择需要导出到电脑的截屏" />
+        <TextBlock
+            Grid.Row="0"
+            Margin="10"
+            HorizontalAlignment="Center"
+            Text="请选择需要导出到电脑的截屏" />
 
-            <ListBox
-                x:Name="ScreenshotsListBox"
-                Grid.Row="1"
-                Margin="10,0"
-                ItemsSource="{Binding Screenshots}"
-                ScrollViewer.CanContentScroll="False">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <TextBlock Text="{Binding FilePath}" TextWrapping="Wrap" />
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
+        <ListBox
+            x:Name="ScreenshotsListBox"
+            Grid.Row="1"
+            Margin="10,0"
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
+            ItemsSource="{Binding Screenshots}"
+            ScrollViewer.CanContentScroll="False">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding FilePath}" TextWrapping="Wrap" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
 
-                <!--  ListBox横排  -->
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-            </ListBox>
+            <!--  ListBox横排  -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
 
-            <Grid Grid.Row="2" Margin="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
+        <Grid Grid.Row="2" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-                <Button
-                    Grid.Column="0"
-                    HorizontalAlignment="Left"
-                    Command="{Binding SortScreenshotsCommand}"
-                    Content="排序"
-                    Style="{StaticResource ButtonInfo}" />
+            <Button
+                Grid.Column="0"
+                HorizontalAlignment="Left"
+                Command="{Binding SortScreenshotsCommand}"
+                Content="排序"
+                Style="{StaticResource ButtonInfo}" />
 
-                <Button
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    Command="{Binding OutputScreenshotCommand}"
-                    CommandParameter="{Binding ElementName=ScreenshotsListBox, Path=SelectedItem}"
-                    Content="导出到电脑"
-                    Style="{StaticResource ButtonPrimary}" />
-            </Grid>
+            <Button
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Command="{Binding OutputScreenshotCommand}"
+                CommandParameter="{Binding ElementName=ScreenshotsListBox, Path=SelectedItem}"
+                Content="导出到电脑"
+                Style="{StaticResource ButtonPrimary}" />
         </Grid>
-    </Border>
+    </Grid>
 </UserControl>

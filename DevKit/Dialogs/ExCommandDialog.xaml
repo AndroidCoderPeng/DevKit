@@ -10,7 +10,7 @@
     Width="450"
     Height="240"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
-    Background="White"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
@@ -27,78 +27,78 @@
         </Style>
     </UserControl.Resources>
 
-    <Border BorderThickness="0,1,0,0">
-        <Grid Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="100" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="10,10,10,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Margin="10,10,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-                <TextBlock
-                    Grid.Column="0"
-                    Width="80"
-                    VerticalAlignment="Center"
-                    Text="指令值" />
+            <TextBlock
+                Grid.Column="0"
+                Width="80"
+                VerticalAlignment="Center"
+                Text="指令值" />
 
-                <hc:TextBox
-                    Grid.Column="1"
-                    Margin="10,0,0,0"
-                    Padding="7,5"
-                    VerticalContentAlignment="Top"
-                    hc:InfoElement.Placeholder="请输入16进制格式指令"
-                    Text="{Binding UserCommandValue}"
-                    TextWrapping="Wrap" />
-            </Grid>
-
-            <Grid Grid.Row="1" Margin="10,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock
-                    Grid.Column="0"
-                    Width="80"
-                    VerticalAlignment="Center"
-                    Text="备注" />
-
-                <hc:TextBox
-                    Grid.Column="1"
-                    Margin="10,0,0,0"
-                    Padding="7,5"
-                    hc:InfoElement.Placeholder="可选"
-                    Text="{Binding CommandAnnotation}"
-                    TextWrapping="NoWrap" />
-            </Grid>
-
-            <UniformGrid
-                Grid.Row="2"
-                Width="300"
-                Margin="10,0"
-                HorizontalAlignment="Right"
-                Columns="2"
-                Rows="1">
-                <Button
-                    Margin="0,0,10,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding CommandSaveCommand}"
-                    Content="保存"
-                    Style="{StaticResource ButtonPrimary}" />
-
-                <Button
-                    Margin="10,0,0,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding CancelDialogCommand}"
-                    Content="取消"
-                    Style="{StaticResource ButtonWarning}" />
-            </UniformGrid>
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                Padding="7,5"
+                VerticalContentAlignment="Top"
+                hc:InfoElement.Placeholder="请输入16进制格式指令"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                Text="{Binding UserCommandValue}"
+                TextWrapping="Wrap" />
         </Grid>
-    </Border>
+
+        <Grid Grid.Row="1" Margin="10,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                Width="80"
+                VerticalAlignment="Center"
+                Text="备注" />
+
+            <hc:TextBox
+                Grid.Column="1"
+                Margin="10,0,0,0"
+                Padding="7,5"
+                hc:InfoElement.Placeholder="可选"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                Text="{Binding CommandAnnotation}"
+                TextWrapping="NoWrap" />
+        </Grid>
+
+        <UniformGrid
+            Grid.Row="2"
+            Width="300"
+            Margin="10,0"
+            HorizontalAlignment="Right"
+            Columns="2"
+            Rows="1">
+            <Button
+                Margin="0,0,10,0"
+                HorizontalAlignment="Stretch"
+                Command="{Binding CommandSaveCommand}"
+                Content="保存"
+                Style="{StaticResource ButtonPrimary}" />
+
+            <Button
+                Margin="10,0,0,0"
+                HorizontalAlignment="Stretch"
+                Command="{Binding CancelDialogCommand}"
+                Content="取消"
+                Style="{StaticResource ButtonWarning}" />
+        </UniformGrid>
+    </Grid>
 </UserControl>

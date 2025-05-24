@@ -116,6 +116,7 @@ namespace DevKit
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
+            containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
             containerRegistry.RegisterDialog<ScreenShotListDialog, ScreenShotListDialogViewModel>();
         }
     }

@@ -175,6 +175,9 @@
     <Compile Include="Converters\SerialPortStateConverter.cs" />
     <Compile Include="DataService\AppDataServiceImpl.cs" />
     <Compile Include="DataService\IAppDataService.cs" />
+    <Compile Include="Dialogs\CommandScriptDialog.xaml.cs">
+      <DependentUpon>CommandScriptDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">
       <DependentUpon>CreateKeyDialog.xaml</DependentUpon>
     </Compile>
@@ -208,6 +211,7 @@
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\ColorResourceViewModel.cs" />
+    <Compile Include="ViewModels\CommandScriptDialogViewModel.cs" />
     <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
@@ -274,6 +278,7 @@
     <Page Include="Colors\ColorBrushes.xaml" />
     <Page Include="Colors\DarkColor.xaml" />
     <Page Include="Colors\LightColor.xaml" />
+    <Page Include="Dialogs\CommandScriptDialog.xaml" />
     <Page Include="Dialogs\CreateKeyDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />

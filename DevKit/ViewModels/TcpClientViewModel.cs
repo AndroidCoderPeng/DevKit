@@ -5,9 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
 using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Tools;
@@ -173,19 +171,14 @@ namespace DevKit.ViewModels
         public DelegateCommand TimeUncheckedCommand { set; get; }
         public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
-        public DelegateCommand DropDownOpenedCommand { set; get; }
-        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-
         #endregion
 
-        private readonly IAppDataService _dataService;
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly Timer _loopSendCommandTimer = new Timer();
 
-        public TcpClientViewModel(IAppDataService dataService, IDialogService dialogService)
+        public TcpClientViewModel(IDialogService dialogService)
         {
-            _dataService = dataService;
             _dialogService = dialogService;
 
             using (var dataBase = new DataBaseConnection())
@@ -224,9 +217,6 @@ namespace DevKit.ViewModels
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
             ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
-
-            // DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
-            // DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
         }
 
         /// <summary>
@@ -528,6 +518,25 @@ namespace DevKit.ViewModels
 
         private void OpenScriptDialog()
         {
+            var dialogParameters = new DialogParameters();
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == "TCP")
+                    .ToList();
+                dialogParameters.Add("ExCommandCache", commandCache);
+            }
+
+            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+            {
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                
+            });
         }
 
         private void OnTimeChecked()
@@ -585,23 +594,6 @@ namespace DevKit.ViewModels
                     log.Content = Encoding.UTF8.GetString(bytes);
                 }
             }
-        }
-
-        private void DropDownOpened()
-        {
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpClient)
-                .ToObservableCollection();
-        }
-
-        private void DropDownClosed(ComboBox box)
-        {
-            if (box.SelectedIndex == -1)
-            {
-                box.SelectedIndex = 0;
-            }
-
-            var commandCache = _exCommandCollection[box.SelectedIndex];
-            UserInputText = commandCache.CommandValue;
         }
     }
 }
