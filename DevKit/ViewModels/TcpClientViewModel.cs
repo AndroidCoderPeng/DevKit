@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Timers;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
@@ -175,7 +176,9 @@ namespace DevKit.ViewModels
 
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
-        private readonly Timer _loopSendCommandTimer = new Timer();
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private IEnumerator<string> _commandEnumerator;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -209,7 +212,7 @@ namespace DevKit.ViewModels
             AddExtensionCommand = new DelegateCommand(AddExtension);
             DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            SendCommand = new DelegateCommand(SendMessage);
+            SendCommand = new DelegateCommand(OnMessageSend);
             CopyCommand = new DelegateCommand<string>(OnCopy);
             EditCommand = new DelegateCommand<object>(OnEdit);
             DeleteCommand = new DelegateCommand<object>(OnDelete);
@@ -265,7 +268,7 @@ namespace DevKit.ViewModels
 
             _tcpClient.Received = (client, e) =>
             {
-                UpdateCommunicationLog(e.ByteBlock.ToArray(), false);
+                UpdateCommunicationLog("", e.ByteBlock.ToArray());
                 return EasyTask.CompletedTask;
             };
         }
@@ -403,6 +406,11 @@ namespace DevKit.ViewModels
             Clipboard.SetText(log);
         }
 
+        private void OnMessageSend()
+        {
+            SendMessage(_userInputText);
+        }
+
         private void OnCopy(string command)
         {
             Clipboard.SetText(command);
@@ -457,7 +465,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void SendMessage()
+        private void SendMessage(string command)
         {
             if (!_tcpClient.Online)
             {
@@ -465,7 +473,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(_userInputText))
+            if (string.IsNullOrWhiteSpace(command))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -473,37 +481,27 @@ namespace DevKit.ViewModels
 
             if (_isHexSelected)
             {
-                if (!_userInputText.IsHex())
+                if (!command.IsHex())
                 {
                     MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                var bytes = _userInputText.Replace(" ", "").ByHexStringToBytes();
+                var bytes = command.Replace(" ", "").ByHexStringToBytes();
                 _tcpClient.Send(bytes);
-                UpdateCommunicationLog(bytes, true);
+                UpdateCommunicationLog(command, bytes);
             }
             else
             {
-                var bytes = _userInputText.ToUTF8Bytes();
+                var bytes = command.ToUTF8Bytes();
                 _tcpClient.Send(bytes);
-                UpdateCommunicationLog(bytes, true);
+                UpdateCommunicationLog(command, bytes);
             }
         }
 
-        private void UpdateCommunicationLog(byte[] bytes, bool isSend)
+        private void UpdateCommunicationLog(string command, byte[] bytes)
         {
-            if (isSend)
-            {
-                var log = new LogModel
-                {
-                    Content = _userInputText,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
-            }
-            else
+            if (command.Equals(""))
             {
                 //默认显示为UTF8编码
                 var log = new LogModel
@@ -513,6 +511,16 @@ namespace DevKit.ViewModels
                     IsSend = false
                 };
                 Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+            }
+            else
+            {
+                var log = new LogModel
+                {
+                    Content = command,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                Logs.Add(log);
             }
         }
 
@@ -535,8 +543,26 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                
+                var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
+                var interval = result.Parameters.GetValue<string>("Interval");
+                _commandEnumerator = commands.GetEnumerator();
+                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                _scriptTimer.Start();
             });
+        }
+
+        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_commandEnumerator.MoveNext())
+            {
+                SendMessage(_commandEnumerator.Current);
+            }
+            else
+            {
+                _scriptTimer.Stop();
+                _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
+            }
         }
 
         private void OnTimeChecked()
@@ -547,18 +573,18 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            _loopSendCommandTimer.Elapsed += TimerElapsedEvent_Handler;
-            _loopSendCommandTimer.Interval = double.Parse(_commandInterval);
-            _loopSendCommandTimer.Enabled = true;
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
+            _loopSendCommandTimer.Start();
         }
 
         private void OnTimeUnchecked()
         {
-            _loopSendCommandTimer.Elapsed -= TimerElapsedEvent_Handler;
-            _loopSendCommandTimer.Enabled = false;
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Stop();
         }
 
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (!_tcpClient.Online)
             {
@@ -566,7 +592,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            SendMessage();
+            SendMessage(_userInputText);
         }
 
         private void OnComboBoxItemSelected(object index)

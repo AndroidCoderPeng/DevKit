@@ -103,6 +103,18 @@ namespace DevKit.ViewModels
         
         private void SaveScript()
         {
+            var result = new List<string>();
+            foreach (var str in _selectedCommands)
+            {
+                var command = _commandCache.Find(x => x.Annotation.Equals(str));
+                result.Add(command.CommandValue);
+            }
+            var dialogParameters = new DialogParameters
+            {
+                { "SelectedCommands", result },
+                { "Interval", _interval }
+            };
+            RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
         }
 
         private void CancelDialog()
