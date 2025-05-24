@@ -3,16 +3,28 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:cache="clr-namespace:DevKit.Cache"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ut="clr-namespace:DevKit.Utils"
+    xmlns:model="clr-namespace:DevKit.Models"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Width="800"
+    Height="600"
     d:DataContext="{d:DesignInstance Type=vm:UdpClientViewModel}"
-    d:DesignHeight="560"
-    d:DesignWidth="600"
-    Background="white"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+        </Style>
+    </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -21,273 +33,361 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
-        <cvt:DeleteExCmdBtnVisibleConverter x:Key="DeleteExCmdBtnVisibleConverterKey" />
     </UserControl.Resources>
 
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <DockPanel Margin="10" LastChildFill="True">
+        <Grid Width="260">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <DockPanel Grid.Row="0" LastChildFill="True">
+                <TextBlock
+                    Width="70"
+                    VerticalAlignment="Center"
+                    Text="服务端" />
 
-            <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Text="服务端" />
+                <hc:TextBox
+                    Margin="10,0"
+                    VerticalAlignment="Center"
+                    hc:InfoElement.Placeholder="格式：127.0.0.1"
+                    hc:InfoElement.ShowClearButton="True"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Text="{Binding RemoteAddress}"
+                    TextWrapping="NoWrap" />
+            </DockPanel>
 
-            <!--  hc:InfoElement.Placeholder="远程UDP Server IP"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
-                Grid.Column="1"
-                Margin="10,0"
-                FontSize="14"
-                Text="{Binding RemoteAddress}"
-                TextWrapping="NoWrap" />
+            <DockPanel
+                Grid.Row="1"
+                Margin="0,10"
+                LastChildFill="True">
+                <TextBlock
+                    Width="70"
+                    VerticalAlignment="Center"
+                    Text="端口号" />
 
-            <!--  hc:InfoElement.Placeholder="端口"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
-                Grid.Column="2"
-                MinWidth="90"
-                FontSize="14"
-                MaxLength="5"
-                Text="{Binding RemotePort}"
-                TextWrapping="NoWrap" />
+                <hc:TextBox
+                    Margin="10,0"
+                    VerticalAlignment="Center"
+                    hc:InfoElement.Placeholder="格式：9000"
+                    hc:InfoElement.ShowClearButton="True"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    MaxLength="5"
+                    Text="{Binding RemotePort}"
+                    TextWrapping="NoWrap" />
+            </DockPanel>
 
-            <CheckBox
-                Grid.Column="3"
-                Margin="10,0,0,0"
-                Command="{Binding ShowHexCheckBoxClickCommand}"
-                Content="HEX显示"
-                IsChecked="{Binding ShowHex}" />
+            <UniformGrid
+                Grid.Row="2"
+                Margin="0,0,10,10"
+                Columns="2"
+                Rows="1">
+                <Button
+                    Margin="0,0,5,0"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding SaveCommunicationCommand}"
+                    Content="保存数据" />
+
+                <Button
+                    Margin="5,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding ClearCommunicationCommand}"
+                    Content="清空消息" />
+            </UniformGrid>
+
+            <DockPanel
+                Grid.Row="3"
+                Margin="0,0,10,0"
+                LastChildFill="True">
+                <TextBlock VerticalAlignment="Center" Text="扩展指令" />
+
+                <Button
+                    HorizontalAlignment="Right"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding AddExtensionCommand}"
+                    Content="&#xe6aa;"
+                    FontFamily="/DevKit;component/Fonts/#iconfont" />
+            </DockPanel>
+
+            <DataGrid
+                x:Name="ExCommandDataGrid"
+                Grid.Row="4"
+                Margin="0,10,10,0"
+                Padding="0"
+                AutoGenerateColumns="False"
+                Background="White"
+                BorderThickness="0"
+                GridLinesVisibility="All"
+                HorizontalGridLinesBrush="{DynamicResource DevKitBorderBrush}"
+                ItemsSource="{Binding ExCommandCollection}"
+                RowHeight="30"
+                VerticalGridLinesBrush="{DynamicResource DevKitBorderBrush}">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                    </Style>
+                </DataGrid.CellStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="2*"
+                        Binding="{Binding CommandValue}"
+                        CanUserResize="False"
+                        Header="指令值"
+                        IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding Annotation}"
+                        CanUserResize="False"
+                        Header="备注"
+                        IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+
+                <!--  选中事件  -->
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction Command="{Binding DataGridItemSelectedCommand}" CommandParameter="{Binding SelectedItem.CommandValue, ElementName=ExCommandDataGrid}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+
+                <!--  右键菜单  -->
+                <DataGrid.ContextMenu>
+                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
+                        <MenuItem Command="{Binding SendCommand}" Header="发送" />
+                        <MenuItem
+                            Command="{Binding CopyCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.CommandValue), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="复制" />
+                        <MenuItem
+                            Command="{Binding EditCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.Id), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="编辑" />
+                        <MenuItem
+                            Command="{Binding DeleteCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.(DataGrid.SelectedItem).(cache:ExCommandCache.Id), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="删除" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+            </DataGrid>
         </Grid>
 
-        <ListBox
-            x:Name="MessageListBox"
-            Grid.Row="1"
-            Margin="0,10"
-            ItemsSource="{Binding MessageCollection}"
-            ScrollViewer.CanContentScroll="False"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
-                                <TextBlock
-                                    Margin="3,1"
-                                    FontSize="10"
-                                    FontWeight="Light"
-                                    Foreground="White"
-                                    Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
-                            </Border>
-
-                            <TextBlock
-                                Margin="5,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="12"
-                                Text="{Binding Time, StringFormat=[{0}]}" />
-                        </StackPanel>
-
-                        <TextBlock
-                            Grid.Row="1"
-                            Margin="0,2,0,0"
-                            FontSize="12"
-                            Text="{Binding Content}"
-                            TextWrapping="Wrap">
-                            <TextBlock.ContextMenu>
-                                <ContextMenu Style="{x:Null}">
-                                    <MenuItem
-                                        Click="MenuItem_Click"
-                                        Header="复制"
-                                        Style="{x:Null}" />
-                                </ContextMenu>
-                            </TextBlock.ContextMenu>
-                        </TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border x:Name="ItemContainerBorder" Padding="3">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                </Border>
-
-                                <!-- <ControlTemplate.Triggers> -->
-                                <!--     <Trigger Property="IsMouseOver" Value="True"> -->
-                                <!--         <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource BackgroundBrush}" /> -->
-                                <!--     </Trigger> -->
-                                <!-- </ControlTemplate.Triggers> -->
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
-
-            <!--  自动滑动到最底部  -->
-            <b:Interaction.Behaviors>
-                <ut:AutoScrollToBottomBehavior />
-            </b:Interaction.Behaviors>
-        </ListBox>
-
-        <Grid Grid.Row="2" Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <ComboBox
-                x:Name="ExCommandComboBox"
-                Grid.Column="0"
-                HorizontalContentAlignment="Stretch"
-                FontSize="14"
-                ItemsSource="{Binding ExCommandCollection}"
-                SelectedIndex="0">
-                <ComboBox.ItemTemplate>
+            <ListBox
+                x:Name="CommunicationLogListBox"
+                Grid.Row="0"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
+                ItemsSource="{Binding Logs}"
+                ScrollViewer.CanContentScroll="False"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
+                                    <TextBlock
+                                        Margin="3,1"
+                                        FontSize="10"
+                                        FontWeight="Light"
+                                        Foreground="White"
+                                        Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                                </Border>
+
+                                <TextBlock
+                                    Margin="5,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Text="{Binding Time, StringFormat=[{0}]}" />
+                            </StackPanel>
 
                             <TextBlock
-                                Grid.Column="0"
-                                VerticalAlignment="Center"
-                                Text="{Binding Annotation}" />
-
-                            <Button
-                                Grid.Column="1"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{Binding DataContext.DeleteExCmdCommand, ElementName=ExCommandComboBox}"
-                                CommandParameter="{Binding Id}"
-                                Content="&#xe6dc;"
-                                FontFamily="/DevKit;component/Fonts/#iconfont"
-                                FontSize="16"
-                                Visibility="{Binding Annotation, Converter={StaticResource DeleteExCmdBtnVisibleConverterKey}}" />
+                                Grid.Row="1"
+                                Margin="0,2,0,0"
+                                FontSize="12"
+                                Text="{Binding Content}"
+                                TextWrapping="Wrap" />
                         </Grid>
                     </DataTemplate>
-                </ComboBox.ItemTemplate>
+                </ListBox.ItemTemplate>
 
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="DropDownOpened">
-                        <b:InvokeCommandAction Command="{Binding DropDownOpenedCommand}" />
-                    </b:EventTrigger>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <Border x:Name="ItemContainerBorder" Padding="3">
+                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                    </Border>
 
-                    <b:EventTrigger EventName="DropDownClosed">
-                        <b:InvokeCommandAction Command="{Binding DropDownClosedCommand}" CommandParameter="{Binding ElementName=ExCommandComboBox}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-            </ComboBox>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource DevKitBackgroundBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
 
-            <Button
-                Grid.Column="1"
-                Margin="10,0"
-                Command="{Binding ExtensionCommand}"
-                Content="添加扩展指令" />
+                <!--  自动滑动到最底部  -->
+                <b:Interaction.Behaviors>
+                    <utils:AutoScrollToBottomBehavior />
+                </b:Interaction.Behaviors>
 
-            <CheckBox
-                x:Name="LoopCheckBox"
-                Grid.Column="2"
-                Content="循环发送"
-                IsChecked="{Binding LoopSend}">
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="Unchecked">
-                        <b:InvokeCommandAction Command="{Binding LoopUncheckedCommand}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-            </CheckBox>
+                <ListBox.ContextMenu>
+                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=CommunicationLogListBox}">
+                        <MenuItem
+                            Command="{Binding CopyLogCommand}"
+                            CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:LogModel.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            Header="复制" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
 
-            <TextBox
-                Grid.Column="3"
-                MinWidth="100"
-                Margin="10,0"
-                FontSize="14"
-                IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
-                MaxLength="5"
-                Text="{Binding CommandInterval}" />
+            <Grid
+                Grid.Row="1"
+                Height="60"
+                Margin="0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <TextBlock
-                Grid.Column="4"
-                VerticalAlignment="Center"
-                Text="ms/次" />
-
-            <CheckBox
-                Grid.Column="5"
-                Margin="10,0,0,0"
-                Content="HEX发送"
-                IsChecked="{Binding SendHex}">
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="Checked">
-                        <b:InvokeCommandAction Command="{Binding SendHexCheckedCommand}" />
-                    </b:EventTrigger>
-
-                    <b:EventTrigger EventName="Unchecked">
-                        <b:InvokeCommandAction Command="{Binding SendHexUncheckedCommand}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-            </CheckBox>
-        </Grid>
-
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox
-                Grid.Column="0"
-                Padding="4"
-                VerticalContentAlignment="Top"
-                FontSize="14"
-                Text="{Binding UserInputText}"
-                TextWrapping="Wrap"
-                VerticalScrollBarVisibility="Auto" />
-
-            <Grid Grid.Column="1" Margin="10,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+                <TextBox
+                    Grid.Column="0"
+                    Padding="4"
+                    VerticalContentAlignment="Top"
+                    FontSize="14"
+                    Text="{Binding UserInputText}"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto" />
 
                 <Button
-                    Grid.Row="0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ClearMessageCommand}"
-                    Content="清屏" />
+                    Grid.Column="1"
+                    Width="65"
+                    Height="60"
+                    Margin="10,0,0,0"
+                    Command="{Binding SendCommand}"
+                    Content="发送"
+                    Style="{StaticResource ButtonPrimary}" />
+            </Grid>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
 
                 <Button
-                    Grid.Row="1"
-                    Margin="0,10,0,0"
-                    HorizontalAlignment="Stretch"
-                    BorderThickness="0"
-                    Command="{Binding SendMessageCommand}"
-                    Content="发送" />
+                    Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding OpenScriptCommand}"
+                    Content="脚本" />
+
+                <CheckBox
+                    x:Name="LoopCheckBox"
+                    Grid.Column="1"
+                    Margin="10,0"
+                    Content="循环发送">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="Checked">
+                            <b:InvokeCommandAction Command="{Binding TimeCheckedCommand}" />
+                        </b:EventTrigger>
+
+                        <b:EventTrigger EventName="Unchecked">
+                            <b:InvokeCommandAction Command="{Binding TimeUncheckedCommand}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </CheckBox>
+
+                <TextBox
+                    Grid.Column="2"
+                    Width="60"
+                    FontSize="14"
+                    IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
+                    MaxLength="5"
+                    Text="{Binding CommandInterval}" />
+
+                <TextBlock
+                    Grid.Column="3"
+                    VerticalAlignment="Center"
+                    Text="ms/次" />
+
+                <ComboBox
+                    x:Name="EncodeComboBox"
+                    Grid.Column="4"
+                    Width="80"
+                    Margin="10,0"
+                    SelectedIndex="0">
+                    <ComboBoxItem Content="16进制" />
+                    <ComboBoxItem Content="ASCII" />
+
+                    <!--  选中事件  -->
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SelectionChanged">
+                            <b:InvokeCommandAction Command="{Binding ComboBoxItemSelectedCommand}" CommandParameter="{Binding SelectedIndex, ElementName=EncodeComboBox}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </ComboBox>
+
+                <CheckBox
+                    Grid.Column="5"
+                    Margin="10,0,0,0"
+                    HorizontalAlignment="Right"
+                    Content="16进制"
+                    IsChecked="{Binding IsHexSelected}" />
             </Grid>
         </Grid>
-    </Grid>
+    </DockPanel>
 </UserControl>

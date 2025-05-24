@@ -174,6 +174,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private const string ClientType = "TCP";
         private readonly IDialogService _dialogService;
         private readonly TcpClient _tcpClient = new TcpClient();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
@@ -188,7 +189,7 @@ namespace DevKit.ViewModels
             {
                 //加载连接配置缓存
                 var queryResult = dataBase.Table<ClientConfigCache>()
-                    .Where(x => x.ClientType == "TCP")
+                    .Where(x => x.ClientType == ClientType)
                     .OrderByDescending(x => x.Id)
                     .FirstOrDefault();
                 if (queryResult != null)
@@ -199,7 +200,7 @@ namespace DevKit.ViewModels
 
                 //加载扩展指令缓存
                 var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == "TCP")
+                    .Where(x => x.ClientType == ClientType)
                     .ToList();
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
@@ -235,7 +236,7 @@ namespace DevKit.ViewModels
                 using (var dataBase = new DataBaseConnection())
                 {
                     var queryResult = dataBase.Table<ClientConfigCache>()
-                        .Where(x => x.ClientType == "TCP")
+                        .Where(x => x.ClientType == ClientType)
                         .OrderByDescending(x => x.Id)
                         .FirstOrDefault();
                     if (queryResult != null)
@@ -248,7 +249,7 @@ namespace DevKit.ViewModels
                     {
                         var config = new ClientConfigCache
                         {
-                            ClientType = "TCP",
+                            ClientType = ClientType,
                             RemoteAddress = _remoteAddress,
                             RemotePort = Convert.ToInt32(_remotePort)
                         };
@@ -314,7 +315,7 @@ namespace DevKit.ViewModels
             using (var dataBase = new DataBaseConnection())
             {
                 var queryResult = dataBase.Table<ClientConfigCache>()
-                    .Where(x => x.ClientType == "TCP")
+                    .Where(x => x.ClientType == ClientType)
                     .OrderByDescending(x => x.Id)
                     .FirstOrDefault();
                 if (queryResult == null) return;
@@ -381,7 +382,7 @@ namespace DevKit.ViewModels
                 {
                     var exCommand = new ExCommandCache
                     {
-                        ClientType = "TCP",
+                        ClientType = ClientType,
                         CommandValue = commandValue,
                         Annotation = annotation
                     };
@@ -389,7 +390,7 @@ namespace DevKit.ViewModels
                     //刷新列表
                     ExCommandCollection.Clear();
                     var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == "TCP")
+                        .Where(x => x.ClientType == ClientType)
                         .ToList();
                     ExCommandCollection = commandCache.ToObservableCollection();
                 }
@@ -444,7 +445,7 @@ namespace DevKit.ViewModels
                     //刷新列表
                     ExCommandCollection.Clear();
                     var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == "TCP")
+                        .Where(x => x.ClientType == ClientType)
                         .ToList();
                     ExCommandCollection = commandCache.ToObservableCollection();
                 }
@@ -459,7 +460,7 @@ namespace DevKit.ViewModels
                     .First(x => x.Id == (int)id);
                 dataBase.Delete(itemToDelete);
                 var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == "TCP")
+                    .Where(x => x.ClientType == ClientType)
                     .ToList();
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
@@ -531,7 +532,7 @@ namespace DevKit.ViewModels
             using (var dataBase = new DataBaseConnection())
             {
                 var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == "TCP")
+                    .Where(x => x.ClientType == ClientType)
                     .ToList();
                 dialogParameters.Add("ExCommandCache", commandCache);
             }

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Timers;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Threading;
 using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -54,7 +56,7 @@ namespace DevKit.ViewModels
             get => _remoteAddress;
         }
 
-        private string _remotePort = string.Empty;
+        private string _remotePort = "9000";
 
         public string RemotePort
         {
@@ -66,32 +68,31 @@ namespace DevKit.ViewModels
             get => _remotePort;
         }
 
-        private bool _showHex = true;
+        private string _buttonState = "连接";
 
-        public bool ShowHex
+        public string ButtonState
         {
             set
             {
-                _showHex = value;
+                _buttonState = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
+            get => _buttonState;
         }
 
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
+        private string _connectionStateColor = "red";
 
-        public ObservableCollection<MessageModel> MessageCollection
+        public string ConnectionStateColor
         {
             set
             {
-                _messageCollection = value;
+                _connectionStateColor = value;
                 RaisePropertyChanged();
             }
-            get => _messageCollection;
+            get => _connectionStateColor;
         }
 
-        private ObservableCollection<ExCommandCache> _exCommandCollection =
-            new ObservableCollection<ExCommandCache>();
+        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
 
         public ObservableCollection<ExCommandCache> ExCommandCollection
         {
@@ -103,16 +104,16 @@ namespace DevKit.ViewModels
             get => _exCommandCollection;
         }
 
-        private bool _loopSend;
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
 
-        public bool LoopSend
+        public ObservableCollection<LogModel> Logs
         {
             set
             {
-                _loopSend = value;
+                _logs = value;
                 RaisePropertyChanged();
             }
-            get => _loopSend;
+            get => _logs;
         }
 
         private string _commandInterval = "1000";
@@ -127,18 +128,6 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private bool _sendHex = true;
-
-        public bool SendHex
-        {
-            set
-            {
-                _sendHex = value;
-                RaisePropertyChanged();
-            }
-            get => _sendHex;
-        }
-
         private string _userInputText = string.Empty;
 
         public string UserInputText
@@ -151,294 +140,370 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private bool _isHexSelected = true;
+
+        public bool IsHexSelected
+        {
+            set
+            {
+                _isHexSelected = value;
+                RaisePropertyChanged();
+            }
+            get => _isHexSelected;
+        }
+
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
-        public DelegateCommand DropDownOpenedCommand { set; get; }
-        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
-        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand ExtensionCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand SendHexCheckedCommand { set; get; }
-        public DelegateCommand SendHexUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand ConnectRemoteCommand { set; get; }
+        public DelegateCommand SaveCommunicationCommand { set; get; }
+        public DelegateCommand ClearCommunicationCommand { set; get; }
+        public DelegateCommand AddExtensionCommand { set; get; }
+        public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendCommand { set; get; }
+        public DelegateCommand<string> CopyCommand { set; get; }
+        public DelegateCommand<object> EditCommand { set; get; }
+        public DelegateCommand<object> DeleteCommand { set; get; }
+        public DelegateCommand OpenScriptCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
-        private readonly IAppDataService _dataService;
+        private const string ClientType = "UDP";
         private readonly IDialogService _dialogService;
         private readonly UdpClient _udpClient = new UdpClient();
-        private readonly Timer _loopSendMessageTimer = new Timer();
-        private readonly List<MessageModel> _messageTemp = new List<MessageModel>();
-        private ClientConfigCache _clientCache;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private IEnumerator<string> _commandEnumerator;
 
-        public UdpClientViewModel(IAppDataService dataService, IDialogService dialogService)
+        public UdpClientViewModel(IDialogService dialogService)
         {
-            _dataService = dataService;
             _dialogService = dialogService;
 
-            InitDefaultConfig();
-
-            ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
-            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
-            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
-            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            ExtensionCommand = new DelegateCommand(AddExtensionCommand);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            SendHexCheckedCommand = new DelegateCommand(SendHexChecked);
-            SendHexUncheckedCommand = new DelegateCommand(SendHexUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
-        }
-
-        private void InitDefaultConfig()
-        {
-            _clientCache = _dataService.LoadClientConfigCache(ConnectionType.UdpClient);
-            RemoteAddress = _clientCache.RemoteAddress;
-            RemotePort = _clientCache.RemotePort.ToString();
-
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
-                .ToObservableCollection();
-
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-
-            SetupUdpConfig();
-        }
-
-        private void ShowHexCheckBoxClick()
-        {
-            if (_showHex)
+            using (var dataBase = new DataBaseConnection())
             {
-                var boxResult = MessageBox.Show(
-                    "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
+                //加载连接配置缓存
+                var queryResult = dataBase.Table<ClientConfigCache>()
+                    .Where(x => x.ClientType == ClientType)
+                    .OrderByDescending(x => x.Id)
+                    .FirstOrDefault();
+                if (queryResult != null)
                 {
-                    MessageCollection.Clear();
-                    foreach (var model in _messageTemp)
-                    {
-                        var msg = new MessageModel
-                        {
-                            Content = model.Content,
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        MessageCollection.Add(msg);
-                    }
+                    RemoteAddress = queryResult.RemoteAddress;
+                    RemotePort = queryResult.RemotePort.ToString();
+                }
 
-                    // _clientCache.ShowHex = 1;
-                }
-                else
-                {
-                    ShowHex = false;
-                }
+                //加载扩展指令缓存
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == ClientType)
+                    .ToList();
+                ExCommandCollection = commandCache.ToObservableCollection();
             }
-            else
-            {
-                var boxResult = MessageBox.Show(
-                    "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                );
-                if (boxResult == MessageBoxResult.OK)
-                {
-                    MessageCollection.Clear();
-                    foreach (var model in _messageTemp)
-                    {
-                        var msg = new MessageModel
-                        {
-                            Content = model.Bytes.ByteArrayToString(),
-                            Time = model.Time,
-                            IsSend = model.IsSend
-                        };
-                        MessageCollection.Add(msg);
-                    }
-
-                    // _clientCache.ShowHex = 0;
-                }
-                else
-                {
-                    ShowHex = true;
-                }
-            }
+            
+            // InitDefaultConfig();
+            
+            SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
+            ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
+            AddExtensionCommand = new DelegateCommand(AddExtension);
+            DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
+            CopyLogCommand = new DelegateCommand<string>(CopyLog);
+            SendCommand = new DelegateCommand(OnMessageSend);
+            CopyCommand = new DelegateCommand<string>(OnCopy);
+            EditCommand = new DelegateCommand<object>(OnEdit);
+            DeleteCommand = new DelegateCommand<object>(OnDelete);
+            OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
+            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
-
-        private void DropDownOpened()
+        
+        private async void SaveCommunicationLog()
         {
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpClient)
-                .ToObservableCollection();
-        }
-
-        private void DeleteExCmd(object obj)
-        {
-            var result = MessageBox.Show(
-                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
-            );
-            if (result == MessageBoxResult.OK)
+            if (!_logs.Any())
             {
-                _dataService.DeleteExtensionCommandCache(ConnectionType.UdpClient, (int)obj);
-            }
-        }
-
-        private void DropDownClosed(ComboBox box)
-        {
-            if (box.SelectedIndex == -1)
-            {
-                box.SelectedIndex = 0;
+                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
 
-            var commandCache = _exCommandCollection[box.SelectedIndex];
-            UserInputText = commandCache.CommandValue;
-        }
-
-        private void AddExtensionCommand()
-        {
-            var dialogParameters = new DialogParameters
+            var fileDialog = new SaveFileDialog
             {
-                { "ConnectionType", ConnectionType.UdpClient }
+                DefaultExt = ".txt",
+                Filter = "Log文件(*.txt)|*.txt",
+                RestoreDirectory = true
             };
-            _dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate { });
-        }
-
-        private void ClearMessage()
-        {
-            //清空消息缓存
-            _messageTemp?.Clear();
-            MessageCollection?.Clear();
-        }
-
-        private void SendHexChecked()
-        {
-            // _clientCache.SendHex = 1;
-        }
-
-        private void SendHexUnchecked()
-        {
-            // _clientCache.SendHex = 0;
-        }
-
-        private void LoopUnchecked()
-        {
-            _loopSendMessageTimer.Enabled = false;
-        }
-
-        private void SendMessage()
-        {
-            if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
+            if (fileDialog.ShowDialog() == true)
             {
-                MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                var savePath = fileDialog.FileName;
+                try
+                {
+                    using (var writer = new StreamWriter(savePath))
+                    {
+                        foreach (var log in _logs)
+                        {
+                            var logText = log.IsSend
+                                ? $"{log.Time}【发送】{log.Content}"
+                                : $"{log.Time}【接收】{log.Content}";
+                            await writer.WriteLineAsync(logText);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"保存日志时发生错误：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        
+        private void ClearCommunicationLog()
+        {
+            Logs.Clear();
+        }
+
+        private void AddExtension()
+        {
+            _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
+            {
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                var commandValue = result.Parameters.GetValue<string>("CommandValue");
+                var annotation = result.Parameters.GetValue<string>("Annotation");
+                using (var dataBase = new DataBaseConnection())
+                {
+                    var exCommand = new ExCommandCache
+                    {
+                        ClientType = ClientType,
+                        CommandValue = commandValue,
+                        Annotation = annotation
+                    };
+                    dataBase.Insert(exCommand);
+                    //刷新列表
+                    ExCommandCollection.Clear();
+                    var commandCache = dataBase.Table<ExCommandCache>()
+                        .Where(x => x.ClientType == ClientType)
+                        .ToList();
+                    ExCommandCollection = commandCache.ToObservableCollection();
+                }
+            });
+        }
+        
+        private void OnDataGridItemSelected(string command)
+        {
+            UserInputText = command;
+        }
+
+        private void CopyLog(string log)
+        {
+            Clipboard.SetText(log);
+        }
+
+        private void OnMessageSend()
+        {
+            SendMessage(_userInputText);
+        }
+
+        private void OnCopy(string command)
+        {
+            Clipboard.SetText(command);
+        }
+        
+        private void OnEdit(object id)
+        {
+            var dialogParameters = new DialogParameters();
+            ExCommandCache exCommand;
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
+                dialogParameters.Add("ExCommandCache", exCommand);
             }
 
-            //判断是否是IP和端口合理性
-            // if (!_remoteAddress.IsIp())
-            // {
-            //     MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
-
-            if (!_remotePort.IsNumber())
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
             {
-                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                var commandValue = result.Parameters.GetValue<string>("CommandValue");
+                var annotation = result.Parameters.GetValue<string>("Annotation");
+                exCommand.CommandValue = commandValue;
+                exCommand.Annotation = annotation;
+                using (var dataBase = new DataBaseConnection())
+                {
+                    dataBase.Update(exCommand);
+                    //刷新列表
+                    ExCommandCollection.Clear();
+                    var commandCache = dataBase.Table<ExCommandCache>()
+                        .Where(x => x.ClientType == ClientType)
+                        .ToList();
+                    ExCommandCollection = commandCache.ToObservableCollection();
+                }
+            });
+        }
+        
+        private void OnDelete(object id)
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                var itemToDelete = dataBase.Table<ExCommandCache>()
+                    .First(x => x.Id == (int)id);
+                dataBase.Delete(itemToDelete);
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == ClientType)
+                    .ToList();
+                ExCommandCollection = commandCache.ToObservableCollection();
             }
-
-            _clientCache.RemoteAddress = _remoteAddress;
-            _clientCache.RemotePort = Convert.ToInt32(_remotePort);
-            _dataService.SaveConfigCache(_clientCache);
-
-            if (string.IsNullOrWhiteSpace(_userInputText))
+        }
+        
+        private void SendMessage(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (_loopSend)
+            if (_isHexSelected)
             {
-                if (!_commandInterval.IsNumber())
+                if (!command.IsHex())
                 {
-                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
-                _loopSendMessageTimer.Enabled = true;
+                var bytes = command.Replace(" ", "").ByHexStringToBytes();
+                _udpClient.Send(bytes);
+                UpdateCommunicationLog(command, bytes);
             }
             else
             {
-                Send(true);
+                var bytes = command.ToUTF8Bytes();
+                _udpClient.Send(bytes);
+                UpdateCommunicationLog(command, bytes);
             }
         }
-
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        
+        private void UpdateCommunicationLog(string command, byte[] bytes)
         {
-            Send(false);
-        }
-
-        private void Send(bool isMainThread)
-        {
-            SetupUdpConfig();
-            // if (_clientCache.SendHex == 1)
-            // {
-            //     if (!_userInputText.IsHex())
-            //     {
-            //         MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         return;
-            //     }
-            //
-            //     _udpClient.Send(_userInputText.HexToBytes());
-            // }
-            // else
-            // {
-            //     _udpClient.Send(_userInputText);
-            // }
-
-            var message = new MessageModel
+            if (command.Equals(""))
             {
-                Content = _userInputText,
-                Bytes = _userInputText.HexToBytes(),
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-            //缓存发送的消息
-            _messageTemp.Add(message);
-
-            if (isMainThread)
-            {
-                MessageCollection.Add(message);
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-            }
-        }
-
-        private void SetupUdpConfig()
-        {
-            if (!string.IsNullOrWhiteSpace(_remoteAddress) && !string.IsNullOrWhiteSpace(_remotePort))
-            {
-                _udpClient.Setup(new TouchSocketConfig().UseUdpReceive().SetRemoteIPHost(
-                    new IPHost($"{_remoteAddress}:{_remotePort}"))
-                );
-                _udpClient.Received = (client, e) =>
+                //默认显示为UTF8编码
+                var log = new LogModel
                 {
-                    var byteBlock = e.ByteBlock;
-                    var messageModel = new MessageModel
-                    {
-                        // Content = _clientCache.ShowHex == 1
-                        //     ? BitConverter.ToString(byteBlock.ToArray()).Replace("-", " ")
-                        //     : byteBlock.Span.ToString(Encoding.UTF8),
-                        Bytes = byteBlock.ToArray(),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = false
-                    };
-                    //缓存收到的消息
-                    _messageTemp.Add(messageModel);
-                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                    return EasyTask.CompletedTask;
+                    Content = bytes.ByBytesToHexString(" "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
                 };
-                _udpClient.Start();
+                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+            }
+            else
+            {
+                var log = new LogModel
+                {
+                    Content = command,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                Logs.Add(log);
+            }
+        }
+        
+        private void OpenScriptDialog()
+        {
+            var dialogParameters = new DialogParameters();
+
+            using (var dataBase = new DataBaseConnection())
+            {
+                var commandCache = dataBase.Table<ExCommandCache>()
+                    .Where(x => x.ClientType == ClientType)
+                    .ToList();
+                dialogParameters.Add("ExCommandCache", commandCache);
+            }
+
+            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+            {
+                if (result.Result != ButtonResult.OK)
+                {
+                    return;
+                }
+
+                var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
+                var interval = result.Parameters.GetValue<string>("Interval");
+                _commandEnumerator = commands.GetEnumerator();
+                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                _scriptTimer.Start();
+            });
+        }
+        
+        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_commandEnumerator.MoveNext())
+            {
+                SendMessage(_commandEnumerator.Current);
+            }
+            else
+            {
+                _scriptTimer.Stop();
+                _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
+            }
+        }
+        
+        private void OnTimeChecked()
+        {
+            if (!_commandInterval.IsNumber())
+            {
+                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
+            _loopSendCommandTimer.Start();
+        }
+
+        private void OnTimeUnchecked()
+        {
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Stop();
+        }
+        
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            SendMessage(_userInputText);
+        }
+        
+        private void OnComboBoxItemSelected(object index)
+        {
+            if (index == null)
+            {
+                return;
+            }
+
+            if (index.ToString().Equals("0"))
+            {
+                //转为16进制显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.ToUTF8Bytes();
+                    log.Content = bytes.ByBytesToHexString(" ");
+                }
+            }
+            else if (index.ToString().Equals("1"))
+            {
+                //转为ASCII显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                    log.Content = Encoding.UTF8.GetString(bytes);
+                }
             }
         }
     }
