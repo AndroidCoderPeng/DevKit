@@ -318,10 +318,12 @@ namespace DevKit.ViewModels
                     .Where(x => x.ClientType == ClientType)
                     .OrderByDescending(x => x.Id)
                     .FirstOrDefault();
-                if (queryResult == null) return;
-                queryResult.RemoteAddress = _remoteAddress;
-                queryResult.RemotePort = Convert.ToInt32(_remotePort);
-                dataBase.Update(queryResult);
+                if (queryResult != null)
+                {
+                    queryResult.RemoteAddress = _remoteAddress;
+                    queryResult.RemotePort = Convert.ToInt32(_remotePort);
+                    dataBase.Update(queryResult);
+                }
             }
         }
 

@@ -41,7 +41,7 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
         private string _remoteAddress = string.Empty;
@@ -56,7 +56,7 @@ namespace DevKit.ViewModels
             get => _remoteAddress;
         }
 
-        private string _remotePort = "9000";
+        private string _remotePort = "5000";
 
         public string RemotePort
         {
@@ -203,9 +203,13 @@ namespace DevKit.ViewModels
                     .ToList();
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
-            
-            // InitDefaultConfig();
-            
+
+            _udpClient.Received += (client, e) =>
+            {
+                UpdateCommunicationLog("", e.ByteBlock.ToArray());
+                return EasyTask.CompletedTask;
+            };
+
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
@@ -220,7 +224,7 @@ namespace DevKit.ViewModels
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
             ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
-        
+
         private async void SaveCommunicationLog()
         {
             if (!_logs.Any())
@@ -257,7 +261,7 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         private void ClearCommunicationLog()
         {
             Logs.Clear();
@@ -292,7 +296,7 @@ namespace DevKit.ViewModels
                 }
             });
         }
-        
+
         private void OnDataGridItemSelected(string command)
         {
             UserInputText = command;
@@ -312,7 +316,7 @@ namespace DevKit.ViewModels
         {
             Clipboard.SetText(command);
         }
-        
+
         private void OnEdit(object id)
         {
             var dialogParameters = new DialogParameters();
@@ -347,7 +351,7 @@ namespace DevKit.ViewModels
                 }
             });
         }
-        
+
         private void OnDelete(object id)
         {
             using (var dataBase = new DataBaseConnection())
@@ -361,13 +365,54 @@ namespace DevKit.ViewModels
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
         }
-        
+
         private void SendMessage(string command)
         {
             if (string.IsNullOrWhiteSpace(command))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
+            }
+
+            if (_udpClient.RemoteIPHost == null)
+            {
+                if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
+                {
+                    MessageBox.Show("IP或者端口未填写", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                _udpClient.Setup(new TouchSocketConfig().UseUdpReceive().SetRemoteIPHost(
+                    new IPHost($"{_remoteAddress}:{_remotePort}"))
+                );
+                _udpClient.Start();
+                using (var dataBase = new DataBaseConnection())
+                {
+                    var queryResult = dataBase.Table<ClientConfigCache>()
+                        .Where(x => x.ClientType == ClientType)
+                        .OrderByDescending(x => x.Id)
+                        .FirstOrDefault();
+                    if (queryResult != null)
+                    {
+                        queryResult.RemoteAddress = _remoteAddress;
+                        queryResult.RemotePort = Convert.ToInt32(_remotePort);
+                        dataBase.Update(queryResult);
+                    }
+                    else
+                    {
+                        var config = new ClientConfigCache
+                        {
+                            ClientType = ClientType,
+                            RemoteAddress = _remoteAddress,
+                            RemotePort = Convert.ToInt32(_remotePort)
+                        };
+                        dataBase.Insert(config);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine($@"UDP服务端已配置，可直接发送消息【{_udpClient.RemoteIPHost}】");
             }
 
             if (_isHexSelected)
@@ -389,7 +434,7 @@ namespace DevKit.ViewModels
                 UpdateCommunicationLog(command, bytes);
             }
         }
-        
+
         private void UpdateCommunicationLog(string command, byte[] bytes)
         {
             if (command.Equals(""))
@@ -414,7 +459,7 @@ namespace DevKit.ViewModels
                 Logs.Add(log);
             }
         }
-        
+
         private void OpenScriptDialog()
         {
             var dialogParameters = new DialogParameters();
@@ -442,7 +487,7 @@ namespace DevKit.ViewModels
                 _scriptTimer.Start();
             });
         }
-        
+
         private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_commandEnumerator.MoveNext())
@@ -455,7 +500,7 @@ namespace DevKit.ViewModels
                 _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
             }
         }
-        
+
         private void OnTimeChecked()
         {
             if (!_commandInterval.IsNumber())
@@ -474,12 +519,12 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
             _loopSendCommandTimer.Stop();
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             SendMessage(_userInputText);
         }
-        
+
         private void OnComboBoxItemSelected(object index)
         {
             if (index == null)
