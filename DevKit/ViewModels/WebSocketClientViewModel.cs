@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Timers;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TouchSocket.Core;
-using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
 using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
@@ -18,7 +18,7 @@ namespace DevKit.ViewModels
 {
     public class WebSocketClientViewModel : BindableBase, IDialogAware
     {
-        public string Title => "WS客户端";
+        public string Title => "WebSocket客户端";
 
         public event Action<IDialogResult> RequestClose
         {
@@ -65,31 +65,7 @@ namespace DevKit.ViewModels
             get => _buttonState;
         }
 
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-
-        public ObservableCollection<MessageModel> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _messageCollection;
-        }
-
-        private bool _loopSend;
-
-        public bool LoopSend
-        {
-            set
-            {
-                _loopSend = value;
-                RaisePropertyChanged();
-            }
-            get => _loopSend;
-        }
-
-        private string _connectionStateColor = "LightGray";
+        private string _connectionStateColor = "red";
 
         public string ConnectionStateColor
         {
@@ -99,6 +75,30 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _connectionStateColor;
+        }
+
+        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
+
+        public ObservableCollection<ExCommandCache> ExCommandCollection
+        {
+            set
+            {
+                _exCommandCollection = value;
+                RaisePropertyChanged();
+            }
+            get => _exCommandCollection;
+        }
+
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+
+        public ObservableCollection<LogModel> Logs
+        {
+            set
+            {
+                _logs = value;
+                RaisePropertyChanged();
+            }
+            get => _logs;
         }
 
         private string _commandInterval = "1000";
@@ -125,67 +125,86 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private bool _isHexSelected = true;
+
+        public bool IsHexSelected
+        {
+            set
+            {
+                _isHexSelected = value;
+                RaisePropertyChanged();
+            }
+            get => _isHexSelected;
+        }
+
         #endregion
 
         #region DelegateCommand
 
         public DelegateCommand ConnectRemoteCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand SaveCommunicationCommand { set; get; }
+        public DelegateCommand ClearCommunicationCommand { set; get; }
+        public DelegateCommand AddExtensionCommand { set; get; }
+        public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendCommand { set; get; }
+        public DelegateCommand<string> CopyCommand { set; get; }
+        public DelegateCommand<object> EditCommand { set; get; }
+        public DelegateCommand<object> DeleteCommand { set; get; }
+        public DelegateCommand OpenScriptCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
-        private readonly IAppDataService _dataService;
+        private const string ClientType = "WebSocket";
+        private readonly IDialogService _dialogService;
         private readonly WebSocketClient _webSocketClient = new WebSocketClient();
-        private readonly Timer _loopSendMessageTimer = new Timer();
-        private ClientConfigCache _clientCache;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private IEnumerator<string> _commandEnumerator;
 
-        public WebSocketClientViewModel(IAppDataService dataService)
+        public WebSocketClientViewModel(IDialogService dialogService)
         {
-            _dataService = dataService;
+            _dialogService = dialogService;
 
-            InitDefaultConfig();
-
-            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
+            
         }
 
         private void InitDefaultConfig()
         {
-            _clientCache = _dataService.LoadClientConfigCache(ConnectionType.WebSocketClient);
-            RemoteAddress = _clientCache.RemoteAddress;
-
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-
-            _webSocketClient.Handshaked = (client, e) =>
-            {
-                ConnectionStateColor = "Lime";
-                ButtonState = "断开";
-                return EasyTask.CompletedTask;
-            };
-
-            _webSocketClient.Received = (client, e) =>
-            {
-                var messageModel = new MessageModel
-                {
-                    Content = e.DataFrame.ToText(),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
-
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                return EasyTask.CompletedTask;
-            };
-
-            _webSocketClient.Closed = (client, e) =>
-            {
-                ConnectionStateColor = "LightGray";
-                ButtonState = "连接";
-                return EasyTask.CompletedTask;
-            };
+            // _clientCache = _dataService.LoadClientConfigCache(ConnectionType.WebSocketClient);
+            // RemoteAddress = _clientCache.RemoteAddress;
+            //
+            // _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
+            //
+            // _webSocketClient.Handshaked = (client, e) =>
+            // {
+            //     ConnectionStateColor = "Lime";
+            //     ButtonState = "断开";
+            //     return EasyTask.CompletedTask;
+            // };
+            //
+            // _webSocketClient.Received = (client, e) =>
+            // {
+            //     var messageModel = new MessageModel
+            //     {
+            //         Content = e.DataFrame.ToText(),
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = false
+            //     };
+            //
+            //     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
+            //     return EasyTask.CompletedTask;
+            // };
+            //
+            // _webSocketClient.Closed = (client, e) =>
+            // {
+            //     ConnectionStateColor = "LightGray";
+            //     ButtonState = "连接";
+            //     return EasyTask.CompletedTask;
+            // };
         }
 
         private void ConnectRemote()
@@ -220,48 +239,38 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ClearMessage()
-        {
-            MessageCollection?.Clear();
-        }
-
-        private void LoopUnchecked()
-        {
-            _loopSendMessageTimer.Enabled = false;
-        }
-
         private void SendMessage()
         {
-            _clientCache.RemoteAddress = _remoteAddress;
-            _dataService.SaveConfigCache(_clientCache);
-
-            if (string.IsNullOrWhiteSpace(_userInputText))
-            {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_buttonState.Equals("连接"))
-            {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_loopSend)
-            {
-                if (!_commandInterval.IsNumber())
-                {
-                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
-                _loopSendMessageTimer.Enabled = true;
-            }
-            else
-            {
-                Send(true);
-            }
+            // _clientCache.RemoteAddress = _remoteAddress;
+            // _dataService.SaveConfigCache(_clientCache);
+            //
+            // if (string.IsNullOrWhiteSpace(_userInputText))
+            // {
+            //     MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //     return;
+            // }
+            //
+            // if (_buttonState.Equals("连接"))
+            // {
+            //     MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //     return;
+            // }
+            //
+            // if (_loopSend)
+            // {
+            //     if (!_commandInterval.IsNumber())
+            //     {
+            //         MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         return;
+            //     }
+            //
+            //     _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
+            //     _loopSendMessageTimer.Enabled = true;
+            // }
+            // else
+            // {
+            //     Send(true);
+            // }
         }
 
         private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
@@ -285,14 +294,14 @@ namespace DevKit.ViewModels
                 IsSend = true
             };
 
-            if (isMainThread)
-            {
-                MessageCollection.Add(message);
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-            }
+            // if (isMainThread)
+            // {
+            //     MessageCollection.Add(message);
+            // }
+            // else
+            // {
+            //     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+            // }
         }
     }
 }

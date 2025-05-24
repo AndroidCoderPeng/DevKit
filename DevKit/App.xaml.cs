@@ -101,9 +101,7 @@ namespace DevKit
 
             //Navigation
             containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
-            containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
             containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
 
@@ -111,6 +109,8 @@ namespace DevKit
             containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
             containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
+            containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
+            containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
             
             //Dialog
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

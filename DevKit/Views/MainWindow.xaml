@@ -76,7 +76,7 @@
                     VerticalAlignment="Center"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
                     FontSize="16"
-                    Text="&#xea89;" />
+                    Text="&#xe654;" />
 
                 <TextBlock
                     Grid.Column="1"

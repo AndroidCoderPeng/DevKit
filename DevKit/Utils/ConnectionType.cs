@@ -8,6 +8,5 @@
         public const int UdpServer = 4;
         public const int WebSocketClient = 5;
         public const int WebSocketServer = 6;
-        public const int SerialPort = 7;
     }
 }

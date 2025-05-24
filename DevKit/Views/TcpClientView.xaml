@@ -55,7 +55,7 @@
                 <hc:TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="格式：127.0.0.1"
+                    hc:InfoElement.Placeholder="127.0.0.1"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Text="{Binding RemoteAddress}"
@@ -74,7 +74,7 @@
                 <hc:TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="格式：9000"
+                    hc:InfoElement.Placeholder="9000"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     MaxLength="5"
