@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -207,6 +208,10 @@ namespace DevKit.ViewModels
 
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+
+        private readonly Dictionary<string, ObservableCollection<LogModel>> _clientLogsMap =
+            new Dictionary<string, ObservableCollection<LogModel>>();
+
         private ConnectedClientModel _connectedClient;
 
         public TcpServerViewModel(IAppDataService dataService)
@@ -249,8 +254,12 @@ namespace DevKit.ViewModels
             _tcpServer.Received = (client, e) =>
             {
                 var bytes = e.ByteBlock.ToArray();
-                var tcp = _clientCollection.First(x => x.Id == client.Id);
-                tcp.MessageCount++;
+                var tcp = _clientCollection.FirstOrDefault(x => x.Id == client.Id);
+                if (tcp != null)
+                {
+                    tcp.MessageCount++;
+                }
+
                 UpdateCommunicationLog("", bytes);
                 return EasyTask.CompletedTask;
             };
@@ -375,6 +384,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            byte[] bytes;
             if (_isHexSelected)
             {
                 if (!command.IsHex())
@@ -383,16 +393,15 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                var bytes = command.Replace(" ", "").ByHexStringToBytes();
-                _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.Replace(" ", "").ByHexStringToBytes();
             }
             else
             {
-                var bytes = command.ToUTF8Bytes();
-                _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.ToUTF8Bytes();
             }
+
+            _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
+            UpdateCommunicationLog(command, bytes);
         }
 
         private void UpdateCommunicationLog(string command, byte[] bytes)
@@ -422,10 +431,7 @@ namespace DevKit.ViewModels
 
         private void OnComboBoxItemSelected(object index)
         {
-            if (index == null)
-            {
-                return;
-            }
+            if (index == null) return;
 
             if (index.ToString().Equals("0"))
             {

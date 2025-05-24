@@ -482,6 +482,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            byte[] bytes;
             if (_isHexSelected)
             {
                 if (!command.IsHex())
@@ -490,16 +491,15 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                var bytes = command.Replace(" ", "").ByHexStringToBytes();
-                _tcpClient.Send(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.Replace(" ", "").ByHexStringToBytes();
             }
             else
             {
-                var bytes = command.ToUTF8Bytes();
-                _tcpClient.Send(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.ToUTF8Bytes();
             }
+
+            _tcpClient.Send(bytes);
+            UpdateCommunicationLog(command, bytes);
         }
 
         private void UpdateCommunicationLog(string command, byte[] bytes)

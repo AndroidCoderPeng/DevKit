@@ -323,7 +323,7 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         private void ClearCommunicationLog()
         {
             Logs.Clear();
@@ -358,7 +358,7 @@ namespace DevKit.ViewModels
                 }
             });
         }
-        
+
         private void OnDataGridItemSelected(string command)
         {
             UserInputText = command;
@@ -373,12 +373,12 @@ namespace DevKit.ViewModels
         {
             SendMessage(_userInputText);
         }
-        
+
         private void OnCopy(string command)
         {
             Clipboard.SetText(command);
         }
-        
+
         private void OnEdit(object id)
         {
             var dialogParameters = new DialogParameters();
@@ -413,7 +413,7 @@ namespace DevKit.ViewModels
                 }
             });
         }
-        
+
         private void OnDelete(object id)
         {
             using (var dataBase = new DataBaseConnection())
@@ -427,7 +427,7 @@ namespace DevKit.ViewModels
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
         }
-        
+
         private void SendMessage(string command)
         {
             if (!_webSocketClient.Online)
@@ -442,6 +442,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            byte[] bytes;
             if (_isHexSelected)
             {
                 if (!command.IsHex())
@@ -450,16 +451,15 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                var bytes = command.Replace(" ", "").ByHexStringToBytes();
-                _webSocketClient.SendAsync(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.Replace(" ", "").ByHexStringToBytes();
             }
             else
             {
-                var bytes = command.ToUTF8Bytes();
-                _webSocketClient.SendAsync(bytes);
-                UpdateCommunicationLog(command, bytes);
+                bytes = command.ToUTF8Bytes();
             }
+
+            _webSocketClient.SendAsync(bytes);
+            UpdateCommunicationLog(command, bytes);
         }
 
         private void UpdateCommunicationLog(string command, byte[] bytes)
@@ -486,7 +486,7 @@ namespace DevKit.ViewModels
                 Logs.Add(log);
             }
         }
-        
+
         private void OpenScriptDialog()
         {
             var dialogParameters = new DialogParameters();
@@ -514,7 +514,7 @@ namespace DevKit.ViewModels
                 _scriptTimer.Start();
             });
         }
-        
+
         private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_commandEnumerator.MoveNext())
@@ -527,7 +527,7 @@ namespace DevKit.ViewModels
                 _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
             }
         }
-        
+
         private void OnTimeChecked()
         {
             if (!_commandInterval.IsNumber())
@@ -546,7 +546,7 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
             _loopSendCommandTimer.Stop();
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (!_webSocketClient.Online)
