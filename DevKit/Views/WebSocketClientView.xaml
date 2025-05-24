@@ -57,7 +57,7 @@
                     hc:InfoElement.Placeholder="ws://127.0.0.1:5000/user"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Text="{Binding RemoteAddress}"
+                    Text="{Binding WebSocketPath}"
                     TextWrapping="NoWrap" />
             </DockPanel>
 
