@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Timers;
+using System.Text;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -34,6 +33,10 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            if (_tcpServer.ServerState != ServerState.Running) return;
+            _tcpServer.Stop();
+            ListenState = "监听";
+            ListenStateColor = "LightGray";
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -139,40 +142,17 @@ namespace DevKit.ViewModels
             get => _connectedClientAddress;
         }
 
-        private bool _showHex = true;
 
-        public bool ShowHex
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+
+        public ObservableCollection<LogModel> Logs
         {
             set
             {
-                _showHex = value;
+                _logs = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
-        }
-
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-
-        public ObservableCollection<MessageModel> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _messageCollection;
-        }
-
-        private bool _loopSend;
-
-        public bool LoopSend
-        {
-            set
-            {
-                _loopSend = value;
-                RaisePropertyChanged();
-            }
-            get => _loopSend;
+            get => _logs;
         }
 
         private string _commandInterval = "1000";
@@ -199,16 +179,16 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _sendHex = true;
+        private bool _isHexSelected = true;
 
-        public bool SendHex
+        public bool IsHexSelected
         {
             set
             {
-                _sendHex = value;
+                _isHexSelected = value;
                 RaisePropertyChanged();
             }
-            get => _sendHex;
+            get => _isHexSelected;
         }
 
         #endregion
@@ -217,50 +197,35 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand<ConnectedClientModel> ClientItemClickedCommand { set; get; }
-        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
-        public DelegateCommand DropDownOpenedCommand { set; get; }
-        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
-        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand AddExtensionCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
-        private readonly IAppDataService _dataService;
-        private readonly IDialogService _dialogService;
         private readonly TcpServer _tcpServer = new TcpServer();
-        private readonly Timer _loopSendMessageTimer = new Timer();
-        private bool _isListening;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private ConnectedClientModel _connectedClient;
 
-        public TcpServerViewModel(IAppDataService dataService, IDialogService dialogService)
+        public TcpServerViewModel(IAppDataService dataService)
         {
-            _dataService = dataService;
-            _dialogService = dialogService;
+            LocalHost = dataService.GetIPv4Address();
 
-            LocalHost = _dataService.GetIPv4Address();
-
-            InitDefaultConfig();
+            InitListenStateEvent();
 
             ServerListenCommand = new DelegateCommand(OnServerListened);
             ClientItemClickedCommand = new DelegateCommand<ConnectedClientModel>(OnClientItemClicked);
-            ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
-            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
-            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
-            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            AddExtensionCommand = new DelegateCommand(AddExtension);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
+            CopyLogCommand = new DelegateCommand<string>(CopyLog);
+            SendCommand = new DelegateCommand(OnMessageSend);
+            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
-        private void InitDefaultConfig()
+        private void InitListenStateEvent()
         {
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-
-            //有客户端成功连接
             _tcpServer.Connected = (client, e) =>
             {
                 var clientModel = new ConnectedClientModel
@@ -286,6 +251,7 @@ namespace DevKit.ViewModels
                 var bytes = e.ByteBlock.ToArray();
                 var tcp = _clientCollection.First(x => x.Id == client.Id);
                 tcp.MessageCount++;
+                UpdateCommunicationLog("", bytes);
                 return EasyTask.CompletedTask;
             };
         }
@@ -298,10 +264,9 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_isListening)
+            if (_tcpServer.ServerState == ServerState.Running)
             {
                 _tcpServer.Stop();
-                _isListening = false;
                 ListenState = "监听";
                 ListenStateColor = "LightGray";
             }
@@ -309,9 +274,15 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    _tcpServer.Setup(new TouchSocketConfig().SetListenIPHosts(int.Parse(_listenPort)));
+                    var socketConfig = new TouchSocketConfig().SetListenOptions(options =>
+                    {
+                        options.Add(new TcpListenOption
+                        {
+                            IpHost = new IPHost($"{_localHost}:{_listenPort}")
+                        });
+                    });
+                    _tcpServer.Setup(socketConfig);
                     _tcpServer.Start();
-                    _isListening = true;
                     ListenState = "停止";
                     ListenStateColor = "Lime";
                 }
@@ -331,235 +302,148 @@ namespace DevKit.ViewModels
 
             IsContentViewVisible = "Visible";
             IsEmptyImageVisible = "Collapsed";
-            Console.WriteLine(JsonConvert.SerializeObject(client));
 
             client.MessageCount = 0;
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-            MessageCollection.Clear();
-            using (var dataBase = new DataBaseConnection())
+            // 显示当前选中客户端的消息
+        }
+
+        private void CopyLog(string log)
+        {
+            Clipboard.SetText(log);
+        }
+
+        private void OnMessageSend()
+        {
+            SendMessage(_userInputText);
+        }
+
+        private void OnTimeChecked()
+        {
+            if (!_commandInterval.IsNumber())
             {
-                // var queryResult = dataBase.Table<ClientMessageCache>()
-                //     .Where(x =>
-                //         x.ClientId == _connectedClient.Id &&
-                //         x.ClientIp == _connectedClient.Ip &&
-                //         x.ClientPort == _connectedClient.Port &&
-                //         x.ClientType == ConnectionType.TcpClient
-                //     );
-                // if (queryResult.Any())
-                // {
-                //     IsContentViewVisible = "Visible";
-                //     IsEmptyImageVisible = "Collapsed";
-                //
-                //     foreach (var cache in queryResult)
-                //     {
-                //         var messageModel = new MessageModel
-                //         {
-                //             Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
-                //             Time = cache.Time,
-                //             IsSend = cache.IsSend == 1
-                //         };
-                //
-                //         MessageCollection.Add(messageModel);
-                //     }
-                // }
-                // else
-                // {
-                //     IsContentViewVisible = "Collapsed";
-                //     IsEmptyImageVisible = "Visible";
-                // }
+                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
+            _loopSendCommandTimer.Start();
         }
 
-        private void ShowHexCheckBoxClick()
+        private void OnTimeUnchecked()
         {
-            using (var dataBase = new DataBaseConnection())
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Stop();
+        }
+
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_tcpServer.ServerState != ServerState.Running)
             {
-                // var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
-                //     x.ClientId == _connectedClient.Id &&
-                //     x.ClientIp == _connectedClient.Ip &&
-                //     x.ClientPort == _connectedClient.Port &&
-                //     x.ClientType == ConnectionType.TcpClient
-                // );
-                //
-                // if (_showHex)
-                // {
-                //     var boxResult = MessageBox.Show(
-                //         "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                //     );
-                //     if (boxResult == MessageBoxResult.OK)
-                //     {
-                //         MessageCollection.Clear();
-                //         foreach (var cache in queryResult)
-                //         {
-                //             var msg = new MessageModel
-                //             {
-                //                 Content = cache.MessageContent,
-                //                 Time = cache.Time,
-                //                 IsSend = cache.IsSend == 1
-                //             };
-                //             MessageCollection.Add(msg);
-                //         }
-                //     }
-                //     else
-                //     {
-                //         ShowHex = false;
-                //     }
-                // }
-                // else
-                // {
-                //     var boxResult = MessageBox.Show(
-                //         "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-                //     );
-                //     if (boxResult == MessageBoxResult.OK)
-                //     {
-                //         MessageCollection.Clear();
-                //         foreach (var cache in queryResult)
-                //         {
-                //             var msg = new MessageModel
-                //             {
-                //                 Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
-                //                 Time = cache.Time,
-                //                 IsSend = cache.IsSend == 1
-                //             };
-                //             MessageCollection.Add(msg);
-                //         }
-                //     }
-                //     else
-                //     {
-                //         ShowHex = true;
-                //     }
-                // }
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-        }
 
-        private void DropDownOpened()
-        {
-            
-        }
-
-        private void DeleteExCmd(object obj)
-        {
-            var result = MessageBox.Show(
-                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
-            );
-            if (result == MessageBoxResult.OK)
+            if (_connectedClient == null)
             {
-                _dataService.DeleteExtensionCommandCache(ConnectionType.TcpServer, (int)obj);
+                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            SendMessage(_userInputText);
         }
 
-        private void DropDownClosed(ComboBox box)
+        private void SendMessage(string command)
         {
-            
-        }
-
-        private void AddExtension()
-        {
-            var dialogParameters = new DialogParameters
+            if (_tcpServer.ServerState != ServerState.Running)
             {
-                { "ConnectionType", ConnectionType.TcpServer }
-            };
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
-        }
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-        private void LoopUnchecked()
-        {
-            _loopSendMessageTimer.Enabled = false;
-        }
+            if (_connectedClient == null)
+            {
+                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
-        {
-            Send(false);
-        }
-
-        private void ClearMessage()
-        {
-            MessageCollection?.Clear();
-            _connectedClient.MessageCount = 0;
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     dataBase.Table<ClientMessageCache>().Where(x =>
-            //         x.ClientId == _connectedClient.Id &&
-            //         x.ClientIp == _connectedClient.Ip &&
-            //         x.ClientPort == _connectedClient.Port &&
-            //         x.ClientType == ConnectionType.TcpClient
-            //     ).Delete();
-            // }
-        }
-
-        private void SendMessage()
-        {
-            if (string.IsNullOrWhiteSpace(_userInputText))
+            if (string.IsNullOrWhiteSpace(command))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (_loopSend)
+            if (_isHexSelected)
             {
-                if (!_commandInterval.IsNumber())
+                if (!command.IsHex())
                 {
-                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
-                _loopSendMessageTimer.Enabled = true;
+                var bytes = command.Replace(" ", "").ByHexStringToBytes();
+                _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
+                UpdateCommunicationLog(command, bytes);
             }
             else
             {
-                Send(true);
+                var bytes = command.ToUTF8Bytes();
+                _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
+                UpdateCommunicationLog(command, bytes);
             }
         }
 
-        private void Send(bool isMainThread)
+        private void UpdateCommunicationLog(string command, byte[] bytes)
         {
-            if (_sendHex)
+            if (command.Equals(""))
             {
-                if (!_userInputText.IsHex())
+                //默认显示为UTF8编码
+                var log = new LogModel
                 {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    Content = bytes.ByBytesToHexString(" "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = false
+                };
+                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+            }
+            else
+            {
+                var log = new LogModel
+                {
+                    Content = command,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = true
+                };
+                Logs.Add(log);
+            }
+        }
+
+        private void OnComboBoxItemSelected(object index)
+        {
+            if (index == null)
+            {
+                return;
+            }
+
+            if (index.ToString().Equals("0"))
+            {
+                //转为16进制显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.ToUTF8Bytes();
+                    log.Content = bytes.ByBytesToHexString(" ");
                 }
-
-                _tcpServer.Send(_connectedClient.Id, _userInputText.HexToBytes());
             }
-            else
+            else if (index.ToString().Equals("1"))
             {
-                _tcpServer.Send(_connectedClient.Id, _userInputText);
-            }
-
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var cache = new ClientMessageCache
-            //     {
-            //         ClientId = _connectedClient.Id,
-            //         ClientIp = _connectedClient.Ip,
-            //         ClientPort = _connectedClient.Port,
-            //         ClientType = ConnectionType.TcpClient,
-            //         MessageContent = _userInputText,
-            //         ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = 1
-            //     };
-            //     dataBase.Insert(cache);
-            // }
-
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-
-            if (isMainThread)
-            {
-                MessageCollection.Add(message);
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
+                //转为ASCII显示
+                foreach (var log in _logs)
+                {
+                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                    log.Content = Encoding.UTF8.GetString(bytes);
+                }
             }
         }
     }

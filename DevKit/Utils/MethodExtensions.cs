@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 
@@ -75,17 +74,6 @@ namespace DevKit.Utils
         }
 
         /// <summary>
-        /// 返回的Hex带有 - ，比如：AA-BB-CC-DD，需要自行去掉
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string StringToHex(this string value)
-        {
-            var bytes = Encoding.UTF8.GetBytes(value);
-            return BitConverter.ToString(bytes);
-        }
-
-        /// <summary>
         /// Hex串转为byte[]
         /// </summary>
         /// <param name="hex"></param>
@@ -109,16 +97,6 @@ namespace DevKit.Utils
             }
 
             return bytes;
-        }
-
-        /// <summary>
-        /// byte[]转字符串，中英文都可以，不会乱码
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static string ByteArrayToString(this byte[] bytes)
-        {
-            return Encoding.UTF8.GetString(bytes);
         }
 
         public static bool IsNumber(this string s)
