@@ -13,15 +13,11 @@ namespace DevKit.DataService
         
         List<MainMenuModel> GetOtherTools();
 
-        ClientConfigCache LoadClientConfigCache(int connectionType);
-
+        string GetIPv4Address();
+        
         List<ExCommandCache> LoadCommandExtensionCaches(int parentType);
 
-        void SaveConfigCache<T>(T configCache);
-
         void DeleteExtensionCommandCache(int connectionType, int cacheId);
-
-        List<string> GetAllIPv4Addresses();
 
         List<string> GetColorSchemes();
 

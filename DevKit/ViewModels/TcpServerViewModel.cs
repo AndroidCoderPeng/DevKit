@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -41,19 +39,19 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
-        private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
+        private string _localHost = string.Empty;
 
-        public ObservableCollection<string> LocalAddressCollection
+        public string LocalHost
         {
             set
             {
-                _localAddressCollection = value;
+                _localHost = value;
                 RaisePropertyChanged();
             }
-            get => _localAddressCollection;
+            get => _localHost;
         }
 
         private string _listenPort = "9000";
@@ -165,18 +163,6 @@ namespace DevKit.ViewModels
             get => _messageCollection;
         }
 
-        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
-
-        public ObservableCollection<ExCommandCache> ExCommandCollection
-        {
-            set
-            {
-                _exCommandCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _exCommandCollection;
-        }
-
         private bool _loopSend;
 
         public bool LoopSend
@@ -254,9 +240,11 @@ namespace DevKit.ViewModels
             _dataService = dataService;
             _dialogService = dialogService;
 
+            LocalHost = _dataService.GetIPv4Address();
+
             InitDefaultConfig();
 
-            ServerListenCommand = new DelegateCommand(ServerListen);
+            ServerListenCommand = new DelegateCommand(OnServerListened);
             ClientItemClickedCommand = new DelegateCommand<ConnectedClientModel>(OnClientItemClicked);
             ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
@@ -270,11 +258,6 @@ namespace DevKit.ViewModels
 
         private void InitDefaultConfig()
         {
-            //获取本机所有IPv4地址
-            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
-                .ToObservableCollection();
-
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             //有客户端成功连接
@@ -303,42 +286,11 @@ namespace DevKit.ViewModels
                 var bytes = e.ByteBlock.ToArray();
                 var tcp = _clientCollection.First(x => x.Id == client.Id);
                 tcp.MessageCount++;
-                using (var dataBase = new DataBaseConnection())
-                {
-                    // var cache = new ClientMessageCache
-                    // {
-                    //     ClientId = client.Id,
-                    //     ClientIp = client.IP,
-                    //     ClientPort = client.Port,
-                    //     ClientType = ConnectionType.TcpClient,
-                    //     MessageContent = _showHex
-                    //         ? BitConverter.ToString(bytes).Replace("-", " ")
-                    //         : Encoding.UTF8.GetString(bytes),
-                    //     ByteArrayContent = BitConverter.ToString(bytes),
-                    //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    //     IsSend = 0
-                    // };
-                    // dataBase.Insert(cache);
-                }
-
-                if (_isContentViewVisible.Equals("Visible") && client.Id == _connectedClient.Id)
-                {
-                    var messageModel = new MessageModel
-                    {
-                        Content = _showHex
-                            ? BitConverter.ToString(bytes).Replace("-", " ")
-                            : Encoding.UTF8.GetString(bytes),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = false
-                    };
-                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                }
-
                 return EasyTask.CompletedTask;
             };
         }
 
-        private void ServerListen()
+        private void OnServerListened()
         {
             if (!_listenPort.IsNumber())
             {
@@ -377,8 +329,10 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            IsContentViewVisible = "Visible";
+            IsEmptyImageVisible = "Collapsed";
             Console.WriteLine(JsonConvert.SerializeObject(client));
-            
+
             client.MessageCount = 0;
             _connectedClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
@@ -481,8 +435,7 @@ namespace DevKit.ViewModels
 
         private void DropDownOpened()
         {
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.TcpServer)
-                .ToObservableCollection();
+            
         }
 
         private void DeleteExCmd(object obj)
@@ -498,13 +451,7 @@ namespace DevKit.ViewModels
 
         private void DropDownClosed(ComboBox box)
         {
-            if (box.SelectedIndex == -1)
-            {
-                box.SelectedIndex = 0;
-            }
-
-            var commandCache = _exCommandCollection[box.SelectedIndex];
-            UserInputText = commandCache.CommandValue;
+            
         }
 
         private void AddExtension()

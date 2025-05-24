@@ -243,7 +243,7 @@ namespace DevKit.ViewModels
         public WebSocketServerViewModel(IAppDataService dataService)
         {
             //获取本机所有IPv4地址
-            LocalAddressCollection = dataService.GetAllIPv4Addresses().ToObservableCollection();
+            // LocalAddressCollection = dataService.GetAllIPv4Addresses().ToObservableCollection();
             _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
 
             ServerListenCommand = new DelegateCommand(ServerListen);

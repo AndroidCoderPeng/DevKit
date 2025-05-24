@@ -213,12 +213,14 @@
             <TextBox
                 x:Name="InputColorHexValueTextBox"
                 Grid.Column="0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 MaxLength="7" />
 
             <Button
                 Grid.Column="1"
                 Margin="10,0,0,0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding ColorHexToRgbCommand}"
                 CommandParameter="{Binding Text, ElementName=InputColorHexValueTextBox}"
                 Content="转为RGB" />
@@ -234,6 +236,7 @@
             <ComboBox
                 x:Name="ColorSchemeComboBox"
                 Grid.Column="0"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 ItemsSource="{Binding ColorSchemes}"
                 SelectedIndex="0">

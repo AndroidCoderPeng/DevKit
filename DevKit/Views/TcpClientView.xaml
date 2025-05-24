@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cache="clr-namespace:DevKit.Cache"
-    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
@@ -329,6 +329,7 @@
                     Grid.Column="0"
                     Padding="4"
                     VerticalContentAlignment="Top"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     FontSize="14"
                     Text="{Binding UserInputText}"
                     TextWrapping="Wrap"
@@ -365,6 +366,7 @@
                     x:Name="LoopCheckBox"
                     Grid.Column="1"
                     Margin="10,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="循环发送">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="Checked">
@@ -395,10 +397,11 @@
                     Grid.Column="4"
                     Width="80"
                     Margin="10,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     SelectedIndex="0">
                     <ComboBoxItem Content="16进制" />
                     <ComboBoxItem Content="ASCII" />
-                    
+
                     <!--  选中事件  -->
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="SelectionChanged">
@@ -411,6 +414,7 @@
                     Grid.Column="5"
                     Margin="10,0,0,0"
                     HorizontalAlignment="Right"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="16进制"
                     IsChecked="{Binding IsHexSelected}" />
             </Grid>

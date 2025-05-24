@@ -57,6 +57,7 @@
                 <ComboBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     FontSize="14"
                     IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
                     ItemsSource="{Binding LocalAddressCollection}"
@@ -81,13 +82,17 @@
                     Grid.Column="1"
                     MinWidth="90"
                     Margin="10,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     FontSize="14"
                     IsEnabled="{Binding ListenState, Converter={StaticResource ListenStateConverterKey}}"
                     MaxLength="5"
                     Text="{Binding ListenPort}"
                     TextWrapping="NoWrap" />
 
-                <Button Grid.Column="2" Command="{Binding ServerListenCommand}">
+                <Button
+                    Grid.Column="2"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding ServerListenCommand}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
@@ -124,6 +129,7 @@
                 <TextBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     FontSize="14"
                     IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     Text="{Binding RequestPath}"
@@ -146,6 +152,7 @@
                 <TextBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     FontSize="14"
                     IsReadOnly="True"
                     Text="{Binding WebSocketUrl}"
@@ -163,6 +170,7 @@
                 x:Name="ClientListBox"
                 Grid.Row="4"
                 HorizontalContentAlignment="Stretch"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 ItemsSource="{Binding ClientCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -249,6 +257,7 @@
                 x:Name="MessageListBox"
                 Grid.Row="1"
                 Margin="0,10"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 ItemsSource="{Binding MessageCollection}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -338,6 +347,7 @@
                     <CheckBox
                         x:Name="LoopCheckBox"
                         Grid.Column="0"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
                         Content="循环发送"
                         IsChecked="{Binding LoopSend}">
                         <b:Interaction.Triggers>
@@ -350,6 +360,7 @@
                     <TextBox
                         Grid.Column="1"
                         Margin="10,0"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
                         FontSize="14"
                         IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
                         MaxLength="5"
@@ -372,12 +383,14 @@
                         Grid.Column="0"
                         Margin="10,0"
                         HorizontalAlignment="Stretch"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
                         Command="{Binding ClearMessageCommand}"
                         Content="清屏" />
 
                     <Button
                         Grid.Column="1"
                         HorizontalAlignment="Stretch"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
                         BorderThickness="0"
                         Command="{Binding SendMessageCommand}"
                         Content="发送" />
@@ -387,6 +400,7 @@
             <TextBox
                 Grid.Row="3"
                 Padding="4"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 Text="{Binding UserInputText}"
                 TextWrapping="Wrap"

@@ -40,36 +40,8 @@ namespace DevKit.DataService
             };
         }
 
-        public ClientConfigCache LoadClientConfigCache(int connectionType)
+        public string GetIPv4Address()
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                return new ClientConfigCache();
-            }
-        }
-
-        public List<ExCommandCache> LoadCommandExtensionCaches(int parentType)
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ExCommandCache>();
-                return queryResult.ToList();
-            }
-        }
-
-        public void SaveConfigCache<T>(T configCache)
-        {
-            
-        }
-
-        public void DeleteExtensionCommandCache(int connectionType, int cacheId)
-        {
-            
-        }
-
-        public List<string> GetAllIPv4Addresses()
-        {
-            var result = new List<string>();
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (var network in interfaces)
             {
@@ -81,17 +53,29 @@ namespace DevKit.DataService
                 var ipAddresses = network.GetIPProperties().UnicastAddresses;
                 foreach (var ip in ipAddresses)
                 {
-                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork && ip.Address.ToString() != "127.0.0.1")
                     {
-                        if (ip.Address.ToString() != "127.0.0.1")
-                        {
-                            result.Add($"{ip.Address}");
-                        }
+                        // 返回第一个符合条件的IPv4地址
+                        return ip.Address.ToString();
                     }
                 }
             }
 
-            return result;
+            return null;
+        }
+        
+        public List<ExCommandCache> LoadCommandExtensionCaches(int parentType)
+        {
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<ExCommandCache>();
+                return queryResult.ToList();
+            }
+        }
+
+        public void DeleteExtensionCommandCache(int connectionType, int cacheId)
+        {
+            
         }
 
         public List<string> GetColorSchemes()

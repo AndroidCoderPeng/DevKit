@@ -271,7 +271,7 @@ namespace DevKit.ViewModels
         private void InitDefaultConfig()
         {
             //获取本机所有IPv4地址
-            LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
+            // LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
 
             ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpServer)
                 .ToObservableCollection();
