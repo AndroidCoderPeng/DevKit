@@ -350,7 +350,7 @@ namespace DevKit.ViewModels
                     {
                         foreach (var log in _logs)
                         {
-                            var logText = log.IsSend
+                            var logText = log.IsSend == 1
                                 ? $"{log.Time}【发送】{log.Content}"
                                 : $"{log.Time}【接收】{log.Content}";
                             await writer.WriteLineAsync(logText);
@@ -511,7 +511,7 @@ namespace DevKit.ViewModels
                 {
                     Content = bytes.ByBytesToHexString(" "),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
+                    IsSend = 0
                 };
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
             }
@@ -521,7 +521,7 @@ namespace DevKit.ViewModels
                 {
                     Content = command,
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
+                    IsSend = 1
                 };
                 Logs.Add(log);
             }

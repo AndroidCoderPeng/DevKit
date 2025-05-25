@@ -1,9 +1,16 @@
 ﻿using System.ComponentModel;
+using SQLite;
 
-namespace DevKit.Models
+namespace DevKit.Cache
 {
-    public class LogModel : INotifyPropertyChanged
+    [Table("LogCache")]
+    public class LogCache : INotifyPropertyChanged
     {
+        [PrimaryKey, Unique, NotNull, AutoIncrement]
+        public int Id { get; set; }
+
+        public string ClientType { get; set; }
+        public string HostAddress { get; set; }
         private string _content;
 
         public string Content

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Data;
 
@@ -9,13 +8,12 @@ namespace DevKit.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Debug.Assert(value != null, nameof(value) + " != null");
-            if ((bool)value)
+            if (value is int isSend)
             {
-                return "LimeGreen";
+                return isSend == 1 ? "LimeGreen" : "OrangeRed";
             }
 
-            return "OrangeRed";
+            return "LightGray";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

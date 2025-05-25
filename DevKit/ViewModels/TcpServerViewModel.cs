@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -143,9 +143,9 @@ namespace DevKit.ViewModels
         }
 
 
-        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+        private ObservableCollection<LogCache> _logs = new ObservableCollection<LogCache>();
 
-        public ObservableCollection<LogModel> Logs
+        public ObservableCollection<LogCache> Logs
         {
             set
             {
@@ -207,10 +207,6 @@ namespace DevKit.ViewModels
 
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
-
-        private readonly Dictionary<string, ObservableCollection<LogModel>> _clientLogsMap =
-            new Dictionary<string, ObservableCollection<LogModel>>();
-
         private SocketClientModel _socketClient;
 
         public TcpServerViewModel(IAppDataService dataService)
@@ -246,20 +242,24 @@ namespace DevKit.ViewModels
 
             _tcpServer.Closed = (client, e) =>
             {
-                _clients.First(x => x.Id == client.Id).IsConnected = false;
+                var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
+                if (tcp != null)
+                {
+                    tcp.IsConnected = false;
+                }
+
                 return EasyTask.CompletedTask;
             };
 
             _tcpServer.Received = (client, e) =>
             {
-                var bytes = e.ByteBlock.ToArray();
                 var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
                 if (tcp != null)
                 {
                     tcp.MessageCount++;
+                    UpdateCommunicationLog($"{client.IP}:{client.Port}", "", e.ByteBlock.ToArray());
                 }
 
-                UpdateCommunicationLog("", bytes);
                 return EasyTask.CompletedTask;
             };
         }
@@ -400,31 +400,43 @@ namespace DevKit.ViewModels
             }
 
             _tcpServer.GetClient(_socketClient.Id).Send(bytes);
-            UpdateCommunicationLog(command, bytes);
+            UpdateCommunicationLog($"{_socketClient.Ip}:{_socketClient.Port}", command, bytes);
         }
 
-        private void UpdateCommunicationLog(string command, byte[] bytes)
+        private void UpdateCommunicationLog(string host, string command, byte[] bytes)
         {
             if (command.Equals(""))
             {
                 //默认显示为UTF8编码
-                var log = new LogModel
+                using (var dataBase = new DataBaseConnection())
                 {
-                    Content = bytes.ByBytesToHexString(" "),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = false
-                };
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
+                    var log = new LogCache
+                    {
+                        ClientType = "TCP",
+                        HostAddress = host,
+                        Content = bytes.ByBytesToHexString(" "),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 0
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
+                    dataBase.Insert(log);
+                }
             }
             else
             {
-                var log = new LogModel
+                using (var dataBase = new DataBaseConnection())
                 {
-                    Content = command,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = true
-                };
-                Logs.Add(log);
+                    var log = new LogCache
+                    {
+                        ClientType = "TCP",
+                        HostAddress = host,
+                        Content = command,
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 1
+                    };
+                    Logs.Add(log);
+                    dataBase.Insert(log);
+                }
             }
         }
 
