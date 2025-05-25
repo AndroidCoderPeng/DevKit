@@ -205,6 +205,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private const string ClientType = "TCP";
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private SocketClientModel _socketClient;
@@ -315,6 +316,14 @@ namespace DevKit.ViewModels
             _socketClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             // 显示当前选中客户端的消息
+            Logs.Clear();
+            using (var dataBase = new DataBaseConnection())
+            {
+                var queryResult = dataBase.Table<LogCache>()
+                    .Where(x => x.ClientType == ClientType && x.HostAddress == _connectedClientAddress)
+                    .ToList();
+                Logs = queryResult.ToObservableCollection();
+            }
         }
 
         private void CopyLog(string log)
@@ -412,7 +421,7 @@ namespace DevKit.ViewModels
                 {
                     var log = new LogCache
                     {
-                        ClientType = "TCP",
+                        ClientType = ClientType,
                         HostAddress = host,
                         Content = bytes.ByBytesToHexString(" "),
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
@@ -428,7 +437,7 @@ namespace DevKit.ViewModels
                 {
                     var log = new LogCache
                     {
-                        ClientType = "TCP",
+                        ClientType = ClientType,
                         HostAddress = host,
                         Content = command,
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
