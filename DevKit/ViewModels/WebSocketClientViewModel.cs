@@ -473,7 +473,7 @@ namespace DevKit.ViewModels
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
-                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
             }
             else
             {

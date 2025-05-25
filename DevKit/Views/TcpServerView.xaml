@@ -113,7 +113,7 @@
                 Margin="0,10,10,0"
                 HorizontalContentAlignment="Stretch"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
-                ItemsSource="{Binding ClientCollection}"
+                ItemsSource="{Binding Clients}"
                 ScrollViewer.CanContentScroll="False"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>

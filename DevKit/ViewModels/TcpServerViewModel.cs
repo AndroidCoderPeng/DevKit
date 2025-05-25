@@ -240,7 +240,7 @@ namespace DevKit.ViewModels
                     IsConnected = true
                 };
 
-                Application.Current.Dispatcher.Invoke(() => { Clients.Add(model); });
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(model); }));
                 return EasyTask.CompletedTask;
             };
 
@@ -414,7 +414,7 @@ namespace DevKit.ViewModels
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                     IsSend = false
                 };
-                Application.Current.Dispatcher.Invoke(() => { Logs.Add(log); });
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
             }
             else
             {
