@@ -195,8 +195,9 @@
     <Compile Include="Models\LogModel.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
-    <Compile Include="Models\ConnectedClientModel.cs" />
+    <Compile Include="Models\SocketClientModel.cs" />
     <Compile Include="Models\ScreenshotModel.cs" />
+    <Compile Include="Models\WebSocketClientModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />

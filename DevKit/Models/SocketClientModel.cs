@@ -1,25 +1,12 @@
 ﻿using System.ComponentModel;
-using TouchSocket.Http.WebSockets;
 
 namespace DevKit.Models
 {
-    public class ConnectedClientModel : INotifyPropertyChanged
+    public class SocketClientModel : INotifyPropertyChanged
     {
         public string Id { get; set; }
         public string Ip { get; set; }
         public int Port { get; set; }
-
-        private IWebSocket _connectedWebSocket;
-
-        public IWebSocket WebSocket
-        {
-            get => _connectedWebSocket;
-            set
-            {
-                _connectedWebSocket = value;
-                OnPropertyChanged(nameof(WebSocket));
-            }
-        }
 
         private bool _isConnected;
 
@@ -47,7 +34,7 @@ namespace DevKit.Models
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

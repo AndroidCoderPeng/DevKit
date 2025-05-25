@@ -126,17 +126,16 @@ namespace DevKit.ViewModels
             get => _webSocketUrl;
         }
 
-        private ObservableCollection<ConnectedClientModel> _clientCollection =
-            new ObservableCollection<ConnectedClientModel>();
+        private ObservableCollection<WebSocketClientModel> _clients = new ObservableCollection<WebSocketClientModel>();
 
-        public ObservableCollection<ConnectedClientModel> ClientCollection
+        public ObservableCollection<WebSocketClientModel> Clients
         {
             set
             {
-                _clientCollection = value;
+                _clients = value;
                 RaisePropertyChanged();
             }
-            get => _clientCollection;
+            get => _clients;
         }
 
         private string _isContentViewVisible = "Collapsed";
@@ -229,7 +228,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand CopyWebSocketUrlCommand { set; get; }
-        public DelegateCommand<ConnectedClientModel> ClientItemSelectionChangedCommand { set; get; }
+        public DelegateCommand<WebSocketClientModel> ClientItemSelectionChangedCommand { set; get; }
         public DelegateCommand LoopUncheckedCommand { set; get; }
         public DelegateCommand ClearMessageCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
@@ -238,7 +237,7 @@ namespace DevKit.ViewModels
 
         private readonly WebSocketServer _webSocketServer = new WebSocketServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
-        private ConnectedClientModel _connectedClient;
+        private WebSocketClientModel _socketClient;
 
         public WebSocketServerViewModel(IAppDataService dataService)
         {
@@ -248,7 +247,7 @@ namespace DevKit.ViewModels
 
             ServerListenCommand = new DelegateCommand(ServerListen);
             CopyWebSocketUrlCommand = new DelegateCommand(CopyWebSocketUrl);
-            ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
+            ClientItemSelectionChangedCommand = new DelegateCommand<WebSocketClientModel>(ClientItemSelectionChanged);
             LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
             ClearMessageCommand = new DelegateCommand(ClearMessage);
             SendMessageCommand = new DelegateCommand(SendMessage);
@@ -284,7 +283,7 @@ namespace DevKit.ViewModels
                                 (IWebSocket webSocket, HttpContextEventArgs e) =>
                                 {
                                     var session = webSocket.Client;
-                                    var clientModel = new ConnectedClientModel
+                                    var clientModel = new WebSocketClientModel
                                     {
                                         Ip = session.IP,
                                         Port = session.Port,
@@ -292,7 +291,7 @@ namespace DevKit.ViewModels
                                         IsConnected = true
                                     };
 
-                                    Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
+                                    Application.Current.Dispatcher.Invoke(() => { Clients.Add(clientModel); });
                                     return EasyTask.CompletedTask;
                                 });
 
@@ -300,7 +299,7 @@ namespace DevKit.ViewModels
                             cfg.Add(typeof(IWebSocketReceivedPlugin), (IWebSocket webSocket, WSDataFrameEventArgs e) =>
                             {
                                 var session = webSocket.Client;
-                                var client = _clientCollection.First(x => x.Ip == session.IP && x.Port == session.Port);
+                                var client = _clients.First(x => x.Ip == session.IP && x.Port == session.Port);
                                 client.MessageCount++;
                                 // using (var dataBase = new DataBaseConnection())
                                 // {
@@ -317,7 +316,7 @@ namespace DevKit.ViewModels
                                 // }
 
                                 if (_isContentViewVisible.Equals("Visible") &&
-                                    _connectedClient.Ip == session.IP && _connectedClient.Port == session.Port)
+                                    _socketClient.Ip == session.IP && _socketClient.Port == session.Port)
                                 {
                                     var messageModel = new MessageModel
                                     {
@@ -339,7 +338,7 @@ namespace DevKit.ViewModels
                             cfg.Add(typeof(IWebSocketClosedPlugin), (IWebSocket webSocket, ClosedEventArgs e) =>
                             {
                                 var session = webSocket.Client;
-                                _clientCollection.First(
+                                _clients.First(
                                     x => x.Ip == session.IP && x.Port == session.Port
                                 ).IsConnected = false;
                                 return EasyTask.CompletedTask;
@@ -370,7 +369,7 @@ namespace DevKit.ViewModels
             Clipboard.SetText(_webSocketUrl);
         }
 
-        private void ClientItemSelectionChanged(ConnectedClientModel client)
+        private void ClientItemSelectionChanged(WebSocketClientModel client)
         {
             if (client == null)
             {
@@ -378,7 +377,7 @@ namespace DevKit.ViewModels
             }
 
             client.MessageCount = 0;
-            _connectedClient = client;
+            _socketClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             MessageCollection.Clear();
             // using (var dataBase = new DataBaseConnection())
@@ -427,7 +426,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
-            _connectedClient.MessageCount = 0;
+            _socketClient.MessageCount = 0;
             // using (var dataBase = new DataBaseConnection())
             // {
             //     dataBase.Table<ClientMessageCache>().Where(x =>
@@ -465,7 +464,7 @@ namespace DevKit.ViewModels
 
         private void Send(bool isMainThread)
         {
-            _connectedClient.WebSocket?.SendAsync(_userInputText);
+            _socketClient.WebSocket?.SendAsync(_userInputText);
                 
             // using (var dataBase = new DataBaseConnection())
             // {

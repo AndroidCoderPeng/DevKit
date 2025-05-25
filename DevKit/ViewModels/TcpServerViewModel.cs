@@ -94,17 +94,16 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<ConnectedClientModel> _clientCollection =
-            new ObservableCollection<ConnectedClientModel>();
+        private ObservableCollection<SocketClientModel> _clients = new ObservableCollection<SocketClientModel>();
 
-        public ObservableCollection<ConnectedClientModel> ClientCollection
+        public ObservableCollection<SocketClientModel> Clients
         {
             set
             {
-                _clientCollection = value;
+                _clients = value;
                 RaisePropertyChanged();
             }
-            get => _clientCollection;
+            get => _clients;
         }
 
         private string _isContentViewVisible = "Collapsed";
@@ -197,7 +196,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<ConnectedClientModel> ClientItemClickedCommand { set; get; }
+        public DelegateCommand<SocketClientModel> ClientItemClickedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
@@ -212,7 +211,7 @@ namespace DevKit.ViewModels
         private readonly Dictionary<string, ObservableCollection<LogModel>> _clientLogsMap =
             new Dictionary<string, ObservableCollection<LogModel>>();
 
-        private ConnectedClientModel _connectedClient;
+        private SocketClientModel _socketClient;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -221,7 +220,7 @@ namespace DevKit.ViewModels
             InitListenStateEvent();
 
             ServerListenCommand = new DelegateCommand(OnServerListened);
-            ClientItemClickedCommand = new DelegateCommand<ConnectedClientModel>(OnClientItemClicked);
+            ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
             SendCommand = new DelegateCommand(OnMessageSend);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
@@ -233,7 +232,7 @@ namespace DevKit.ViewModels
         {
             _tcpServer.Connected = (client, e) =>
             {
-                var clientModel = new ConnectedClientModel
+                var model = new SocketClientModel
                 {
                     Id = client.Id,
                     Ip = client.IP,
@@ -241,20 +240,20 @@ namespace DevKit.ViewModels
                     IsConnected = true
                 };
 
-                Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
+                Application.Current.Dispatcher.Invoke(() => { Clients.Add(model); });
                 return EasyTask.CompletedTask;
             };
 
             _tcpServer.Closed = (client, e) =>
             {
-                _clientCollection.First(x => x.Id == client.Id).IsConnected = false;
+                _clients.First(x => x.Id == client.Id).IsConnected = false;
                 return EasyTask.CompletedTask;
             };
 
             _tcpServer.Received = (client, e) =>
             {
                 var bytes = e.ByteBlock.ToArray();
-                var tcp = _clientCollection.FirstOrDefault(x => x.Id == client.Id);
+                var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
                 if (tcp != null)
                 {
                     tcp.MessageCount++;
@@ -302,7 +301,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void OnClientItemClicked(ConnectedClientModel client)
+        private void OnClientItemClicked(SocketClientModel client)
         {
             if (client == null)
             {
@@ -313,7 +312,7 @@ namespace DevKit.ViewModels
             IsEmptyImageVisible = "Collapsed";
 
             client.MessageCount = 0;
-            _connectedClient = client;
+            _socketClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             // 显示当前选中客户端的消息
         }
@@ -355,7 +354,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_connectedClient == null)
+            if (_socketClient == null)
             {
                 MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -372,7 +371,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_connectedClient == null)
+            if (_socketClient == null)
             {
                 MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -400,7 +399,7 @@ namespace DevKit.ViewModels
                 bytes = command.ToUTF8Bytes();
             }
 
-            _tcpServer.GetClient(_connectedClient.Id).Send(bytes);
+            _tcpServer.GetClient(_socketClient.Id).Send(bytes);
             UpdateCommunicationLog(command, bytes);
         }
 

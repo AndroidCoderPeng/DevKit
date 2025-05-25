@@ -92,17 +92,16 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<ConnectedClientModel> _clientCollection =
-            new ObservableCollection<ConnectedClientModel>();
+        private ObservableCollection<SocketClientModel> _clients = new ObservableCollection<SocketClientModel>();
 
-        public ObservableCollection<ConnectedClientModel> ClientCollection
+        public ObservableCollection<SocketClientModel> Clients
         {
             set
             {
-                _clientCollection = value;
+                _clients = value;
                 RaisePropertyChanged();
             }
-            get => _clientCollection;
+            get => _clients;
         }
 
         private string _isContentViewVisible = "Collapsed";
@@ -230,7 +229,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<ConnectedClientModel> ClientItemSelectionChangedCommand { set; get; }
+        public DelegateCommand<SocketClientModel> ClientItemSelectionChangedCommand { set; get; }
         public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
         public DelegateCommand DropDownOpenedCommand { set; get; }
         public DelegateCommand<object> DeleteExCmdCommand { set; get; }
@@ -247,7 +246,7 @@ namespace DevKit.ViewModels
         private readonly UdpServer _udpServer = new UdpServer();
         private readonly Timer _loopSendMessageTimer = new Timer();
         private bool _isListening;
-        private ConnectedClientModel _connectedClient;
+        private SocketClientModel _socketClient;
 
         public UdpServerViewModel(IAppDataService dataService, IDialogService dialogService)
         {
@@ -257,7 +256,7 @@ namespace DevKit.ViewModels
             InitDefaultConfig();
 
             ServerListenCommand = new DelegateCommand(ServerListen);
-            ClientItemSelectionChangedCommand = new DelegateCommand<ConnectedClientModel>(ClientItemSelectionChanged);
+            ClientItemSelectionChangedCommand = new DelegateCommand<SocketClientModel>(ClientItemSelectionChanged);
             ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
             DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
             DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
@@ -281,21 +280,21 @@ namespace DevKit.ViewModels
             _udpServer.Received = (client, e) =>
             {
                 var endPoint = e.EndPoint;
-                if (!_clientCollection.Any(
+                if (!_clients.Any(
                         x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort())
                    )
                 {
-                    var clientModel = new ConnectedClientModel
+                    var clientModel = new SocketClientModel
                     {
                         Ip = endPoint.GetIP(),
                         Port = endPoint.GetPort()
                     };
 
-                    Application.Current.Dispatcher.Invoke(() => { ClientCollection.Add(clientModel); });
+                    Application.Current.Dispatcher.Invoke(() => { Clients.Add(clientModel); });
                 }
 
                 var bytes = e.ByteBlock.ToArray();
-                var udp = _clientCollection.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
+                var udp = _clients.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
                 udp.MessageCount++;
                 // using (var dataBase = new DataBaseConnection())
                 // {
@@ -315,8 +314,8 @@ namespace DevKit.ViewModels
                 // }
 
                 if (_isContentViewVisible.Equals("Visible") &&
-                    endPoint.GetIP() == _connectedClient.Ip &&
-                    endPoint.GetPort() == _connectedClient.Port)
+                    endPoint.GetIP() == _socketClient.Ip &&
+                    endPoint.GetPort() == _socketClient.Port)
                 {
                     var messageModel = new MessageModel
                     {
@@ -366,7 +365,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ClientItemSelectionChanged(ConnectedClientModel client)
+        private void ClientItemSelectionChanged(SocketClientModel client)
         {
             if (client == null)
             {
@@ -374,7 +373,7 @@ namespace DevKit.ViewModels
             }
 
             client.MessageCount = 0;
-            _connectedClient = client;
+            _socketClient = client;
             ConnectedClientAddress = $"{client.Ip}:{client.Port}";
             MessageCollection.Clear();
             // using (var dataBase = new DataBaseConnection())
@@ -521,7 +520,7 @@ namespace DevKit.ViewModels
         private void ClearMessage()
         {
             MessageCollection?.Clear();
-            _connectedClient.MessageCount = 0;
+            _socketClient.MessageCount = 0;
             // using (var dataBase = new DataBaseConnection())
             // {
             //     dataBase.Table<ClientMessageCache>().Where(x =>
@@ -559,7 +558,7 @@ namespace DevKit.ViewModels
 
         private void Send(bool isMainThread)
         {
-            var endPoint = new IPEndPoint(IPAddress.Parse(_connectedClient.Ip), _connectedClient.Port);
+            var endPoint = new IPEndPoint(IPAddress.Parse(_socketClient.Ip), _socketClient.Port);
             if (_sendHex)
             {
                 if (!_userInputText.IsHex())
