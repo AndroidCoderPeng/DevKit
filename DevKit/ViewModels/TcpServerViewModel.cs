@@ -130,18 +130,17 @@ namespace DevKit.ViewModels
             get => _isEmptyImageVisible;
         }
 
-        private string _connectedClientAddress = string.Empty;
+        private string _clientAddress = string.Empty;
 
-        public string ConnectedClientAddress
+        public string ClientAddress
         {
             set
             {
-                _connectedClientAddress = value;
+                _clientAddress = value;
                 RaisePropertyChanged();
             }
-            get => _connectedClientAddress;
+            get => _clientAddress;
         }
-
 
         private ObservableCollection<LogCache> _logs = new ObservableCollection<LogCache>();
 
@@ -208,7 +207,6 @@ namespace DevKit.ViewModels
         private const string ClientType = "TCP";
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
-        private SocketClientModel _socketClient;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -234,7 +232,8 @@ namespace DevKit.ViewModels
                     Id = client.Id,
                     Ip = client.IP,
                     Port = client.Port,
-                    IsConnected = true
+                    IsConnected = true,
+                    IsSelected = false
                 };
 
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(model); }));
@@ -304,25 +303,24 @@ namespace DevKit.ViewModels
 
         private void OnClientItemClicked(SocketClientModel client)
         {
-            if (client == null)
+            var clientModel = _clients.FirstOrDefault(x => x == client);
+            if (clientModel != null)
             {
-                return;
-            }
+                clientModel.IsSelected = true;
+                Logs.Clear();
+                IsContentViewVisible = "Visible";
+                IsEmptyImageVisible = "Collapsed";
 
-            IsContentViewVisible = "Visible";
-            IsEmptyImageVisible = "Collapsed";
-
-            client.MessageCount = 0;
-            _socketClient = client;
-            ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-            // 显示当前选中客户端的消息
-            Logs.Clear();
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<LogCache>()
-                    .Where(x => x.ClientType == ClientType && x.HostAddress == _connectedClientAddress)
-                    .ToList();
-                Logs = queryResult.ToObservableCollection();
+                client.MessageCount = 0;
+                ClientAddress = $"{client.Ip}:{client.Port}";
+                // 显示当前选中客户端的消息
+                using (var dataBase = new DataBaseConnection())
+                {
+                    var queryResult = dataBase.Table<LogCache>()
+                        .Where(x => x.ClientType == ClientType && x.HostAddress == _clientAddress)
+                        .ToList();
+                    Logs = queryResult.ToObservableCollection();
+                }
             }
         }
 
@@ -363,12 +361,6 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_socketClient == null)
-            {
-                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
             SendMessage(_userInputText);
         }
 
@@ -380,7 +372,8 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_socketClient == null)
+            var client = Clients.FirstOrDefault(c => c.IsSelected);
+            if (client == null)
             {
                 MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -408,8 +401,8 @@ namespace DevKit.ViewModels
                 bytes = command.ToUTF8Bytes();
             }
 
-            _tcpServer.GetClient(_socketClient.Id).Send(bytes);
-            UpdateCommunicationLog($"{_socketClient.Ip}:{_socketClient.Port}", command, bytes);
+            _tcpServer.GetClient(client.Id).Send(bytes);
+            UpdateCommunicationLog($"{client.Ip}:{client.Port}", command, bytes);
         }
 
         private void UpdateCommunicationLog(string host, string command, byte[] bytes)

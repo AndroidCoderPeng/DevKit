@@ -186,7 +186,7 @@
                     <TextBlock
                         FontSize="16"
                         Foreground="{DynamicResource DevKitTextBrush}"
-                        Text="{Binding ConnectedClientAddress, StringFormat={}【{0}】已连接}"
+                        Text="{Binding ClientAddress, StringFormat={}【{0}】已连接}"
                         TextWrapping="NoWrap" />
                 </Border>
 
