@@ -165,7 +165,6 @@
     <Compile Include="Converters\AlphaValueConverter.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />
-    <Compile Include="Converters\DeleteExCmdBtnVisibleConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />
@@ -193,7 +192,6 @@
     <Compile Include="Models\ApkFileModel.cs" />
     <Compile Include="Models\ColorModel.cs" />
     <Compile Include="Models\LogModel.cs" />
-    <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\SocketClientModel.cs" />
     <Compile Include="Models\ScreenshotModel.cs" />
@@ -207,7 +205,6 @@
     <Compile Include="Utils\ListBoxItemMarginBehavior.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
-    <Compile Include="Utils\ConnectionType.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\ColorResourceViewModel.cs" />
