@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    x:Name="TargetView"
     Width="670"
     Height="400"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
@@ -30,8 +29,8 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LeftPanelColumn" Width="1.35*" />
-            <ColumnDefinition x:Name="RightPanelColumn" Width="*" />
+            <ColumnDefinition Width="1.35*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -232,7 +231,7 @@
             </UniformGrid>
         </Grid>
 
-        <Grid x:Name="RightPanel" Grid.Column="1">
+        <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

@@ -22,6 +22,7 @@ namespace DevKit.ViewModels
     public class AndroidDebugBridgeViewModel : BindableBase, IDialogAware
     {
         public string Title => "ADB";
+
         public event Action<IDialogResult> RequestClose
         {
             add { }
@@ -520,9 +521,9 @@ namespace DevKit.ViewModels
                         Application.Current.Dispatcher.Invoke(delegate
                         {
                             _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                            MessageBox.Show(value);
+                            MessageBox.Show(value, "安装应用", MessageBoxButton.OK, MessageBoxImage.Information);
+                            GetDeviceApplication();
                         });
-                        GetDeviceApplication();
                     }
                 };
                 executor.Execute("adb");
