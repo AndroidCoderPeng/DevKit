@@ -187,7 +187,7 @@
 
                 <!--  右键菜单  -->
                 <DataGrid.ContextMenu>
-                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=ExCommandDataGrid}">
+                    <ContextMenu Width="120">
                         <MenuItem Command="{Binding SendCommand}" Header="发送" />
                         <MenuItem
                             Command="{Binding CopyCommand}"
@@ -214,7 +214,6 @@
             </Grid.RowDefinitions>
 
             <ListBox
-                x:Name="CommunicationLogListBox"
                 Grid.Row="0"
                 BorderBrush="{StaticResource DevKitBorderBrush}"
                 ItemsSource="{Binding Logs}"
@@ -281,7 +280,7 @@
                 </b:Interaction.Behaviors>
 
                 <ListBox.ContextMenu>
-                    <ContextMenu Width="120" PlacementTarget="{Binding ElementName=CommunicationLogListBox}">
+                    <ContextMenu Width="120">
                         <MenuItem
                             Command="{Binding CopyLogCommand}"
                             CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:LogModel.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"

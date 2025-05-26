@@ -182,7 +182,6 @@
                 </Border>
 
                 <ListBox
-                    x:Name="CommunicationLogListBox"
                     Grid.Row="1"
                     Margin="0,10"
                     BorderBrush="{StaticResource DevKitBorderBrush}"
@@ -250,7 +249,7 @@
                     </b:Interaction.Behaviors>
 
                     <ListBox.ContextMenu>
-                        <ContextMenu Width="120" PlacementTarget="{Binding ElementName=CommunicationLogListBox}">
+                        <ContextMenu Width="120">
                             <MenuItem
                                 Command="{Binding CopyLogCommand}"
                                 CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:LogModel.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
