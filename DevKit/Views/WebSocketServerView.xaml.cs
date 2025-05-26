@@ -1,6 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
+using System.Windows.Input;
 using DevKit.Models;
+using DevKit.ViewModels;
 
 namespace DevKit.Views
 {
@@ -10,12 +11,14 @@ namespace DevKit.Views
         {
             InitializeComponent();
         }
-        
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+
+        private void ClientListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!(MessageListBox.SelectedItem is MessageModel message)) return;
-            var content = message.Content;
-            Clipboard.SetText(content);
+            if (sender is ListBoxItem item && item.Content is UdpClientModel model)
+            {
+                var vm = DataContext as WebSocketServerViewModel;
+                // vm?.ClientItemClickedCommand.Execute(model);
+            }
         }
     }
 }
