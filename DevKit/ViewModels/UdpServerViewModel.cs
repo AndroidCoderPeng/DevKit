@@ -253,6 +253,7 @@ namespace DevKit.ViewModels
                     if (!Clients.Contains(_selectedClient))
                     {
                         Clients.Add(_selectedClient);
+                        OnClientItemClicked(_selectedClient);
                     }
 
                     _selectedClient.MessageCount++;
