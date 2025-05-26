@@ -152,7 +152,7 @@ namespace DevKit.ViewModels
             }
             get => _logs;
         }
-        
+
         private string _commandInterval = "1000";
 
         public string CommandInterval
@@ -235,7 +235,7 @@ namespace DevKit.ViewModels
                 };
 
                 _selectedClient = model;
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(model); }));
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(_selectedClient); }));
                 return EasyTask.CompletedTask;
             };
 
@@ -262,8 +262,11 @@ namespace DevKit.ViewModels
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                         IsSend = 0
                     };
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { tcp.Logs.Add(log); }));
-                    tcp.MessageCount++;
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        tcp.MessageCount++;
+                        tcp.Logs.Add(log);
+                    }));
                 }
 
                 return EasyTask.CompletedTask;
