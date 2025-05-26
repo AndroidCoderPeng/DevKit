@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
-using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -106,6 +105,18 @@ namespace DevKit.ViewModels
             get => _clients;
         }
 
+        private SocketClientModel _selectedClient;
+
+        public SocketClientModel SelectedClient
+        {
+            set
+            {
+                _selectedClient = value;
+                RaisePropertyChanged();
+            }
+            get => _selectedClient;
+        }
+
         private string _isContentViewVisible = "Collapsed";
 
         public string IsContentViewVisible
@@ -142,9 +153,9 @@ namespace DevKit.ViewModels
             get => _clientAddress;
         }
 
-        private ObservableCollection<LogCache> _logs = new ObservableCollection<LogCache>();
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
 
-        public ObservableCollection<LogCache> Logs
+        public ObservableCollection<LogModel> Logs
         {
             set
             {
@@ -153,7 +164,7 @@ namespace DevKit.ViewModels
             }
             get => _logs;
         }
-
+        
         private string _commandInterval = "1000";
 
         public string CommandInterval
@@ -204,7 +215,6 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private const string ClientType = "TCP";
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
 
@@ -232,10 +242,10 @@ namespace DevKit.ViewModels
                     Id = client.Id,
                     Ip = client.IP,
                     Port = client.Port,
-                    IsConnected = true,
-                    IsSelected = false
+                    IsConnected = true
                 };
 
+                _selectedClient = model;
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(model); }));
                 return EasyTask.CompletedTask;
             };
@@ -256,8 +266,15 @@ namespace DevKit.ViewModels
                 var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
                 if (tcp != null)
                 {
+                    //默认显示为UTF8编码
+                    var log = new LogModel
+                    {
+                        Content = e.ByteBlock.ToArray().ByBytesToHexString(" "),
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 0
+                    };
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { tcp.Logs.Add(log); }));
                     tcp.MessageCount++;
-                    UpdateCommunicationLog($"{client.IP}:{client.Port}", "", e.ByteBlock.ToArray());
                 }
 
                 return EasyTask.CompletedTask;
@@ -303,24 +320,16 @@ namespace DevKit.ViewModels
 
         private void OnClientItemClicked(SocketClientModel client)
         {
-            var clientModel = _clients.FirstOrDefault(x => x == client);
-            if (clientModel != null)
+            _selectedClient = client;
+            if (_selectedClient != null)
             {
-                clientModel.IsSelected = true;
-                Logs.Clear();
                 IsContentViewVisible = "Visible";
                 IsEmptyImageVisible = "Collapsed";
 
                 client.MessageCount = 0;
                 ClientAddress = $"{client.Ip}:{client.Port}";
                 // 显示当前选中客户端的消息
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var queryResult = dataBase.Table<LogCache>()
-                        .Where(x => x.ClientType == ClientType && x.HostAddress == _clientAddress)
-                        .ToList();
-                    Logs = queryResult.ToObservableCollection();
-                }
+                Logs = _selectedClient.Logs;
             }
         }
 
@@ -372,8 +381,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var client = Clients.FirstOrDefault(c => c.IsSelected);
-            if (client == null)
+            if (_selectedClient == null)
             {
                 MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -401,45 +409,14 @@ namespace DevKit.ViewModels
                 bytes = command.ToUTF8Bytes();
             }
 
-            _tcpServer.GetClient(client.Id).Send(bytes);
-            UpdateCommunicationLog($"{client.Ip}:{client.Port}", command, bytes);
-        }
-
-        private void UpdateCommunicationLog(string host, string command, byte[] bytes)
-        {
-            if (command.Equals(""))
+            _tcpServer.GetClient(_selectedClient.Id).Send(bytes);
+            var log = new LogModel
             {
-                //默认显示为UTF8编码
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var log = new LogCache
-                    {
-                        ClientType = ClientType,
-                        HostAddress = host,
-                        Content = bytes.ByBytesToHexString(" "),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 0
-                    };
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-                    dataBase.Insert(log);
-                }
-            }
-            else
-            {
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var log = new LogCache
-                    {
-                        ClientType = ClientType,
-                        HostAddress = host,
-                        Content = command,
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 1
-                    };
-                    Logs.Add(log);
-                    dataBase.Insert(log);
-                }
-            }
+                Content = command,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = 1
+            };
+            _selectedClient.Logs.Add(log);
         }
 
         private void OnComboBoxItemSelected(object index)
@@ -449,7 +426,7 @@ namespace DevKit.ViewModels
             if (index.ToString().Equals("0"))
             {
                 //转为16进制显示
-                foreach (var log in _logs)
+                foreach (var log in _selectedClient.Logs)
                 {
                     var bytes = log.Content.ToUTF8Bytes();
                     log.Content = bytes.ByBytesToHexString(" ");
@@ -458,7 +435,7 @@ namespace DevKit.ViewModels
             else if (index.ToString().Equals("1"))
             {
                 //转为ASCII显示
-                foreach (var log in _logs)
+                foreach (var log in _selectedClient.Logs)
                 {
                     var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
                     log.Content = Encoding.UTF8.GetString(bytes);

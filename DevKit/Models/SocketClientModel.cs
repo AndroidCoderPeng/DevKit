@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace DevKit.Models
 {
@@ -20,15 +21,15 @@ namespace DevKit.Models
             }
         }
 
-        private bool _isSelected;
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
 
-        public bool IsSelected
+        public ObservableCollection<LogModel> Logs
         {
-            get => _isSelected;
+            get => _logs;
             set
             {
-                _isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
+                _logs = value;
+                OnPropertyChanged(nameof(Logs));
             }
         }
 

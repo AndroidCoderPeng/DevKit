@@ -162,7 +162,6 @@
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\ExCommandCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
-    <Compile Include="Cache\LogCache.cs" />
     <Compile Include="Converters\AlphaValueConverter.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />
