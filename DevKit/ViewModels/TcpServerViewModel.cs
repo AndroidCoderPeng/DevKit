@@ -105,18 +105,6 @@ namespace DevKit.ViewModels
             get => _clients;
         }
 
-        private SocketClientModel _selectedClient;
-
-        public SocketClientModel SelectedClient
-        {
-            set
-            {
-                _selectedClient = value;
-                RaisePropertyChanged();
-            }
-            get => _selectedClient;
-        }
-
         private string _isContentViewVisible = "Collapsed";
 
         public string IsContentViewVisible
@@ -217,6 +205,7 @@ namespace DevKit.ViewModels
 
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private SocketClientModel _selectedClient;
 
         public TcpServerViewModel(IAppDataService dataService)
         {

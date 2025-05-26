@@ -15,10 +15,6 @@ namespace DevKit.DataService
 
         string GetIPv4Address();
         
-        List<ExCommandCache> LoadCommandExtensionCaches(int parentType);
-
-        void DeleteExtensionCommandCache(int connectionType, int cacheId);
-
         List<string> GetColorSchemes();
 
         Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme);

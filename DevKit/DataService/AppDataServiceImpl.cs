@@ -63,20 +63,6 @@ namespace DevKit.DataService
 
             return null;
         }
-        
-        public List<ExCommandCache> LoadCommandExtensionCaches(int parentType)
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ExCommandCache>();
-                return queryResult.ToList();
-            }
-        }
-
-        public void DeleteExtensionCommandCache(int connectionType, int cacheId)
-        {
-            
-        }
 
         public List<string> GetColorSchemes()
         {
