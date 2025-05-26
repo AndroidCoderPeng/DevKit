@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.Events;
 using DevKit.Utils;
 using Prism.Commands;
@@ -16,7 +16,6 @@ using Prism.Services.Dialogs;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using Timer = System.Timers.Timer;
 
 namespace DevKit.ViewModels
 {
@@ -36,14 +35,15 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            _refreshDeviceTimer.Elapsed -= TimerElapsedEvent_Handler;
-            _refreshDeviceTimer.Enabled = false;
+            _refreshDeviceTimer.Tick -= TimerTickEvent_Handler;
+            _refreshDeviceTimer.Stop();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _refreshDeviceTimer.Elapsed += TimerElapsedEvent_Handler;
-            _refreshDeviceTimer.Enabled = true;
+            _refreshDeviceTimer.Tick += TimerTickEvent_Handler;
+            _refreshDeviceTimer.Interval = TimeSpan.FromSeconds(1);
+            _refreshDeviceTimer.Start();
         }
 
 
@@ -199,7 +199,7 @@ namespace DevKit.ViewModels
 
         private readonly IDialogService _dialogService;
         private readonly IEventAggregator _eventAggregator;
-        private readonly Timer _refreshDeviceTimer = new Timer(1000);
+        private readonly DispatcherTimer _refreshDeviceTimer = new DispatcherTimer();
         private string _selectedDevice = string.Empty;
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -220,7 +220,7 @@ namespace DevKit.ViewModels
             UninstallCommand = new DelegateCommand(UninstallApplication);
         }
 
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (!_deviceItems.Any())
             {
@@ -228,8 +228,8 @@ namespace DevKit.ViewModels
             }
             else
             {
-                Console.WriteLine(@"已获取设备列表，停止自动刷新");
-                _refreshDeviceTimer.Enabled = false;
+                _refreshDeviceTimer.Tick -= TimerTickEvent_Handler;
+                _refreshDeviceTimer.Stop();
             }
         }
 
@@ -469,11 +469,6 @@ namespace DevKit.ViewModels
                     }
                 });
             }));
-        }
-
-        private void AppManager()
-        {
-            // _eventAggregator.GetEvent<ResizeGridWidthEvent>().Publish();
         }
 
         private void RebootDevice()

@@ -8,7 +8,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     x:Name="TargetView"
-    Width="615"
+    Width="670"
     Height="400"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -30,7 +30,7 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="LeftPanelColumn" Width="1.25*" />
+            <ColumnDefinition x:Name="LeftPanelColumn" Width="1.35*" />
             <ColumnDefinition x:Name="RightPanelColumn" Width="*" />
         </Grid.ColumnDefinitions>
 
