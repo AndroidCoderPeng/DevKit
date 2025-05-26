@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.DataService;
@@ -92,9 +93,9 @@ namespace DevKit.ViewModels
             get => _listenState;
         }
 
-        private ObservableCollection<SocketClientModel> _clients = new ObservableCollection<SocketClientModel>();
+        private ObservableCollection<UdpClientModel> _clients = new ObservableCollection<UdpClientModel>();
 
-        public ObservableCollection<SocketClientModel> Clients
+        public ObservableCollection<UdpClientModel> Clients
         {
             set
             {
@@ -193,7 +194,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<SocketClientModel> ClientItemClickedCommand { set; get; }
+        public DelegateCommand<UdpClientModel> ClientItemClickedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
@@ -204,7 +205,7 @@ namespace DevKit.ViewModels
 
         private readonly UdpServer _udpServer = new UdpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
-        private SocketClientModel _selectedClient;
+        private UdpClientModel _selectedClient;
 
         public UdpServerViewModel(IAppDataService dataService)
         {
@@ -213,12 +214,12 @@ namespace DevKit.ViewModels
             InitListenStateEvent();
 
             ServerListenCommand = new DelegateCommand(OnServerListened);
-            ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
+            ClientItemClickedCommand = new DelegateCommand<UdpClientModel>(OnClientItemClicked);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            // SendCommand = new DelegateCommand(OnMessageSend);
-            // TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
-            // TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            // ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
+            SendCommand = new DelegateCommand(OnMessageSend);
+            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
         private void InitListenStateEvent()
@@ -233,10 +234,11 @@ namespace DevKit.ViewModels
                 }
                 else
                 {
-                    _selectedClient = new SocketClientModel
+                    _selectedClient = new UdpClientModel
                     {
                         Ip = endPoint.GetIP(),
-                        Port = endPoint.GetPort()
+                        Port = endPoint.GetPort(),
+                        TargetEndPoint = endPoint
                     };
                 }
 
@@ -292,7 +294,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void OnClientItemClicked(SocketClientModel client)
+        private void OnClientItemClicked(UdpClientModel client)
         {
             _selectedClient = client;
             if (_selectedClient != null)
@@ -310,6 +312,111 @@ namespace DevKit.ViewModels
         private void CopyLog(string log)
         {
             Clipboard.SetText(log);
+        }
+
+        private void OnMessageSend()
+        {
+            SendMessage(_userInputText);
+        }
+
+        private void OnTimeChecked()
+        {
+            if (!_commandInterval.IsNumber())
+            {
+                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
+            _loopSendCommandTimer.Start();
+        }
+
+        private void OnTimeUnchecked()
+        {
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Stop();
+        }
+
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_udpServer.ServerState != ServerState.Running)
+            {
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            SendMessage(_userInputText);
+        }
+
+        private void SendMessage(string command)
+        {
+            if (_udpServer.ServerState != ServerState.Running)
+            {
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (_selectedClient == null)
+            {
+                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            byte[] bytes;
+            if (_isHexSelected)
+            {
+                if (!command.IsHex())
+                {
+                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                bytes = command.Replace(" ", "").ByHexStringToBytes();
+            }
+            else
+            {
+                bytes = command.ToUTF8Bytes();
+            }
+
+            _udpServer.Send(_selectedClient.TargetEndPoint, bytes);
+            var log = new LogModel
+            {
+                Content = command,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = 1
+            };
+            _selectedClient.Logs.Add(log);
+        }
+
+        private void OnComboBoxItemSelected(object index)
+        {
+            if (index == null) return;
+
+            if (index.ToString().Equals("0"))
+            {
+                //转为16进制显示
+                foreach (var log in _selectedClient.Logs)
+                {
+                    var bytes = log.Content.ToUTF8Bytes();
+                    log.Content = bytes.ByBytesToHexString(" ");
+                }
+            }
+            else if (index.ToString().Equals("1"))
+            {
+                //转为ASCII显示
+                foreach (var log in _selectedClient.Logs)
+                {
+                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                    log.Content = Encoding.UTF8.GetString(bytes);
+                }
+            }
         }
     }
 }

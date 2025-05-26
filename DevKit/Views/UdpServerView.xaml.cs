@@ -14,7 +14,7 @@ namespace DevKit.Views
 
         private void ClientListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is SocketClientModel model)
+            if (sender is ListBoxItem item && item.Content is UdpClientModel model)
             {
                 var vm = DataContext as UdpServerViewModel;
                 vm?.ClientItemClickedCommand.Execute(model);

@@ -197,6 +197,7 @@
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\SocketClientModel.cs" />
     <Compile Include="Models\ScreenshotModel.cs" />
+    <Compile Include="Models\UdpClientModel.cs" />
     <Compile Include="Models\WebSocketClientModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
     <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
