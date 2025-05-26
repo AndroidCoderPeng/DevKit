@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Timers;
 using System.Windows;
-using System.Windows.Controls;
-using DevKit.Cache;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -36,24 +32,40 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            if (_udpServer.ServerState != ServerState.Running) return;
+            _udpServer.Stop();
+            ListenState = "监听";
+            ListenStateColor = "LightGray";
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
-        private ObservableCollection<string> _localAddressCollection = new ObservableCollection<string>();
+        private string _localHost = string.Empty;
 
-        public ObservableCollection<string> LocalAddressCollection
+        public string LocalHost
         {
             set
             {
-                _localAddressCollection = value;
+                _localHost = value;
                 RaisePropertyChanged();
             }
-            get => _localAddressCollection;
+            get => _localHost;
+        }
+
+        private string _listenPort = "9000";
+
+        public string ListenPort
+        {
+            set
+            {
+                _listenPort = value;
+                RaisePropertyChanged();
+            }
+            get => _listenPort;
         }
 
         private string _listenStateColor = "LightGray";
@@ -66,18 +78,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _listenStateColor;
-        }
-
-        private string _listenPort = "5000";
-
-        public string ListenPort
-        {
-            set
-            {
-                _listenPort = value;
-                RaisePropertyChanged();
-            }
-            get => _listenPort;
         }
 
         private string _listenState = "监听";
@@ -128,64 +128,28 @@ namespace DevKit.ViewModels
             get => _isEmptyImageVisible;
         }
 
-        private string _connectedClientAddress = string.Empty;
+        private string _clientAddress = string.Empty;
 
-        public string ConnectedClientAddress
+        public string ClientAddress
         {
             set
             {
-                _connectedClientAddress = value;
+                _clientAddress = value;
                 RaisePropertyChanged();
             }
-            get => _connectedClientAddress;
+            get => _clientAddress;
         }
 
-        private bool _showHex = true;
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
 
-        public bool ShowHex
+        public ObservableCollection<LogModel> Logs
         {
             set
             {
-                _showHex = value;
+                _logs = value;
                 RaisePropertyChanged();
             }
-            get => _showHex;
-        }
-
-        private ObservableCollection<MessageModel> _messageCollection = new ObservableCollection<MessageModel>();
-
-        public ObservableCollection<MessageModel> MessageCollection
-        {
-            set
-            {
-                _messageCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _messageCollection;
-        }
-
-        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
-
-        public ObservableCollection<ExCommandCache> ExCommandCollection
-        {
-            set
-            {
-                _exCommandCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _exCommandCollection;
-        }
-
-        private bool _loopSend;
-
-        public bool LoopSend
-        {
-            set
-            {
-                _loopSend = value;
-                RaisePropertyChanged();
-            }
-            get => _loopSend;
+            get => _logs;
         }
 
         private string _commandInterval = "1000";
@@ -212,16 +176,16 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _sendHex = true;
+        private bool _isHexSelected = true;
 
-        public bool SendHex
+        public bool IsHexSelected
         {
             set
             {
-                _sendHex = value;
+                _isHexSelected = value;
                 RaisePropertyChanged();
             }
-            get => _sendHex;
+            get => _isHexSelected;
         }
 
         #endregion
@@ -229,111 +193,62 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<SocketClientModel> ClientItemSelectionChangedCommand { set; get; }
-        public DelegateCommand ShowHexCheckBoxClickCommand { set; get; }
-        public DelegateCommand DropDownOpenedCommand { set; get; }
-        public DelegateCommand<object> DeleteExCmdCommand { set; get; }
-        public DelegateCommand<ComboBox> DropDownClosedCommand { set; get; }
-        public DelegateCommand AddExtensionCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand<SocketClientModel> ClientItemClickedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
-        private readonly IAppDataService _dataService;
-        private readonly IDialogService _dialogService;
         private readonly UdpServer _udpServer = new UdpServer();
-        private readonly Timer _loopSendMessageTimer = new Timer();
-        private bool _isListening;
-        private SocketClientModel _socketClient;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private SocketClientModel _selectedClient;
 
-        public UdpServerViewModel(IAppDataService dataService, IDialogService dialogService)
+        public UdpServerViewModel(IAppDataService dataService)
         {
-            _dataService = dataService;
-            _dialogService = dialogService;
+            LocalHost = dataService.GetIPv4Address();
 
-            InitDefaultConfig();
+            InitListenStateEvent();
 
-            ServerListenCommand = new DelegateCommand(ServerListen);
-            ClientItemSelectionChangedCommand = new DelegateCommand<SocketClientModel>(ClientItemSelectionChanged);
-            ShowHexCheckBoxClickCommand = new DelegateCommand(ShowHexCheckBoxClick);
-            DropDownOpenedCommand = new DelegateCommand(DropDownOpened);
-            DeleteExCmdCommand = new DelegateCommand<object>(DeleteExCmd);
-            DropDownClosedCommand = new DelegateCommand<ComboBox>(DropDownClosed);
-            AddExtensionCommand = new DelegateCommand(AddExtension);
-            LoopUncheckedCommand = new DelegateCommand(LoopUnchecked);
-            ClearMessageCommand = new DelegateCommand(ClearMessage);
-            SendMessageCommand = new DelegateCommand(SendMessage);
+            ServerListenCommand = new DelegateCommand(OnServerListened);
+            // ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
+            // CopyLogCommand = new DelegateCommand<string>(CopyLog);
+            // SendCommand = new DelegateCommand(OnMessageSend);
+            // TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            // TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            // ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
-        private void InitDefaultConfig()
+        private void InitListenStateEvent()
         {
-            //获取本机所有IPv4地址
-            // LocalAddressCollection = _dataService.GetAllIPv4Addresses().ToObservableCollection();
-
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpServer)
-                .ToObservableCollection();
-
-            _loopSendMessageTimer.Elapsed += TimerElapsedEvent_Handler;
-
             _udpServer.Received = (client, e) =>
             {
-                var endPoint = e.EndPoint;
-                if (!_clients.Any(
-                        x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort())
-                   )
-                {
-                    var clientModel = new SocketClientModel
-                    {
-                        Ip = endPoint.GetIP(),
-                        Port = endPoint.GetPort()
-                    };
-
-                    Application.Current.Dispatcher.Invoke(() => { Clients.Add(clientModel); });
-                }
-
-                var bytes = e.ByteBlock.ToArray();
-                var udp = _clients.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
-                udp.MessageCount++;
-                // using (var dataBase = new DataBaseConnection())
+                Console.WriteLine(JsonConvert.SerializeObject(client.Config));
+                
+                // var endPoint = e.EndPoint;
+                // if (!_clients.Any(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort())
+                //    )
                 // {
-                //     var cache = new ClientMessageCache
+                //     var clientModel = new SocketClientModel
                 //     {
-                //         ClientIp = endPoint.GetIP(),
-                //         ClientPort = endPoint.GetPort(),
-                //         ClientType = ConnectionType.UdpClient,
-                //         MessageContent = _showHex
-                //             ? BitConverter.ToString(bytes).Replace("-", " ")
-                //             : Encoding.UTF8.GetString(bytes),
-                //         ByteArrayContent = BitConverter.ToString(bytes),
-                //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                //         IsSend = 0
+                //         Ip = endPoint.GetIP(),
+                //         Port = endPoint.GetPort()
                 //     };
-                //     dataBase.Insert(cache);
+                //
+                //     Application.Current.Dispatcher.Invoke(() => { Clients.Add(clientModel); });
                 // }
-
-                if (_isContentViewVisible.Equals("Visible") &&
-                    endPoint.GetIP() == _socketClient.Ip &&
-                    endPoint.GetPort() == _socketClient.Port)
-                {
-                    var messageModel = new MessageModel
-                    {
-                        Content = _showHex
-                            ? BitConverter.ToString(bytes).Replace("-", " ")
-                            : Encoding.UTF8.GetString(bytes),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = false
-                    };
-
-                    Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(messageModel); });
-                }
-
+                //
+                // var bytes = e.ByteBlock.ToArray();
+                // var udp = _clients.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
+                // udp.MessageCount++;
+            
                 return EasyTask.CompletedTask;
             };
         }
-
-        private void ServerListen()
+        
+        private void OnServerListened()
         {
             if (!_listenPort.IsNumber())
             {
@@ -341,10 +256,9 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_isListening)
+            if (_udpServer.ServerState == ServerState.Running)
             {
                 _udpServer.Stop();
-                _isListening = false;
                 ListenState = "监听";
                 ListenStateColor = "LightGray";
             }
@@ -352,9 +266,15 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    _udpServer.Setup(new TouchSocketConfig().SetBindIPHost(new IPHost(int.Parse(_listenPort))));
+                    var socketConfig = new TouchSocketConfig().SetListenOptions(options =>
+                    {
+                        options.Add(new TcpListenOption
+                        {
+                            IpHost = new IPHost($"{_localHost}:{_listenPort}")
+                        });
+                    });
+                    _udpServer.Setup(socketConfig);
                     _udpServer.Start();
-                    _isListening = true;
                     ListenState = "停止";
                     ListenStateColor = "Lime";
                 }
@@ -362,247 +282,6 @@ namespace DevKit.ViewModels
                 {
                     MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }
-        }
-
-        private void ClientItemSelectionChanged(SocketClientModel client)
-        {
-            if (client == null)
-            {
-                return;
-            }
-
-            client.MessageCount = 0;
-            _socketClient = client;
-            ConnectedClientAddress = $"{client.Ip}:{client.Port}";
-            MessageCollection.Clear();
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var queryResult = dataBase.Table<ClientMessageCache>()
-            //         .Where(x =>
-            //             x.ClientIp == _connectedClient.Ip &&
-            //             x.ClientPort == _connectedClient.Port &&
-            //             x.ClientType == ConnectionType.UdpClient
-            //         );
-            //     if (queryResult.Any())
-            //     {
-            //         IsContentViewVisible = "Visible";
-            //         IsEmptyImageVisible = "Collapsed";
-            //
-            //         foreach (var cache in queryResult)
-            //         {
-            //             var messageModel = new MessageModel
-            //             {
-            //                 Content = _showHex ? cache.ByteArrayContent.Replace("-", " ") : cache.MessageContent,
-            //                 Time = cache.Time,
-            //                 IsSend = cache.IsSend == 1
-            //             };
-            //
-            //             MessageCollection.Add(messageModel);
-            //         }
-            //     }
-            //     else
-            //     {
-            //         IsContentViewVisible = "Collapsed";
-            //         IsEmptyImageVisible = "Visible";
-            //     }
-            // }
-        }
-
-        private void ShowHexCheckBoxClick()
-        {
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var queryResult = dataBase.Table<ClientMessageCache>().Where(x =>
-            //         x.ClientIp == _connectedClient.Ip &&
-            //         x.ClientPort == _connectedClient.Port &&
-            //         x.ClientType == ConnectionType.UdpClient
-            //     );
-            //
-            //     if (_showHex)
-            //     {
-            //         var boxResult = MessageBox.Show(
-            //             "确定切换到HEX显示吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-            //         );
-            //         if (boxResult == MessageBoxResult.OK)
-            //         {
-            //             MessageCollection.Clear();
-            //             foreach (var cache in queryResult)
-            //             {
-            //                 var msg = new MessageModel
-            //                 {
-            //                     Content = cache.MessageContent,
-            //                     Time = cache.Time,
-            //                     IsSend = cache.IsSend == 1
-            //                 };
-            //                 MessageCollection.Add(msg);
-            //             }
-            //         }
-            //         else
-            //         {
-            //             ShowHex = false;
-            //         }
-            //     }
-            //     else
-            //     {
-            //         var boxResult = MessageBox.Show(
-            //             "确定切换到字符串显示，可能会显示乱码，确定执行吗？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Warning
-            //         );
-            //         if (boxResult == MessageBoxResult.OK)
-            //         {
-            //             MessageCollection.Clear();
-            //             foreach (var cache in queryResult)
-            //             {
-            //                 var msg = new MessageModel
-            //                 {
-            //                     Content = cache.ByteArrayContent.HexToBytes().ByteArrayToString(),
-            //                     Time = cache.Time,
-            //                     IsSend = cache.IsSend == 1
-            //                 };
-            //                 MessageCollection.Add(msg);
-            //             }
-            //         }
-            //         else
-            //         {
-            //             ShowHex = true;
-            //         }
-            //     }
-            // }
-        }
-
-        private void DropDownOpened()
-        {
-            ExCommandCollection = _dataService.LoadCommandExtensionCaches(ConnectionType.UdpServer)
-                .ToObservableCollection();
-        }
-
-        private void DeleteExCmd(object obj)
-        {
-            var result = MessageBox.Show(
-                "确定删除此条扩展指令？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
-            );
-            if (result == MessageBoxResult.OK)
-            {
-                _dataService.DeleteExtensionCommandCache(ConnectionType.UdpServer, (int)obj);
-            }
-        }
-
-        private void DropDownClosed(ComboBox box)
-        {
-            if (box.SelectedIndex == -1)
-            {
-                box.SelectedIndex = 0;
-            }
-
-            var commandCache = _exCommandCollection[box.SelectedIndex];
-            UserInputText = commandCache.CommandValue;
-        }
-
-        private void AddExtension()
-        {
-            var dialogParameters = new DialogParameters
-            {
-                { "ConnectionType", ConnectionType.UdpServer }
-            };
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate { });
-        }
-
-        private void LoopUnchecked()
-        {
-            _loopSendMessageTimer.Enabled = false;
-        }
-
-        private void TimerElapsedEvent_Handler(object sender, ElapsedEventArgs e)
-        {
-            Send(false);
-        }
-
-        private void ClearMessage()
-        {
-            MessageCollection?.Clear();
-            _socketClient.MessageCount = 0;
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     dataBase.Table<ClientMessageCache>().Where(x =>
-            //         x.ClientIp == _connectedClient.Ip &&
-            //         x.ClientPort == _connectedClient.Port &&
-            //         x.ClientType == ConnectionType.UdpClient
-            //     ).Delete();
-            // }
-        }
-
-        private void SendMessage()
-        {
-            if (string.IsNullOrWhiteSpace(_userInputText))
-            {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_loopSend)
-            {
-                if (!_commandInterval.IsNumber())
-                {
-                    MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
-                _loopSendMessageTimer.Enabled = true;
-            }
-            else
-            {
-                Send(true);
-            }
-        }
-
-        private void Send(bool isMainThread)
-        {
-            var endPoint = new IPEndPoint(IPAddress.Parse(_socketClient.Ip), _socketClient.Port);
-            if (_sendHex)
-            {
-                if (!_userInputText.IsHex())
-                {
-                    MessageBox.Show("错误的16进制数据，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                _udpServer.Send(endPoint, _userInputText.HexToBytes());
-            }
-            else
-            {
-                _udpServer.Send(endPoint, _userInputText);
-            }
-
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var cache = new ClientMessageCache
-            //     {
-            //         ClientIp = _connectedClient.Ip,
-            //         ClientPort = _connectedClient.Port,
-            //         ClientType = ConnectionType.UdpClient,
-            //         MessageContent = _userInputText,
-            //         ByteArrayContent = BitConverter.ToString(_userInputText.HexToBytes()),
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = 1
-            //     };
-            //     dataBase.Insert(cache);
-            // }
-
-            var message = new MessageModel
-            {
-                Content = _userInputText,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = true
-            };
-
-            if (isMainThread)
-            {
-                MessageCollection.Add(message);
-            }
-            else
-            {
-                Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
             }
         }
     }
