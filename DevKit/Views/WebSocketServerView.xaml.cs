@@ -14,10 +14,10 @@ namespace DevKit.Views
 
         private void ClientListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is UdpClientModel model)
+            if (sender is ListBoxItem item && item.Content is WebSocketClientModel model)
             {
                 var vm = DataContext as WebSocketServerViewModel;
-                // vm?.ClientItemClickedCommand.Execute(model);
+                vm?.ClientItemClickedCommand.Execute(model);
             }
         }
     }

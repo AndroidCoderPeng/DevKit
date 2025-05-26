@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Timers;
 using DevKit.DataService;
 using DevKit.Models;
@@ -31,21 +32,190 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
-        
+        private string _localHost = string.Empty;
+
+        public string LocalHost
+        {
+            set
+            {
+                _localHost = value;
+                RaisePropertyChanged();
+            }
+            get => _localHost;
+        }
+
+        private string _listenPort = "9000";
+
+        public string ListenPort
+        {
+            set
+            {
+                _listenPort = value;
+                RaisePropertyChanged();
+            }
+            get => _listenPort;
+        }
+
+        private string _customPath = string.Empty;
+
+        public string CustomPath
+        {
+            set
+            {
+                _customPath = value;
+                RaisePropertyChanged();
+            }
+            get => _customPath;
+        }
+
+        private string _webSocketPath = string.Empty;
+
+        public string WebSocketPath
+        {
+            set
+            {
+                _webSocketPath = value;
+                RaisePropertyChanged();
+            }
+            get => _webSocketPath;
+        }
+
+        private string _listenStateColor = "LightGray";
+
+        public string ListenStateColor
+        {
+            set
+            {
+                _listenStateColor = value;
+                RaisePropertyChanged();
+            }
+            get => _listenStateColor;
+        }
+
+        private string _listenState = "监听";
+
+        public string ListenState
+        {
+            set
+            {
+                _listenState = value;
+                RaisePropertyChanged();
+            }
+            get => _listenState;
+        }
+
+        private ObservableCollection<WebSocketClientModel> _clients = new ObservableCollection<WebSocketClientModel>();
+
+        public ObservableCollection<WebSocketClientModel> Clients
+        {
+            set
+            {
+                _clients = value;
+                RaisePropertyChanged();
+            }
+            get => _clients;
+        }
+
+        private string _isContentViewVisible = "Collapsed";
+
+        public string IsContentViewVisible
+        {
+            set
+            {
+                _isContentViewVisible = value;
+                RaisePropertyChanged();
+            }
+            get => _isContentViewVisible;
+        }
+
+        private string _isEmptyImageVisible = "Visible";
+
+        public string IsEmptyImageVisible
+        {
+            set
+            {
+                _isEmptyImageVisible = value;
+                RaisePropertyChanged();
+            }
+            get => _isEmptyImageVisible;
+        }
+
+        private string _clientAddress = string.Empty;
+
+        public string ClientAddress
+        {
+            set
+            {
+                _clientAddress = value;
+                RaisePropertyChanged();
+            }
+            get => _clientAddress;
+        }
+
+        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+
+        public ObservableCollection<LogModel> Logs
+        {
+            set
+            {
+                _logs = value;
+                RaisePropertyChanged();
+            }
+            get => _logs;
+        }
+
+        private string _userInputText = string.Empty;
+
+        public string UserInputText
+        {
+            set
+            {
+                _userInputText = value;
+                RaisePropertyChanged();
+            }
+            get => _userInputText;
+        }
+
+        private string _commandInterval = "1000";
+
+        public string CommandInterval
+        {
+            set
+            {
+                _commandInterval = value;
+                RaisePropertyChanged();
+            }
+            get => _commandInterval;
+        }
+
+        private bool _isHexSelected = true;
+
+        public bool IsHexSelected
+        {
+            set
+            {
+                _isHexSelected = value;
+                RaisePropertyChanged();
+            }
+            get => _isHexSelected;
+        }
 
         #endregion
 
         #region DelegateCommand
 
+        public DelegateCommand CopyWebSocketPathCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand CopyWebSocketUrlCommand { set; get; }
-        public DelegateCommand<WebSocketClientModel> ClientItemSelectionChangedCommand { set; get; }
-        public DelegateCommand LoopUncheckedCommand { set; get; }
-        public DelegateCommand ClearMessageCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
+
+        public DelegateCommand<WebSocketClientModel> ClientItemClickedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendCommand { set; get; }
+        public DelegateCommand TimeCheckedCommand { set; get; }
+        public DelegateCommand TimeUncheckedCommand { set; get; }
+        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
@@ -55,7 +225,7 @@ namespace DevKit.ViewModels
 
         public WebSocketServerViewModel(IAppDataService dataService)
         {
-            
+            LocalHost = dataService.GetIPv4Address();
         }
 
         private void ServerListen()
