@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -213,8 +213,8 @@ namespace DevKit.ViewModels
             InitListenStateEvent();
 
             ServerListenCommand = new DelegateCommand(OnServerListened);
-            // ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
-            // CopyLogCommand = new DelegateCommand<string>(CopyLog);
+            ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
+            CopyLogCommand = new DelegateCommand<string>(CopyLog);
             // SendCommand = new DelegateCommand(OnMessageSend);
             // TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             // TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
@@ -223,31 +223,44 @@ namespace DevKit.ViewModels
 
         private void InitListenStateEvent()
         {
-            _udpServer.Received = (client, e) =>
+            _udpServer.Received = (session, e) =>
             {
-                Console.WriteLine(JsonConvert.SerializeObject(client.Config));
-                
-                // var endPoint = e.EndPoint;
-                // if (!_clients.Any(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort())
-                //    )
-                // {
-                //     var clientModel = new SocketClientModel
-                //     {
-                //         Ip = endPoint.GetIP(),
-                //         Port = endPoint.GetPort()
-                //     };
-                //
-                //     Application.Current.Dispatcher.Invoke(() => { Clients.Add(clientModel); });
-                // }
-                //
-                // var bytes = e.ByteBlock.ToArray();
-                // var udp = _clients.First(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
-                // udp.MessageCount++;
-            
+                var endPoint = e.EndPoint;
+                var udp = _clients.FirstOrDefault(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
+                if (udp != null)
+                {
+                    _selectedClient = udp;
+                }
+                else
+                {
+                    _selectedClient = new SocketClientModel
+                    {
+                        Ip = endPoint.GetIP(),
+                        Port = endPoint.GetPort()
+                    };
+                }
+
+                var log = new LogModel
+                {
+                    Content = e.ByteBlock.ToArray().ByBytesToHexString(" "),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = 0
+                };
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (!Clients.Contains(_selectedClient))
+                    {
+                        Clients.Add(_selectedClient);
+                    }
+
+                    _selectedClient.MessageCount++;
+                    _selectedClient.Logs.Add(log);
+                }));
+
                 return EasyTask.CompletedTask;
             };
         }
-        
+
         private void OnServerListened()
         {
             if (!_listenPort.IsNumber())
@@ -266,13 +279,7 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    var socketConfig = new TouchSocketConfig().SetListenOptions(options =>
-                    {
-                        options.Add(new TcpListenOption
-                        {
-                            IpHost = new IPHost($"{_localHost}:{_listenPort}")
-                        });
-                    });
+                    var socketConfig = new TouchSocketConfig().SetBindIPHost(new IPHost($"{_localHost}:{_listenPort}"));
                     _udpServer.Setup(socketConfig);
                     _udpServer.Start();
                     ListenState = "停止";
@@ -283,6 +290,26 @@ namespace DevKit.ViewModels
                     MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void OnClientItemClicked(SocketClientModel client)
+        {
+            _selectedClient = client;
+            if (_selectedClient != null)
+            {
+                IsContentViewVisible = "Visible";
+                IsEmptyImageVisible = "Collapsed";
+
+                client.MessageCount = 0;
+                ClientAddress = $"{client.Ip}:{client.Port}";
+                // 显示当前选中客户端的消息
+                Logs = _selectedClient.Logs;
+            }
+        }
+
+        private void CopyLog(string log)
+        {
+            Clipboard.SetText(log);
         }
     }
 }

@@ -234,7 +234,7 @@ namespace DevKit.ViewModels
                     IsConnected = true
                 };
 
-                _selectedClient = model;
+                OnClientItemClicked(model);
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(_selectedClient); }));
                 return EasyTask.CompletedTask;
             };
