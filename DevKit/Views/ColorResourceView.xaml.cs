@@ -1,8 +1,7 @@
-﻿using System;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
+using DevKit.Cache;
 using DevKit.ViewModels;
-using Newtonsoft.Json;
 
 namespace DevKit.Views
 {
@@ -15,11 +14,10 @@ namespace DevKit.Views
 
         private void ColorListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is ColorResourceViewModel model)
+            if (sender is ListBoxItem item && item.Content is ColorResourceCache cache)
             {
                 var vm = DataContext as ColorResourceViewModel;
-                // vm?.ClientItemClickedCommand.Execute(model);
-                Console.WriteLine(JsonConvert.SerializeObject(model));
+                vm?.ColorItemClickedCommand.Execute(cache);
             }
         }
     }

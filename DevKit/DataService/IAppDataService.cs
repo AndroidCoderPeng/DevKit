@@ -15,8 +15,6 @@ namespace DevKit.DataService
 
         string GetIPv4Address();
         
-        List<string> GetColorSchemes();
-
         Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme);
     }
 }

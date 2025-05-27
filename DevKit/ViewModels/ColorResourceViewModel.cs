@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,11 +9,11 @@ using System.Windows.Media;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Color = System.Windows.Media.Color;
-using ComboBox = System.Windows.Controls.ComboBox;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
@@ -41,31 +40,31 @@ namespace DevKit.ViewModels
         public void OnDialogOpened(IDialogParameters parameters)
         {
         }
-        
+
         #region VM
 
-        private SolidColorBrush _colorBrush;
+        private string _userInputColorHexValue = string.Empty;
 
-        public SolidColorBrush ColorBrush
+        public string UserInputColorHexValue
         {
             set
             {
-                _colorBrush = value;
+                _userInputColorHexValue = value;
                 RaisePropertyChanged();
             }
-            get => _colorBrush;
+            get => _userInputColorHexValue;
         }
 
-        private string _colorHexValue = "#FF000000";
+        private SolidColorBrush _colorViewBrush;
 
-        public string ColorHexValue
+        public SolidColorBrush ColorViewBrush
         {
             set
             {
-                _colorHexValue = value;
+                _colorViewBrush = value;
                 RaisePropertyChanged();
             }
-            get => _colorHexValue;
+            get => _colorViewBrush;
         }
 
         private byte _red;
@@ -104,18 +103,28 @@ namespace DevKit.ViewModels
             get => _blue;
         }
 
-        public List<string> ColorSchemes { get; }
+        private string _colorHexValue = "#FF000000";
 
-        private int _colorCount;
-
-        public int ColorCount
+        public string ColorHexValue
         {
             set
             {
-                _colorCount = value;
+                _colorHexValue = value;
                 RaisePropertyChanged();
             }
-            get => _colorCount;
+            get => _colorHexValue;
+        }
+
+        private string _colorRgbValue = "(0,0,0,1)";
+
+        public string ColorRgbValue
+        {
+            set
+            {
+                _colorRgbValue = value;
+                RaisePropertyChanged();
+            }
+            get => _colorRgbValue;
         }
 
         private ObservableCollection<ColorResourceCache> _colorResources =
@@ -131,31 +140,18 @@ namespace DevKit.ViewModels
             get => _colorResources;
         }
 
-        private int _maxPage;
-
-        public int MaxPage
-        {
-            set
-            {
-                _maxPage = value;
-                RaisePropertyChanged();
-            }
-            get => _maxPage;
-        }
-
         #endregion
-        
+
         #region DelegateCommand
+
+        public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
 
         // public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
         // public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
         // public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
-        public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
-        public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
-        // public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
-        public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
+        public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
         #endregion
 
@@ -163,41 +159,25 @@ namespace DevKit.ViewModels
         private byte _alpha = 255;
         private List<ColorResourceCache> _colorResCaches = new List<ColorResourceCache>();
 
-        /// <summary>
-        /// 列表每页条目数
-        /// </summary>
-        private const int PerPageItemCount = 30;
-
-        private DateTime _lastClickTime;
-
-        //按钮防抖
-        private const int ThrottleInterval = 500;
-
         public ColorResourceViewModel(IAppDataService dataService)
         {
             _dataService = dataService;
-            ColorSchemes = _dataService.GetColorSchemes();
             Task.Run(async () =>
             {
                 _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
-                MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
-                ColorCount = _colorResCaches.Count;
-                ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
+                ColorResources = _colorResCaches.ToObservableCollection();
             });
 
             var color = Color.FromRgb(_red, _green, _blue);
-            ColorBrush = new SolidColorBrush(color);
+            ColorViewBrush = new SolidColorBrush(color);
 
+            AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
             // ColorRedValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorRedValueChanged);
             // ColorGreenValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorGreenValueChanged);
             // ColorBlueValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorBlueValueChanged);
-            AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
-            ItemSelectedCommand = new DelegateCommand<ComboBox>(ItemSelected);
-            // PageUpdatedCommand = new DelegateCommand<FunctionEventArgs<int>>(PageUpdated);
-            TraditionColorListBoxItemButtonClickCommand =
-                new DelegateCommand<string>(TraditionColorListBoxItemButtonClick);
+            ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
         }
 
         // private void ColorRedValueChanged(NumericUpDown numeric)
@@ -245,14 +225,14 @@ namespace DevKit.ViewModels
         private void GenerateColor()
         {
             var color = Color.FromArgb(_alpha, _red, _green, _blue);
-            ColorBrush = new SolidColorBrush(color);
+            ColorViewBrush = new SolidColorBrush(color);
             ColorHexValue = color.ToString();
         }
 
         private void CopyColorHexValue(string colorVale)
         {
             Clipboard.SetText(colorVale);
-            // Growl.Success("颜色值已复制");
+            Growl.Success("颜色值已复制");
         }
 
         private void ColorHexToRgb(string colorValue)
@@ -279,51 +259,10 @@ namespace DevKit.ViewModels
             Blue = color.B;
         }
 
-        private void ItemSelected(ComboBox comboBox)
+        private void ColorItemClicked(ColorResourceCache cache)
         {
-            var text = comboBox.Text;
-            switch (text)
-            {
-                case "中国传统色系":
-                    Task.Run(async () =>
-                    {
-                        _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
-                        MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
-                        ColorCount = _colorResCaches.Count;
-                        ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
-                    });
-
-                    break;
-                case "低调色系":
-                    Task.Run(async () =>
-                    {
-                        _colorResCaches = await _dataService.GetColorsByScheme("低调色系");
-                        MaxPage = (_colorResCaches.Count + PerPageItemCount - 1) / PerPageItemCount;
-                        ColorCount = _colorResCaches.Count;
-                        ColorResources = _colorResCaches.Take(PerPageItemCount).ToList().ToObservableCollection();
-                    });
-                    break;
-            }
-        }
-
-        // private void PageUpdated(FunctionEventArgs<int> args)
-        // {
-        //     ColorResources = _colorResCaches
-        //         .Skip((args.Info - 1) * PerPageItemCount)
-        //         .Take(PerPageItemCount)
-        //         .ToList()
-        //         .ToObservableCollection();
-        // }
-
-        private void TraditionColorListBoxItemButtonClick(string colorVale)
-        {
-            var now = DateTime.Now;
-            if ((now - _lastClickTime).TotalMilliseconds >= ThrottleInterval)
-            {
-                Clipboard.SetText(colorVale);
-                // Growl.Success("颜色值已复制");
-                _lastClickTime = now;
-            }
+            Clipboard.SetText(cache.Hex);
+            Growl.Success("颜色值已复制");
         }
     }
 }

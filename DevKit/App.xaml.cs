@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Cache;
@@ -13,7 +14,6 @@ using DevKit.Views;
 using Newtonsoft.Json;
 using Prism.DryIoc;
 using Prism.Ioc;
-using Prism.Regions;
 
 namespace DevKit
 {
@@ -25,19 +25,47 @@ namespace DevKit
         protected override Window CreateShell()
         {
             var mainWindow = Container.Resolve<MainWindow>();
-            mainWindow.Loaded += delegate
+            mainWindow.Loaded += async (sender, e) => 
             {
-                var regionManager = Container.Resolve<IRegionManager>();
-                regionManager.RequestNavigate("ContentRegion", "AndroidDebugBridgeView");
-                // using (var dataBase = new DataBaseConnection())
-                // {
-                //     if (!dataBase.Table<ColorResourceCache>().Any())
-                //     {
-                //         _ = StoreColorCacheAsync();
-                //     }
-                // }
+                using (var dataBase = new DataBaseConnection())
+                {
+                    if (!dataBase.Table<ColorResourceCache>().Any())
+                    {
+                        await InitializeColorDataAsync(dataBase);
+                    }
+                }
             };
             return mainWindow;
+        }
+
+        private async Task InitializeColorDataAsync(DataBaseConnection dataBase)
+        {
+            const string traditionColorFile = "TraditionColor.json";
+            const string dimColorFile = "DimColor.json";
+
+            var traditionColorModels = await DeserializeColorFileAsync(traditionColorFile, "中国传统色系");
+            var dimColorModels = await DeserializeColorFileAsync(dimColorFile, "低调色系");
+
+            if (traditionColorModels.Count > 0)
+                dataBase.InsertAll(traditionColorModels);
+
+            if (dimColorModels.Count > 0)
+                dataBase.InsertAll(dimColorModels);
+        }
+
+        private async Task<List<ColorResourceCache>> DeserializeColorFileAsync(string filePath, string scheme)
+        {
+            using (var reader = new StreamReader(filePath))
+            {
+                var json = await reader.ReadToEndAsync();
+                var models = JsonConvert.DeserializeObject<List<ColorModel>>(json);
+                return models.Select(color => new ColorResourceCache
+                {
+                    Scheme = scheme,
+                    Name = color.Name,
+                    Hex = color.Hex
+                }).ToList();
+            }
         }
 
         private void SwitchTheme(string themeName)
@@ -56,44 +84,6 @@ namespace DevKit
             Current.Resources.MergedDictionaries[1] = resourceDict;
         }
 
-        /// <summary>
-        /// 初始化数据库
-        /// </summary>
-        private async Task StoreColorCacheAsync()
-        {
-            await Task.Run(() =>
-            {
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var traditionColorJson = File.ReadAllText("TraditionColor.json");
-                    var traditionColorModels = JsonConvert.DeserializeObject<List<ColorModel>>(traditionColorJson);
-                    foreach (var colorModel in traditionColorModels)
-                    {
-                        var cache = new ColorResourceCache
-                        {
-                            Scheme = "中国传统色系",
-                            Name = colorModel.Name,
-                            Hex = colorModel.Hex
-                        };
-                        dataBase.Insert(cache);
-                    }
-
-                    var dimColorJson = File.ReadAllText("DimColor.json");
-                    var dimColorModels = JsonConvert.DeserializeObject<List<ColorModel>>(dimColorJson);
-                    foreach (var colorModel in dimColorModels)
-                    {
-                        var cache = new ColorResourceCache
-                        {
-                            Scheme = "低调色系",
-                            Name = colorModel.Name,
-                            Hex = colorModel.Hex
-                        };
-                        dataBase.Insert(cache);
-                    }
-                }
-            });
-        }
-
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             //Data
@@ -109,7 +99,7 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
             containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
-            
+
             //Dialog
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<CreateKeyDialog, CreateKeyDialogViewModel>();

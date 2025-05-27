@@ -64,11 +64,6 @@ namespace DevKit.DataService
             return null;
         }
 
-        public List<string> GetColorSchemes()
-        {
-            return new List<string> { "中国传统色系", "低调色系" };
-        }
-
         public async Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme)
         {
             List<ColorResourceCache> result = null;
