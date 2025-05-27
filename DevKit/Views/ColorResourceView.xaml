@@ -190,16 +190,7 @@
         </Grid>
 
         <StackPanel Margin="10,0,0,0">
-            <hc:ButtonGroup>
-                <RadioButton
-                    Content="中国传统色系"
-                    FontSize="14"
-                    IsChecked="True" />
-                <RadioButton Content="低调色系" FontSize="14" />
-            </hc:ButtonGroup>
-
             <ListBox
-                Margin="0,10,0,0"
                 HorizontalAlignment="Center"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 ItemsSource="{Binding ColorResources}"
@@ -267,6 +258,14 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
+
+            <hc:Pagination HorizontalAlignment="Right" MaxPageCount="{Binding MaxPage}">
+                <hc:Interaction.Triggers>
+                    <hc:EventTrigger EventName="PageUpdated">
+                        <hc:EventToCommand Command="{Binding PageUpdatedCommand}" PassEventArgsToCommand="True" />
+                    </hc:EventTrigger>
+                </hc:Interaction.Triggers>
+            </hc:Pagination>
         </StackPanel>
     </DockPanel>
 </UserControl>
