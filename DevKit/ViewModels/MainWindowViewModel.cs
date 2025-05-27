@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
@@ -69,10 +68,15 @@ namespace DevKit.ViewModels
             _dialogService.Show(viewName);
         }
 
+        private readonly Dictionary<string, string> _otherToolMap = new Dictionary<string, string>
+        {
+            { "颜色值转换", "ColorResourceView" }
+        };
+        
         private void OnOtherToolClicked(MainMenuModel model)
         {
-            if (model == null) return;
-            Console.WriteLine($@"点击了 Other 工具：{model.MenuName}");
+            if (model == null || !_otherToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            _dialogService.Show(viewName);
         }
     }
 }

@@ -12,28 +12,36 @@ using DevKit.DataService;
 using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Services.Dialogs;
 using Color = System.Windows.Media.Color;
 using ComboBox = System.Windows.Controls.ComboBox;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
-    public class ColorResourceViewModel : BindableBase
+    public class ColorResourceViewModel : BindableBase, IDialogAware
     {
-        #region DelegateCommand
+        public string Title => "颜色值转换";
 
-        // public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
-        // public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
-        // public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
-        public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
-        public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
-        public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
-        public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
-        // public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
-        public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
 
-        #endregion
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
 
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+        }
+        
         #region VM
 
         private SolidColorBrush _colorBrush;
@@ -134,6 +142,20 @@ namespace DevKit.ViewModels
             }
             get => _maxPage;
         }
+
+        #endregion
+        
+        #region DelegateCommand
+
+        // public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
+        // public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
+        // public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
+        public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
+        public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
+        public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
+        public DelegateCommand<ComboBox> ItemSelectedCommand { set; get; }
+        // public DelegateCommand<FunctionEventArgs<int>> PageUpdatedCommand { get; set; }
+        public DelegateCommand<string> TraditionColorListBoxItemButtonClickCommand { set; get; }
 
         #endregion
 

@@ -99,18 +99,16 @@ namespace DevKit
             //Data
             containerRegistry.RegisterSingleton<IAppDataService, AppDataServiceImpl>();
 
-            //Navigation
-            containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
-            containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
-            containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
-
             //Window
             containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
             containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
             containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
+            containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
+            containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
+            containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
+            containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
             
             //Dialog
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

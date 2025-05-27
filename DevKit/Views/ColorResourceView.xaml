@@ -5,13 +5,23 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Width="786"
+    Height="572"
     d:DataContext="{d:DesignInstance Type=vm:ColorResourceViewModel}"
-    d:DesignHeight="560"
-    d:DesignWidth="600"
-    Background="white"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+        </Style>
+    </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
         <Style TargetType="TextBlock">
@@ -49,25 +59,27 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0">
+                    <Border Grid.Column="0" Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="红（R）" />
                     </Border>
 
-                    <!--  hc:InfoElement.ShowClearButton="True"  -->
-                    <!--  <NumericUpDown  -->
-                    <!--  x:Name="ColorRedValueNumericUpDown"  -->
-                    <!--  Grid.Column="1"  -->
-                    <!--  Margin="7,0,0,0"  -->
-                    <!--  FontSize="14"  -->
-                    <!--  Maximum="255"  -->
-                    <!--  Minimum="0"  -->
-                    <!--  Value="{Binding Red}">  -->
-                    <!--     <b:Interaction.Triggers> -->
-                    <!--         <b:EventTrigger EventName="ValueChanged"> -->
-                    <!--             <b:InvokeCommandAction Command="{Binding ColorRedValueChangedCommand}" CommandParameter="{Binding ElementName=ColorRedValueNumericUpDown}" /> -->
-                    <!--         </b:EventTrigger> -->
-                    <!--     </b:Interaction.Triggers> -->
-                    <!-- </NumericUpDown> -->
+                    <hc:NumericUpDown
+                        x:Name="ColorRedValueNumericUpDown"
+                        Grid.Column="1"
+                        Margin="7,0,0,0"
+                        VerticalAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        Maximum="255"
+                        Minimum="0"
+                        Value="{Binding Red}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="ValueChanged">
+                                <b:InvokeCommandAction Command="{Binding ColorRedValueChangedCommand}" CommandParameter="{Binding ElementName=ColorRedValueNumericUpDown}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:NumericUpDown>
                 </Grid>
 
                 <Grid Grid.Row="1" Margin="0,7">
@@ -76,25 +88,27 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0">
+                    <Border Grid.Column="0" Style="{StaticResource BorderTipSuccess}">
                         <TextBlock Text="绿（G）" />
                     </Border>
 
-                    <!--  hc:InfoElement.ShowClearButton="True"  -->
-                    <!--  <NumericUpDown  -->
-                    <!--  x:Name="ColorGreenValueNumericUpDown"  -->
-                    <!--  Grid.Column="1"  -->
-                    <!--  Margin="7,0,0,0"  -->
-                    <!--  FontSize="14"  -->
-                    <!--  Maximum="255"  -->
-                    <!--  Minimum="0"  -->
-                    <!--  Value="{Binding Green}">  -->
-                    <!--     <b:Interaction.Triggers> -->
-                    <!--         <b:EventTrigger EventName="ValueChanged"> -->
-                    <!--             <b:InvokeCommandAction Command="{Binding ColorGreenValueChangedCommand}" CommandParameter="{Binding ElementName=ColorGreenValueNumericUpDown}" /> -->
-                    <!--         </b:EventTrigger> -->
-                    <!--     </b:Interaction.Triggers> -->
-                    <!-- </NumericUpDown> -->
+                    <hc:NumericUpDown
+                        x:Name="ColorGreenValueNumericUpDown"
+                        Grid.Column="1"
+                        Margin="7,0,0,0"
+                        VerticalAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        Maximum="255"
+                        Minimum="0"
+                        Value="{Binding Green}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="ValueChanged">
+                                <b:InvokeCommandAction Command="{Binding ColorGreenValueChangedCommand}" CommandParameter="{Binding ElementName=ColorGreenValueNumericUpDown}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:NumericUpDown>
                 </Grid>
 
                 <Grid Grid.Row="2">
@@ -103,25 +117,27 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0">
+                    <Border Grid.Column="0" Style="{StaticResource BorderTipPrimary}">
                         <TextBlock Text="蓝（B）" />
                     </Border>
 
-                    <!--  hc:InfoElement.ShowClearButton="True"  -->
-                    <!--  <NumericUpDown  -->
-                    <!--  x:Name="ColorBlueValueNumericUpDown"  -->
-                    <!--  Grid.Column="1"  -->
-                    <!--  Margin="7,0,0,0"  -->
-                    <!--  FontSize="14"  -->
-                    <!--  Maximum="255"  -->
-                    <!--  Minimum="0"  -->
-                    <!--  Value="{Binding Blue}">  -->
-                    <!--     <b:Interaction.Triggers> -->
-                    <!--         <b:EventTrigger EventName="ValueChanged"> -->
-                    <!--             <b:InvokeCommandAction Command="{Binding ColorBlueValueChangedCommand}" CommandParameter="{Binding ElementName=ColorBlueValueNumericUpDown}" /> -->
-                    <!--         </b:EventTrigger> -->
-                    <!--     </b:Interaction.Triggers> -->
-                    <!-- </NumericUpDown> -->
+                    <hc:NumericUpDown
+                        x:Name="ColorBlueValueNumericUpDown"
+                        Grid.Column="1"
+                        Margin="7,0,0,0"
+                        VerticalAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        Maximum="255"
+                        Minimum="0"
+                        Value="{Binding Blue}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="ValueChanged">
+                                <b:InvokeCommandAction Command="{Binding ColorBlueValueChangedCommand}" CommandParameter="{Binding ElementName=ColorBlueValueNumericUpDown}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </hc:NumericUpDown>
                 </Grid>
             </Grid>
 
@@ -132,7 +148,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0">
+                <Border Grid.Row="0" Style="{StaticResource BorderTipInfo}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
@@ -145,11 +161,11 @@
                     </Grid>
                 </Border>
 
-                <!--  hc:TipElement.Visibility="Collapsed"  -->
                 <Slider
                     x:Name="AlphaSlider"
                     Grid.Row="1"
                     Margin="0,10"
+                    hc:TipElement.Visibility="Collapsed"
                     IsSnapToTickEnabled="True"
                     Maximum="255"
                     Minimum="0"
@@ -208,11 +224,11 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!--  hc:InfoElement.Placeholder="请输入待转换的颜色值，格式为RGB，如：#000000"  -->
-            <!--  hc:InfoElement.ShowClearButton="True"  -->
-            <TextBox
+            <hc:TextBox
                 x:Name="InputColorHexValueTextBox"
                 Grid.Column="0"
+                hc:InfoElement.Placeholder="请输入待转换的颜色值，格式为RGB，如：#000000"
+                hc:InfoElement.ShowClearButton="True"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 FontSize="14"
                 MaxLength="7" />
@@ -253,23 +269,25 @@
                 VerticalAlignment="Center"
                 Text="{Binding ColorCount, StringFormat=共有颜色：{0} 种}" />
 
-            <!--  <Pagination  -->
-            <!--  Grid.Column="2"  -->
-            <!--  HorizontalAlignment="Right"  -->
-            <!--  MaxPageCount="{Binding MaxPage}">  -->
-            <!--     <Interaction.Triggers> -->
-            <!--         <EventTrigger EventName="PageUpdated"> -->
-            <!--             <EventToCommand Command="{Binding PageUpdatedCommand}" PassEventArgsToCommand="True" /> -->
-            <!--         </hc:EventTrigger> -->
-            <!--     </hc:Interaction.Triggers> -->
-            <!-- </hc:Pagination> -->
+            <hc:Pagination
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                MaxPageCount="{Binding MaxPage}">
+                <hc:Interaction.Triggers>
+                    <hc:EventTrigger EventName="PageUpdated">
+                        <hc:EventToCommand Command="{Binding PageUpdatedCommand}" PassEventArgsToCommand="True" />
+                    </hc:EventTrigger>
+                </hc:Interaction.Triggers>
+            </hc:Pagination>
         </Grid>
 
         <ListBox
             x:Name="TraditionColorListBox"
             Grid.Row="3"
             Margin="10"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Stretch"
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
             ItemsSource="{Binding ColorResources}"
             ScrollViewer.CanContentScroll="False"
             ScrollViewer.VerticalScrollBarVisibility="Hidden">
@@ -320,7 +338,7 @@
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                 <Border
                                     x:Name="ItemContainerBorder"
-                                    Width="129"
+                                    Width="150"
                                     Margin="1"
                                     CornerRadius="5">
                                     <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
