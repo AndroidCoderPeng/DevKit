@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-using DevKit.Cache;
 using DevKit.Models;
-using DevKit.Utils;
 
 namespace DevKit.DataService
 {
@@ -62,20 +59,6 @@ namespace DevKit.DataService
             }
 
             return null;
-        }
-
-        public async Task<List<ColorResourceCache>> GetColorsByScheme(string colorScheme)
-        {
-            List<ColorResourceCache> result = null;
-            using (var dataBase = new DataBaseConnection())
-            {
-                await Task.Run(() =>
-                {
-                    result = dataBase.Table<ColorResourceCache>().Where(x => x.Scheme == colorScheme).ToList();
-                });
-            }
-
-            return result;
         }
     }
 }

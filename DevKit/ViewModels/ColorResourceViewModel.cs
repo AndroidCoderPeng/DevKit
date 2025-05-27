@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -155,18 +153,17 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly IAppDataService _dataService;
         private byte _alpha = 255;
-        private List<ColorResourceCache> _colorResCaches = new List<ColorResourceCache>();
 
         public ColorResourceViewModel(IAppDataService dataService)
         {
-            _dataService = dataService;
-            Task.Run(async () =>
+            using (var dataBase = new DataBaseConnection())
             {
-                _colorResCaches = await _dataService.GetColorsByScheme("中国传统色系");
-                ColorResources = _colorResCaches.ToObservableCollection();
-            });
+                var colorResCaches = dataBase.Table<ColorResourceCache>()
+                    .Where(x => x.Scheme.Equals("中国传统色系"))
+                    .ToList();
+                ColorResources = colorResCaches.ToObservableCollection();
+            }
 
             var color = Color.FromRgb(_red, _green, _blue);
             ColorViewBrush = new SolidColorBrush(color);
