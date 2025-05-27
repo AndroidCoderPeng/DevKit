@@ -9,11 +9,6 @@ namespace DevKit.Cache
         public int Id { get; set; }
 
         /// <summary>
-        /// 色系
-        /// </summary>
-        public string Scheme { get; set; }
-
-        /// <summary>
         /// 颜色名
         /// </summary>
         public string Name { get; set; }

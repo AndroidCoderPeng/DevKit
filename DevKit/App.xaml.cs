@@ -7,7 +7,6 @@ using System.Windows;
 using DevKit.Cache;
 using DevKit.DataService;
 using DevKit.Dialogs;
-using DevKit.Models;
 using DevKit.Utils;
 using DevKit.ViewModels;
 using DevKit.Views;
@@ -40,31 +39,19 @@ namespace DevKit
 
         private async Task InitializeColorDataAsync(DataBaseConnection dataBase)
         {
-            const string traditionColorFile = "TraditionColor.json";
-            const string dimColorFile = "DimColor.json";
-
-            var traditionColorModels = await DeserializeColorFileAsync(traditionColorFile, "中国传统色系");
-            var dimColorModels = await DeserializeColorFileAsync(dimColorFile, "低调色系");
-
+            var traditionColorModels = await DeserializeColorFileAsync("Colors.json");
             if (traditionColorModels.Count > 0)
+            {
                 dataBase.InsertAll(traditionColorModels);
-
-            if (dimColorModels.Count > 0)
-                dataBase.InsertAll(dimColorModels);
+            }
         }
 
-        private async Task<List<ColorResourceCache>> DeserializeColorFileAsync(string filePath, string scheme)
+        private async Task<List<ColorResourceCache>> DeserializeColorFileAsync(string filePath)
         {
             using (var reader = new StreamReader(filePath))
             {
                 var json = await reader.ReadToEndAsync();
-                var models = JsonConvert.DeserializeObject<List<ColorModel>>(json);
-                return models.Select(color => new ColorResourceCache
-                {
-                    Scheme = scheme,
-                    Name = color.Name,
-                    Hex = color.Hex
-                }).ToList();
+                return JsonConvert.DeserializeObject<List<ColorResourceCache>>(json);
             }
         }
 

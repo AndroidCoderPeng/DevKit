@@ -186,7 +186,6 @@
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
-    <Compile Include="Models\ColorModel.cs" />
     <Compile Include="Models\LogModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
     <Compile Include="Models\SocketClientModel.cs" />

@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using DevKit.Cache;
-using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Controls;
 using Prism.Commands;
@@ -155,13 +154,11 @@ namespace DevKit.ViewModels
 
         private byte _alpha = 255;
 
-        public ColorResourceViewModel(IAppDataService dataService)
+        public ColorResourceViewModel()
         {
             using (var dataBase = new DataBaseConnection())
             {
-                var colorResCaches = dataBase.Table<ColorResourceCache>()
-                    .Where(x => x.Scheme.Equals("中国传统色系"))
-                    .ToList();
+                var colorResCaches = dataBase.Table<ColorResourceCache>().ToList();
                 ColorResources = colorResCaches.ToObservableCollection();
             }
 
