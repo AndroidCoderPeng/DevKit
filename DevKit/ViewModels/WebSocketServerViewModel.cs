@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -11,7 +13,6 @@ using Prism.Services.Dialogs;
 using TouchSocket.Core;
 using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
-using Timer = System.Timers.Timer;
 using WebSocketServer = TouchSocket.Http.HttpService;
 
 namespace DevKit.ViewModels
@@ -199,7 +200,7 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private bool _isHexSelected = true;
+        private bool _isHexSelected;
 
         public bool IsHexSelected
         {
@@ -227,7 +228,7 @@ namespace DevKit.ViewModels
         #endregion
 
         private readonly WebSocketServer _webSocketServer = new WebSocketServer();
-        private readonly Timer _loopSendMessageTimer = new Timer();
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private WebSocketClientModel _selectedClient;
 
         public WebSocketServerViewModel(IAppDataService dataService)
@@ -238,6 +239,10 @@ namespace DevKit.ViewModels
             CopyWebSocketPathCommand = new DelegateCommand(CopyWebSocketPath);
             ClientItemClickedCommand = new DelegateCommand<WebSocketClientModel>(OnClientItemClicked);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
+            SendCommand = new DelegateCommand(OnMessageSend);
+            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
+            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
+            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
         private void OnServerListened()
@@ -361,64 +366,86 @@ namespace DevKit.ViewModels
             Clipboard.SetText(log);
         }
 
-        private void SendMessage()
+        private void OnMessageSend()
         {
-            // if (string.IsNullOrWhiteSpace(_userInputText))
-            // {
-            //     MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
-            //
-            // if (_loopSend)
-            // {
-            //     if (!_commandInterval.IsNumber())
-            //     {
-            //         MessageBox.Show("循环发送时间间隔数据格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         return;
-            //     }
-            //
-            //     _loopSendMessageTimer.Interval = double.Parse(_commandInterval);
-            //     _loopSendMessageTimer.Enabled = true;
-            // }
-            // else
-            // {
-            //     Send(true);
-            // }
+            SendMessage(_userInputText);
+        }
+        
+        private void OnTimeChecked()
+        {
+            if (!_commandInterval.IsNumber())
+            {
+                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
+            _loopSendCommandTimer.Start();
         }
 
-        private void Send(bool isMainThread)
+        private void OnTimeUnchecked()
         {
-            // _socketClient.WebSocket?.SendAsync(_userInputText);
-            //     
-            // // using (var dataBase = new DataBaseConnection())
-            // // {
-            // //     var cache = new ClientMessageCache
-            // //     {
-            // //         ClientIp = _connectedClient.Ip,
-            // //         ClientPort = _connectedClient.Port,
-            // //         ClientType = ConnectionType.WebSocketClient,
-            // //         MessageContent = _userInputText,
-            // //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            // //         IsSend = 1
-            // //     };
-            // //     dataBase.Insert(cache);
-            // // }
-            //     
-            // var message = new MessageModel
-            // {
-            //     Content = _userInputText,
-            //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //     IsSend = true
-            // };
-            //
-            // if (isMainThread)
-            // {
-            //     MessageCollection.Add(message);
-            // }
-            // else
-            // {
-            //     Application.Current.Dispatcher.Invoke(() => { MessageCollection.Add(message); });
-            // }
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Stop();
+        }
+        
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_webSocketServer.ServerState != ServerState.Running)
+            {
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            SendMessage(_userInputText);
+        }
+        
+        private void SendMessage(string command)
+        {
+            if (_webSocketServer.ServerState != ServerState.Running)
+            {
+                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            if (_selectedClient == null)
+            {
+                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
+            
+        }
+
+        private void OnComboBoxItemSelected(object index)
+        {
+            if (index == null) return;
+
+            if (index.ToString().Equals("0"))
+            {
+                //转为16进制显示
+                foreach (var log in _selectedClient.Logs)
+                {
+                    var bytes = log.Content.ToUtf8Bytes();
+                    log.Content = bytes.ByBytesToHexString(" ");
+                }
+            }
+            else if (index.ToString().Equals("1"))
+            {
+                //转为ASCII显示
+                foreach (var log in _selectedClient.Logs)
+                {
+                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                    log.Content = Encoding.UTF8.GetString(bytes);
+                }
+            }
         }
     }
 }

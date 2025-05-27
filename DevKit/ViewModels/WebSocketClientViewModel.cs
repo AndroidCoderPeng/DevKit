@@ -128,7 +128,7 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _isHexSelected = true;
+        private bool _isHexSelected;
 
         public bool IsHexSelected
         {
