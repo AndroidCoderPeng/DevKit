@@ -389,7 +389,7 @@
                         Width="80"
                         Margin="10,0"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        SelectedIndex="1">
+                        SelectedIndex="0">
                         <ComboBoxItem Content="16进制" />
                         <ComboBoxItem Content="ASCII" />
 

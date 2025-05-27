@@ -200,7 +200,7 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private bool _isHexSelected;
+        private bool _isHexSelected = true;
 
         public bool IsHexSelected
         {
@@ -421,7 +421,30 @@ namespace DevKit.ViewModels
                 return;
             }
             
-            
+            byte[] bytes;
+            if (_isHexSelected)
+            {
+                if (!command.IsHex())
+                {
+                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                bytes = command.Replace(" ", "").ByHexStringToBytes();
+            }
+            else
+            {
+                bytes = command.ToUtf8Bytes();
+            }
+
+            _selectedClient.WebSocket.SendAsync(bytes);
+            var log = new LogModel
+            {
+                Content = command,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = 1
+            };
+            _selectedClient.Logs.Add(log);
         }
 
         private void OnComboBoxItemSelected(object index)
