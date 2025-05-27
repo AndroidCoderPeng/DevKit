@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.Cache;
@@ -14,6 +13,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using TouchSocket.Core;
+using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
 using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
@@ -128,18 +128,6 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private bool _isHexSelected = true;
-
-        public bool IsHexSelected
-        {
-            set
-            {
-                _isHexSelected = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexSelected;
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -157,7 +145,6 @@ namespace DevKit.ViewModels
         public DelegateCommand OpenScriptCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
-        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
@@ -206,7 +193,6 @@ namespace DevKit.ViewModels
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
         private void InitConnectStateEvent()
@@ -243,7 +229,14 @@ namespace DevKit.ViewModels
 
             _webSocketClient.Received = (client, e) =>
             {
-                UpdateCommunicationLog("", e.DataFrame.PayloadData.ToArray());
+                //默认显示为UTF8编码
+                var log = new LogModel
+                {
+                    Content = e.DataFrame.ToText(),
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = 0
+                };
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
                 return EasyTask.CompletedTask;
             };
 
@@ -442,49 +435,14 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            byte[] bytes;
-            if (_isHexSelected)
+            _webSocketClient.SendAsync(command);
+            var log = new LogModel
             {
-                if (!command.IsHex())
-                {
-                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                bytes = command.Replace(" ", "").ByHexStringToBytes();
-            }
-            else
-            {
-                bytes = command.ToUtf8Bytes();
-            }
-
-            _webSocketClient.SendAsync(bytes);
-            UpdateCommunicationLog(command, bytes);
-        }
-
-        private void UpdateCommunicationLog(string command, byte[] bytes)
-        {
-            if (command.Equals(""))
-            {
-                //默认显示为UTF8编码
-                var log = new LogModel
-                {
-                    Content = bytes.ByBytesToHexString(" "),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 0
-                };
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-            }
-            else
-            {
-                var log = new LogModel
-                {
-                    Content = command,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 1
-                };
-                Logs.Add(log);
-            }
+                Content = command,
+                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                IsSend = 1
+            };
+            Logs.Add(log);
         }
 
         private void OpenScriptDialog()
@@ -556,33 +514,6 @@ namespace DevKit.ViewModels
             }
 
             SendMessage(_userInputText);
-        }
-
-        private void OnComboBoxItemSelected(object index)
-        {
-            if (index == null)
-            {
-                return;
-            }
-
-            if (index.ToString().Equals("0"))
-            {
-                //转为16进制显示
-                foreach (var log in _logs)
-                {
-                    var bytes = log.Content.ToUtf8Bytes();
-                    log.Content = bytes.ByBytesToHexString(" ");
-                }
-            }
-            else if (index.ToString().Equals("1"))
-            {
-                //转为ASCII显示
-                foreach (var log in _logs)
-                {
-                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                    log.Content = Encoding.UTF8.GetString(bytes);
-                }
-            }
         }
     }
 }

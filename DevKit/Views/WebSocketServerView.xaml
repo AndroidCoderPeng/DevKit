@@ -348,8 +348,6 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
@@ -382,31 +380,6 @@
                         Grid.Column="2"
                         VerticalAlignment="Center"
                         Text="ms/次" />
-
-                    <ComboBox
-                        x:Name="EncodeComboBox"
-                        Grid.Column="3"
-                        Width="80"
-                        Margin="10,0"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        SelectedIndex="0">
-                        <ComboBoxItem Content="16进制" />
-                        <ComboBoxItem Content="ASCII" />
-
-                        <!--  选中事件  -->
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding ComboBoxItemSelectedCommand}" CommandParameter="{Binding SelectedIndex, ElementName=EncodeComboBox}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </ComboBox>
-
-                    <CheckBox
-                        Grid.Column="4"
-                        HorizontalAlignment="Right"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Content="16进制"
-                        IsChecked="{Binding IsHexSelected}" />
                 </Grid>
             </Grid>
 

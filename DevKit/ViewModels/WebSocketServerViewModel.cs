@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.DataService;
@@ -200,18 +199,6 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private bool _isHexSelected = true;
-
-        public bool IsHexSelected
-        {
-            set
-            {
-                _isHexSelected = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexSelected;
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -223,7 +210,6 @@ namespace DevKit.ViewModels
         public DelegateCommand SendCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
-        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
@@ -242,7 +228,6 @@ namespace DevKit.ViewModels
             SendCommand = new DelegateCommand(OnMessageSend);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
         private void OnServerListened()
@@ -267,7 +252,7 @@ namespace DevKit.ViewModels
                         .SetListenIPHosts(Convert.ToInt32(_listenPort))
                         .ConfigurePlugins(plugin =>
                         {
-                            plugin.UseWebSocket().SetWSUrl(_customPath);
+                            plugin.UseWebSocket().SetWSUrl($"/{_customPath}");
                             InitListenStateEvent(plugin);
                         });
                     _webSocketServer.Setup(socketConfig);
@@ -370,7 +355,7 @@ namespace DevKit.ViewModels
         {
             SendMessage(_userInputText);
         }
-        
+
         private void OnTimeChecked()
         {
             if (!_commandInterval.IsNumber())
@@ -389,7 +374,7 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
             _loopSendCommandTimer.Stop();
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_webSocketServer.ServerState != ServerState.Running)
@@ -400,7 +385,7 @@ namespace DevKit.ViewModels
 
             SendMessage(_userInputText);
         }
-        
+
         private void SendMessage(string command)
         {
             if (_webSocketServer.ServerState != ServerState.Running)
@@ -408,36 +393,20 @@ namespace DevKit.ViewModels
                 MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
             if (_selectedClient == null)
             {
                 MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
+
             if (string.IsNullOrWhiteSpace(_userInputText))
             {
                 MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            
-            byte[] bytes;
-            if (_isHexSelected)
-            {
-                if (!command.IsHex())
-                {
-                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
 
-                bytes = command.Replace(" ", "").ByHexStringToBytes();
-            }
-            else
-            {
-                bytes = command.ToUtf8Bytes();
-            }
-
-            _selectedClient.WebSocket.SendAsync(bytes);
+            _selectedClient.WebSocket.SendAsync(command);
             var log = new LogModel
             {
                 Content = command,
@@ -445,30 +414,6 @@ namespace DevKit.ViewModels
                 IsSend = 1
             };
             _selectedClient.Logs.Add(log);
-        }
-
-        private void OnComboBoxItemSelected(object index)
-        {
-            if (index == null) return;
-
-            if (index.ToString().Equals("0"))
-            {
-                //转为16进制显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.ToUtf8Bytes();
-                    log.Content = bytes.ByBytesToHexString(" ");
-                }
-            }
-            else if (index.ToString().Equals("1"))
-            {
-                //转为ASCII显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                    log.Content = Encoding.UTF8.GetString(bytes);
-                }
-            }
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Windows;
 using DevKit.Cache;
-using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -85,12 +84,6 @@ namespace DevKit.ViewModels
             if (string.IsNullOrWhiteSpace(_userCommandValue))
             {
                 MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (!_userCommandValue.IsHex())
-            {
-                MessageBox.Show("预设的指令不是正确的16进制", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
