@@ -97,7 +97,6 @@
                     hc:InfoElement.Placeholder="非必填"
                     hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    IsEnabled="{Binding Content, ElementName=ListenStateButton, Converter={StaticResource ListenStateConverterKey}}"
                     Text="{Binding CustomPath}"
                     TextWrapping="NoWrap" />
             </DockPanel>

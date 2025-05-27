@@ -495,7 +495,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                bytes = command.ToUTF8Bytes();
+                bytes = command.ToUtf8Bytes();
             }
 
             _tcpClient.Send(bytes);
@@ -610,7 +610,7 @@ namespace DevKit.ViewModels
                 //转为16进制显示
                 foreach (var log in _logs)
                 {
-                    var bytes = log.Content.ToUTF8Bytes();
+                    var bytes = log.Content.ToUtf8Bytes();
                     log.Content = bytes.ByBytesToHexString(" ");
                 }
             }

@@ -35,8 +35,6 @@ namespace DevKit.ViewModels
         {
             if (_udpServer.ServerState != ServerState.Running) return;
             _udpServer.Stop();
-            ListenState = "监听";
-            ListenStateColor = "LightGray";
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -383,7 +381,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                bytes = command.ToUTF8Bytes();
+                bytes = command.ToUtf8Bytes();
             }
 
             _udpServer.Send(_selectedClient.TargetEndPoint, bytes);
@@ -405,7 +403,7 @@ namespace DevKit.ViewModels
                 //转为16进制显示
                 foreach (var log in _selectedClient.Logs)
                 {
-                    var bytes = log.Content.ToUTF8Bytes();
+                    var bytes = log.Content.ToUtf8Bytes();
                     log.Content = bytes.ByBytesToHexString(" ");
                 }
             }
