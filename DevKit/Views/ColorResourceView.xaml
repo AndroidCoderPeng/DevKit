@@ -209,22 +209,30 @@
                     <DataTemplate>
                         <Border
                             Width="185"
+                            Height="73"
                             Background="{Binding Hex}"
                             CornerRadius="5">
-                            <StackPanel VerticalAlignment="Center">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
                                 <TextBlock
+                                    Grid.Row="0"
                                     HorizontalAlignment="Center"
                                     FontSize="14"
                                     Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
                                     Text="{Binding Name}" />
 
                                 <TextBlock
+                                    Grid.Row="1"
                                     Margin="0,5,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="14"
                                     Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
                                     Text="{Binding Hex}" />
-                            </StackPanel>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
@@ -238,8 +246,6 @@
 
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Width" Value="185" />
-                        <Setter Property="Height" Value="73" />
                         <Setter Property="utils:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
                         <Setter Property="Template">
                             <Setter.Value>
