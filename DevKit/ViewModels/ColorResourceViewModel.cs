@@ -144,7 +144,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ColorHexToRgbCommand { set; get; }
         public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
-        public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
+        public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand CheckBoxCheckedCommand { set; get; }
         public DelegateCommand CheckBoxUncheckedCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
@@ -162,7 +162,7 @@ namespace DevKit.ViewModels
 
             ColorHexToRgbCommand = new DelegateCommand(ColorHexToRgb);
             AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
-            CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
+            CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             CheckBoxCheckedCommand = new DelegateCommand(OnAlphaChecked);
             CheckBoxUncheckedCommand = new DelegateCommand(OnAlphaUnChecked);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
@@ -251,9 +251,15 @@ namespace DevKit.ViewModels
             ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
         }
 
-        private void CopyColorHexValue(string colorVale)
+        private void CopyColorHexValue()
         {
-            Clipboard.SetText(colorVale);
+            if (string.IsNullOrEmpty(_colorHexValue))
+            {
+                MessageBox.Show("请先输入颜色值", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Clipboard.SetText(_colorHexValue);
             Growl.Success("颜色值已复制");
         }
 
