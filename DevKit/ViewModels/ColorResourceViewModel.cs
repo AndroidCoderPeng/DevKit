@@ -145,6 +145,8 @@ namespace DevKit.ViewModels
         public DelegateCommand ColorHexToRgbCommand { set; get; }
         public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
+        public DelegateCommand CheckBoxCheckedCommand { set; get; }
+        public DelegateCommand CheckBoxUncheckedCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
         #endregion
@@ -161,6 +163,8 @@ namespace DevKit.ViewModels
             ColorHexToRgbCommand = new DelegateCommand(ColorHexToRgb);
             AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
+            CheckBoxCheckedCommand = new DelegateCommand(OnAlphaChecked);
+            CheckBoxUncheckedCommand = new DelegateCommand(OnAlphaUnChecked);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
         }
 
@@ -233,6 +237,18 @@ namespace DevKit.ViewModels
                 ColorViewBrush = new SolidColorBrush(color);
                 ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
             }
+        }
+
+        private void OnAlphaChecked()
+        {
+            var color = Color.FromArgb(_alpha, _redColor, _greenColor, _blueColor);
+            ColorHexValue = color.ToString();
+        }
+
+        private void OnAlphaUnChecked()
+        {
+            var color = Color.FromRgb(_redColor, _greenColor, _blueColor);
+            ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
         }
 
         private void CopyColorHexValue(string colorVale)

@@ -168,8 +168,10 @@
                     Grid.Column="2"
                     VerticalAlignment="Center"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Checked="CheckBox_OnChecked"
                     Content="透明度"
-                    IsChecked="{Binding IsAlphaBoxChecked}" />
+                    IsChecked="{Binding IsAlphaBoxChecked}"
+                    Unchecked="CheckBox_OnUnchecked" />
             </Grid>
         </Grid>
 
