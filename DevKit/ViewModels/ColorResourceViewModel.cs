@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -156,11 +157,7 @@ namespace DevKit.ViewModels
 
         public ColorResourceViewModel()
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var colorResCaches = dataBase.Table<ColorResourceCache>().ToList();
-                ColorResources = colorResCaches.ToObservableCollection();
-            }
+            Task.Run(async () => await LoadColorResourcesAsync());
 
             var color = Color.FromRgb(_red, _green, _blue);
             ColorViewBrush = new SolidColorBrush(color);
@@ -172,6 +169,25 @@ namespace DevKit.ViewModels
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
             ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
+        }
+
+        private async Task LoadColorResourcesAsync()
+        {
+            try
+            {
+                using (var dataBase = new DataBaseConnection())
+                {
+                    var colorResCaches = await Task.Run(() => dataBase.Table<ColorResourceCache>().ToList());
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        ColorResources = colorResCaches.ToObservableCollection();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         // private void ColorRedValueChanged(NumericUpDown numeric)
