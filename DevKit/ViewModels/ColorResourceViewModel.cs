@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -40,21 +40,9 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _userInputColorHexValue = string.Empty;
+        private string _redColor;
 
-        public string UserInputColorHexValue
-        {
-            set
-            {
-                _userInputColorHexValue = value;
-                RaisePropertyChanged();
-            }
-            get => _userInputColorHexValue;
-        }
-
-        private byte _redColor;
-
-        public byte RedColor
+        public string RedColor
         {
             set
             {
@@ -64,9 +52,9 @@ namespace DevKit.ViewModels
             get => _redColor;
         }
 
-        private byte _greenColor;
+        private string _greenColor;
 
-        public byte GreenColor
+        public string GreenColor
         {
             set
             {
@@ -76,9 +64,9 @@ namespace DevKit.ViewModels
             get => _greenColor;
         }
 
-        private byte _blueColor;
+        private string _blueColor;
 
-        public byte BlueColor
+        public string BlueColor
         {
             set
             {
@@ -86,6 +74,18 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _blueColor;
+        }
+
+        private string _alphaValue = "255";
+
+        public string AlphaValue
+        {
+            set
+            {
+                _alphaValue = value;
+                RaisePropertyChanged();
+            }
+            get => _alphaValue;
         }
 
         private SolidColorBrush _colorViewBrush;
@@ -153,11 +153,9 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ColorHexToRgbCommand { set; get; }
+        public DelegateCommand ColorRgbToHexCommand { set; get; }
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
-        public DelegateCommand CheckBoxCheckedCommand { set; get; }
-        public DelegateCommand CheckBoxUncheckedCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
         #endregion
@@ -169,11 +167,9 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
-            ColorHexToRgbCommand = new DelegateCommand(ColorHexToRgb);
+            ColorRgbToHexCommand = new DelegateCommand(ColorRgbToHex);
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
-            CheckBoxCheckedCommand = new DelegateCommand(OnAlphaChecked);
-            CheckBoxUncheckedCommand = new DelegateCommand(OnAlphaUnChecked);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
         }
 
@@ -196,112 +192,50 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ColorHexToRgb()
+        private void ColorRgbToHex()
         {
-            var colorHex = _userInputColorHexValue;
-            if (string.IsNullOrEmpty(colorHex))
+            if (!_redColor.IsByte() || !_greenColor.IsByte() || !_blueColor.IsByte())
             {
-                MessageBox.Show("输入不能为空", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("请填写正确的RGB值，各分量取值范围【0~255】", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // 移除前缀 #
-            if (colorHex.StartsWith("#"))
+            Color mediaColor;
+            if (string.IsNullOrWhiteSpace(_alphaValue))
             {
-                colorHex = colorHex.Substring(1);
-            }
-
-            if (!colorHex.IsHex())
-            {
-                MessageBox.Show("不是有效颜色值，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // 检查长度是否为 6（RGB）或 8（RGBA）
-            if (colorHex.Length != 6 && colorHex.Length != 8)
-            {
-                MessageBox.Show("颜色值长度不正确，应为6位或8位", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // 手动转换为 System.Windows.Media.Color
-            if (_isAlphaBoxChecked)
-            {
-                if (colorHex.Length != 8)
-                {
-                    MessageBox.Show("启用透明度时，颜色值必须为8位", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                var alpha = byte.Parse(colorHex.Substring(0, 2), NumberStyles.HexNumber);
-                RedColor = byte.Parse(colorHex.Substring(2, 2), NumberStyles.HexNumber);
-                GreenColor = byte.Parse(colorHex.Substring(4, 2), NumberStyles.HexNumber);
-                BlueColor = byte.Parse(colorHex.Substring(6, 2), NumberStyles.HexNumber);
-
-                SliderValue = alpha;
-
-                var mediaColor = Color.FromArgb(_sliderValue, _redColor, _greenColor, _blueColor);
-                SetColorBrushAndHex(mediaColor, true);
-            }
-            else
-            {
-                if (colorHex.Length != 6)
-                {
-                    MessageBox.Show("禁用透明度时，颜色值必须为6位", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                RedColor = byte.Parse(colorHex.Substring(0, 2), NumberStyles.HexNumber);
-                GreenColor = byte.Parse(colorHex.Substring(2, 2), NumberStyles.HexNumber);
-                BlueColor = byte.Parse(colorHex.Substring(4, 2), NumberStyles.HexNumber);
-
+                //不带透明度的颜色值
                 SliderValue = 255;
-
-                var mediaColor = Color.FromRgb(_redColor, _greenColor, _blueColor);
-                SetColorBrushAndHex(mediaColor, false);
-            }
-        }
-
-        private void SetColorBrushAndHex(Color mediaColor, bool includeAlpha)
-        {
-            ColorViewBrush = new SolidColorBrush(mediaColor);
-            if (includeAlpha)
-            {
-                ColorHexValue = mediaColor.ToString();
+                mediaColor = Color.FromRgb(
+                    Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+                );
             }
             else
             {
-                ColorHexValue = string.Concat("#", mediaColor.R.ToString("X2"), mediaColor.G.ToString("X2"),
-                    mediaColor.B.ToString("X2"));
+                if (!_alphaValue.IsByte())
+                {
+                    MessageBox.Show("请填写正确的透明度值，取值范围【0~255】", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                SliderValue = Convert.ToByte(_alphaValue);
+                mediaColor = Color.FromArgb(
+                    Convert.ToByte(_alphaValue), Convert.ToByte(_redColor), Convert.ToByte(_greenColor),
+                    Convert.ToByte(_blueColor)
+                );
             }
+
+            ColorViewBrush = new SolidColorBrush(mediaColor);
+            ColorHexValue = mediaColor.ToString();
         }
 
         private void AlphaValueChanged()
         {
-            if (_isAlphaBoxChecked)
-            {
-                var color = Color.FromArgb(_sliderValue, _redColor, _greenColor, _blueColor);
-                ColorViewBrush = new SolidColorBrush(color);
-                ColorHexValue = color.ToString();
-            }
-            else
-            {
-                var color = Color.FromRgb(_redColor, _greenColor, _blueColor);
-                ColorViewBrush = new SolidColorBrush(color);
-                ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
-            }
-        }
-
-        private void OnAlphaChecked()
-        {
-            var color = Color.FromArgb(_sliderValue, _redColor, _greenColor, _blueColor);
+            var color = Color.FromArgb(
+                _sliderValue, Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+            );
+            AlphaValue = _sliderValue.ToString();
+            ColorViewBrush = new SolidColorBrush(color);
             ColorHexValue = color.ToString();
-        }
-
-        private void OnAlphaUnChecked()
-        {
-            var color = Color.FromRgb(_redColor, _greenColor, _blueColor);
-            ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
         }
 
         private void CopyColorHexValue()
@@ -312,13 +246,28 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            Clipboard.SetText(_colorHexValue);
+            if (_isAlphaBoxChecked)
+            {
+                Clipboard.SetText(_colorHexValue);
+            }
+            else
+            {
+                var color = _colorViewBrush.Color;
+                Clipboard.SetText($"#{color.R:X2}{color.G:X2}{color.B:X2}");
+            }
+
             Growl.Success("颜色值已复制");
         }
 
         private void ColorItemClicked(ColorResourceCache cache)
         {
             Clipboard.SetText(cache.Hex);
+            var drawingColor = ColorTranslator.FromHtml(cache.Hex);
+            var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
+            RedColor = drawingColor.R.ToString();
+            GreenColor = drawingColor.G.ToString();
+            BlueColor = drawingColor.B.ToString();
+            ColorViewBrush = new SolidColorBrush(mediaColor);
             Growl.Success("颜色值已复制");
         }
     }

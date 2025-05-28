@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -20,8 +21,7 @@ namespace DevKit.Utils
         public static Dictionary<string, string> ToDictionary(this string value)
         {
             var strings = value.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            var dictionary = strings.Select(
-                temp => temp.Split(new[] { ":" }, StringSplitOptions.None)
+            var dictionary = strings.Select(temp => temp.Split(new[] { ":" }, StringSplitOptions.None)
             ).ToDictionary(
                 split => split[0].Trim(), split => split[1].Trim()
             );
@@ -69,30 +69,14 @@ namespace DevKit.Utils
             return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
         }
 
-        /// <summary>
-        /// Hex串转为byte[]
-        /// </summary>
-        /// <param name="hex"></param>
-        /// <returns></returns>
-        public static byte[] HexToBytes(this string hex)
+        public static bool IsByte(this string value)
         {
-            //有些带有“-”，有些带有“ ”，先整理Hex格式
-            if (hex.Contains("-"))
+            if (string.IsNullOrWhiteSpace(value))
             {
-                hex = hex.Replace("-", "");
-            }
-            else if (hex.Contains(" "))
-            {
-                hex = hex.Replace(" ", "");
+                return false;
             }
 
-            var bytes = new byte[hex.Length / 2];
-            for (var i = 0; i < hex.Length; i += 2)
-            {
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            }
-
-            return bytes;
+            return byte.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out _);
         }
 
         public static bool IsNumber(this string s)

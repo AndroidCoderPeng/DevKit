@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
 using DevKit.Cache;
 using DevKit.ViewModels;
@@ -20,18 +19,6 @@ namespace DevKit.Views
                 var vm = DataContext as ColorResourceViewModel;
                 vm?.ColorItemClickedCommand.Execute(cache);
             }
-        }
-
-        private void CheckBox_OnChecked(object sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as ColorResourceViewModel;
-            vm?.CheckBoxCheckedCommand.Execute();
-        }
-
-        private void CheckBox_OnUnchecked(object sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as ColorResourceViewModel;
-            vm?.CheckBoxUncheckedCommand.Execute();
         }
     }
 }

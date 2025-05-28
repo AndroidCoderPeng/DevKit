@@ -29,78 +29,99 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
-        <Style BasedOn="{StaticResource LabelBaseStyle}" TargetType="Label">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-        </Style>
-
         <cvt:AlphaValueConverter x:Key="AlphaValueConverterKey" />
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
     <DockPanel Margin="10,12" LastChildFill="True">
-        <Grid Width="260">
+        <Grid Width="245">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <UniformGrid Grid.Row="0" Rows="1">
+                    <Border Padding="10,5" Style="{StaticResource BorderTipDanger}">
+                        <TextBlock Text="红色值（R）" />
+                    </Border>
 
-                <hc:TextBox
-                    Grid.Column="0"
-                    hc:InfoElement.Placeholder="请输入HEX颜色值"
-                    hc:InfoElement.ShowClearButton="True"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    FontSize="14"
-                    Text="{Binding UserInputColorHexValue}" />
+                    <hc:TextBox
+                        HorizontalContentAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        MaxLength="3"
+                        Text="{Binding RedColor}" />
+                </UniformGrid>
+
+                <UniformGrid
+                    Grid.Row="1"
+                    Margin="0,10"
+                    Rows="1">
+                    <Border Padding="10,5" Style="{StaticResource BorderTipSuccess}">
+                        <TextBlock Text="绿色值（G）" />
+                    </Border>
+
+                    <hc:TextBox
+                        HorizontalContentAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        MaxLength="3"
+                        Text="{Binding GreenColor}" />
+                </UniformGrid>
+
+                <UniformGrid Grid.Row="2" Rows="1">
+                    <Border Padding="10,5" Style="{StaticResource BorderTipPrimary}">
+                        <TextBlock Text="蓝色值（B）" />
+                    </Border>
+
+                    <hc:TextBox
+                        HorizontalContentAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        MaxLength="3"
+                        Text="{Binding BlueColor}" />
+                </UniformGrid>
+
+                <UniformGrid
+                    Grid.Row="3"
+                    Margin="0,10"
+                    Rows="1">
+                    <Border Padding="10,5" Style="{StaticResource BorderTipInfo}">
+                        <TextBlock Text="透明度（A）" />
+                    </Border>
+
+                    <hc:TextBox
+                        HorizontalContentAlignment="Center"
+                        hc:InfoElement.ShowClearButton="True"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        MaxLength="3"
+                        Text="{Binding AlphaValue}" />
+                </UniformGrid>
 
                 <Button
-                    Grid.Column="1"
-                    Margin="10,0,0,0"
+                    Grid.Row="4"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Command="{Binding ColorHexToRgbCommand}"
-                    Content="转为RGB" />
+                    BorderThickness="0"
+                    Command="{Binding ColorRgbToHexCommand}"
+                    Content="转为HEX"
+                    Style="{StaticResource ButtonPrimary}" />
             </Grid>
 
-            <UniformGrid
-                Grid.Row="1"
-                Margin="0,10"
-                Columns="3"
-                Rows="2">
-                <Label Content="{Binding RedColor}" Foreground="Black" />
-
-                <Label Content="{Binding GreenColor}" Foreground="Black" />
-
-                <Label Content="{Binding BlueColor}" Foreground="Black" />
-
-                <Label
-                    Background="Red"
-                    Content="R"
-                    Foreground="White" />
-
-                <Label
-                    Background="Green"
-                    Content="G"
-                    Foreground="White" />
-
-                <Label
-                    Background="Blue"
-                    Content="B"
-                    Foreground="White" />
-            </UniformGrid>
-
-            <Grid Grid.Row="2" IsEnabled="{Binding IsAlphaBoxChecked}">
+            <Grid Grid.Row="1" Margin="0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -141,7 +162,7 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="3" Margin="0,10,0,0">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -153,8 +174,7 @@
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="{Binding ColorHexValue}"
-                    FontSize="14"
-                    Foreground="Black" />
+                    FontSize="14" />
 
                 <Button
                     Grid.Column="1"
@@ -162,16 +182,14 @@
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding CopyColorHexValueCommand}"
-                    Content="复制HEX" />
+                    Content="复制" />
 
                 <CheckBox
                     Grid.Column="2"
                     VerticalAlignment="Center"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Checked="CheckBox_OnChecked"
                     Content="透明度"
-                    IsChecked="{Binding IsAlphaBoxChecked}"
-                    Unchecked="CheckBox_OnUnchecked" />
+                    IsChecked="{Binding IsAlphaBoxChecked}" />
             </Grid>
         </Grid>
 
