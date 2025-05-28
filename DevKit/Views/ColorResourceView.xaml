@@ -29,6 +29,14 @@
             <Setter Property="FontSize" Value="14" />
         </Style>
 
+        <Style BasedOn="{StaticResource LabelBaseStyle}" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
         <cvt:AlphaValueConverter x:Key="AlphaValueConverterKey" />
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
@@ -70,53 +78,29 @@
                 Margin="0,10"
                 Columns="3"
                 Rows="2">
-                <TextBox
-                    HorizontalContentAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    FontSize="14"
-                    Text="{Binding Red}" />
+                <Label Content="{Binding RedColor}" Foreground="Black" />
 
-                <TextBox
-                    HorizontalContentAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    FontSize="14"
-                    Text="{Binding Green}" />
+                <Label Content="{Binding GreenColor}" Foreground="Black" />
 
-                <TextBox
-                    HorizontalContentAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    FontSize="14"
-                    Text="{Binding Blue}" />
+                <Label Content="{Binding BlueColor}" Foreground="Black" />
 
                 <Label
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
                     Background="Red"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="R"
-                    FontSize="14"
                     Foreground="White" />
 
                 <Label
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
                     Background="Green"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="G"
-                    FontSize="14"
                     Foreground="White" />
 
                 <Label
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
                     Background="Blue"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="B"
-                    FontSize="14"
                     Foreground="White" />
             </UniformGrid>
 
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" IsEnabled="{Binding IsAlphaBoxChecked}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -150,7 +134,10 @@
                         </b:Interaction.Triggers>
                     </Slider>
 
-                    <TextBlock Grid.Row="1" Text="{Binding Value, ElementName=AlphaSlider, Converter={StaticResource AlphaValueConverterKey}}" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Width="38"
+                        Text="{Binding Value, ElementName=AlphaSlider, Converter={StaticResource AlphaValueConverterKey}}" />
                 </Grid>
             </Grid>
 
@@ -166,7 +153,8 @@
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Content="{Binding ColorHexValue}"
-                    FontSize="14" />
+                    FontSize="14"
+                    Foreground="Black" />
 
                 <Button
                     Grid.Column="1"
@@ -174,14 +162,14 @@
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding CopyColorHexValueCommand}"
-                    Content="复制HEX"
-                    Foreground="{DynamicResource PrimaryBrush}" />
+                    Content="复制HEX" />
 
                 <CheckBox
                     Grid.Column="2"
                     VerticalAlignment="Center"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Content="透明度" />
+                    Content="透明度"
+                    IsChecked="{Binding IsAlphaBoxChecked}" />
             </Grid>
         </Grid>
 

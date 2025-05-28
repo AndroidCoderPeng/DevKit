@@ -61,11 +61,7 @@ namespace DevKit.Utils
         /// <returns></returns>
         public static bool IsHex(this string value)
         {
-            if (value.Contains("-"))
-            {
-                value = value.Replace("-", "");
-            }
-            else if (value.Contains(" "))
+            if (value.Contains(" "))
             {
                 value = value.Replace(" ", "");
             }

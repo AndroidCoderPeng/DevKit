@@ -53,6 +53,42 @@ namespace DevKit.ViewModels
             get => _userInputColorHexValue;
         }
 
+        private byte _redColor;
+
+        public byte RedColor
+        {
+            set
+            {
+                _redColor = value;
+                RaisePropertyChanged();
+            }
+            get => _redColor;
+        }
+
+        private byte _greenColor;
+
+        public byte GreenColor
+        {
+            set
+            {
+                _greenColor = value;
+                RaisePropertyChanged();
+            }
+            get => _greenColor;
+        }
+
+        private byte _blueColor;
+
+        public byte BlueColor
+        {
+            set
+            {
+                _blueColor = value;
+                RaisePropertyChanged();
+            }
+            get => _blueColor;
+        }
+
         private SolidColorBrush _colorViewBrush;
 
         public SolidColorBrush ColorViewBrush
@@ -65,43 +101,7 @@ namespace DevKit.ViewModels
             get => _colorViewBrush;
         }
 
-        private byte _red;
-
-        public byte Red
-        {
-            set
-            {
-                _red = value;
-                RaisePropertyChanged();
-            }
-            get => _red;
-        }
-
-        private byte _green;
-
-        public byte Green
-        {
-            set
-            {
-                _green = value;
-                RaisePropertyChanged();
-            }
-            get => _green;
-        }
-
-        private byte _blue;
-
-        public byte Blue
-        {
-            set
-            {
-                _blue = value;
-                RaisePropertyChanged();
-            }
-            get => _blue;
-        }
-
-        private string _colorHexValue = "#FF000000";
+        private string _colorHexValue = string.Empty;
 
         public string ColorHexValue
         {
@@ -113,16 +113,16 @@ namespace DevKit.ViewModels
             get => _colorHexValue;
         }
 
-        private string _colorRgbValue = "(0,0,0,1)";
+        private bool _isAlphaBoxChecked;
 
-        public string ColorRgbValue
+        public bool IsAlphaBoxChecked
         {
             set
             {
-                _colorRgbValue = value;
+                _isAlphaBoxChecked = value;
                 RaisePropertyChanged();
             }
-            get => _colorRgbValue;
+            get => _isAlphaBoxChecked;
         }
 
         private ObservableCollection<ColorResourceCache> _colorResources =
@@ -142,13 +142,9 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand ColorHexToRgbCommand { set; get; }
         public DelegateCommand<Slider> AlphaValueChangedCommand { set; get; }
-
-        // public DelegateCommand<NumericUpDown> ColorRedValueChangedCommand { set; get; }
-        // public DelegateCommand<NumericUpDown> ColorGreenValueChangedCommand { set; get; }
-        // public DelegateCommand<NumericUpDown> ColorBlueValueChangedCommand { set; get; }
         public DelegateCommand<string> CopyColorHexValueCommand { set; get; }
-        public DelegateCommand<string> ColorHexToRgbCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
         #endregion
@@ -159,15 +155,12 @@ namespace DevKit.ViewModels
         {
             Task.Run(async () => await LoadColorResourcesAsync());
 
-            var color = Color.FromRgb(_red, _green, _blue);
+            var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
+            ColorHexToRgbCommand = new DelegateCommand(ColorHexToRgb);
             AlphaValueChangedCommand = new DelegateCommand<Slider>(AlphaValueChanged);
-            // ColorRedValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorRedValueChanged);
-            // ColorGreenValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorGreenValueChanged);
-            // ColorBlueValueChangedCommand = new DelegateCommand<NumericUpDown>(ColorBlueValueChanged);
             CopyColorHexValueCommand = new DelegateCommand<string>(CopyColorHexValue);
-            ColorHexToRgbCommand = new DelegateCommand<string>(ColorHexToRgb);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
         }
 
@@ -190,83 +183,62 @@ namespace DevKit.ViewModels
             }
         }
 
-        // private void ColorRedValueChanged(NumericUpDown numeric)
-        // {
-        //     var value = numeric.Value;
-        //     if (value > 255)
-        //     {
-        //         value = 255;
-        //     }
-        //
-        //     _red = (byte)value;
-        //     GenerateColor();
-        // }
+        private void ColorHexToRgb()
+        {
+            if (_userInputColorHexValue.StartsWith("#") && _userInputColorHexValue.Length == 7)
+            {
+                _userInputColorHexValue = _userInputColorHexValue.Substring(1);
+            }
 
-        // private void ColorGreenValueChanged(NumericUpDown numeric)
-        // {
-        //     var value = numeric.Value;
-        //     if (value > 255)
-        //     {
-        //         value = 255;
-        //     }
-        //
-        //     _green = (byte)value;
-        //     GenerateColor();
-        // }
+            if (!_userInputColorHexValue.IsHex())
+            {
+                MessageBox.Show("不是有效颜色值，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-        // private void ColorBlueValueChanged(NumericUpDown numeric)
-        // {
-        //     var value = numeric.Value;
-        //     if (value > 255)
-        //     {
-        //         value = 255;
-        //     }
-        //
-        //     _blue = (byte)value;
-        //     GenerateColor();
-        // }
+            //#b1d85c
+            var drawingColor = ColorTranslator.FromHtml($"#{_userInputColorHexValue}");
+            RedColor = drawingColor.R;
+            GreenColor = drawingColor.G;
+            BlueColor = drawingColor.B;
+
+            // 手动转换为 System.Windows.Media.Color
+            if (_isAlphaBoxChecked)
+            {
+                var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
+                ColorViewBrush = new SolidColorBrush(mediaColor);
+                ColorHexValue = mediaColor.ToString();
+            }
+            else
+            {
+                var mediaColor = Color.FromRgb(drawingColor.R, drawingColor.G, drawingColor.B);
+                ColorViewBrush = new SolidColorBrush(mediaColor);
+                ColorHexValue = "#" + mediaColor.R.ToString("X2") + mediaColor.G.ToString("X2") +
+                                mediaColor.B.ToString("X2");
+            }
+        }
 
         private void AlphaValueChanged(Slider slider)
         {
-            _alpha = (byte)slider.Value;
-            GenerateColor();
-        }
-
-        private void GenerateColor()
-        {
-            var color = Color.FromArgb(_alpha, _red, _green, _blue);
-            ColorViewBrush = new SolidColorBrush(color);
-            ColorHexValue = color.ToString();
+            if (_isAlphaBoxChecked)
+            {
+                _alpha = (byte)slider.Value;
+                var color = Color.FromArgb(_alpha, _redColor, _greenColor, _blueColor);
+                ColorViewBrush = new SolidColorBrush(color);
+                ColorHexValue = color.ToString();
+            }
+            else
+            {
+                var color = Color.FromRgb(_redColor, _greenColor, _blueColor);
+                ColorViewBrush = new SolidColorBrush(color);
+                ColorHexValue = "#" + color.R.ToString("X2") + color.G.ToString("X2") + color.B.ToString("X2");
+            }
         }
 
         private void CopyColorHexValue(string colorVale)
         {
             Clipboard.SetText(colorVale);
             Growl.Success("颜色值已复制");
-        }
-
-        private void ColorHexToRgb(string colorValue)
-        {
-            if (!colorValue.StartsWith("#"))
-            {
-                MessageBox.Show("不是有效颜色值，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (!colorValue.Substring(1, 6).IsHex())
-            {
-                MessageBox.Show("不是有效颜色值，无法转换", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            //转换RGB时，透明度默认为最大值255
-            _alpha = 255;
-
-            //#b1d85c
-            var color = ColorTranslator.FromHtml(colorValue);
-            Red = color.R;
-            Green = color.G;
-            Blue = color.B;
         }
 
         private void ColorItemClicked(ColorResourceCache cache)
