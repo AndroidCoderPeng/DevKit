@@ -126,10 +126,10 @@
                         Maximum="255"
                         Minimum="0"
                         Orientation="Vertical"
-                        Value="255">
+                        Value="{Binding SliderValue}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="ValueChanged">
-                                <b:InvokeCommandAction Command="{Binding AlphaValueChangedCommand}" CommandParameter="{Binding ElementName=AlphaSlider}" />
+                                <b:InvokeCommandAction Command="{Binding AlphaValueChangedCommand}" />
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Slider>
