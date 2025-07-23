@@ -32,7 +32,6 @@
 
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
-        <cvt:ListenStateConverter x:Key="ListenStateConverterKey" />
         <cvt:ConnectStateConverter x:Key="ConnectStateConverterKey" />
         <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
         <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />

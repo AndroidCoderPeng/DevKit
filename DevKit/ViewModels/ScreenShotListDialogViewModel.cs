@@ -34,15 +34,18 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand SortScreenshotsCommand { set; get; }
+        public DelegateCommand<ScreenshotModel> DeleteScreenshotCommand { set; get; }
         public DelegateCommand<ScreenshotModel> OutputScreenshotCommand { set; get; }
 
         #endregion
 
+        private string _selectedDevice;
         private bool _isAscending;
 
         public ScreenShotListDialogViewModel()
         {
             SortScreenshotsCommand = new DelegateCommand(SortScreenshots);
+            DeleteScreenshotCommand = new DelegateCommand<ScreenshotModel>(DeleteScreenshot);
             OutputScreenshotCommand = new DelegateCommand<ScreenshotModel>(OutputScreenshot);
         }
 
@@ -63,11 +66,32 @@ namespace DevKit.ViewModels
             Screenshots = list.ToObservableCollection();
         }
 
+        private void DeleteScreenshot(ScreenshotModel screenshot)
+        {
+            if (screenshot == null)
+            {
+                MessageBox.Show("请选择要删除的截屏");
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "是否删除此截屏？", "温馨提示", MessageBoxButton.OKCancel, MessageBoxImage.Question
+            );
+            if (result == MessageBoxResult.OK)
+            {
+                var argument = new ArgumentCreator();
+                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("rm").Append(screenshot.FilePath);
+                var executor = new CommandExecutor(argument.ToCommandLine());
+                executor.Execute("adb");
+                LoadScreenshots();
+            }
+        }
+
         private void OutputScreenshot(ScreenshotModel screenshot)
         {
             if (screenshot == null)
             {
-                MessageBox.Show("请选择要导出的图片");
+                MessageBox.Show("请选择要导出的截屏");
                 return;
             }
 
@@ -89,11 +113,24 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            var list = parameters.GetValue<List<string>>("screenshots");
+            _selectedDevice = parameters.GetValue<string>("device");
+            LoadScreenshots();
+        }
+
+        private void LoadScreenshots()
+        {
             if (_screenshots.Any())
             {
                 Screenshots.Clear();
             }
+
+            var list = new List<string>();
+
+            var argument = new ArgumentCreator();
+            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("ls").Append("/sdcard/*.png");
+            var executor = new CommandExecutor(argument.ToCommandLine());
+            executor.OnStandardOutput += delegate(string value) { list.Add(value); };
+            executor.Execute("adb");
 
             //整理截屏集合
             foreach (var path in list)

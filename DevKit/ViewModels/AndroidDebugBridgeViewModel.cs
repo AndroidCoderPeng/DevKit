@@ -435,21 +435,9 @@ namespace DevKit.ViewModels
 
         private void PullScreenshot()
         {
-            var screenshots = new List<string>();
-
-            var argument = new ArgumentCreator();
-            argument.Append("-s").Append(_selectedDevice).Append("shell").Append("ls").Append("/sdcard/*.png");
-            var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += delegate(string value) { screenshots.Add(value); };
-            executor.Execute("adb");
-            ShowSelectedScreenShotDialog(screenshots);
-        }
-
-        private void ShowSelectedScreenShotDialog(List<string> screenshots)
-        {
             var dialogParameters = new DialogParameters
             {
-                { "screenshots", screenshots }
+                { "device", _selectedDevice }
             };
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
