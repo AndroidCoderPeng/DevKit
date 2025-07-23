@@ -138,7 +138,6 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand SelectJdkCommand { set; get; }
-        public DelegateCommand CreateKeyCommand { set; get; }
         public DelegateCommand SelectKeyCommand { set; get; }
         public DelegateCommand ShowSha1Command { set; get; }
         public DelegateCommand SelectApkRootFolderCommand { set; get; }
@@ -169,7 +168,6 @@ namespace DevKit.ViewModels
             }
 
             SelectJdkCommand = new DelegateCommand(SelectJdk);
-            CreateKeyCommand = new DelegateCommand(CreateKey);
             SelectKeyCommand = new DelegateCommand(SelectKey);
             ShowSha1Command = new DelegateCommand(ShowSha1Async);
             SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
@@ -195,23 +193,6 @@ namespace DevKit.ViewModels
                     UpdateConfigCache();
                 }
             }
-        }
-
-        private void CreateKey()
-        {
-            _dialogService.ShowDialog("CreateKeyDialog", null, delegate(IDialogResult result)
-                {
-                    if (result.Result != ButtonResult.OK)
-                    {
-                        return;
-                    }
-
-                    KeyFilePath = result.Parameters.GetValue<string>("KeySavePath");
-                    KeyAlias = result.Parameters.GetValue<string>("KeyAlias");
-                    KeyPassword = result.Parameters.GetValue<string>("KeyPassword");
-                    UpdateConfigCache();
-                }
-            );
         }
 
         private void SelectKey()

@@ -8,7 +8,6 @@ namespace DevKit.Utils
 
         // 事件，用于在输出时触发  
         public event CommandResultDelegate OnStandardOutput;
-        public event CommandResultDelegate OnErrorOutput;
 
         /// <summary>
         /// 命令行参数
@@ -39,13 +38,6 @@ namespace DevKit.Utils
                 if (e.Data != null)
                 {
                     OnStandardOutput?.Invoke(e.Data);
-                }
-            };
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (e.Data != null)
-                {
-                    OnErrorOutput?.Invoke(e.Data);
                 }
             };
 

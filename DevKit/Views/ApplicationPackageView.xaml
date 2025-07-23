@@ -72,7 +72,6 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -95,14 +94,6 @@
 
             <Button
                 Grid.Column="2"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
-                Command="{Binding CreateKeyCommand}"
-                Content="&#xe6aa;"
-                FontFamily="/DevKit;component/Fonts/#iconfont" />
-
-            <Button
-                Grid.Column="3"
-                Margin="10,0,0,0"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding SelectKeyCommand}"
                 Content="选择" />

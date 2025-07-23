@@ -172,9 +172,6 @@
     <Compile Include="Dialogs\CommandScriptDialog.xaml.cs">
       <DependentUpon>CommandScriptDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\CreateKeyDialog.xaml.cs">
-      <DependentUpon>CreateKeyDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\ExCommandDialog.xaml.cs">
       <DependentUpon>ExCommandDialog.xaml</DependentUpon>
     </Compile>
@@ -204,7 +201,6 @@
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />
     <Compile Include="ViewModels\ColorResourceViewModel.cs" />
     <Compile Include="ViewModels\CommandScriptDialogViewModel.cs" />
-    <Compile Include="ViewModels\CreateKeyDialogViewModel.cs" />
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -271,7 +267,6 @@
     <Page Include="Colors\DarkColor.xaml" />
     <Page Include="Colors\LightColor.xaml" />
     <Page Include="Dialogs\CommandScriptDialog.xaml" />
-    <Page Include="Dialogs\CreateKeyDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Dialogs\ScreenShotListDialog.xaml" />
