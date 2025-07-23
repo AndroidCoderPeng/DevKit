@@ -33,7 +33,7 @@
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
-    <DockPanel Margin="10,12" LastChildFill="True">
+    <DockPanel Margin="12" LastChildFill="True">
         <Grid Width="245">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -195,16 +195,17 @@
 
         <ListBox
             Margin="10,0,0,0"
+            Padding="0"
             HorizontalAlignment="Center"
             Background="Transparent"
             BorderThickness="0"
             ItemsSource="{Binding ColorResources}"
             ScrollViewer.CanContentScroll="False"
-            ScrollViewer.VerticalScrollBarVisibility="Auto">
+            ScrollViewer.VerticalScrollBarVisibility="Hidden">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border
-                        Width="165"
+                        Width="170"
                         Height="60"
                         Background="{Binding Hex}"
                         CornerRadius="5">

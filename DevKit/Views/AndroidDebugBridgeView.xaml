@@ -210,7 +210,7 @@
                     Content="导出截屏" />
 
                 <Button
-                    Margin="5,3,0,3"
+                    Margin="5,3,5,3"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding ScreenshotCommand}"
@@ -223,11 +223,17 @@
                     Content="安装软件" />
 
                 <Button
-                    Margin="5,3,0,3"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Command="{Binding RebootDeviceCommand}"
                     Content="重启设备" />
+
+                <Button
+                    Margin="5,0,5,0"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding ShutdownDeviceCommand}"
+                    Content="设备关机" />
             </UniformGrid>
         </Grid>
 

@@ -192,6 +192,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ScreenshotCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
+        public DelegateCommand ShutdownDeviceCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
         public DelegateCommand UninstallCommand { set; get; }
@@ -216,6 +217,7 @@ namespace DevKit.ViewModels
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             InstallCommand = new DelegateCommand(InstallApplication);
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
+            ShutdownDeviceCommand = new DelegateCommand(ShutdownDevice);
             SortApplicationCommand = new DelegateCommand(SortApplication);
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             UninstallCommand = new DelegateCommand(UninstallApplication);
@@ -469,6 +471,19 @@ namespace DevKit.ViewModels
                 //重启设备
                 //adb reboot 
                 argument.Append("-s").Append(_selectedDevice).Append("reboot");
+                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+            }
+        }
+
+        private void ShutdownDevice()
+        {
+            var result = MessageBox.Show("确定关闭该设备？", "关机", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (result == MessageBoxResult.OK)
+            {
+                var argument = new ArgumentCreator();
+                //关机
+                //adb shell reboot -p 
+                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("reboot").Append("-p");
                 new CommandExecutor(argument.ToCommandLine()).Execute("adb");
             }
         }
