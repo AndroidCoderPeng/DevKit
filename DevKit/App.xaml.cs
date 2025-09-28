@@ -86,6 +86,7 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
             containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
+            containerRegistry.RegisterForNavigation<NetConfigurationView, NetConfigurationViewModel>();
 
             //Dialog
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();

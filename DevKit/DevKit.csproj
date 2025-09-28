@@ -163,6 +163,7 @@
     <Compile Include="Converters\ButtonVisibilityConverter.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />
+    <Compile Include="Converters\EnableStateConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />
@@ -205,6 +206,7 @@
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\NetConfigurationViewModel.cs" />
     <Compile Include="ViewModels\ScreenShotListDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
@@ -224,6 +226,9 @@
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Views\NetConfigurationView.xaml.cs">
+      <DependentUpon>NetConfigurationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TcpClientView.xaml.cs">
       <DependentUpon>TcpClientView.xaml</DependentUpon>
@@ -278,6 +283,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\NetConfigurationView.xaml" />
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />

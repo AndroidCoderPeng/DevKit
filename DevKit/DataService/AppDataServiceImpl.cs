@@ -33,7 +33,8 @@ namespace DevKit.DataService
         {
             return new List<MainMenuModel>
             {
-                new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色值转换" }
+                new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色值转换" },
+                new MainMenuModel { MenuIcon = "\ue613", MenuName = "网络信息" }
             };
         }
 
