@@ -110,6 +110,19 @@ namespace DevKit.ViewModels
             }
         }
 
+
+        private string _androidId;
+
+        public string AndroidId
+        {
+            get => _androidId;
+            set
+            {
+                _androidId = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _deviceSize;
 
         public string DeviceSize
@@ -193,6 +206,7 @@ namespace DevKit.ViewModels
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand ShutdownDeviceCommand { set; get; }
+        public DelegateCommand RefreshApplicationCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
         public DelegateCommand UninstallCommand { set; get; }
@@ -218,6 +232,7 @@ namespace DevKit.ViewModels
             InstallCommand = new DelegateCommand(InstallApplication);
             RebootDeviceCommand = new DelegateCommand(RebootDevice);
             ShutdownDeviceCommand = new DelegateCommand(ShutdownDevice);
+            RefreshApplicationCommand = new DelegateCommand(RefreshApplication);
             SortApplicationCommand = new DelegateCommand(SortApplication);
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             UninstallCommand = new DelegateCommand(UninstallApplication);
@@ -273,6 +288,17 @@ namespace DevKit.ViewModels
                         .Append("ro.build.version.release");
                     var executor = new CommandExecutor(argument.ToCommandLine());
                     executor.OnStandardOutput += delegate(string value) { AndroidVersion = value; };
+                    executor.Execute("adb");
+                }
+
+                {
+                    var argument = new ArgumentCreator();
+                    //获取设备Android ID
+                    //adb shell settings get secure android_id
+                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("settings")
+                        .Append("get").Append("secure").Append("android_id");
+                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    executor.OnStandardOutput += delegate(string value) { AndroidId = value.ToUpper(); };
                     executor.Execute("adb");
                 }
 
@@ -350,7 +376,7 @@ namespace DevKit.ViewModels
                     executor.Execute("adb");
                 }
             });
-            
+
             GetDeviceApplication();
         }
 
@@ -531,6 +557,11 @@ namespace DevKit.ViewModels
                 };
                 executor.Execute("adb");
             });
+        }
+
+        private void RefreshApplication()
+        {
+            GetDeviceApplication();
         }
 
         private void SortApplication()

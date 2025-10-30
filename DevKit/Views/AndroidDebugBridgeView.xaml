@@ -8,7 +8,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="670"
-    Height="400"
+    Height="435"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -84,6 +84,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <DockPanel
@@ -132,13 +133,25 @@
                     <TextBlock
                         Width="100"
                         VerticalAlignment="Center"
+                        Text="Android ID" />
+
+                    <TextBlock VerticalAlignment="Center" Text="{Binding AndroidId}" />
+                </DockPanel>
+
+                <DockPanel
+                    Grid.Row="4"
+                    Margin="10"
+                    LastChildFill="True">
+                    <TextBlock
+                        Width="100"
+                        VerticalAlignment="Center"
                         Text="屏幕分辨率" />
 
                     <TextBlock VerticalAlignment="Center" Text="{Binding DeviceSize}" />
                 </DockPanel>
 
                 <DockPanel
-                    Grid.Row="4"
+                    Grid.Row="5"
                     Margin="10"
                     LastChildFill="True">
                     <TextBlock
@@ -150,7 +163,7 @@
                 </DockPanel>
 
                 <DockPanel
-                    Grid.Row="5"
+                    Grid.Row="6"
                     Margin="10"
                     LastChildFill="True">
                     <TextBlock
@@ -185,7 +198,7 @@
                 </DockPanel>
 
                 <DockPanel
-                    Grid.Row="6"
+                    Grid.Row="7"
                     Margin="10"
                     LastChildFill="True">
                     <TextBlock
@@ -241,17 +254,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <DockPanel Grid.Row="0" Margin="0,10,10,10">
-                <TextBlock VerticalAlignment="Center" Text="第三方软件" />
-
-                <Button
-                    HorizontalAlignment="Right"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Command="{Binding SortApplicationCommand}"
-                    Content="排序" />
-            </DockPanel>
+            <TextBlock
+                Grid.Row="0"
+                Margin="0,15"
+                Text="第三方软件" />
 
             <ListBox
                 x:Name="PackageListBox"
@@ -282,6 +291,25 @@
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
+
+            <UniformGrid
+                Grid.Row="2"
+                Margin="0,0,10,10"
+                Rows="1">
+                <Button
+                    Margin="0,0,3,0"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding SortApplicationCommand}"
+                    Content="排序" />
+
+                <Button
+                    Margin="3,0,0,0"
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    Command="{Binding RefreshApplicationCommand}"
+                    Content="刷新" />
+            </UniformGrid>
         </Grid>
     </Grid>
 </UserControl>
