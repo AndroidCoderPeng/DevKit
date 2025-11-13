@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -43,16 +44,16 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _localHost = string.Empty;
+        private List<string> _localHostSource;
 
-        public string LocalHost
+        public List<string> LocalHostSource
         {
             set
             {
-                _localHost = value;
+                _localHostSource = value;
                 RaisePropertyChanged();
             }
-            get => _localHost;
+            get => _localHostSource;
         }
 
         private string _listenPort = "9000";
@@ -213,14 +214,18 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        public DelegateCommand<string> HostSelectedCommand { set; get; }
         private readonly WebSocketServer _webSocketServer = new WebSocketServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private string _selectedHost;
         private WebSocketClientModel _selectedClient;
 
         public WebSocketServerViewModel(IAppDataService dataService)
         {
-            LocalHost = dataService.GetIPv4Address();
+            LocalHostSource = dataService.GetIPv4Address();
+            _selectedHost = LocalHostSource?.First();
 
+            HostSelectedCommand = new DelegateCommand<string>(HostSelected);
             ServerListenCommand = new DelegateCommand(OnServerListened);
             CopyWebSocketPathCommand = new DelegateCommand(CopyWebSocketPath);
             ClientItemClickedCommand = new DelegateCommand<WebSocketClientModel>(OnClientItemClicked);
@@ -230,6 +235,11 @@ namespace DevKit.ViewModels
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
         }
 
+        private void HostSelected(string host)
+        {
+            _selectedHost = host;
+        }
+        
         private void OnServerListened()
         {
             if (!_listenPort.IsNumber())
@@ -259,7 +269,7 @@ namespace DevKit.ViewModels
                     _webSocketServer.Start();
                     ListenState = "停止";
                     ListenStateColor = "Lime";
-                    WebSocketPath = $"ws://{_localHost}:{_listenPort}/{_customPath}";
+                    WebSocketPath = $"ws://{_selectedHost}:{_listenPort}/{_customPath}";
                 }
                 catch (Exception e)
                 {

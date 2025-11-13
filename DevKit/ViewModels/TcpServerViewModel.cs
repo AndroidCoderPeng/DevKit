@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -43,16 +44,16 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _localHost = string.Empty;
+        private List<string> _localHostSource;
 
-        public string LocalHost
+        public List<string> LocalHostSource
         {
             set
             {
-                _localHost = value;
+                _localHostSource = value;
                 RaisePropertyChanged();
             }
-            get => _localHost;
+            get => _localHostSource;
         }
 
         private string _listenPort = "9000";
@@ -191,6 +192,7 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> HostSelectedCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand<SocketClientModel> ClientItemClickedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
@@ -203,14 +205,17 @@ namespace DevKit.ViewModels
 
         private readonly TcpServer _tcpServer = new TcpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private string _selectedHost;
         private SocketClientModel _selectedClient;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
-            LocalHost = dataService.GetIPv4Address();
+            LocalHostSource = dataService.GetIPv4Address();
+            _selectedHost = LocalHostSource?.First();
 
             InitListenStateEvent();
 
+            HostSelectedCommand = new DelegateCommand<string>(HostSelected);
             ServerListenCommand = new DelegateCommand(OnServerListened);
             ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
@@ -271,6 +276,11 @@ namespace DevKit.ViewModels
             };
         }
 
+        private void HostSelected(string host)
+        {
+            _selectedHost = host;
+        }
+
         private void OnServerListened()
         {
             if (!_listenPort.IsNumber())
@@ -293,7 +303,7 @@ namespace DevKit.ViewModels
                     {
                         options.Add(new TcpListenOption
                         {
-                            IpHost = new IPHost($"{_localHost}:{_listenPort}")
+                            IpHost = new IPHost($"{_selectedHost}:{_listenPort}")
                         });
                     });
                     _tcpServer.Setup(socketConfig);

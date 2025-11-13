@@ -53,14 +53,21 @@
                     VerticalAlignment="Center"
                     Text="本机地址" />
 
-                <hc:TextBox
+                <ComboBox
+                    x:Name="HostComboBox"
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="127.0.0.1"
-                    hc:InfoElement.ShowClearButton="True"
+                    VerticalContentAlignment="Center"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Text="{Binding LocalHost}"
-                    TextWrapping="NoWrap" />
+                    FontSize="14"
+                    ItemsSource="{Binding LocalHostSource}"
+                    SelectedIndex="0">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="SelectionChanged">
+                            <b:InvokeCommandAction Command="{Binding HostSelectedCommand}" CommandParameter="{Binding ElementName=HostComboBox, Path=SelectedItem}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
+                </ComboBox>
             </DockPanel>
 
             <DockPanel

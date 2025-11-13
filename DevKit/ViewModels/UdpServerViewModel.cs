@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -43,16 +44,16 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _localHost = string.Empty;
+        private List<string> _localHostSource;
 
-        public string LocalHost
+        public List<string> LocalHostSource
         {
             set
             {
-                _localHost = value;
+                _localHostSource = value;
                 RaisePropertyChanged();
             }
-            get => _localHost;
+            get => _localHostSource;
         }
 
         private string _listenPort = "9000";
@@ -191,6 +192,7 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> HostSelectedCommand { set; get; }
         public DelegateCommand ServerListenCommand { set; get; }
         public DelegateCommand<UdpClientModel> ClientItemClickedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
@@ -203,14 +205,17 @@ namespace DevKit.ViewModels
 
         private readonly UdpServer _udpServer = new UdpServer();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private string _selectedHost;
         private UdpClientModel _selectedClient;
 
         public UdpServerViewModel(IAppDataService dataService)
         {
-            LocalHost = dataService.GetIPv4Address();
+            LocalHostSource = dataService.GetIPv4Address();
+            _selectedHost = LocalHostSource?.First();
 
             InitListenStateEvent();
 
+            HostSelectedCommand = new DelegateCommand<string>(HostSelected);
             ServerListenCommand = new DelegateCommand(OnServerListened);
             ClientItemClickedCommand = new DelegateCommand<UdpClientModel>(OnClientItemClicked);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
@@ -261,6 +266,11 @@ namespace DevKit.ViewModels
                 return EasyTask.CompletedTask;
             };
         }
+        
+        private void HostSelected(string host)
+        {
+            _selectedHost = host;
+        }
 
         private void OnServerListened()
         {
@@ -280,7 +290,7 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    var socketConfig = new TouchSocketConfig().SetBindIPHost(new IPHost($"{_localHost}:{_listenPort}"));
+                    var socketConfig = new TouchSocketConfig().SetBindIPHost(new IPHost($"{_selectedHost}:{_listenPort}"));
                     _udpServer.Setup(socketConfig);
                     _udpServer.Start();
                     ListenState = "停止";

@@ -38,8 +38,9 @@ namespace DevKit.DataService
             };
         }
 
-        public string GetIPv4Address()
+        public List<string> GetIPv4Address()
         {
+            var ipv4Addresses = new List<string>();
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (var network in interfaces)
             {
@@ -53,13 +54,12 @@ namespace DevKit.DataService
                 {
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork && ip.Address.ToString() != "127.0.0.1")
                     {
-                        // 返回第一个符合条件的IPv4地址
-                        return ip.Address.ToString();
+                        ipv4Addresses.Add(ip.Address.ToString());
                     }
                 }
             }
 
-            return null;
+            return ipv4Addresses;
         }
     }
 }
