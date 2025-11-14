@@ -79,7 +79,6 @@
 
             <Button
                 Grid.Column="3"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Command="{Binding TestNetCommand}"
                 Content="测试"
                 IsEnabled="{Binding ElementName=CommandComboBox, Path=SelectedItem, Converter={StaticResource EnableStateConverterKey}}"
