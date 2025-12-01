@@ -237,11 +237,75 @@ namespace DevKit.ViewModels
                     );
                     ColorHexValue = $"#{mediaColor.R:X2}{mediaColor.G:X2}{mediaColor.B:X2}";
                 }
+
                 ColorViewBrush = new SolidColorBrush(mediaColor);
             }
             else
             {
-                // HEX 转为 RGB
+                if (string.IsNullOrWhiteSpace(_colorHexValue))
+                {
+                    MessageBox.Show("请填写正确的HEX值", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // 判断是否是合理的Hex颜色值
+                try
+                {
+                    var hex = _colorHexValue.Trim();
+                    if (hex.StartsWith("#"))
+                    {
+                        hex = hex.Substring(1);
+                    }
+
+                    // 验证长度是否符合HEX颜色值规范(3位、6位或8位)
+                    if (hex.Length != 3 && hex.Length != 6 && hex.Length != 8)
+                    {
+                        throw new FormatException();
+                    }
+
+                    // 验证每个字符是否都是有效的十六进制字符
+                    var isValidHex = true;
+                    foreach (var c in hex)
+                    {
+                        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
+                        {
+                            isValidHex = false;
+                            break;
+                        }
+                    }
+
+                    if (!isValidHex)
+                    {
+                        throw new FormatException();
+                    }
+                    
+                    // 如果验证通过，继续进行HEX到RGB的转换
+                    var drawingColor = ColorTranslator.FromHtml(_colorHexValue);
+                    RedColor = drawingColor.R.ToString();
+                    GreenColor = drawingColor.G.ToString();
+                    BlueColor = drawingColor.B.ToString();
+                    
+                    if (hex.Length == 8)
+                    {
+                        AlphaValue = drawingColor.A.ToString();
+                        SliderValue = drawingColor.A;
+                        IsAlphaBoxChecked = true;
+                    }
+                    else
+                    {
+                        AlphaValue = "255";
+                        SliderValue = 255;
+                        IsAlphaBoxChecked = false;
+                    }
+                    
+                    var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
+                    ColorViewBrush = new SolidColorBrush(mediaColor);
+                    ColorHexValue = _colorHexValue;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("请输入有效的HEX颜色值，例如:#FF0000、#00FF00等", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
