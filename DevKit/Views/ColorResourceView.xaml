@@ -48,15 +48,15 @@
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
+                    <RowDefinition />
                 </Grid.RowDefinitions>
                 <UniformGrid Grid.Row="0" Rows="1">
                     <Border Padding="10,5" Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="红色值（R）" />
                     </Border>
 
-                    <hc:TextBox
+                    <TextBox
                         HorizontalContentAlignment="Center"
-                        hc:InfoElement.ShowClearButton="True"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         FontSize="14"
                         MaxLength="3"
@@ -71,9 +71,8 @@
                         <TextBlock Text="绿色值（G）" />
                     </Border>
 
-                    <hc:TextBox
+                    <TextBox
                         HorizontalContentAlignment="Center"
-                        hc:InfoElement.ShowClearButton="True"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         FontSize="14"
                         MaxLength="3"
@@ -85,9 +84,8 @@
                         <TextBlock Text="蓝色值（B）" />
                     </Border>
 
-                    <hc:TextBox
+                    <TextBox
                         HorizontalContentAlignment="Center"
-                        hc:InfoElement.ShowClearButton="True"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         FontSize="14"
                         MaxLength="3"
@@ -102,23 +100,54 @@
                         <TextBlock Text="透明度（A）" />
                     </Border>
 
-                    <hc:TextBox
+                    <TextBox
                         HorizontalContentAlignment="Center"
-                        hc:InfoElement.ShowClearButton="True"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         FontSize="14"
                         MaxLength="3"
                         Text="{Binding AlphaValue}" />
                 </UniformGrid>
 
-                <Button
-                    Grid.Row="4"
-                    HorizontalAlignment="Stretch"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    BorderThickness="0"
-                    Command="{Binding ColorRgbToHexCommand}"
-                    Content="转为HEX"
-                    Style="{StaticResource ButtonPrimary}" />
+                <Grid Grid.Row="4">
+                    <Button
+                        Width="80"
+                        Height="80"
+                        hc:BorderElement.CornerRadius="40"
+                        Command="{Binding ColorConvertCommand}"
+                        Content="转换"
+                        FontSize="18"
+                        Style="{StaticResource ButtonPrimary}" />
+
+                    <CheckBox
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        Content="HEX"
+                        IsChecked="{Binding IsHexBoxChecked}" />
+                </Grid>
+
+
+                <Grid Grid.Row="5" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox
+                        Grid.Column="0"
+                        HorizontalAlignment="Stretch"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        Text="{Binding ColorHexValue}" />
+
+                    <CheckBox
+                        x:Name="AlphaCheckBox"
+                        Grid.Column="1"
+                        Margin="10,0,0,0"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        Content="透明度"
+                        IsChecked="{Binding IsAlphaBoxChecked}" />
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="1" Margin="0,10">
@@ -143,6 +172,7 @@
                         Grid.Row="0"
                         HorizontalAlignment="Center"
                         hc:TipElement.Visibility="Collapsed"
+                        IsEnabled="{Binding ElementName=AlphaCheckBox, Path=IsChecked}"
                         IsSnapToTickEnabled="True"
                         Maximum="255"
                         Minimum="0"
@@ -162,35 +192,12 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <Label
-                    Grid.Column="0"
-                    HorizontalAlignment="Stretch"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Content="{Binding ColorHexValue}"
-                    FontSize="14" />
-
-                <Button
-                    Grid.Column="1"
-                    Margin="10,0"
-                    HorizontalAlignment="Stretch"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Command="{Binding CopyColorHexValueCommand}"
-                    Content="复制" />
-
-                <CheckBox
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    Content="透明度"
-                    IsChecked="{Binding IsAlphaBoxChecked}" />
-            </Grid>
+            <Button
+                Grid.Row="2"
+                HorizontalAlignment="Stretch"
+                Command="{Binding CopyColorHexValueCommand}"
+                Content="复制"
+                Style="{StaticResource ButtonSuccess}" />
         </Grid>
 
         <ListBox
