@@ -68,18 +68,6 @@ namespace DevKit.ViewModels
             get => _listenPort;
         }
 
-        private string _customPath = string.Empty;
-
-        public string CustomPath
-        {
-            set
-            {
-                _customPath = value;
-                RaisePropertyChanged();
-            }
-            get => _customPath;
-        }
-
         private string _webSocketPath = string.Empty;
 
         public string WebSocketPath
@@ -262,14 +250,14 @@ namespace DevKit.ViewModels
                         .SetListenIPHosts(Convert.ToInt32(_listenPort))
                         .ConfigurePlugins(plugin =>
                         {
-                            plugin.UseWebSocket().SetWSUrl($"/{_customPath}");
+                            plugin.UseWebSocket();
                             InitListenStateEvent(plugin);
                         });
                     _webSocketServer.Setup(socketConfig);
                     _webSocketServer.Start();
                     ListenState = "停止";
                     ListenStateColor = "Lime";
-                    WebSocketPath = $"ws://{_selectedHost}:{_listenPort}/{_customPath}";
+                    WebSocketPath = $"ws://{_selectedHost}:{_listenPort}";
                 }
                 catch (Exception e)
                 {
