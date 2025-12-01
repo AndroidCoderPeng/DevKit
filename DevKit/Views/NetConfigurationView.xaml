@@ -43,6 +43,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -77,8 +78,15 @@
                 IsEnabled="{Binding ElementName=CommandComboBox, Path=SelectedItem, Converter={StaticResource EnableStateConverterKey}}"
                 Text="{Binding TargetAddress}" />
 
-            <Button
+            <CheckBox
                 Grid.Column="3"
+                Margin="0,0,10,0"
+                Content="循环"
+                IsChecked="{Binding IsLoopBoxChecked}"
+                IsEnabled="{Binding ElementName=CommandComboBox, Path=SelectedItem, Converter={StaticResource EnableStateConverterKey}}" />
+
+            <Button
+                Grid.Column="4"
                 Command="{Binding TestNetCommand}"
                 Content="测试"
                 IsEnabled="{Binding ElementName=CommandComboBox, Path=SelectedItem, Converter={StaticResource EnableStateConverterKey}}"

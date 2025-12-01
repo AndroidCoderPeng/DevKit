@@ -62,6 +62,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private bool _isLoopBoxChecked = true;
+
+        public bool IsLoopBoxChecked
+        {
+            set
+            {
+                _isLoopBoxChecked = value;
+                RaisePropertyChanged();
+            }
+            get => _isLoopBoxChecked;
+        }
+
         private string _outputResult = string.Empty;
 
         public string OutputResult
@@ -101,10 +113,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            Task.Run(() =>
-            {
-                ExecuteCommand(commandValue);
-            });
+            Task.Run(() => { ExecuteCommand(commandValue); });
         }
 
         private void TestNet()
@@ -115,6 +124,11 @@ namespace DevKit.ViewModels
                 {
                     var argument = new ArgumentCreator();
                     argument.Append("ping").Append(_targetAddress);
+                    if (_isLoopBoxChecked)
+                    {
+                        argument.Append("-t");
+                    }
+
                     ExecuteCommand(argument.ToCommandLine());
                 });
             }

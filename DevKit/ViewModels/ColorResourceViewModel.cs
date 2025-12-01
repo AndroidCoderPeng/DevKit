@@ -278,13 +278,13 @@ namespace DevKit.ViewModels
                     {
                         throw new FormatException();
                     }
-                    
+
                     // 如果验证通过，继续进行HEX到RGB的转换
                     var drawingColor = ColorTranslator.FromHtml(_colorHexValue);
                     RedColor = drawingColor.R.ToString();
                     GreenColor = drawingColor.G.ToString();
                     BlueColor = drawingColor.B.ToString();
-                    
+
                     if (hex.Length == 8)
                     {
                         AlphaValue = drawingColor.A.ToString();
@@ -297,14 +297,15 @@ namespace DevKit.ViewModels
                         SliderValue = 255;
                         IsAlphaBoxChecked = false;
                     }
-                    
+
                     var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
                     ColorViewBrush = new SolidColorBrush(mediaColor);
                     ColorHexValue = _colorHexValue;
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("请输入有效的HEX颜色值，例如:#FF0000、#00FF00等", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Console.WriteLine(e.Message);
+                    MessageBox.Show("请输入有效的HEX颜色值，例如:#FF0000", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
