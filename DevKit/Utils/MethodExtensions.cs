@@ -56,6 +56,31 @@ namespace DevKit.Utils
         }
 
         /// <summary>
+        /// 文件大小转换
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string ToFileSize(this long length)
+        {
+            if (length < 1024)
+            {
+                return $"{length}B";
+            }
+
+            if (length < 1024 * 1024)
+            {
+                return $"{(double)length / 1024:F2}KB";
+            }
+
+            if (length < 1024 * 1024 * 1024)
+            {
+                return $"{(double)length / (1024 * 1024):F2}MB";
+            }
+
+            return $"{(double)length / (1024 * 1024 * 1024):F2}GB";
+        }
+
+        /// <summary>
         /// 判断是否是Hex
         /// </summary>
         /// <returns></returns>

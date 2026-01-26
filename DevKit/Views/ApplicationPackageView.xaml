@@ -205,7 +205,7 @@
         <ListBox
             x:Name="TargetListBox"
             Grid.Row="5"
-            Margin="10,0"
+            Margin="5,0,5,10"
             Background="Transparent"
             BorderThickness="0"
             ItemsSource="{Binding ApkFileCollection}"
@@ -214,29 +214,50 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid ToolTip="{Binding FullName}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
 
-                        <Button
-                            Grid.Row="0"
-                            Width="50"
-                            Height="50"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
-                            CommandParameter="{Binding FullName}">
-                            <Image Source="/DevKit;component/Images/apk.png" />
-                        </Button>
+                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                            <Button
+                                Width="60"
+                                Height="60"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
+                                CommandParameter="{Binding FullName}">
+                                <Image Source="/DevKit;component/Images/apk.png" />
+                            </Button>
 
-                        <TextBlock
-                            Grid.Row="1"
-                            Margin="10,5,10,0"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="12"
-                            Text="{Binding FileName}" />
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                FontSize="12"
+                                Text="{Binding ExtraInfo}" />
+                        </StackPanel>
+
+                        <Grid Grid.Column="1" Margin="0,5,5,5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                Text="{Binding FileName}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,3"
+                                FontSize="12"
+                                Text="{Binding FileSize, StringFormat={}大小：{0}}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                FontSize="12"
+                                Text="{Binding Version, StringFormat={}版本：{0}}" />
+                        </Grid>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
@@ -249,24 +270,23 @@
 
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="Width" Value="193" />
-                    <Setter Property="Height" Value="93" />
-                    <Setter Property="Margin" Value="2" />
+                    <Setter Property="Width" Value="195" />
+                    <Setter Property="Height" Value="95" />
+                    <Setter Property="Margin" Value="2.5" />
+                    <Setter Property="Padding" Value="5" />
                     <Setter Property="Background" Value="White" />
-
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                 <Border
                                     x:Name="ItemContainerBorder"
                                     Margin="{TemplateBinding Margin}"
+                                    Padding="{TemplateBinding Padding}"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="5">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
                                 </Border>
                             </ControlTemplate>
                         </Setter.Value>

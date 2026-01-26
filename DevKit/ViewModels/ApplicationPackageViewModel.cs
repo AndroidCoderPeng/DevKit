@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -370,13 +371,32 @@ namespace DevKit.ViewModels
                 .Reverse();
             foreach (var file in files)
             {
-                if (file.FullName.Contains("debug") || file.Name.StartsWith(".")) continue;
-                var model = new ApkFileModel
+                var fullName = file.FullName;
+                if (fullName.Contains("debug") || file.Name.StartsWith(".")) continue;
+
+                var nameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
+                var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
+                var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension.Substring(0, index - 1);
+
+                var apk = new ApkFileModel
                 {
-                    FileName = file.Name,
-                    FullName = file.FullName
+                    FileName = fileName,
+                    FullName = fullName,
+                    FileSize = file.Length.ToFileSize(),
+                    ModifyTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
                 };
-                apkFiles.Add(model);
+
+                // 匹配日期和版本号的正则表达式模式，支持 YYYYMMDD_版本号 或 _XX_YYYYMMDD_版本号 或 YYYYMMDD_版本号_附加信息
+                const string pattern = @"^(.+?)(?:_[A-Za-z0-9]+)?_(\d{8})_((?:\d+\.)*\d+)(?:_(.+))?$";
+                var match = Regex.Match(nameWithoutExtension, pattern);
+                if (match.Success)
+                {
+                    apk.BuildTime = match.Groups[2].Value; // 提取日期 20260101
+                    apk.Version = match.Groups[3].Value; // 提取版本号 1.0.1.0
+                    apk.ExtraInfo = match.Groups[4].Success ? match.Groups[4].Value : string.Empty; // 提取附加信息
+                }
+
+                apkFiles.Add(apk);
             }
         }
 
