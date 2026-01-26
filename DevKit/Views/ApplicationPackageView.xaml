@@ -203,7 +203,6 @@
         </Grid>
 
         <ListBox
-            x:Name="TargetListBox"
             Grid.Row="5"
             Margin="5,0,5,10"
             Background="Transparent"
@@ -220,16 +219,10 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0" Orientation="Vertical">
-                            <Button
-                                Width="60"
-                                Height="60"
-                                VerticalAlignment="Top"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Command="{Binding DataContext.OpenFileFolderCommand, ElementName=TargetListBox}"
-                                CommandParameter="{Binding FullName}">
-                                <Image Source="/DevKit;component/Images/apk.png" />
-                            </Button>
+                            <Image
+                                Width="55"
+                                Height="55"
+                                Source="/DevKit;component/Images/apk.png" />
 
                             <TextBlock
                                 HorizontalAlignment="Center"
@@ -237,7 +230,7 @@
                                 Text="{Binding ExtraInfo}" />
                         </StackPanel>
 
-                        <Grid Grid.Column="1" Margin="0,5,5,5">
+                        <Grid Grid.Column="1" Margin="5">
                             <Grid.RowDefinitions>
                                 <RowDefinition />
                                 <RowDefinition Height="Auto" />
@@ -270,6 +263,8 @@
 
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
+                    <EventSetter Event="PreviewMouseDown" Handler="ListBox_ListBoxItem_PreviewMouseDown" />
+
                     <Setter Property="Width" Value="195" />
                     <Setter Property="Height" Value="95" />
                     <Setter Property="Margin" Value="2.5" />

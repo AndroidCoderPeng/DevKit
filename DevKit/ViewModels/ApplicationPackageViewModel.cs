@@ -433,6 +433,11 @@ namespace DevKit.ViewModels
 
         private void OpenFileFolder(string path)
         {
+            if (path == null)
+            {
+                return;
+            }
+
             var directoryPath = Path.GetDirectoryName(path);
             try
             {
