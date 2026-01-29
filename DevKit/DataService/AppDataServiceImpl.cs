@@ -12,7 +12,8 @@ namespace DevKit.DataService
             return new List<MainMenuModel>
             {
                 new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
-                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" }
+                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
+                new MainMenuModel { MenuIcon = "\ue673", MenuName = "JNI逆向" }
             };
         }
 

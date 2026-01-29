@@ -12,6 +12,7 @@ namespace DevKit.Utils
             CreateTable<ClientConfigCache>();
             CreateTable<ExCommandCache>();
             CreateTable<ColorResourceCache>();
+            CreateTable<SdkConfigCache>();
         }
     }
 }

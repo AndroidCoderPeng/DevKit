@@ -79,6 +79,7 @@ namespace DevKit
             //Window
             containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
+            containerRegistry.RegisterDialog<JNIReverseView, JNIReverseViewModel>();
             containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
             containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();

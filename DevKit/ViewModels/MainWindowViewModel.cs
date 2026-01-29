@@ -43,7 +43,8 @@ namespace DevKit.ViewModels
         private readonly Dictionary<string, string> _androidToolMap = new Dictionary<string, string>
         {
             { "ADB", "AndroidDebugBridgeView" },
-            { "APK", "ApplicationPackageView" }
+            { "APK", "ApplicationPackageView" },
+            { "JNI逆向", "JNIReverseView" }
         };
 
         private void OnAndroidToolClicked(MainMenuModel model)
