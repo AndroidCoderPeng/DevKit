@@ -226,7 +226,7 @@ namespace DevKit.ViewModels
                 Console.WriteLine(@"HEX转RGB模式，不响应此函数");
                 return;
             }
-            
+
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
@@ -245,7 +245,7 @@ namespace DevKit.ViewModels
                 Console.WriteLine(@"HEX转RGB模式，不响应此函数");
                 return;
             }
-            
+
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
@@ -264,7 +264,7 @@ namespace DevKit.ViewModels
                 Console.WriteLine(@"HEX转RGB模式，不响应此函数");
                 return;
             }
-            
+
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
@@ -283,7 +283,7 @@ namespace DevKit.ViewModels
                 Console.WriteLine(@"HEX转RGB模式，不响应此函数");
                 return;
             }
-            
+
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
@@ -298,6 +298,7 @@ namespace DevKit.ViewModels
         private void ArgbToHex()
         {
             var color = Color.FromArgb(_alpha, _red, _green, _blue);
+            SliderValue = color.A;
             ColorHexValue = color.ToString();
             ColorViewBrush = new SolidColorBrush(color);
         }
