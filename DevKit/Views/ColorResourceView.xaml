@@ -52,6 +52,34 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <UniformGrid Grid.Row="0" Rows="1">
+                    <Border Padding="10,5" Style="{StaticResource BorderTipInfo}">
+                        <TextBlock Text="透明度（A）" />
+                    </Border>
+
+                    <TextBox
+                        x:Name="AlphaColorTextBox"
+                        HorizontalContentAlignment="Center"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        FontSize="14"
+                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                        MaxLength="3"
+                        Text="{Binding AlphaValue}">
+                        <i:Interaction.Behaviors>
+                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
+                        </i:Interaction.Behaviors>
+
+                        <i:Interaction.Triggers>
+                            <b:EventTrigger EventName="TextChanged">
+                                <b:InvokeCommandAction Command="{Binding AlphaColorTextChangedCommand}" CommandParameter="{Binding ElementName=AlphaColorTextBox, Path=Text}" />
+                            </b:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBox>
+                </UniformGrid>
+
+                <UniformGrid
+                    Grid.Row="1"
+                    Margin="0,10"
+                    Rows="1">
                     <Border Padding="10,5" Style="{StaticResource BorderTipDanger}">
                         <TextBlock Text="红色值（R）" />
                     </Border>
@@ -76,10 +104,7 @@
                     </TextBox>
                 </UniformGrid>
 
-                <UniformGrid
-                    Grid.Row="1"
-                    Margin="0,10"
-                    Rows="1">
+                <UniformGrid Grid.Row="2" Rows="1">
                     <Border Padding="10,5" Style="{StaticResource BorderTipSuccess}">
                         <TextBlock Text="绿色值（G）" />
                     </Border>
@@ -104,7 +129,10 @@
                     </TextBox>
                 </UniformGrid>
 
-                <UniformGrid Grid.Row="2" Rows="1">
+                <UniformGrid
+                    Grid.Row="3"
+                    Margin="0,10"
+                    Rows="1">
                     <Border Padding="10,5" Style="{StaticResource BorderTipPrimary}">
                         <TextBlock Text="蓝色值（B）" />
                     </Border>
@@ -124,34 +152,6 @@
                         <i:Interaction.Triggers>
                             <b:EventTrigger EventName="TextChanged">
                                 <b:InvokeCommandAction Command="{Binding BlueColorTextChangedCommand}" CommandParameter="{Binding ElementName=BlueColorTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                </UniformGrid>
-
-                <UniformGrid
-                    Grid.Row="3"
-                    Margin="0,10"
-                    Rows="1">
-                    <Border Padding="10,5" Style="{StaticResource BorderTipInfo}">
-                        <TextBlock Text="透明度（A）" />
-                    </Border>
-
-                    <TextBox
-                        x:Name="AlphaColorTextBox"
-                        HorizontalContentAlignment="Center"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        MaxLength="3"
-                        Text="{Binding AlphaValue}">
-                        <i:Interaction.Behaviors>
-                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
-                        </i:Interaction.Behaviors>
-
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding AlphaColorTextChangedCommand}" CommandParameter="{Binding ElementName=AlphaColorTextBox, Path=Text}" />
                             </b:EventTrigger>
                         </i:Interaction.Triggers>
                     </TextBox>

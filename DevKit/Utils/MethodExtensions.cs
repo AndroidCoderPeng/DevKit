@@ -103,7 +103,7 @@ namespace DevKit.Utils
 
             return byte.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out _);
         }
-
+        
         public static bool IsNumber(this string s)
         {
             return new Regex(@"^\d+$").IsMatch(s);

@@ -153,9 +153,12 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> AlphaColorTextChangedCommand { set; get; }
         public DelegateCommand<string> RedColorTextChangedCommand { set; get; }
+        public DelegateCommand<string> GreenColorTextChangedCommand { set; get; }
+        public DelegateCommand<string> BlueColorTextChangedCommand { set; get; }
         public DelegateCommand<string> ColorHexTextChangedCommand { set; get; }
-        
+
         public DelegateCommand HexCheckBoxCheckedCommand { set; get; }
         public DelegateCommand HexCheckBoxUncheckedCommand { set; get; }
 
@@ -175,9 +178,12 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
+            AlphaColorTextChangedCommand = new DelegateCommand<string>(AlphaColorTextChanged);
             RedColorTextChangedCommand = new DelegateCommand<string>(RedColorTextChanged);
+            GreenColorTextChangedCommand = new DelegateCommand<string>(GreenColorTextChanged);
+            BlueColorTextChangedCommand = new DelegateCommand<string>(BlueColorTextChanged);
             ColorHexTextChangedCommand = new DelegateCommand<string>(ColorHexTextChanged);
-            
+
             HexCheckBoxCheckedCommand = new DelegateCommand(HexCheckBoxChecked);
             HexCheckBoxUncheckedCommand = new DelegateCommand(HexCheckBoxUnchecked);
 
@@ -208,30 +214,60 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void RedColorTextChanged(string content)
+        private void AlphaColorTextChanged(string colorValue)
         {
-            if (string.IsNullOrWhiteSpace(content))
+            if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
-                return;
+                colorValue = "0";
             }
-            
-            
+
+            var alpha = Convert.ToByte(colorValue);
+        }
+        
+        private void RedColorTextChanged(string colorValue)
+        {
+            if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
+            {
+                colorValue = "0";
+            }
+
+            var red = Convert.ToByte(colorValue);
+        }
+        
+        private void GreenColorTextChanged(string colorValue)
+        {
+            if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
+            {
+                colorValue = "0";
+            }
+
+            var green = Convert.ToByte(colorValue);
+        }
+        
+        private void BlueColorTextChanged(string colorValue)
+        {
+            if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
+            {
+                colorValue = "0";
+            }
+
+            var blue = Convert.ToByte(colorValue);
         }
 
-        private void ColorHexTextChanged(string content)
+        private void ColorHexTextChanged(string colorValue)
         {
-            if (string.IsNullOrWhiteSpace(content))
+            if (string.IsNullOrWhiteSpace(colorValue))
             {
                 HexToArgb("#FF000000");
                 return;
             }
 
-            if (!content.StartsWith("#"))
+            if (!colorValue.StartsWith("#"))
             {
-                content = content.Insert(0, "#");
+                colorValue = colorValue.Insert(0, "#");
             }
 
-            HexToArgb(content);
+            HexToArgb(colorValue);
         }
 
         private void HexToArgb(string colorHex)
@@ -249,7 +285,7 @@ namespace DevKit.ViewModels
             var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
             ColorViewBrush = new SolidColorBrush(mediaColor);
         }
-        
+
         private void HexCheckBoxChecked()
         {
             IsHexInputEnabled = false;

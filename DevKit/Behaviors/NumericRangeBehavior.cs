@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 using System.Windows.Input;
+using DevKit.Utils;
 using Microsoft.Xaml.Behaviors;
 
 namespace DevKit.Behaviors
@@ -29,7 +30,7 @@ namespace DevKit.Behaviors
         private void OnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // 只允许输入数字
-            e.Handled = !IsTextAllowed(e.Text);
+            e.Handled = !e.Text.IsNumber();
         }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -56,11 +57,6 @@ namespace DevKit.Behaviors
                 // 如果不是有效数字，清空内容
                 textBox.Text = "";
             }
-        }
-        
-        private static bool IsTextAllowed(string text)
-        {
-            return int.TryParse(text, out _);
         }
     }
 }
