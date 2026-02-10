@@ -155,8 +155,12 @@ namespace DevKit.ViewModels
 
         public DelegateCommand HexCheckBoxCheckedCommand { set; get; }
         public DelegateCommand HexCheckBoxUncheckedCommand { set; get; }
+
         public DelegateCommand AlphaCheckBoxCheckedCommand { set; get; }
         public DelegateCommand AlphaCheckBoxUncheckedCommand { set; get; }
+
+        public DelegateCommand<string> HexTextChangedCommand { set; get; }
+
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
@@ -172,8 +176,12 @@ namespace DevKit.ViewModels
 
             HexCheckBoxCheckedCommand = new DelegateCommand(HexCheckBoxChecked);
             HexCheckBoxUncheckedCommand = new DelegateCommand(HexCheckBoxUnchecked);
+
             AlphaCheckBoxCheckedCommand = new DelegateCommand(AlphaCheckBoxChecked);
             AlphaCheckBoxUncheckedCommand = new DelegateCommand(AlphaCheckBoxUnchecked);
+
+            HexTextChangedCommand = new DelegateCommand<string>(HexTextChanged);
+
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
@@ -225,6 +233,37 @@ namespace DevKit.ViewModels
             );
             // 去掉透明度
             ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        }
+
+        private void HexTextChanged(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return;
+
+            // 判断输入的值是否合理
+            if (content.Length <= 3) return;
+
+            // 四个字符
+            if (content.Length == 4)
+            {
+                if (!content.StartsWith("#")) return;
+
+                // 是短形式的Hex颜色 #FFF
+                if (!content.IsColorHexString()) return;
+
+                // 正确的颜色解析，转为RGB
+                var drawingColor = ColorTranslator.FromHtml(content);
+                RedColor = drawingColor.R.ToString();
+                GreenColor = drawingColor.G.ToString();
+                BlueColor = drawingColor.B.ToString();
+
+                var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
+                ColorViewBrush = new SolidColorBrush(mediaColor);
+            }
+
+            // 五个字符
+            if (content.Length == 5 || content.Length == 6)
+            {
+            }
         }
 
         // TODO 拆分为输入事件监听
@@ -347,6 +386,7 @@ namespace DevKit.ViewModels
                 MessageBox.Show("请先输入颜色值", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
             Clipboard.SetText(_colorHexValue);
             Growl.Success("颜色值已复制");
         }

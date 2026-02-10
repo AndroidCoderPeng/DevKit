@@ -109,6 +109,28 @@ namespace DevKit.Utils
             return new Regex(@"^\d+$").IsMatch(s);
         }
 
+        /// <summary>
+        /// 判断是否是颜色Hex
+        /// @param colorValue #000或者#000000或者#FF000000
+        /// </summary>
+        public static bool IsColorHexString(this string colorValue)
+        {
+            // 移除开头的 '#' 字符
+            if (colorValue.StartsWith("#"))
+            {
+                colorValue = colorValue.Substring(1);
+            }
+
+            // 验证长度是否为 3、6 或 8（分别对应 #000、#000000、#FF000000）
+            if (colorValue.Length != 3 && colorValue.Length != 6 && colorValue.Length != 8)
+            {
+                return false;
+            }
+
+            // 验证所有字符是否为十六进制字符
+            return new Regex(@"^[0-9A-Fa-f]+$").IsMatch(colorValue);
+        }
+
         public static BitmapImage ToBitmapImage(this Bitmap bitmap)
         {
             var ms = new MemoryStream();
