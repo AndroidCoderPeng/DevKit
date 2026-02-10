@@ -159,7 +159,17 @@
                         HorizontalAlignment="Right"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         Content="透明度"
-                        IsChecked="{Binding IsAlphaBoxChecked}" />
+                        IsChecked="True" >
+                        <i:Interaction.Triggers>
+                            <b:EventTrigger EventName="Checked">
+                                <b:InvokeCommandAction Command="{Binding AlphaCheckBoxCheckedCommand}" />
+                            </b:EventTrigger>
+
+                            <b:EventTrigger EventName="Unchecked">
+                                <b:InvokeCommandAction Command="{Binding AlphaCheckBoxUncheckedCommand}" />
+                            </b:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </CheckBox>
                 </Grid>
             </Grid>
 

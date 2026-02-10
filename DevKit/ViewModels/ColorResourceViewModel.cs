@@ -136,18 +136,6 @@ namespace DevKit.ViewModels
             get => _isHexInputEnabled;
         }
 
-        private bool _isAlphaBoxChecked;
-
-        public bool IsAlphaBoxChecked
-        {
-            set
-            {
-                _isAlphaBoxChecked = value;
-                RaisePropertyChanged();
-            }
-            get => _isAlphaBoxChecked;
-        }
-
         private ObservableCollection<ColorResourceCache> _colorResources =
             new ObservableCollection<ColorResourceCache>();
 
@@ -167,6 +155,8 @@ namespace DevKit.ViewModels
 
         public DelegateCommand HexCheckBoxCheckedCommand { set; get; }
         public DelegateCommand HexCheckBoxUncheckedCommand { set; get; }
+        public DelegateCommand AlphaCheckBoxCheckedCommand { set; get; }
+        public DelegateCommand AlphaCheckBoxUncheckedCommand { set; get; }
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
@@ -182,6 +172,8 @@ namespace DevKit.ViewModels
 
             HexCheckBoxCheckedCommand = new DelegateCommand(HexCheckBoxChecked);
             HexCheckBoxUncheckedCommand = new DelegateCommand(HexCheckBoxUnchecked);
+            AlphaCheckBoxCheckedCommand = new DelegateCommand(AlphaCheckBoxChecked);
+            AlphaCheckBoxUncheckedCommand = new DelegateCommand(AlphaCheckBoxUnchecked);
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
@@ -216,6 +208,25 @@ namespace DevKit.ViewModels
             IsHexInputEnabled = true;
         }
 
+        private void AlphaCheckBoxChecked()
+        {
+            var color = Color.FromArgb(
+                Convert.ToByte(_alphaValue),
+                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+            );
+            // 添加透明度
+            ColorHexValue = color.ToString();
+        }
+
+        private void AlphaCheckBoxUnchecked()
+        {
+            var color = Color.FromRgb(
+                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+            );
+            // 去掉透明度
+            ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+        }
+
         // TODO 拆分为输入事件监听
         private void ColorConvert()
         {
@@ -227,7 +238,6 @@ namespace DevKit.ViewModels
                 }
 
                 Color mediaColor;
-                if (_isAlphaBoxChecked)
                 {
                     if (!_alphaValue.IsByte())
                     {
@@ -242,7 +252,7 @@ namespace DevKit.ViewModels
                     );
                     ColorHexValue = mediaColor.ToString(); // 默认会带上透明度
                 }
-                else
+
                 {
                     mediaColor = Color.FromRgb(
                         Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
@@ -301,13 +311,11 @@ namespace DevKit.ViewModels
                     {
                         AlphaValue = drawingColor.A.ToString();
                         SliderValue = drawingColor.A;
-                        IsAlphaBoxChecked = true;
                     }
                     else
                     {
                         AlphaValue = "255";
                         SliderValue = 255;
-                        IsAlphaBoxChecked = false;
                     }
 
                     var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
@@ -339,17 +347,7 @@ namespace DevKit.ViewModels
                 MessageBox.Show("请先输入颜色值", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            if (_isAlphaBoxChecked)
-            {
-                Clipboard.SetText(_colorHexValue);
-            }
-            else
-            {
-                var color = _colorViewBrush.Color;
-                Clipboard.SetText($"#{color.R:X2}{color.G:X2}{color.B:X2}");
-            }
-
+            Clipboard.SetText(_colorHexValue);
             Growl.Success("颜色值已复制");
         }
 
