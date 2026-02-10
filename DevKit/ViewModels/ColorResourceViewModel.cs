@@ -237,33 +237,34 @@ namespace DevKit.ViewModels
 
         private void HexTextChanged(string content)
         {
-            if (string.IsNullOrWhiteSpace(content)) return;
-
-            // 判断输入的值是否合理
-            if (content.Length <= 3) return;
-
-            // 四个字符
-            if (content.Length == 4)
+            if (string.IsNullOrWhiteSpace(content))
             {
-                if (!content.StartsWith("#")) return;
-
-                // 是短形式的Hex颜色 #FFF
-                if (!content.IsColorHexString()) return;
-
-                // 正确的颜色解析，转为RGB
-                var drawingColor = ColorTranslator.FromHtml(content);
-                RedColor = drawingColor.R.ToString();
-                GreenColor = drawingColor.G.ToString();
-                BlueColor = drawingColor.B.ToString();
-
-                var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
-                ColorViewBrush = new SolidColorBrush(mediaColor);
+                HexToArgb("#FF000000");
+                return;
             }
 
-            // 五个字符
-            if (content.Length == 5 || content.Length == 6)
+            if (!content.StartsWith("#"))
             {
+                content = content.Insert(0, "#");
             }
+
+            HexToArgb(content);
+        }
+
+        private void HexToArgb(string colorHex)
+        {
+            if (!colorHex.IsColorHexString()) return;
+
+            if (colorHex.Length != 4 && colorHex.Length != 7 && colorHex.Length != 9) return;
+
+            // 四个字符（#000）或者七个字符（#000000）或者九个字符（#FF000000）
+            var drawingColor = ColorTranslator.FromHtml(colorHex);
+            AlphaValue = drawingColor.A.ToString();
+            RedColor = drawingColor.R.ToString();
+            GreenColor = drawingColor.G.ToString();
+            BlueColor = drawingColor.B.ToString();
+            var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
+            ColorViewBrush = new SolidColorBrush(mediaColor);
         }
 
         // TODO 拆分为输入事件监听

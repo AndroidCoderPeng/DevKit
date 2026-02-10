@@ -141,6 +141,7 @@
                         BorderThickness="0"
                         Command="{Binding CopyColorHexValueCommand}"
                         Content="复制"
+                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
                         Style="{StaticResource ButtonSuccess}" />
                 </Grid>
 
