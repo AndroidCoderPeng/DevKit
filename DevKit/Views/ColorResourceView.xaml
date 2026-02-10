@@ -11,7 +11,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="800"
-    Height="600"
+    Height="470"
     d:DataContext="{d:DesignInstance Type=vm:ColorResourceViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -243,8 +243,7 @@
             Background="Transparent"
             BorderThickness="0"
             ItemsSource="{Binding ColorResources}"
-            ScrollViewer.CanContentScroll="False"
-            ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            ScrollViewer.CanContentScroll="False">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border
