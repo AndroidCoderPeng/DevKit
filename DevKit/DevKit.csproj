@@ -161,7 +161,6 @@
     <Compile Include="Cache\ClientConfigCache.cs" />
     <Compile Include="Cache\SdkConfigCache.cs" />
     <Compile Include="Converters\AlphaValueConverter.cs" />
-    <Compile Include="Converters\ButtonVisibilityConverter.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />
     <Compile Include="Converters\EnableStateConverter.cs" />
