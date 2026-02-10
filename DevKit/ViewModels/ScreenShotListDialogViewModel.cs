@@ -34,6 +34,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand SortScreenshotsCommand { set; get; }
+        public DelegateCommand<ScreenshotModel> ItemDoubleClickedCommand { set; get; }
         public DelegateCommand<ScreenshotModel> DeleteScreenshotCommand { set; get; }
         public DelegateCommand<ScreenshotModel> OutputScreenshotCommand { set; get; }
 
@@ -45,6 +46,7 @@ namespace DevKit.ViewModels
         public ScreenShotListDialogViewModel()
         {
             SortScreenshotsCommand = new DelegateCommand(SortScreenshots);
+            ItemDoubleClickedCommand = new DelegateCommand<ScreenshotModel>(ItemDoubleClicked);
             DeleteScreenshotCommand = new DelegateCommand<ScreenshotModel>(DeleteScreenshot);
             OutputScreenshotCommand = new DelegateCommand<ScreenshotModel>(OutputScreenshot);
         }
@@ -64,6 +66,33 @@ namespace DevKit.ViewModels
             }
 
             Screenshots = list.ToObservableCollection();
+        }
+
+        private void ItemDoubleClicked(ScreenshotModel screenshot)
+        {
+            if (screenshot == null)
+            {
+                return;
+            }
+
+            // var argument = new ArgumentCreator();
+            // argument.Append("-s").Append(_selectedDevice).Append("shell").Append("cat").Append(screenshot.FilePath);
+            // var executor = new CommandExecutor(argument.ToCommandLine());
+            // var memoryStream = new MemoryStream();
+            // executor.OnStandardOutput += (data) =>
+            // {
+            //     var bytes = Encoding.UTF8.GetBytes(data);
+            //     memoryStream.Write(bytes, 0, bytes.Length);
+            // };
+            // executor.Execute("adb");
+            //
+            // memoryStream.Position = 0;
+            // var bitmap = new BitmapImage();
+            // bitmap.BeginInit();
+            // bitmap.StreamSource = memoryStream;
+            // bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            // bitmap.EndInit();
+            // bitmap.Freeze();
         }
 
         private void DeleteScreenshot(ScreenshotModel screenshot)
