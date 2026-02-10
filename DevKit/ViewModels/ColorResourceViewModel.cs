@@ -112,7 +112,7 @@ namespace DevKit.ViewModels
             get => _sliderValue;
         }
 
-        private string _colorHexValue = string.Empty;
+        private string _colorHexValue = "#FF000000";
 
         public string ColorHexValue
         {
@@ -124,16 +124,16 @@ namespace DevKit.ViewModels
             get => _colorHexValue;
         }
 
-        private bool _isHexBoxChecked = true;
+        private bool _isHexInputEnabled;
 
-        public bool IsHexBoxChecked
+        public bool IsHexInputEnabled
         {
             set
             {
-                _isHexBoxChecked = value;
+                _isHexInputEnabled = value;
                 RaisePropertyChanged();
             }
-            get => _isHexBoxChecked;
+            get => _isHexInputEnabled;
         }
 
         private bool _isAlphaBoxChecked;
@@ -165,6 +165,8 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand HexCheckBoxCheckedCommand { set; get; }
+        public DelegateCommand HexCheckBoxUncheckedCommand { set; get; }
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
@@ -178,6 +180,8 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
+            HexCheckBoxCheckedCommand = new DelegateCommand(HexCheckBoxChecked);
+            HexCheckBoxUncheckedCommand = new DelegateCommand(HexCheckBoxUnchecked);
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
@@ -202,10 +206,19 @@ namespace DevKit.ViewModels
             }
         }
 
+        private void HexCheckBoxChecked()
+        {
+            IsHexInputEnabled = false;
+        }
+
+        private void HexCheckBoxUnchecked()
+        {
+            IsHexInputEnabled = true;
+        }
+
         // TODO 拆分为输入事件监听
         private void ColorConvert()
         {
-            if (_isHexBoxChecked)
             {
                 if (!_redColor.IsByte() || !_greenColor.IsByte() || !_blueColor.IsByte())
                 {
@@ -239,7 +252,7 @@ namespace DevKit.ViewModels
 
                 ColorViewBrush = new SolidColorBrush(mediaColor);
             }
-            else
+
             {
                 if (string.IsNullOrWhiteSpace(_colorHexValue))
                 {
