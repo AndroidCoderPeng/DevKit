@@ -3,13 +3,13 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:bhv="clr-namespace:DevKit.Behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
-    xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="800"
     Height="600"
@@ -198,7 +198,7 @@
 
                 <!--  自动滑动到最底部  -->
                 <b:Interaction.Behaviors>
-                    <utils:AutoScrollToBottomBehavior />
+                    <bhv:AutoScrollToBottomBehavior />
                 </b:Interaction.Behaviors>
 
                 <ListBox.ItemContainerStyle>
@@ -291,7 +291,7 @@
 
                     <!--  自动滑动到最底部  -->
                     <b:Interaction.Behaviors>
-                        <utils:AutoScrollToBottomBehavior />
+                        <bhv:AutoScrollToBottomBehavior />
                     </b:Interaction.Behaviors>
 
                     <ListBox.ContextMenu>

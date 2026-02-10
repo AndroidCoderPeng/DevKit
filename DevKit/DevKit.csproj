@@ -155,6 +155,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Behaviors\AutoScrollToBottomBehavior.cs" />
+    <Compile Include="Behaviors\ListBoxItemMarginBehavior.cs" />
+    <Compile Include="Behaviors\NumericRangeBehavior.cs" />
     <Compile Include="Cache\ApkConfigCache.cs" />
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\ExCommandCache.cs" />
@@ -192,11 +195,9 @@
     <Compile Include="Models\UdpClientModel.cs" />
     <Compile Include="Models\WebSocketClientModel.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />
-    <Compile Include="Utils\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Utils\CommandExecutor.cs" />
     <Compile Include="Utils\DataBaseConnection.cs" />
     <Compile Include="Utils\GridLengthAnimation.cs" />
-    <Compile Include="Utils\ListBoxItemMarginBehavior.cs" />
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DevKit.Utils
+namespace DevKit.Behaviors
 {
     internal class ListBoxItemMarginBehavior
     {

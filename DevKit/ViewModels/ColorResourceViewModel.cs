@@ -153,13 +153,14 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand<string> RedColorTextChangedCommand { set; get; }
+        public DelegateCommand<string> ColorHexTextChangedCommand { set; get; }
+        
         public DelegateCommand HexCheckBoxCheckedCommand { set; get; }
         public DelegateCommand HexCheckBoxUncheckedCommand { set; get; }
 
         public DelegateCommand AlphaCheckBoxCheckedCommand { set; get; }
         public DelegateCommand AlphaCheckBoxUncheckedCommand { set; get; }
-
-        public DelegateCommand<string> HexTextChangedCommand { set; get; }
 
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
@@ -174,13 +175,14 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
+            RedColorTextChangedCommand = new DelegateCommand<string>(RedColorTextChanged);
+            ColorHexTextChangedCommand = new DelegateCommand<string>(ColorHexTextChanged);
+            
             HexCheckBoxCheckedCommand = new DelegateCommand(HexCheckBoxChecked);
             HexCheckBoxUncheckedCommand = new DelegateCommand(HexCheckBoxUnchecked);
 
             AlphaCheckBoxCheckedCommand = new DelegateCommand(AlphaCheckBoxChecked);
             AlphaCheckBoxUncheckedCommand = new DelegateCommand(AlphaCheckBoxUnchecked);
-
-            HexTextChangedCommand = new DelegateCommand<string>(HexTextChanged);
 
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
@@ -206,36 +208,17 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void HexCheckBoxChecked()
+        private void RedColorTextChanged(string content)
         {
-            IsHexInputEnabled = false;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return;
+            }
+            
+            
         }
 
-        private void HexCheckBoxUnchecked()
-        {
-            IsHexInputEnabled = true;
-        }
-
-        private void AlphaCheckBoxChecked()
-        {
-            var color = Color.FromArgb(
-                Convert.ToByte(_alphaValue),
-                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
-            );
-            // 添加透明度
-            ColorHexValue = color.ToString();
-        }
-
-        private void AlphaCheckBoxUnchecked()
-        {
-            var color = Color.FromRgb(
-                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
-            );
-            // 去掉透明度
-            ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        }
-
-        private void HexTextChanged(string content)
+        private void ColorHexTextChanged(string content)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -265,6 +248,35 @@ namespace DevKit.ViewModels
             BlueColor = drawingColor.B.ToString();
             var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
             ColorViewBrush = new SolidColorBrush(mediaColor);
+        }
+        
+        private void HexCheckBoxChecked()
+        {
+            IsHexInputEnabled = false;
+        }
+
+        private void HexCheckBoxUnchecked()
+        {
+            IsHexInputEnabled = true;
+        }
+
+        private void AlphaCheckBoxChecked()
+        {
+            var color = Color.FromArgb(
+                Convert.ToByte(_alphaValue),
+                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+            );
+            // 添加透明度
+            ColorHexValue = color.ToString();
+        }
+
+        private void AlphaCheckBoxUnchecked()
+        {
+            var color = Color.FromRgb(
+                Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
+            );
+            // 去掉透明度
+            ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
         }
 
         // TODO 拆分为输入事件监听

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Xaml.Behaviors;
 
-namespace DevKit.Utils
+namespace DevKit.Behaviors
 {
     public class AutoScrollToBottomBehavior : Behavior<ListBox>
     {
