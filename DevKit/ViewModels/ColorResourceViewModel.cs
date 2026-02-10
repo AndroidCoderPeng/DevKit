@@ -165,7 +165,6 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ColorConvertCommand { set; get; }
         public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
@@ -179,7 +178,6 @@ namespace DevKit.ViewModels
             var color = Color.FromRgb(0, 0, 0);
             ColorViewBrush = new SolidColorBrush(color);
 
-            ColorConvertCommand = new DelegateCommand(ColorConvert);
             AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
@@ -204,6 +202,7 @@ namespace DevKit.ViewModels
             }
         }
 
+        // TODO 拆分为输入事件监听
         private void ColorConvert()
         {
             if (_isHexBoxChecked)

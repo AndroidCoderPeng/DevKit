@@ -109,26 +109,6 @@
                 </UniformGrid>
 
                 <Grid Grid.Row="4">
-                    <Button
-                        Width="80"
-                        Height="80"
-                        hc:BorderElement.CornerRadius="40"
-                        Command="{Binding ColorConvertCommand}"
-                        Content="&#xe603;"
-                        FontFamily="/DevKit;component/Fonts/#iconfont"
-                        FontSize="40"
-                        Style="{StaticResource ButtonPrimary}" />
-
-                    <CheckBox
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Content="HEX"
-                        IsChecked="{Binding IsHexBoxChecked}" />
-                </Grid>
-
-
-                <Grid Grid.Row="5" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
@@ -149,6 +129,20 @@
                         Content="复制"
                         Style="{StaticResource ButtonSuccess}" />
                 </Grid>
+
+                <Grid Grid.Row="5" Margin="0,10,0,0">
+                    <CheckBox
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        Content="RGB转HEX"
+                        IsChecked="{Binding IsHexBoxChecked}" />
+
+                    <CheckBox
+                        x:Name="AlphaCheckBox"
+                        HorizontalAlignment="Right"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        Content="透明度"
+                        IsChecked="{Binding IsAlphaBoxChecked}" />
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="1" Margin="0,10">
@@ -163,39 +157,32 @@
                     Background="{Binding ColorViewBrush}"
                     CornerRadius="5" />
 
-                <Grid Grid.Row="1" Margin="0,10">
+                <Grid Grid.Row="1" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" Text="{Binding Value, ElementName=AlphaSlider, Converter={StaticResource AlphaValueConverterKey}}" />
 
-                    <CheckBox
-                        x:Name="AlphaCheckBox"
+                    <Slider
+                        x:Name="AlphaSlider"
                         Grid.Column="1"
                         Margin="10,0,0,0"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Content="透明度"
-                        IsChecked="{Binding IsAlphaBoxChecked}" />
+                        HorizontalAlignment="Stretch"
+                        hc:TipElement.Visibility="Collapsed"
+                        IsEnabled="{Binding ElementName=AlphaCheckBox, Path=IsChecked}"
+                        IsSnapToTickEnabled="True"
+                        Maximum="255"
+                        Minimum="0"
+                        Value="{Binding SliderValue}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="ValueChanged">
+                                <b:InvokeCommandAction Command="{Binding AlphaValueChangedCommand}" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </Slider>
                 </Grid>
-
-                <Slider
-                    x:Name="AlphaSlider"
-                    Grid.Row="2"
-                    HorizontalAlignment="Stretch"
-                    hc:TipElement.Visibility="Collapsed"
-                    IsEnabled="{Binding ElementName=AlphaCheckBox, Path=IsChecked}"
-                    IsSnapToTickEnabled="True"
-                    Maximum="255"
-                    Minimum="0"
-                    Value="{Binding SliderValue}">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="ValueChanged">
-                            <b:InvokeCommandAction Command="{Binding AlphaValueChangedCommand}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </Slider>
             </Grid>
         </Grid>
 
