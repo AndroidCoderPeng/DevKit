@@ -171,6 +171,11 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private byte _alpha = 255;
+        private byte _red;
+        private byte _green;
+        private byte _blue;
+
         public ColorResourceViewModel()
         {
             Task.Run(async () => await LoadColorResourcesAsync());
@@ -216,46 +221,95 @@ namespace DevKit.ViewModels
 
         private void AlphaColorTextChanged(string colorValue)
         {
+            if (_isHexInputEnabled)
+            {
+                Console.WriteLine(@"HEX转RGB模式，不响应此函数");
+                return;
+            }
+            
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
             }
 
-            var alpha = Convert.ToByte(colorValue);
+            if (!int.TryParse(colorValue, out var intValue)) intValue = 0;
+            intValue = Math.Max(0, Math.Min(255, intValue));
+            _alpha = (byte)intValue;
+            ArgbToHex();
         }
-        
+
         private void RedColorTextChanged(string colorValue)
         {
+            if (_isHexInputEnabled)
+            {
+                Console.WriteLine(@"HEX转RGB模式，不响应此函数");
+                return;
+            }
+            
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
             }
 
-            var red = Convert.ToByte(colorValue);
+            if (!int.TryParse(colorValue, out var intValue)) intValue = 0;
+            intValue = Math.Max(0, Math.Min(255, intValue));
+            _red = (byte)intValue;
+            ArgbToHex();
         }
-        
+
         private void GreenColorTextChanged(string colorValue)
         {
+            if (_isHexInputEnabled)
+            {
+                Console.WriteLine(@"HEX转RGB模式，不响应此函数");
+                return;
+            }
+            
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
             }
 
-            var green = Convert.ToByte(colorValue);
+            if (!int.TryParse(colorValue, out var intValue)) intValue = 0;
+            intValue = Math.Max(0, Math.Min(255, intValue));
+            _green = (byte)intValue;
+            ArgbToHex();
         }
-        
+
         private void BlueColorTextChanged(string colorValue)
         {
+            if (_isHexInputEnabled)
+            {
+                Console.WriteLine(@"HEX转RGB模式，不响应此函数");
+                return;
+            }
+            
             if (string.IsNullOrWhiteSpace(colorValue) || !colorValue.IsNumber())
             {
                 colorValue = "0";
             }
 
-            var blue = Convert.ToByte(colorValue);
+            if (!int.TryParse(colorValue, out var intValue)) intValue = 0;
+            intValue = Math.Max(0, Math.Min(255, intValue));
+            _blue = (byte)intValue;
+            ArgbToHex();
+        }
+
+        private void ArgbToHex()
+        {
+            var color = Color.FromArgb(_alpha, _red, _green, _blue);
+            ColorHexValue = color.ToString();
+            ColorViewBrush = new SolidColorBrush(color);
         }
 
         private void ColorHexTextChanged(string colorValue)
         {
+            if (!_isHexInputEnabled)
+            {
+                Console.WriteLine(@"RGB转HEX模式，不响应此函数");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(colorValue))
             {
                 HexToArgb("#FF000000");
@@ -313,109 +367,6 @@ namespace DevKit.ViewModels
             );
             // 去掉透明度
             ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        }
-
-        // TODO 拆分为输入事件监听
-        private void ColorConvert()
-        {
-            {
-                if (!_redColor.IsByte() || !_greenColor.IsByte() || !_blueColor.IsByte())
-                {
-                    MessageBox.Show("请填写正确的RGB值，各分量取值范围【0~255】", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                Color mediaColor;
-                {
-                    if (!_alphaValue.IsByte())
-                    {
-                        MessageBox.Show("请填写正确的透明度值，取值范围【0~255】", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    SliderValue = Convert.ToByte(_alphaValue);
-                    mediaColor = Color.FromArgb(
-                        Convert.ToByte(_alphaValue), Convert.ToByte(_redColor), Convert.ToByte(_greenColor),
-                        Convert.ToByte(_blueColor)
-                    );
-                    ColorHexValue = mediaColor.ToString(); // 默认会带上透明度
-                }
-
-                {
-                    mediaColor = Color.FromRgb(
-                        Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
-                    );
-                    ColorHexValue = $"#{mediaColor.R:X2}{mediaColor.G:X2}{mediaColor.B:X2}";
-                }
-
-                ColorViewBrush = new SolidColorBrush(mediaColor);
-            }
-
-            {
-                if (string.IsNullOrWhiteSpace(_colorHexValue))
-                {
-                    MessageBox.Show("请填写正确的HEX值", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // 判断是否是合理的Hex颜色值
-                try
-                {
-                    var hex = _colorHexValue.Trim();
-                    if (hex.StartsWith("#"))
-                    {
-                        hex = hex.Substring(1);
-                    }
-
-                    // 验证长度是否符合HEX颜色值规范(3位、6位或8位)
-                    if (hex.Length != 3 && hex.Length != 6 && hex.Length != 8)
-                    {
-                        throw new FormatException();
-                    }
-
-                    // 验证每个字符是否都是有效的十六进制字符
-                    var isValidHex = true;
-                    foreach (var c in hex)
-                    {
-                        if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')))
-                        {
-                            isValidHex = false;
-                            break;
-                        }
-                    }
-
-                    if (!isValidHex)
-                    {
-                        throw new FormatException();
-                    }
-
-                    // 如果验证通过，继续进行HEX到RGB的转换
-                    var drawingColor = ColorTranslator.FromHtml(_colorHexValue);
-                    RedColor = drawingColor.R.ToString();
-                    GreenColor = drawingColor.G.ToString();
-                    BlueColor = drawingColor.B.ToString();
-
-                    if (hex.Length == 8)
-                    {
-                        AlphaValue = drawingColor.A.ToString();
-                        SliderValue = drawingColor.A;
-                    }
-                    else
-                    {
-                        AlphaValue = "255";
-                        SliderValue = 255;
-                    }
-
-                    var mediaColor = Color.FromArgb(drawingColor.A, drawingColor.R, drawingColor.G, drawingColor.B);
-                    ColorViewBrush = new SolidColorBrush(mediaColor);
-                    ColorHexValue = _colorHexValue;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    MessageBox.Show("请输入有效的HEX颜色值，例如:#FF0000", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
         }
 
         private void AlphaValueChanged()
