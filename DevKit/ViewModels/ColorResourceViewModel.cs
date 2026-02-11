@@ -100,18 +100,6 @@ namespace DevKit.ViewModels
             get => _colorViewBrush;
         }
 
-        private byte _sliderValue = 255;
-
-        public byte SliderValue
-        {
-            set
-            {
-                _sliderValue = value;
-                RaisePropertyChanged();
-            }
-            get => _sliderValue;
-        }
-
         private string _colorHexValue = "#FF000000";
 
         public string ColorHexValue
@@ -165,7 +153,6 @@ namespace DevKit.ViewModels
         public DelegateCommand AlphaCheckBoxCheckedCommand { set; get; }
         public DelegateCommand AlphaCheckBoxUncheckedCommand { set; get; }
 
-        public DelegateCommand AlphaValueChangedCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
@@ -195,7 +182,6 @@ namespace DevKit.ViewModels
             AlphaCheckBoxCheckedCommand = new DelegateCommand(AlphaCheckBoxChecked);
             AlphaCheckBoxUncheckedCommand = new DelegateCommand(AlphaCheckBoxUnchecked);
 
-            AlphaValueChangedCommand = new DelegateCommand(AlphaValueChanged);
             CopyColorHexValueCommand = new DelegateCommand(CopyColorHexValue);
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(ColorItemClicked);
         }
@@ -298,7 +284,6 @@ namespace DevKit.ViewModels
         private void ArgbToHex()
         {
             var color = Color.FromArgb(_alpha, _red, _green, _blue);
-            SliderValue = color.A;
             ColorHexValue = color.ToString();
             ColorViewBrush = new SolidColorBrush(color);
         }
@@ -368,16 +353,6 @@ namespace DevKit.ViewModels
             );
             // 去掉透明度
             ColorHexValue = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        }
-
-        private void AlphaValueChanged()
-        {
-            var color = Color.FromArgb(
-                _sliderValue, Convert.ToByte(_redColor), Convert.ToByte(_greenColor), Convert.ToByte(_blueColor)
-            );
-            AlphaValue = _sliderValue.ToString();
-            ColorViewBrush = new SolidColorBrush(color);
-            ColorHexValue = color.ToString();
         }
 
         private void CopyColorHexValue()
