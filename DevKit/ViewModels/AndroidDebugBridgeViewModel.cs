@@ -195,18 +195,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _exportStatus = string.Empty;
-
-        public string ExportStatus
-        {
-            get => _exportStatus;
-            set
-            {
-                _exportStatus = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private ObservableCollection<string> _applicationPackages = new ObservableCollection<string>();
 
         public ObservableCollection<string> ApplicationPackages
@@ -640,7 +628,6 @@ namespace DevKit.ViewModels
                         Application.Current.Dispatcher.Invoke(delegate
                         {
                             IsExporting = false;
-                            ExportStatus = string.Empty;
                             MessageBox.Show("未找到应用的安装路径，请重新选择", "导出应用", MessageBoxButton.OK, MessageBoxImage.Error);
                         });
                         return;
@@ -657,7 +644,6 @@ namespace DevKit.ViewModels
                     Application.Current.Dispatcher.Invoke(delegate
                     {
                         IsExporting = true;
-                        ExportStatus = $"正在导出 {_selectedPackage} ...";
                     });
 
                     new CommandExecutor(argument.ToCommandLine()).Execute("adb");
@@ -665,7 +651,6 @@ namespace DevKit.ViewModels
                     Application.Current.Dispatcher.Invoke(delegate
                     {
                         IsExporting = false;
-                        ExportStatus = string.Empty;
                         MessageBox.Show($"导出完成：{filePath}", "导出应用", MessageBoxButton.OK, MessageBoxImage.Information);
                     });
                 };
