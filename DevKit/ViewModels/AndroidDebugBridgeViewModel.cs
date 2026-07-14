@@ -195,6 +195,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private double _exportProgress;
+
+        public double ExportProgress
+        {
+            get => _exportProgress;
+            set
+            {
+                _exportProgress = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private ObservableCollection<string> _applicationPackages = new ObservableCollection<string>();
 
         public ObservableCollection<string> ApplicationPackages
@@ -636,8 +648,9 @@ namespace DevKit.ViewModels
                     var packagePath = value.Replace("package:", "");
                     var fileName = $"{_selectedPackage}.apk";
                     var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
+
+                    // ---- 新建一个 CommandExecutor 专门用于 pull ----
                     argument.Clear();
-                    //拷贝应用到电脑
                     //adb -s <设备序列号> pull <应用安装路径> <电脑路径>
                     argument.Append("-s").Append(_selectedDevice).Append("pull").Append(packagePath).Append(filePath);
 

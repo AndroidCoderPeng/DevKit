@@ -269,7 +269,7 @@
                 <TextBlock Text="第三方软件" />
 
                 <Border Margin="10,0" Style="{StaticResource ExportProgressStyle}">
-                    <ProgressBar Height="12" Value="{Binding ExportProgress}" />
+                    <ProgressBar Height="14" Value="{Binding ExportProgress}" />
                 </Border>
             </DockPanel>
 
