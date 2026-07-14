@@ -6,12 +6,9 @@ namespace DevKit.Utils
     {
         public delegate void CommandResultDelegate(string output);
 
-        // 事件，用于在输出时触发  
         public event CommandResultDelegate OnStandardOutput;
+        public event CommandResultDelegate OnStandardError;
 
-        /// <summary>
-        /// 命令行参数
-        /// </summary>
         private readonly string _arguments;
 
         public CommandExecutor(string arguments)
@@ -19,13 +16,31 @@ namespace DevKit.Utils
             _arguments = arguments;
         }
 
+        /// <summary>
+        /// 同步执行命令，阻塞直到进程退出
+        /// </summary>
         public void Execute(string executor)
+        {
+            var process = BuildAndStartProcess(executor);
+            process.WaitForExit();
+            process.Close();
+        }
+
+        /// <summary>
+        /// 非阻塞启动进程，返回 Process 对象供调用方轮询状态
+        /// </summary>
+        public Process StartNonBlocking(string executor)
+        {
+            return BuildAndStartProcess(executor);
+        }
+
+        private Process BuildAndStartProcess(string executor)
         {
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = executor, // 如果不在环境变量中，需要改为完整路径  
+                    FileName = executor,
                     Arguments = _arguments,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -33,6 +48,7 @@ namespace DevKit.Utils
                     CreateNoWindow = true
                 }
             };
+
             process.OutputDataReceived += (sender, e) =>
             {
                 if (e.Data != null)
@@ -41,14 +57,19 @@ namespace DevKit.Utils
                 }
             };
 
-            // 启动进程并开始异步读取输出  
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (e.Data != null)
+                {
+                    OnStandardError?.Invoke(e.Data);
+                }
+            };
+
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            // 等待进程完成  
-            process.WaitForExit();
-            process.Close();
+            return process;
         }
     }
 }
