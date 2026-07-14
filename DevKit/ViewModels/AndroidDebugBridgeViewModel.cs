@@ -183,6 +183,30 @@ namespace DevKit.ViewModels
             }
         }
 
+        private bool _isExporting;
+
+        public bool IsExporting
+        {
+            get => _isExporting;
+            set
+            {
+                _isExporting = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _exportStatus = string.Empty;
+
+        public string ExportStatus
+        {
+            get => _exportStatus;
+            set
+            {
+                _exportStatus = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private ObservableCollection<string> _applicationPackages = new ObservableCollection<string>();
 
         public ObservableCollection<string> ApplicationPackages
@@ -209,6 +233,7 @@ namespace DevKit.ViewModels
         public DelegateCommand RefreshApplicationCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
+        public DelegateCommand ExportPackageCommand { set; get; }
         public DelegateCommand UninstallCommand { set; get; }
 
         #endregion
@@ -235,6 +260,7 @@ namespace DevKit.ViewModels
             RefreshApplicationCommand = new DelegateCommand(RefreshApplication);
             SortApplicationCommand = new DelegateCommand(SortApplication);
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
+            ExportPackageCommand = new DelegateCommand(ExportPackage);
             UninstallCommand = new DelegateCommand(UninstallApplication);
         }
 
@@ -589,6 +615,62 @@ namespace DevKit.ViewModels
         private void PackageSelected(string package)
         {
             _selectedPackage = package;
+        }
+
+        private void ExportPackage()
+        {
+            if (string.IsNullOrEmpty(_selectedPackage))
+            {
+                MessageBox.Show("请先选择需要卸载的应用", "操作失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                var argument = new ArgumentCreator();
+                //找到应用的安装路径
+                //adb -s <设备序列号> shell pm path <应用包名>
+                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("pm").Append("path")
+                    .Append(_selectedPackage);
+                var executor = new CommandExecutor(argument.ToCommandLine());
+                executor.OnStandardOutput += delegate(string value)
+                {
+                    if (!value.Contains("package:"))
+                    {
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            IsExporting = false;
+                            ExportStatus = string.Empty;
+                            MessageBox.Show("未找到应用的安装路径，请重新选择", "导出应用", MessageBoxButton.OK, MessageBoxImage.Error);
+                        });
+                        return;
+                    }
+
+                    var packagePath = value.Replace("package:", "");
+                    var fileName = $"{_selectedPackage}.apk";
+                    var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
+                    argument.Clear();
+                    //拷贝应用到电脑
+                    //adb -s <设备序列号> pull <应用安装路径> <电脑路径>
+                    argument.Append("-s").Append(_selectedDevice).Append("pull").Append(packagePath).Append(filePath);
+
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        IsExporting = true;
+                        ExportStatus = $"正在导出 {_selectedPackage} ...";
+                    });
+
+                    new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+
+                    Application.Current.Dispatcher.Invoke(delegate
+                    {
+                        IsExporting = false;
+                        ExportStatus = string.Empty;
+                        MessageBox.Show($"导出完成：{filePath}", "导出应用", MessageBoxButton.OK, MessageBoxImage.Information);
+                    });
+                };
+                executor.Execute("adb");
+            });
         }
 
         private void UninstallApplication()

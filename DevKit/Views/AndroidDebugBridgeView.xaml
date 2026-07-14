@@ -22,6 +22,13 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
+        <Style x:Key="ExportProgressStyle" TargetType="Border">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsExporting}" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
         </Style>
@@ -63,7 +70,8 @@
                     ItemsSource="{Binding DeviceItems}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="SelectionChanged">
-                            <b:InvokeCommandAction Command="{Binding DeviceSelectedCommand}" CommandParameter="{Binding ElementName=DeviceComboBox, Path=SelectedItem}" />
+                            <b:InvokeCommandAction Command="{Binding DeviceSelectedCommand}"
+                                                   CommandParameter="{Binding ElementName=DeviceComboBox, Path=SelectedItem}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </ComboBox>
@@ -255,6 +263,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock
@@ -272,7 +281,8 @@
                 ScrollViewer.CanContentScroll="False">
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="SelectionChanged">
-                        <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
+                        <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}"
+                                               CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
                     </b:EventTrigger>
                 </b:Interaction.Triggers>
 
@@ -285,9 +295,13 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem
-                            Width="95"
+                            Width="128"
+                            Command="{Binding ExportPackageCommand}"
+                            Header="导出安装包" />
+                        <MenuItem
+                            Width="128"
                             Command="{Binding UninstallCommand}"
-                            Header="卸载" />
+                            Header="卸载应用" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
@@ -310,6 +324,22 @@
                     Command="{Binding RefreshApplicationCommand}"
                     Content="刷新" />
             </UniformGrid>
+
+            <Border
+                Grid.Row="3"
+                Margin="0,0,10,5"
+                Padding="8,4"
+                Background="{DynamicResource DevKitBackgroundBrush}"
+                Style="{StaticResource ExportProgressStyle}">
+                <StackPanel>
+                    <ProgressBar Height="16" IsIndeterminate="True" />
+                    <TextBlock
+                        Margin="0,4,0,0"
+                        FontSize="12"
+                        Text="{Binding ExportStatus}"
+                        TextAlignment="Center" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
