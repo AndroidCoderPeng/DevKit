@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Threading;
 using DevKit.Events;
 using DevKit.Utils;
+using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -225,6 +226,8 @@ namespace DevKit.ViewModels
 
         public DelegateCommand<string> DeviceSelectedCommand { set; get; }
         public DelegateCommand RefreshDeviceCommand { set; get; }
+        public DelegateCommand<string> AndroidIdLabelClickCommand { set; get; }
+        public DelegateCommand<string> DeviceIpLabelClickCommand { set; get; }
         public DelegateCommand OutputImageCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
@@ -252,6 +255,8 @@ namespace DevKit.ViewModels
 
             DeviceSelectedCommand = new DelegateCommand<string>(DeviceSelected);
             RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
+            AndroidIdLabelClickCommand = new DelegateCommand<string>(AndroidIdLabelClicked);
+            DeviceIpLabelClickCommand = new DelegateCommand<string>(DeviceIpLabelClicked);
             OutputImageCommand = new DelegateCommand(PullScreenshot);
             ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             InstallCommand = new DelegateCommand(InstallApplication);
@@ -368,7 +373,6 @@ namespace DevKit.ViewModels
                     var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value)
                     {
-                        Console.WriteLine(value);
                         if (value.Contains("error"))
                         {
                             DeviceIp = "无法获取IP";
@@ -505,6 +509,23 @@ namespace DevKit.ViewModels
                 }));
             };
             Task.Run(() => { executor.Execute("adb"); });
+        }
+
+        private void AndroidIdLabelClicked(string id)
+        {
+            CopyToClipboard(id);
+        }
+
+        private void DeviceIpLabelClicked(string ip)
+        {
+            CopyToClipboard(ip);
+        }
+
+        private void CopyToClipboard(string text)
+        {
+            var dataObject = new DataObject(DataFormats.UnicodeText, text);
+            Clipboard.SetDataObject(dataObject);
+            Growl.Success("参数已复制");
         }
 
         private void TakeScreenshot()

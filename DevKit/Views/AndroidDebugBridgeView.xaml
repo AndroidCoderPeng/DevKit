@@ -136,14 +136,21 @@
 
                 <DockPanel
                     Grid.Row="3"
-                    Margin="10"
+                    Margin="10,4"
                     LastChildFill="True">
                     <TextBlock
                         Width="100"
                         VerticalAlignment="Center"
                         Text="Android ID" />
 
-                    <TextBlock VerticalAlignment="Center" Text="{Binding AndroidId}" />
+                    <Label HorizontalAlignment="Left" Content="{Binding AndroidId}">
+                        <Label.InputBindings>
+                            <MouseBinding
+                                Command="{Binding AndroidIdLabelClickCommand}"
+                                CommandParameter="{Binding AndroidId}"
+                                MouseAction="LeftClick" />
+                        </Label.InputBindings>
+                    </Label>
                 </DockPanel>
 
                 <DockPanel
@@ -160,14 +167,21 @@
 
                 <DockPanel
                     Grid.Row="5"
-                    Margin="10"
+                    Margin="10,4"
                     LastChildFill="True">
                     <TextBlock
                         Width="100"
                         VerticalAlignment="Center"
                         Text="本机IP地址" />
 
-                    <TextBlock VerticalAlignment="Center" Text="{Binding DeviceIp}" />
+                    <Label HorizontalAlignment="Left" Content="{Binding DeviceIp}">
+                        <Label.InputBindings>
+                            <MouseBinding
+                                Command="{Binding DeviceIpLabelClickCommand}"
+                                CommandParameter="{Binding DeviceIp}"
+                                MouseAction="LeftClick" />
+                        </Label.InputBindings>
+                    </Label>
                 </DockPanel>
 
                 <DockPanel
