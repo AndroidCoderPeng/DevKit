@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -136,14 +135,14 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _deviceDensity;
+        private string _deviceIp;
 
-        public string DeviceDensity
+        public string DeviceIp
         {
-            get => _deviceDensity;
+            get => _deviceIp;
             set
             {
-                _deviceDensity = value;
+                _deviceIp = value;
                 RaisePropertyChanged();
             }
         }
@@ -289,9 +288,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //获取设备品牌
                     //adb shell getprop ro.product.brand
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                        .Append("ro.product.brand");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("getprop")
+                        .Append("ro.product.brand")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value) { DeviceBrand = value; };
                     executor.Execute("adb");
                 }
@@ -300,9 +301,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //获取CPU支持的abi架构列表
                     //adb shell getprop ro.product.cpu.abilist
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                        .Append("ro.product.cpu.abilist");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("getprop")
+                        .Append("ro.product.cpu.abilist")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value) { DeviceAbi = value; };
                     executor.Execute("adb");
                 }
@@ -311,9 +314,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //获取设备Android系统版本
                     //adb shell getprop ro.build.version.release
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("getprop")
-                        .Append("ro.build.version.release");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("getprop")
+                        .Append("ro.build.version.release")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value) { AndroidVersion = value; };
                     executor.Execute("adb");
                 }
@@ -322,10 +327,14 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //获取设备Android ID
                     //adb shell settings get secure android_id
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("settings")
-                        .Append("get").Append("secure").Append("android_id");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
-                    executor.OnStandardOutput += delegate(string value) { AndroidId = value.ToUpper(); };
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("settings")
+                        .Append("get")
+                        .Append("secure")
+                        .Append("android_id")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
+                    executor.OnStandardOutput += delegate(string value) { AndroidId = value; };
                     executor.Execute("adb");
                 }
 
@@ -333,8 +342,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //获取设备屏幕分辨率
                     //adb shell wm size
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("size");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("wm")
+                        .Append("size")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value)
                     {
                         //Physical size: 1240x2772
@@ -345,15 +357,30 @@ namespace DevKit.ViewModels
 
                 {
                     var argument = new ArgumentCreator();
-                    //获取设备屏幕密度
-                    //adb shell wm density
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("wm").Append("density");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    //获取设备IP
+                    //adb shell ip addr show wlan0
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("ip")
+                        .Append("addr")
+                        .Append("show")
+                        .Append("wlan0")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value)
                     {
-                        //Physical density: 560
-                        DeviceDensity =
-                            $"{value.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries)[1].Trim()}";
+                        Console.WriteLine(value);
+                        if (value.Contains("error"))
+                        {
+                            DeviceIp = "无法获取IP";
+                            return;
+                        }
+
+                        var regex = new Regex(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})");
+                        var match = regex.Match(value);
+                        if (match.Success)
+                        {
+                            DeviceIp = match.Groups[1].Value;
+                        }
                     };
                     executor.Execute("adb");
                 }
@@ -362,8 +389,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //监控电池信息
                     //adb shell dumpsys battery
-                    argument.Append("-s").Append(_selectedDevice).Append("shell").Append("dumpsys").Append("battery");
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("dumpsys")
+                        .Append("battery")
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value)
                     {
                         var dictionary = value.ToDictionary();
@@ -419,9 +449,13 @@ namespace DevKit.ViewModels
                 var argument = new ArgumentCreator();
                 //列出第三方的应用
                 //adb shell pm list package -3
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("pm").Append("list")
-                    .Append("package").Append("-3");
-                var executor = new CommandExecutor(argument.ToCommandLine());
+                var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                    .Append("pm")
+                    .Append("list")
+                    .Append("package")
+                    .Append("-3")
+                    .ToCommandLine();
+                var executor = new CommandExecutor(cmdStr);
                 executor.OnStandardOutput += delegate(string value)
                 {
                     var package = value.Split(new[] { ":" }, StringSplitOptions.None)[1];
@@ -481,9 +515,12 @@ namespace DevKit.ViewModels
                 //截取屏幕截图并保存到指定位置
                 //adb shell screencap -p /sdcard/20241214112123.png 
                 var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("screencap").Append("-p")
-                    .Append($"/sdcard/{fileName}");
-                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+                var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                    .Append("screencap")
+                    .Append("-p")
+                    .Append($"/sdcard/{fileName}")
+                    .ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
                 PullScreenshot();
             });
         }
@@ -536,8 +573,12 @@ namespace DevKit.ViewModels
                 var argument = new ArgumentCreator();
                 //关机
                 //adb shell reboot -p 
-                argument.Append("-s").Append(_selectedDevice).Append("shell").Append("reboot").Append("-p");
-                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+                var cmdStr = argument.Append("-s").Append(_selectedDevice)
+                    .Append("shell")
+                    .Append("reboot")
+                    .Append("-p")
+                    .ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
             }
         }
 
@@ -568,8 +609,12 @@ namespace DevKit.ViewModels
                 var argument = new ArgumentCreator();
                 //覆盖安装应用（apk）
                 //adb -s <设备序列号> install  -r 
-                argument.Append("-s").Append(_selectedDevice).Append("install").Append("-r").Append(filePath);
-                var executor = new CommandExecutor(argument.ToCommandLine());
+                var cmdStr = argument.Append("-s").Append(_selectedDevice)
+                    .Append("install")
+                    .Append("-r")
+                    .Append(filePath)
+                    .ToCommandLine();
+                var executor = new CommandExecutor(cmdStr);
                 executor.OnStandardOutput += delegate(string value)
                 {
                     if (value.Equals("Success"))
@@ -630,21 +675,24 @@ namespace DevKit.ViewModels
             {
                 // Step 1: 获取应用安装路径
                 // adb -s <设备序列号> shell pm path <应用包名>
-                var pathArg = new ArgumentCreator();
-                pathArg.Append("-s").Append(_selectedDevice)
-                       .Append("shell").Append("pm").Append("path")
-                       .Append(_selectedPackage);
-
                 string packagePath = null;
-                var pathExecutor = new CommandExecutor(pathArg.ToCommandLine());
-                pathExecutor.OnStandardOutput += delegate(string value)
                 {
-                    if (value.Contains("package:"))
+                    var argument = new ArgumentCreator();
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("pm")
+                        .Append("path")
+                        .Append(_selectedPackage)
+                        .ToCommandLine();
+                    var pathExecutor = new CommandExecutor(cmdStr);
+                    pathExecutor.OnStandardOutput += delegate(string value)
                     {
-                        packagePath = value.Replace("package:", "").Trim();
-                    }
-                };
-                pathExecutor.Execute("adb");
+                        if (value.Contains("package:"))
+                        {
+                            packagePath = value.Replace("package:", "").Trim();
+                        }
+                    };
+                    pathExecutor.Execute("adb");
+                }
 
                 if (string.IsNullOrEmpty(packagePath))
                 {
@@ -659,65 +707,79 @@ namespace DevKit.ViewModels
 
                 // Step 2: 获取远端文件大小
                 // adb -s <设备> shell stat -c %s <路径>
-                var sizeArg = new ArgumentCreator();
-                sizeArg.Append("-s").Append(_selectedDevice)
-                       .Append("shell").Append("stat").Append("-c").Append("%s")
-                       .Append(packagePath);
-
                 long remoteFileSize = 0;
-                var sizeExecutor = new CommandExecutor(sizeArg.ToCommandLine());
-                sizeExecutor.OnStandardOutput += delegate(string value)
                 {
-                    long.TryParse(value.Trim(), out remoteFileSize);
-                };
-                sizeExecutor.Execute("adb");
+                    var argument = new ArgumentCreator();
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice).Append("shell")
+                        .Append("stat")
+                        .Append("-c")
+                        .Append("%s")
+                        .Append(packagePath)
+                        .ToCommandLine();
+                    var sizeExecutor = new CommandExecutor(cmdStr);
+                    sizeExecutor.OnStandardOutput += delegate(string value)
+                    {
+                        long.TryParse(value.Trim(), out remoteFileSize);
+                    };
+                    sizeExecutor.Execute("adb");
+                }
 
                 var fileName = $"{_selectedPackage}.apk";
                 var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
 
                 Application.Current.Dispatcher.Invoke(delegate { IsExporting = true; });
 
-                if (remoteFileSize <= 0)
                 {
-                    // 降级：不显示进度的同步 pull
-                    var fallbackArg = new ArgumentCreator();
-                    fallbackArg.Append("-s").Append(_selectedDevice)
-                               .Append("pull").Append(packagePath).Append(filePath);
-                    new CommandExecutor(fallbackArg.ToCommandLine()).Execute("adb");
-
-                    Application.Current.Dispatcher.Invoke(delegate
+                    if (remoteFileSize <= 0)
                     {
-                        ExportProgress = 100;
-                        IsExporting = false;
-                        MessageBox.Show($"导出完成：{filePath}", "导出应用",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
-                    });
-                    return;
+                        // 降级：不显示进度的同步 pull
+                        var argument = new ArgumentCreator();
+                        var cmdStr = argument.Append("-s").Append(_selectedDevice)
+                            .Append("pull")
+                            .Append(packagePath)
+                            .Append(filePath)
+                            .ToCommandLine();
+                        new CommandExecutor(cmdStr).Execute("adb");
+
+                        Application.Current.Dispatcher.Invoke(delegate
+                        {
+                            ExportProgress = 100;
+                            IsExporting = false;
+                            MessageBox.Show($"导出完成：{filePath}", "导出应用",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
+                        });
+                        return;
+                    }
                 }
 
                 // Step 3: 非阻塞启动 pull + 轮询本地文件大小
                 if (File.Exists(filePath)) File.Delete(filePath);
 
-                var pullArg = new ArgumentCreator();
-                pullArg.Append("-s").Append(_selectedDevice)
-                       .Append("pull").Append(packagePath).Append(filePath);
-
-                var pullExecutor = new CommandExecutor(pullArg.ToCommandLine());
-                var process = pullExecutor.StartNonBlocking("adb");
-
-                // Step 4: 每 100ms 轮询本地文件大小，计算进度
-                while (!process.HasExited)
                 {
-                    if (File.Exists(filePath))
-                    {
-                        var fileInfo = new FileInfo(filePath);
-                        var progress = Math.Min((double)fileInfo.Length / remoteFileSize * 100, 99);
-                        Application.Current.Dispatcher.Invoke(() => { ExportProgress = progress; });
-                    }
-                    await Task.Delay(100);
-                }
+                    var argument = new ArgumentCreator();
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice)
+                        .Append("pull")
+                        .Append(packagePath)
+                        .Append(filePath)
+                        .ToCommandLine();
+                    var pullExecutor = new CommandExecutor(cmdStr);
+                    var process = pullExecutor.StartNonBlocking("adb");
 
-                process.Close();
+                    // Step 4: 每 100ms 轮询本地文件大小，计算进度
+                    while (!process.HasExited)
+                    {
+                        if (File.Exists(filePath))
+                        {
+                            var fileInfo = new FileInfo(filePath);
+                            var progress = Math.Min((double)fileInfo.Length / remoteFileSize * 100, 99);
+                            Application.Current.Dispatcher.Invoke(() => { ExportProgress = progress; });
+                        }
+
+                        await Task.Delay(100);
+                    }
+
+                    process.Close();
+                }
 
                 Application.Current.Dispatcher.Invoke(delegate
                 {
@@ -745,8 +807,11 @@ namespace DevKit.ViewModels
                     var argument = new ArgumentCreator();
                     //卸载应用（应用包名）
                     //adb -s <设备序列号> uninstall 
-                    argument.Append("-s").Append(_selectedDevice).Append("uninstall").Append(_selectedPackage);
-                    var executor = new CommandExecutor(argument.ToCommandLine());
+                    var cmdStr = argument.Append("-s").Append(_selectedDevice)
+                        .Append("uninstall")
+                        .Append(_selectedPackage)
+                        .ToCommandLine();
+                    var executor = new CommandExecutor(cmdStr);
                     executor.OnStandardOutput += delegate(string value)
                     {
                         Application.Current.Dispatcher.Invoke(delegate

@@ -165,9 +165,9 @@
                     <TextBlock
                         Width="100"
                         VerticalAlignment="Center"
-                        Text="屏幕密度" />
+                        Text="本机IP地址" />
 
-                    <TextBlock VerticalAlignment="Center" Text="{Binding DeviceDensity}" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding DeviceIp}" />
                 </DockPanel>
 
                 <DockPanel
