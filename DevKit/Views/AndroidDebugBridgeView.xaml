@@ -392,6 +392,7 @@
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding OutputImageCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -414,6 +415,7 @@
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding ScreenshotCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -436,6 +438,7 @@
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding InstallCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -458,6 +461,7 @@
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding RebootDeviceCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -480,6 +484,7 @@
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding ShutdownDeviceCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -541,17 +546,19 @@
                                 Text="10" />
                         </Border>
 
-                        <ProgressBar
-                            Grid.Column="2"
-                            Height="8"
-                            Style="{x:Null}"
-                            Value="{Binding ExportProgress}" />
+                        <Border Grid.Column="2" Style="{StaticResource ExportProgressStyle}">
+                            <ProgressBar
+                                Height="8"
+                                Style="{x:Null}"
+                                Value="{Binding ExportProgress}" />
+                        </Border>
                     </Grid>
 
                     <hc:TextBox
                         Grid.Row="1"
                         Margin="0,8"
-                        hc:InfoElement.Placeholder="搜索包名，如 com.tencent" />
+                        hc:InfoElement.Placeholder="搜索包名，如 com.tencent"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}" />
 
                     <ListBox
                         x:Name="PackageListBox"
