@@ -22,7 +22,7 @@ namespace DevKit.ViewModels
 {
     public class AndroidDebugBridgeViewModel : BindableBase, IDialogAware
     {
-        public string Title => "ADB";
+        public string Title => "Android Debug Bridge";
 
         public event Action<IDialogResult> RequestClose
         {
