@@ -1,41 +1,67 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace DevKit.Utils
 {
-    public class CommandExecutor
+    /// <summary>
+    /// 命令执行器：负责启动进程、重定向并逐行转发标准输出与标准错误。
+    /// </summary>
+    public sealed class CommandExecutor
     {
-        public delegate void CommandResultDelegate(string output);
+        /// <summary>
+        /// 收到一行标准输出时触发。
+        /// </summary>
+        public event Action<string> OnStandardOutput;
 
-        public event CommandResultDelegate OnStandardOutput;
-        public event CommandResultDelegate OnStandardError;
+        /// <summary>
+        /// 收到一行标准错误时触发。
+        /// </summary>
+        public event Action<string> OnStandardError;
 
         private readonly string _arguments;
 
         public CommandExecutor(string arguments)
         {
-            _arguments = arguments;
+            _arguments = arguments ?? string.Empty;
         }
 
         /// <summary>
-        /// 同步执行命令，阻塞直到进程退出
+        /// 同步执行命令并阻塞直到退出，返回进程退出码（0 通常表示成功）。
         /// </summary>
-        public void Execute(string executor)
+        public int Execute(string executor)
         {
-            var process = BuildAndStartProcess(executor);
-            process.WaitForExit();
-            process.Close();
+            using (var process = Start(executor))
+            {
+                process.WaitForExit();
+                return process.ExitCode;
+            }
         }
 
         /// <summary>
-        /// 非阻塞启动进程，返回 Process 对象供调用方轮询状态
+        /// 在后台线程执行命令，返回一个在进程退出时完成的 Task（含退出码）。
+        /// </summary>
+        public Task<int> ExecuteAsync(string fileName)
+        {
+            return Task.Run(() => Execute(fileName));
+        }
+
+        /// <summary>
+        /// 非阻塞启动进程，返回 Process 供调用方自行轮询进度。
+        /// 调用方需在结束后自行释放（Dispose / Close）。
         /// </summary>
         public Process StartNonBlocking(string executor)
         {
-            return BuildAndStartProcess(executor);
+            return Start(executor);
         }
 
-        private Process BuildAndStartProcess(string executor)
+        private Process Start(string executor)
         {
+            if (string.IsNullOrWhiteSpace(executor))
+            {
+                throw new ArgumentException(@"可执行文件路径不能为空。", nameof(executor));
+            }
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo

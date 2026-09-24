@@ -46,22 +46,14 @@ namespace DevKit.ViewModels
             _refreshDeviceTimer.Tick += TimerTickEvent_Handler;
             _refreshDeviceTimer.Interval = TimeSpan.FromSeconds(1);
             _refreshDeviceTimer.Start();
-            QueryAdbVersion();
-        }
-
-        /// <summary>
-        /// 获取 adb 版本号
-        /// adb version
-        /// </summary>
-        private void QueryAdbVersion()
-        {
+            
+            // 获取 adb 版本号
             Task.Run(() =>
             {
                 var argument = new ArgumentCreator();
                 var executor = new CommandExecutor(argument.Append("version").ToCommandLine());
                 executor.OnStandardOutput += delegate(string value)
                 {
-                    //Android Debug Bridge version 1.0.41
                     var match = Regex.Match(value, @"version\s+([\d.]+)");
                     if (match.Success)
                     {
@@ -72,7 +64,19 @@ namespace DevKit.ViewModels
             });
         }
 
-
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (!_deviceItems.Any())
+            {
+                RefreshDevice();
+            }
+            else
+            {
+                _refreshDeviceTimer.Tick -= TimerTickEvent_Handler;
+                _refreshDeviceTimer.Stop();
+            }
+        }
+        
         #region VM
 
         private ObservableCollection<string> _deviceItems = new ObservableCollection<string>();
@@ -303,19 +307,6 @@ namespace DevKit.ViewModels
             PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             ExportPackageCommand = new DelegateCommand(ExportPackage);
             UninstallCommand = new DelegateCommand(UninstallApplication);
-        }
-
-        private void TimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            if (!_deviceItems.Any())
-            {
-                RefreshDevice();
-            }
-            else
-            {
-                _refreshDeviceTimer.Tick -= TimerTickEvent_Handler;
-                _refreshDeviceTimer.Stop();
-            }
         }
 
         private void DeviceSelected(string device)
