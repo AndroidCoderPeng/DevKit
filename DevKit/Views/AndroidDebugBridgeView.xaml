@@ -342,6 +342,7 @@
                                         Margin="12,4,6,4"
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="14"
                                         Foreground="#FF16A34A"
                                         Text="&#xe61d;" />
 
@@ -364,6 +365,7 @@
                                         Margin="12,4,6,4"
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="14"
                                         Foreground="{StaticResource TextBlockForegroundBrush}"
                                         Text="&#xe6f8;" />
 
