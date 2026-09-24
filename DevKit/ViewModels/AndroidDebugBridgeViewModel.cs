@@ -46,6 +46,30 @@ namespace DevKit.ViewModels
             _refreshDeviceTimer.Tick += TimerTickEvent_Handler;
             _refreshDeviceTimer.Interval = TimeSpan.FromSeconds(1);
             _refreshDeviceTimer.Start();
+            QueryAdbVersion();
+        }
+
+        /// <summary>
+        /// 获取 adb 版本号
+        /// adb version
+        /// </summary>
+        private void QueryAdbVersion()
+        {
+            Task.Run(() =>
+            {
+                var argument = new ArgumentCreator();
+                var executor = new CommandExecutor(argument.Append("version").ToCommandLine());
+                executor.OnStandardOutput += delegate(string value)
+                {
+                    //Android Debug Bridge version 1.0.41
+                    var match = Regex.Match(value, @"version\s+([\d.]+)");
+                    if (match.Success)
+                    {
+                        AdbVision = $"adb {match.Groups[1].Value}";
+                    }
+                };
+                executor.Execute("adb");
+            });
         }
 
 
@@ -180,6 +204,18 @@ namespace DevKit.ViewModels
             set
             {
                 _batteryTemperature = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _adbVision = "adb";
+
+        public string AdbVision
+        {
+            get => _adbVision;
+            set
+            {
+                _adbVision = value;
                 RaisePropertyChanged();
             }
         }
