@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
@@ -458,7 +457,6 @@
                             Height="64"
                             Margin="0,0,4,4"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding OutputImageCommand}">
@@ -481,7 +479,6 @@
                             Height="64"
                             Margin="4,0,4,4"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding ScreenshotCommand}">
@@ -504,7 +501,6 @@
                             Height="64"
                             Margin="4,0,0,4"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding GetLogCommand}">
@@ -527,7 +523,6 @@
                             Height="64"
                             Margin="0,4,4,0"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding InstallCommand}">
@@ -550,7 +545,6 @@
                             Height="64"
                             Margin="4,4,4,0"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding RebootDeviceCommand}">
@@ -573,7 +567,6 @@
                             Height="64"
                             Margin="4,4,0,0"
                             HorizontalAlignment="Stretch"
-                            hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding ShutdownDeviceCommand}">
@@ -645,16 +638,15 @@
                         </Border>
                     </Grid>
 
-                    <hc:TextBox
+                    <!--  "搜索包名，如 com.tencent"  -->
+                    <TextBox
                         Grid.Row="1"
                         Margin="0,8"
-                        hc:InfoElement.Placeholder="搜索包名，如 com.tencent"
                         BorderBrush="{DynamicResource DevKitBorderBrush}" />
 
                     <ListBox
                         x:Name="PackageListBox"
                         Grid.Row="2"
-                        hc:BorderElement.CornerRadius="8"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         BorderThickness="1"
                         ItemsSource="{Binding ApplicationPackages}"
