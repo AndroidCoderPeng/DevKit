@@ -62,7 +62,7 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _currentDevice = string.Empty;
+        private string _currentDevice = "未连接任何设备";
 
         public string CurrentDevice
         {
@@ -338,7 +338,8 @@ namespace DevKit.ViewModels
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
 
-            // RefreshDeviceCommand = new DelegateCommand(RefreshDevice);
+            RefreshDeviceCommand = new DelegateCommand(LoadConnectedDevice);
+            
             // AndroidIdLabelClickCommand = new DelegateCommand<string>(AndroidIdLabelClicked);
             // DeviceIpLabelClickCommand = new DelegateCommand<string>(DeviceIpLabelClicked);
             // OutputImageCommand = new DelegateCommand(PullScreenshot);
@@ -356,12 +357,10 @@ namespace DevKit.ViewModels
         /// <summary>
         /// 加载已连接的设备
         /// </summary>
-        /// <returns></returns>
         private void LoadConnectedDevice()
         {
+            InitValueBinding();
             _deviceLoaded = false;
-            CurrentDevice = string.Empty;
-            ConnectionType = string.Empty;
 
             var argument = new ArgumentCreator();
             argument.Append("devices");
@@ -395,6 +394,29 @@ namespace DevKit.ViewModels
                 }));
             };
             Task.Run(() => { executor.Execute("adb"); });
+        }
+
+        private void InitValueBinding()
+        {
+            // 清空设备相关绑定，避免切换/刷新设备时残留上一台设备的数据
+            CurrentDevice = "未连接任何设备";
+            DeviceBrand = string.Empty;
+            DeviceModel = string.Empty;
+            ConnectionType = string.Empty;
+            AndroidVersion = string.Empty;
+            ApiCode = string.Empty;
+            CpuType = string.Empty;
+            BatteryCapacity = string.Empty;
+            DeviceSize = string.Empty;
+            DeviceDpi = string.Empty;
+            DeviceAbi = string.Empty;
+            AndroidId = string.Empty;
+            DeviceIp = string.Empty;
+            BatteryState = string.Empty;
+            BatteryProgress = 0;
+            BatteryTemperature = string.Empty;
+
+            ApplicationPackages.Clear();
         }
 
         private void GetDeviceApplication()
