@@ -61,20 +61,40 @@
                 Grid.Column="0"
                 VerticalAlignment="Center"
                 Foreground="{StaticResource TextBlockForegroundBrush}"
-                Text="选择设备" />
+                Text="当前设备" />
 
-            <ComboBox
-                x:Name="DeviceComboBox"
+            <Label
                 Grid.Column="1"
                 Margin="16,0"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
-                ItemsSource="{Binding DeviceItems}">
-                <b:Interaction.Triggers>
-                    <b:EventTrigger EventName="SelectionChanged">
-                        <b:InvokeCommandAction Command="{Binding DeviceSelectedCommand}" CommandParameter="{Binding ElementName=DeviceComboBox, Path=SelectedItem}" />
-                    </b:EventTrigger>
-                </b:Interaction.Triggers>
-            </ComboBox>
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Left">
+                <Label.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Border
+                            Background="#1F3DDC84"
+                            BorderBrush="#593DDC84"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                            <Border
+                                Width="8"
+                                Height="8"
+                                Margin="2"
+                                Background="#FF16A34A"
+                                CornerRadius="4" />
+                        </Border>
+
+                        <TextBlock Margin="8,0,0,0" Foreground="{StaticResource TextBlockForegroundBrush}">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} · {1} {2}">
+                                    <Binding Path="CurrentDevice" />
+                                    <Binding Path="DeviceBrand" />
+                                    <Binding Path="DeviceModel" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </StackPanel>
+                </Label.Content>
+            </Label>
 
             <Button
                 Grid.Column="2"
@@ -146,8 +166,14 @@
                                 Grid.Row="0"
                                 FontSize="16"
                                 FontWeight="Bold"
-                                Foreground="Black"
-                                Text="HONOR WDY-AN00" />
+                                Foreground="Black">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} {1}">
+                                        <Binding Path="DeviceBrand" />
+                                        <Binding Path="DeviceModel" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
 
                             <StackPanel
                                 Grid.Row="1"
@@ -156,7 +182,7 @@
                                 <TextBlock
                                     VerticalAlignment="Center"
                                     Foreground="{StaticResource TextBlockForegroundBrush}"
-                                    Text="192.168.3.126:5555" />
+                                    Text="{Binding CurrentDevice}" />
 
                                 <Border
                                     Margin="8,0,0,0"
@@ -167,7 +193,7 @@
                                     <TextBlock
                                         Margin="8,2"
                                         Foreground="#FF16A34A"
-                                        Text="无线连接" />
+                                        Text="{Binding ConnectionType}" />
                                 </Border>
                             </StackPanel>
                         </Grid>
@@ -215,8 +241,14 @@
                                     Margin="0,8,0,0"
                                     FontFamily="微软雅黑"
                                     FontSize="13"
-                                    Foreground="Black"
-                                    Text="{Binding AndroidVersion}" />
+                                    Foreground="Black">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}（API {1}）">
+                                            <Binding Path="AndroidVersion" />
+                                            <Binding Path="ApiCode" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -245,8 +277,14 @@
                                     Margin="0,8,0,0"
                                     FontFamily="微软雅黑"
                                     FontSize="13"
-                                    Foreground="Black"
-                                    Text="{Binding DeviceSize}" />
+                                    Foreground="Black">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} · {1} dpi">
+                                            <Binding Path="DeviceSize" />
+                                            <Binding Path="DeviceDpi" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -596,7 +634,7 @@
                                 Margin="8,2"
                                 FontFamily="微软雅黑"
                                 Foreground="Blue"
-                                Text="10" />
+                                Text="{Binding ApplicationPackages.Count}" />
                         </Border>
 
                         <Border Grid.Column="2" Style="{StaticResource ExportProgressStyle}">

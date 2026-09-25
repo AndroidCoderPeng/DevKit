@@ -31,44 +31,6 @@
         });
     });
 
-    /* ---------------- 设备切换 ---------------- */
-    const deviceProfiles = {
-        '192.168.3.126:5555': {
-            name: 'HONOR WDY-AN00',
-            abi: 'arm64-v8a, armeabi-v7a, armeabi',
-            version: '13（API 33）',
-            size: '720x1612 · 320 dpi',
-            battery: 44
-        },
-        'emulator-5554': {
-            name: 'Android SDK Pixel 6',
-            abi: 'x86_64, x86',
-            version: '14（API 34）',
-            size: '1080 × 2400',
-            battery: 100
-        },
-        '9f2ac8d1': {
-            name: 'Google Pixel 7',
-            abi: 'arm64-v8a, armeabi-v7a',
-            version: '14（API 34）',
-            size: '1080 × 2400',
-            battery: 78
-        }
-    };
-
-    $('#deviceSelect').addEventListener('change', function (e) {
-        const profile = deviceProfiles[e.target.value];
-        if (!profile) return;
-        $('#deviceSerial').textContent = e.target.value;
-        $('.device-name').textContent = profile.name;
-        $('.info-grid .info-item:nth-child(3) .info-value').textContent = profile.abi;
-        $('.info-grid .info-item:nth-child(2) .info-value').textContent = profile.version;
-        $('.info-grid .info-item:nth-child(4) .info-value').textContent = profile.size;
-        $('#batteryPercent').textContent = profile.battery;
-        $('#batteryFill').style.width = profile.battery + '%';
-        toast('已切换到 ' + profile.name);
-    });
-
     /* ---------------- 刷新设备 ---------------- */
     $('#refreshDevice').addEventListener('click', function () {
         toast('正在执行 adb devices ...');

@@ -30,17 +30,12 @@
         <!-- ============ 设备选择工具栏 ============ -->
         <div class="toolbar">
             <div class="field">
-                <span class="field-label">选择设备</span>
+                <span class="field-label">当前设备</span>
                 <div class="select-wrap">
-                    <select id="deviceSelect">
-                        <option value="192.168.3.126:5555" selected>192.168.3.126:5555 · HONOR WDY-AN00</option>
-                        <option value="emulator-5554">emulator-5554 · Android SDK Pixel 6</option>
-                        <option value="9f2ac8d1">9f2ac8d1 · Google Pixel 7</option>
-                    </select>
-                    <svg class="chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                              stroke-linejoin="round" d="M6 9l6 6 6-6"/>
-                    </svg>
+                    <div class="device-current">
+                        <span class="dot"></span>
+                        <span class="device-current-text">192.168.3.126:5555 · HONOR WDY-AN00</span>
+                    </div>
                 </div>
             </div>
             <button class="btn btn-ghost" id="refreshDevice">
