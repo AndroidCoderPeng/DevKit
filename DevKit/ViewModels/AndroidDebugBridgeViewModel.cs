@@ -134,14 +134,26 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _deviceAbi;
+        private string _cpuType;
 
-        public string DeviceAbi
+        public string CpuType
         {
-            get => _deviceAbi;
+            get => _cpuType;
             set
             {
-                _deviceAbi = value;
+                _cpuType = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _batteryCapacity;
+
+        public string BatteryCapacity
+        {
+            get => _batteryCapacity;
+            set
+            {
+                _batteryCapacity = value;
                 RaisePropertyChanged();
             }
         }
@@ -170,6 +182,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private string _deviceAbi;
+
+        public string DeviceAbi
+        {
+            get => _deviceAbi;
+            set
+            {
+                _deviceAbi = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _androidId;
 
         public string AndroidId
@@ -194,32 +218,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _hardMemory;
-
-        public string HardMemory
-        {
-            get => _hardMemory;
-            set
-            {
-                _hardMemory = value;
-                RaisePropertyChanged();
-            }
-        }
-        
-        private string _softMemory;
-
-        public string SoftMemory
-        {
-            get => _softMemory;
-            set
-            {
-                _softMemory = value;
-                RaisePropertyChanged();
-            }
-        }
-        
-        // ----------- ***** -----------
-        
         private string _batteryState;
 
         public string BatteryState
@@ -267,6 +265,8 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        // ----------- ***** -----------
 
         private bool _isExporting;
 
@@ -329,8 +329,6 @@ namespace DevKit.ViewModels
         private static readonly Regex InetRegex = new Regex(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})", RegexOptions.Compiled);
         private static readonly Regex WifiRegex = new Regex(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$", RegexOptions.Compiled);
         private volatile bool _deviceLoaded;
-        private long _memTotalKb;
-        private long _memAvailableKb;
 
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -437,8 +435,6 @@ namespace DevKit.ViewModels
         {
             // 记录本次选中的设备，用于竞态守卫
             var device = _currentDevice;
-            _memTotalKb = 0;
-            _memAvailableKb = 0;
 
             try
             {
@@ -463,9 +459,27 @@ namespace DevKit.ViewModels
                     RunCommand(new[] { "-s", device, "shell", "getprop", "ro.build.version.sdk" },
                         v => ApiCode = v.Trim());
 
-                    // ABI
-                    RunCommand(new[] { "-s", device, "shell", "getprop", "ro.product.cpu.abilist" },
-                        v => DeviceAbi = v.Trim());
+                    // CPU型号
+                    RunCommand(new[] { "-s", device, "shell", "getprop", "ro.board.platform" },
+                        v =>
+                        {
+                            var platform = v.Trim();
+                            if (!string.IsNullOrEmpty(platform))
+                            {
+                                CpuType = CpuPlatformMap.TryGetValue(platform, out var name) ? name : platform;
+                            }
+                        });
+
+                    // 电池容量
+                    RunCommand(
+                        new[] { "-s", device, "shell", "cat", "/sys/class/power_supply/battery/charge_full_design" },
+                        v =>
+                        {
+                            if (long.TryParse(v.Trim(), out var uah) && uah > 0)
+                            {
+                                BatteryCapacity = $"{uah / 1000.0:F0}mAh";
+                            }
+                        });
 
                     // 分辨率
                     RunCommand(new[] { "-s", device, "shell", "wm", "size" },
@@ -481,6 +495,10 @@ namespace DevKit.ViewModels
                         var parts = v.Split(':');
                         if (parts.Length > 1) DeviceDpi = parts[1].Trim();
                     });
+
+                    // ABI
+                    RunCommand(new[] { "-s", device, "shell", "getprop", "ro.product.cpu.abilist" },
+                        v => DeviceAbi = v.Trim());
 
                     // Android ID
                     RunCommand(new[] { "-s", device, "shell", "settings", "get", "secure", "android_id" },
@@ -500,25 +518,6 @@ namespace DevKit.ViewModels
                             if (match.Success) DeviceIp = match.Groups[1].Value;
                         });
 
-                    // 磁盘存储
-                    RunCommand(new[] { "-s", device, "shell", "df", "-k", "/data" }, v =>
-                    {
-                        // 跳过表头行
-                        if (v.StartsWith("Filesystem")) return;
-
-                        var cols = v.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                        // cols: [文件系统, 总KB, 已用KB, 可用KB, 使用率%, 挂载点]
-                        if (cols.Length < 5) return;
-
-                        if (long.TryParse(cols[1], out var totalKb) && long.TryParse(cols[2], out var usedKb))
-                        {
-                            HardMemory = $"已用 {(usedKb * 1024).ToFileSize()} / 共 {(totalKb * 1024).ToFileSize()}";
-                        }
-                    });
-                    
-                    // 运行内存
-                    RunCommand(new[] { "-s", device, "shell", "cat", "/proc/meminfo" }, ParseMemInfoLine);
-                    
                     // 电池
                     RunCommand(new[] { "-s", device, "shell", "dumpsys", "battery" }, ParseBatteryLine);
                 });
@@ -930,31 +929,31 @@ namespace DevKit.ViewModels
             if (WifiRegex.IsMatch(serial)) return "无线连接";
             return serial.StartsWith("emulator-") ? "模拟器" : "有线连接";
         }
-        
-        private void ParseMemInfoLine(string line)
-        {
-            var idx = line.IndexOf(':');
-            if (idx < 0) return;
 
-            var key = line.Substring(0, idx).Trim();
-            var value = line.Substring(idx + 1).Trim(); // 形如 "5852424 kB"
-
-            // 只关心总内存和可用内存
-            if (key != "MemTotal" && key != "MemAvailable") return;
-
-            // 取第一个数字 token（兼容 kB / KB 后缀）
-            var num = value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
-            if (!long.TryParse(num, out var kb)) return;
-
-            if (key == "MemTotal") _memTotalKb = kb;
-            else _memAvailableKb = kb;
-
-            // 两个都拿到后计算已用
-            if (_memTotalKb > 0 && _memAvailableKb > 0)
+        /// <summary>
+        /// 平台代号 → 芯片通用名映射（找不到时回退显示原始代号）
+        /// </summary>
+        private static readonly Dictionary<string, string> CpuPlatformMap =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                var usedKb = _memTotalKb - _memAvailableKb;
-                SoftMemory = $"已用 {(usedKb * 1024).ToFileSize()} / 共 {(_memTotalKb * 1024).ToFileSize()}";
-            }
-        }
+                // 联发科天玑
+                { "mt6983", "天玑 9000" },
+                { "mt6985", "天玑 9200" },
+                { "mt6989", "天玑 9300" },
+                { "mt6991", "天玑 9400" },
+                { "mt6897", "天玑 8300" },
+                { "mt6896", "天玑 8200" },
+                { "mt6895", "天玑 8100" },
+                { "mt6893", "天玑 1200" },
+                { "mt6891", "天玑 1100" },
+
+                // 高通骁龙
+                { "sm8450", "骁龙 8 Gen 1" },
+                { "taro", "骁龙 8 Gen 1" },
+                { "sm8475", "骁龙 8+ Gen 1" },
+                { "sm8550", "骁龙 8 Gen 2" },
+                { "kalama", "骁龙 8 Gen 2" },
+                { "sm8650", "骁龙 8 Gen 3" },
+            };
     }
 }

@@ -257,18 +257,33 @@
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
-                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="ABI架构" />
+                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="CPU型号" />
                                 <TextBlock
                                     Margin="0,8,0,0"
                                     FontFamily="微软雅黑"
                                     FontSize="13"
                                     Foreground="Black"
-                                    Text="{Binding DeviceAbi}" />
+                                    Text="{Binding CpuType}" />
                             </StackPanel>
                         </Border>
 
                         <Border
                             Margin="4,4,0,4"
+                            Background="#F7F9FC"
+                            CornerRadius="8">
+                            <StackPanel Margin="12" Orientation="Vertical">
+                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="电池容量" />
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontFamily="微软雅黑"
+                                    FontSize="13"
+                                    Foreground="Black"
+                                    Text="{Binding BatteryCapacity}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="0,4,4,4"
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
@@ -289,7 +304,22 @@
                         </Border>
 
                         <Border
-                            Margin="0,4,4,4"
+                            Margin="4,4,0,4"
+                            Background="#F7F9FC"
+                            CornerRadius="8">
+                            <StackPanel Margin="12" Orientation="Vertical">
+                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="ABI架构" />
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontFamily="微软雅黑"
+                                    FontSize="13"
+                                    Foreground="Black"
+                                    Text="{Binding DeviceAbi}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="0,4,4,0"
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
@@ -304,7 +334,7 @@
                         </Border>
 
                         <Border
-                            Margin="4,4,0,4"
+                            Margin="4,4,0,0"
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
@@ -315,36 +345,6 @@
                                     FontSize="13"
                                     Foreground="Black"
                                     Text="{Binding DeviceIp}" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border
-                            Margin="0,4,4,0"
-                            Background="#F7F9FC"
-                            CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
-                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="内置存储" />
-                                <TextBlock
-                                    Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
-                                    Foreground="Black"
-                                    Text="{Binding HardMemory}" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border
-                            Margin="4,4,0,0"
-                            Background="#F7F9FC"
-                            CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
-                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="运行内存" />
-                                <TextBlock
-                                    Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
-                                    Foreground="Black"
-                                    Text="{Binding SoftMemory}" />
                             </StackPanel>
                         </Border>
                     </UniformGrid>
