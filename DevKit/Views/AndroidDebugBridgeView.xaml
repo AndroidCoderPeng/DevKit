@@ -9,7 +9,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="900"
-    Height="694"
+    Height="764"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -147,7 +147,7 @@
                                 FontSize="16"
                                 FontWeight="Bold"
                                 Foreground="Black"
-                                Text="WDY-AN00" />
+                                Text="HONOR WDY-AN00" />
 
                             <StackPanel
                                 Grid.Row="1"
@@ -156,7 +156,7 @@
                                 <TextBlock
                                     VerticalAlignment="Center"
                                     Foreground="{StaticResource TextBlockForegroundBrush}"
-                                    Text="9f2ac8d1" />
+                                    Text="192.168.3.126:5555" />
 
                                 <Border
                                     Margin="8,0,0,0"
@@ -167,7 +167,7 @@
                                     <TextBlock
                                         Margin="8,2"
                                         Foreground="#FF16A34A"
-                                        Text="有线连接" />
+                                        Text="无线连接" />
                                 </Border>
                             </StackPanel>
                         </Grid>
@@ -189,7 +189,7 @@
                         Grid.Row="2"
                         Margin="16"
                         Columns="2"
-                        Rows="3">
+                        Rows="4">
                         <Border
                             Margin="0,0,4,4"
                             Background="#F7F9FC"
@@ -251,7 +251,7 @@
                         </Border>
 
                         <Border
-                            Margin="0,4,4,0"
+                            Margin="0,4,4,4"
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
@@ -266,7 +266,7 @@
                         </Border>
 
                         <Border
-                            Margin="4,4,0,0"
+                            Margin="4,4,0,4"
                             Background="#F7F9FC"
                             CornerRadius="8">
                             <StackPanel Margin="12" Orientation="Vertical">
@@ -277,6 +277,36 @@
                                     FontSize="13"
                                     Foreground="Black"
                                     Text="{Binding DeviceIp}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="0,4,4,0"
+                            Background="#F7F9FC"
+                            CornerRadius="8">
+                            <StackPanel Margin="12" Orientation="Vertical">
+                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="内置存储" />
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontFamily="微软雅黑"
+                                    FontSize="13"
+                                    Foreground="Black"
+                                    Text="{Binding HardMemory}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="4,4,0,0"
+                            Background="#F7F9FC"
+                            CornerRadius="8">
+                            <StackPanel Margin="12" Orientation="Vertical">
+                                <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="运行内存" />
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    FontFamily="微软雅黑"
+                                    FontSize="13"
+                                    Foreground="Black"
+                                    Text="{Binding SoftMemory}" />
                             </StackPanel>
                         </Border>
                     </UniformGrid>
@@ -439,6 +469,29 @@
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            Command="{Binding GetLogCommand}">
+                            <Button.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="18"
+                                        Text="&#xe62c;" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                                        Text="查看日志" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <Button
+                            Height="64"
+                            Margin="0,4,4,0"
+                            HorizontalAlignment="Stretch"
+                            hc:BorderElement.CornerRadius="8"
+                            Background="#F7F9FC"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
                             Command="{Binding InstallCommand}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
@@ -457,7 +510,7 @@
 
                         <Button
                             Height="64"
-                            Margin="0,4,4,0"
+                            Margin="4,4,4,0"
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"
@@ -480,7 +533,7 @@
 
                         <Button
                             Height="64"
-                            Margin="4,4,4,0"
+                            Margin="4,4,0,0"
                             HorizontalAlignment="Stretch"
                             hc:BorderElement.CornerRadius="8"
                             Background="#F7F9FC"

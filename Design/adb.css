@@ -406,7 +406,7 @@ body {
 }
 
 .battery-fill {
-    width: 78%;
+    width: 44%;
     height: 100%;
     border-radius: 2px;
     background: linear-gradient(90deg, #3ddc84, #17a95c);

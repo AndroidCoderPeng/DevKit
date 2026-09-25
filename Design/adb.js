@@ -33,12 +33,12 @@
 
     /* ---------------- 设备切换 ---------------- */
     const deviceProfiles = {
-        '9f2ac8d1': {
-            name: 'Google Pixel 7',
+        '192.168.3.126:5555': {
+            name: 'HONOR WDY-AN00',
             abi: 'arm64-v8a, armeabi-v7a, armeabi',
-            version: '14（API 34）',
-            size: '1080 × 2400',
-            battery: 78
+            version: '13（API 33）',
+            size: '720x1612 · 320 dpi',
+            battery: 44
         },
         'emulator-5554': {
             name: 'Android SDK Pixel 6',
@@ -47,12 +47,12 @@
             size: '1080 × 2400',
             battery: 100
         },
-        '192.168.1.88:5555': {
-            name: 'Xiaomi 14 Pro',
+        '9f2ac8d1': {
+            name: 'Google Pixel 7',
             abi: 'arm64-v8a, armeabi-v7a',
-            version: '13（API 33）',
-            size: '1440 × 3200',
-            battery: 46
+            version: '14（API 34）',
+            size: '1080 × 2400',
+            battery: 78
         }
     };
 
