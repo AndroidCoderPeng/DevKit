@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using DevKit.Events;
 using DevKit.Utils;
-using HandyControl.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -339,9 +338,9 @@ namespace DevKit.ViewModels
             _eventAggregator = eventAggregator;
 
             RefreshDeviceCommand = new DelegateCommand(LoadConnectedDevice);
+            AndroidIdLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
+            DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             
-            // AndroidIdLabelClickCommand = new DelegateCommand<string>(AndroidIdLabelClicked);
-            // DeviceIpLabelClickCommand = new DelegateCommand<string>(DeviceIpLabelClicked);
             // OutputImageCommand = new DelegateCommand(PullScreenshot);
             // ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             // InstallCommand = new DelegateCommand(InstallApplication);
@@ -551,25 +550,17 @@ namespace DevKit.ViewModels
             }
         }
 
-        //////////////////////////////////////////////////////
-
-        private void AndroidIdLabelClicked(string id)
-        {
-            CopyToClipboard(id);
-        }
-
-        private void DeviceIpLabelClicked(string ip)
-        {
-            CopyToClipboard(ip);
-        }
-
         private void CopyToClipboard(string text)
         {
             var dataObject = new DataObject(DataFormats.UnicodeText, text);
             Clipboard.SetDataObject(dataObject);
-            Growl.Success("参数已复制");
+            
+            // TODO 改为自定义的Toast提示
+            // Growl.Success("参数已复制");
         }
 
+        //////////////////////////////////////////////////////
+        
         private void TakeScreenshot()
         {
             Task.Run(() =>
