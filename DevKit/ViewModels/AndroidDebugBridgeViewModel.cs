@@ -354,6 +354,7 @@ namespace DevKit.ViewModels
         private static readonly Regex WifiRegex = new Regex(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$", RegexOptions.Compiled);
         private volatile bool _deviceLoaded;
         private DispatcherTimer _toastTimer;
+        private long _chargeCounterUah;
 
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -514,17 +515,6 @@ namespace DevKit.ViewModels
                             if (!string.IsNullOrEmpty(platform))
                             {
                                 CpuType = CpuPlatformMap.TryGetValue(platform, out var name) ? name : platform;
-                            }
-                        });
-
-                    // 电池容量
-                    RunCommand(
-                        new[] { "-s", device, "shell", "cat", "/sys/class/power_supply/battery/charge_full_design" },
-                        v =>
-                        {
-                            if (long.TryParse(v.Trim(), out var uah) && uah > 0)
-                            {
-                                BatteryCapacity = $"{uah / 1000.0:F0}mAh";
                             }
                         });
 
@@ -917,7 +907,9 @@ namespace DevKit.ViewModels
                 argument.Append(arg);
             }
 
-            var executor = new CommandExecutor(argument.ToCommandLine());
+            var cmd = argument.ToCommandLine();
+            Console.WriteLine(cmd);
+            var executor = new CommandExecutor(cmd);
             executor.OnStandardOutput += line =>
             {
                 if (string.IsNullOrEmpty(line)) return;
@@ -929,7 +921,7 @@ namespace DevKit.ViewModels
         private void ParseBatteryLine(string line)
         {
             var idx = line.IndexOf(':');
-            if (idx < 0) return; // 兼容无冒号的行，避免越界
+            if (idx < 0) return;
 
             var key = line.Substring(0, idx).Trim();
             var value = line.Substring(idx + 1).Trim();
@@ -939,26 +931,41 @@ namespace DevKit.ViewModels
                 case "status":
                     switch (value)
                     {
-                        case "2":
-                            BatteryState = "正在充电";
-                            break;
-                        case "5":
-                            BatteryState = "充电完成";
-                            break;
-                        default:
-                            BatteryState = "未充电";
-                            break;
+                        case "2": BatteryState = "正在充电"; break;
+                        case "5": BatteryState = "充电完成"; break;
+                        default: BatteryState = "未充电"; break;
                     }
-
                     break;
 
                 case "level":
-                    if (double.TryParse(value, out var level)) BatteryProgress = level;
+                    if (double.TryParse(value, out var level))
+                    {
+                        BatteryProgress = level;
+                        TryCalcBatteryCapacity();
+                    }
+                    break;
+
+                case "Charge counter":
+                    if (long.TryParse(value, out var counter))
+                    {
+                        _chargeCounterUah = counter;
+                        TryCalcBatteryCapacity();
+                    }
                     break;
 
                 case "temperature":
                     if (double.TryParse(value, out var temp)) BatteryTemperature = $"{temp * 0.1}℃";
                     break;
+            }
+        }
+
+        private void TryCalcBatteryCapacity()
+        {
+            if (_chargeCounterUah > 0 && BatteryProgress > 0)
+            {
+                // charge_counter 是“当前剩余电量”(μAh)，除以电量百分比反推满充容量
+                var fullUah = _chargeCounterUah * 100.0 / BatteryProgress;
+                BatteryCapacity = $"{fullUah / 1000.0:F0}mAh";
             }
         }
 
@@ -986,6 +993,7 @@ namespace DevKit.ViewModels
                 { "mt6891", "天玑 1100" },
 
                 // 高通骁龙
+                { "holi", "骁龙 680" },
                 { "sm8450", "骁龙 8 Gen 1" },
                 { "taro", "骁龙 8 Gen 1" },
                 { "sm8475", "骁龙 8+ Gen 1" },
