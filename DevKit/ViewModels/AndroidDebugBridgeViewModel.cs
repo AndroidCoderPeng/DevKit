@@ -337,6 +337,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> DeviceIpLabelClickCommand { set; get; }
         public DelegateCommand OutputImageCommand { set; get; }
         public DelegateCommand ScreenshotCommand { set; get; }
+        public DelegateCommand ShowLogcatCommand { set; get; }
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand ShutdownDeviceCommand { set; get; }
@@ -369,7 +370,33 @@ namespace DevKit.ViewModels
             DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             OutputImageCommand = new DelegateCommand(ExportScreenshot);
 
-            // ScreenshotCommand = new DelegateCommand(TakeScreenshot);
+            ScreenshotCommand = new DelegateCommand(() =>
+            {
+                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
+                var argument = new ArgumentCreator();
+                var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
+                    .Append("screencap").Append("-p").Append($"/sdcard/{fileName}").ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
+                ExportScreenshot();
+            });
+
+            ShowLogcatCommand = new DelegateCommand(() =>
+            {
+                // 显示 Debug 以上的 Android log
+                if (CurrentDevice == "未连接任何设备")
+                {
+                    ShowToast("请先刷新并连接设备");
+                    return;
+                }
+
+                var dialogParameters = new DialogParameters
+                {
+                    { "device", _currentDevice }
+                };
+                
+                _dialogService.ShowDialog("AndroidLogcatDialog", dialogParameters, _ => { });
+            });
+
             // InstallCommand = new DelegateCommand(InstallApplication);
             // RebootDeviceCommand = new DelegateCommand(RebootDevice);
             // ShutdownDeviceCommand = new DelegateCommand(ShutdownDevice);
@@ -416,7 +443,7 @@ namespace DevKit.ViewModels
                     GetDeviceApplication();
 
                     // 获取设备详情
-                    LoadDeviceDetails();
+                    _ = LoadDeviceDetails();
                 }));
             };
             Task.Run(() => { executor.Execute("adb"); });
@@ -479,7 +506,7 @@ namespace DevKit.ViewModels
             });
         }
 
-        private async void LoadDeviceDetails()
+        private async Task LoadDeviceDetails()
         {
             // 记录本次选中的设备，用于竞态守卫
             var device = _currentDevice;
@@ -562,7 +589,6 @@ namespace DevKit.ViewModels
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
         }
 
@@ -591,24 +617,6 @@ namespace DevKit.ViewModels
         }
 
         //////////////////////////////////////////////////////
-
-        private void TakeScreenshot()
-        {
-            Task.Run(() =>
-            {
-                var argument = new ArgumentCreator();
-                //截取屏幕截图并保存到指定位置
-                //adb shell screencap -p /sdcard/20241214112123.png 
-                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-                var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
-                    .Append("screencap")
-                    .Append("-p")
-                    .Append($"/sdcard/{fileName}")
-                    .ToCommandLine();
-                new CommandExecutor(cmdStr).Execute("adb");
-                ExportScreenshot();
-            });
-        }
 
         private void RebootDevice()
         {

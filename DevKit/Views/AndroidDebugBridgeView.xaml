@@ -786,7 +786,7 @@
                         <Button
                             Margin="4,0,0,4"
                             HorizontalAlignment="Stretch"
-                            Command="{Binding GetLogCommand}"
+                            Command="{Binding ShowLogcatCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
