@@ -2,9 +2,9 @@
 
 namespace DevKit.Dialogs
 {
-    public partial class ScreenShotListDialog : UserControl
+    public partial class ScreenshotExportDialog : UserControl
     {
-        public ScreenShotListDialog()
+        public ScreenshotExportDialog()
         {
             InitializeComponent();
         }
