@@ -29,6 +29,42 @@
             <GradientStop Offset="1.0" Color="#17a95c" />
         </LinearGradientBrush>
 
+        <Style x:Key="CompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="72" />
             <Setter Property="Background" Value="#F7F9FC" />
@@ -177,44 +213,8 @@
             <Button
                 Grid.Column="2"
                 VerticalAlignment="Center"
-                Command="{Binding RefreshDeviceCommand}">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Height" Value="36" />
-                        <Setter Property="Background" Value="White" />
-                        <Setter Property="BorderBrush" Value="#DFE3EA" />
-                        <Setter Property="BorderThickness" Value="1" />
-                        <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-                        <Setter Property="Cursor" Value="Hand" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border
-                                        x:Name="ButtonContainerBorder"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                        CornerRadius="10">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
-                                            <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                            <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Opacity" Value="0.5" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </Button.Style>
+                Command="{Binding RefreshDeviceCommand}"
+                Style="{StaticResource CompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
@@ -888,16 +888,19 @@
                         <Button
                             Margin="0,0,4,0"
                             HorizontalAlignment="Stretch"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding SortApplicationCommand}">
+                            Command="{Binding SortApplicationCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
-                                        FontSize="14"
+                                        FontSize="16"
                                         Text="&#xe614;" />
-                                    <TextBlock Margin="8,0,0,0" Text="排序" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        FontSize="13"
+                                        Text="排序" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -905,16 +908,19 @@
                         <Button
                             Margin="4,0,0,0"
                             HorizontalAlignment="Stretch"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding RefreshApplicationCommand}">
+                            Command="{Binding RefreshApplicationCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
-                                        FontSize="14"
+                                        FontSize="16"
                                         Text="&#xe602;" />
-                                    <TextBlock Margin="8,0,0,0" Text="刷新" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        FontSize="13"
+                                        Text="刷新" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
