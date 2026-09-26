@@ -985,6 +985,15 @@
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=PkgSearchTextBox}" Value="True">
                                         <Setter Property="BorderBrush" Value="#2E7CF6" />
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect
+                                                    BlurRadius="6"
+                                                    Opacity="0.18"
+                                                    ShadowDepth="0"
+                                                    Color="#2E7CF6" />
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
