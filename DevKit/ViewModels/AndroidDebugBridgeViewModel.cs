@@ -289,17 +289,17 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         // ----------- ***** -----------
 
-        private bool _isExporting;
+        private Visibility _exportProgressVisibility = Visibility.Hidden;
 
-        public bool IsExporting
+        public Visibility ExportProgressVisibility
         {
-            get => _isExporting;
+            get => _exportProgressVisibility;
             set
             {
-                _isExporting = value;
+                _exportProgressVisibility = value;
                 RaisePropertyChanged();
             }
         }
@@ -368,7 +368,7 @@ namespace DevKit.ViewModels
             AndroidIdLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             OutputImageCommand = new DelegateCommand(ExportScreenshot);
-            
+
             // ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             // InstallCommand = new DelegateCommand(InstallApplication);
             // RebootDeviceCommand = new DelegateCommand(RebootDevice);
@@ -570,7 +570,7 @@ namespace DevKit.ViewModels
         {
             var dataObject = new DataObject(DataFormats.UnicodeText, text);
             Clipboard.SetDataObject(dataObject);
-            
+
             ShowToast("参数已复制");
         }
 
@@ -600,9 +600,9 @@ namespace DevKit.ViewModels
                 });
             }));
         }
-        
+
         //////////////////////////////////////////////////////
-        
+
         private void TakeScreenshot()
         {
             Task.Run(() =>
@@ -767,7 +767,7 @@ namespace DevKit.ViewModels
                 {
                     Application.Current.Dispatcher.Invoke(delegate
                     {
-                        IsExporting = false;
+                        ExportProgressVisibility = Visibility.Hidden;
                         MessageBox.Show("未找到应用的安装路径，请重新选择", "导出应用",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                     });
@@ -796,7 +796,10 @@ namespace DevKit.ViewModels
                 var fileName = $"{_selectedPackage}.apk";
                 var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
 
-                Application.Current.Dispatcher.Invoke(delegate { IsExporting = true; });
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    ExportProgressVisibility = Visibility.Visible;
+                });
 
                 {
                     if (remoteFileSize <= 0)
@@ -813,7 +816,7 @@ namespace DevKit.ViewModels
                         Application.Current.Dispatcher.Invoke(delegate
                         {
                             ExportProgress = 100;
-                            IsExporting = false;
+                            ExportProgressVisibility = Visibility.Hidden;
                             MessageBox.Show($"导出完成：{filePath}", "导出应用",
                                 MessageBoxButton.OK, MessageBoxImage.Information);
                         });
@@ -853,7 +856,7 @@ namespace DevKit.ViewModels
                 Application.Current.Dispatcher.Invoke(delegate
                 {
                     ExportProgress = 100;
-                    IsExporting = false;
+                    ExportProgressVisibility = Visibility.Hidden;
                     MessageBox.Show($"导出完成：{filePath}", "导出应用",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                 });
@@ -935,6 +938,7 @@ namespace DevKit.ViewModels
                         case "5": BatteryState = "充电完成"; break;
                         default: BatteryState = "未充电"; break;
                     }
+
                     break;
 
                 case "level":
@@ -943,6 +947,7 @@ namespace DevKit.ViewModels
                         BatteryProgress = level;
                         TryCalcBatteryCapacity();
                     }
+
                     break;
 
                 case "Charge counter":
@@ -951,6 +956,7 @@ namespace DevKit.ViewModels
                         _chargeCounterUah = counter;
                         TryCalcBatteryCapacity();
                     }
+
                     break;
 
                 case "temperature":
@@ -1001,7 +1007,7 @@ namespace DevKit.ViewModels
                 { "kalama", "骁龙 8 Gen 2" },
                 { "sm8650", "骁龙 8 Gen 3" },
             };
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;
