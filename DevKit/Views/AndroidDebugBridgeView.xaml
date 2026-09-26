@@ -8,7 +8,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="900"
-    Height="764"
+    Height="774"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
