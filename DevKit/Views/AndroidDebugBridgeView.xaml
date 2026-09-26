@@ -29,6 +29,11 @@
             <GradientStop Offset="1.0" Color="#17a95c" />
         </LinearGradientBrush>
 
+        <LinearGradientBrush x:Key="ExportProgressForegroundBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#2e7cf6" />
+            <GradientStop Offset="1.0" Color="#6aa9ff" />
+        </LinearGradientBrush>
+
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
             <Setter Property="Background" Value="White" />
@@ -129,14 +134,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
-
-        <Style x:Key="ExportProgressStyle" TargetType="Border">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsExporting}" Value="False">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
@@ -834,12 +831,66 @@
                                 Text="{Binding ApplicationPackages.Count}" />
                         </Border>
 
-                        <Border Grid.Column="2" Style="{StaticResource ExportProgressStyle}">
+                        <Grid
+                            Grid.Column="2"
+                            Margin="24,0,0,0"
+                            Visibility="{Binding ExportProgressVisibility}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                FontSize="11"
+                                Foreground="{StaticResource TextBlockForegroundBrush}"
+                                Text="导出中" />
+
                             <ProgressBar
-                                Height="8"
-                                Style="{x:Null}"
-                                Value="{Binding ExportProgress}" />
-                        </Border>
+                                Grid.Column="1"
+                                Margin="8,0"
+                                Value="{Binding ExportProgress}">
+                                <ProgressBar.Style>
+                                    <Style TargetType="ProgressBar">
+                                        <Setter Property="Height" Value="6" />
+                                        <Setter Property="Width" Value="92" />
+                                        <Setter Property="Background" Value="#F7F9FC" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                        <Setter Property="Foreground" Value="{StaticResource ExportProgressForegroundBrush}" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ProgressBar">
+                                                    <Grid>
+                                                        <Border
+                                                            x:Name="PART_Track"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="3" />
+                                                        <Border
+                                                            x:Name="PART_Indicator"
+                                                            Margin="1"
+                                                            HorizontalAlignment="Left"
+                                                            Background="{TemplateBinding Foreground}"
+                                                            CornerRadius="2" />
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ProgressBar.Style>
+                            </ProgressBar>
+
+                            <TextBlock
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                FontSize="11"
+                                Foreground="{StaticResource TextBlockForegroundBrush}"
+                                Text="{Binding ExportProgress, StringFormat={}{0}%}" />
+                        </Grid>
                     </Grid>
 
                     <!--  "搜索包名，如 com.tencent"  -->
