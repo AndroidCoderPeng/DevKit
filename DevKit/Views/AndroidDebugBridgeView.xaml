@@ -142,6 +142,77 @@
             </Setter>
         </Style>
 
+        <Style x:Key="PkgContextMenuStyle" TargetType="ContextMenu">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="MinWidth" Value="138" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <StackPanel IsItemsHost="True" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PkgMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#1B1B1B" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border
+                            x:Name="MenuItemBorder"
+                            Padding="8,10"
+                            Background="Transparent"
+                            CornerRadius="8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding Icon}" />
+                                <ContentPresenter
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    ContentSource="Header"
+                                    RecognizesAccessKey="True" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--  普通 hover：蓝色  -->
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="MenuItemBorder" Property="Background" Value="#EAF1FE" />
+                                <Setter Property="Foreground" Value="#2E7CF6" />
+                            </Trigger>
+
+                            <!--  danger hover：红色（声明在后，覆盖蓝色）  -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsHighlighted" Value="True" />
+                                    <Condition Property="Tag" Value="Danger" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="MenuItemBorder" Property="Background" Value="#FDEBEC" />
+                                <Setter Property="Foreground" Value="#E5484D" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <cvt:FirstCharConverter x:Key="FirstCharConverterKey" />
     </UserControl.Resources>
 
@@ -1056,15 +1127,30 @@
                             </ListBox.ItemContainerStyle>
 
                             <ListBox.ContextMenu>
-                                <ContextMenu>
+                                <ContextMenu Style="{StaticResource PkgContextMenuStyle}">
                                     <MenuItem
-                                        Width="128"
                                         Command="{Binding ExportPackageCommand}"
-                                        Header="导出安装包" />
+                                        Header="导出安装包"
+                                        Style="{StaticResource PkgMenuItemStyle}">
+                                        <MenuItem.Icon>
+                                            <TextBlock
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="16"
+                                                Text="&#xe60c;" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <MenuItem
-                                        Width="128"
                                         Command="{Binding UninstallCommand}"
-                                        Header="卸载应用" />
+                                        Header="卸载应用"
+                                        Style="{StaticResource PkgMenuItemStyle}"
+                                        Tag="Danger">
+                                        <MenuItem.Icon>
+                                            <TextBlock
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="16"
+                                                Text="&#xe692;" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                         </ListBox>
