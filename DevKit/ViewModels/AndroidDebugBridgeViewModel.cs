@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -457,7 +458,8 @@ namespace DevKit.ViewModels
 
             PackageSelectedCommand = new DelegateCommand<string>(item => { _selectedPackage = item; });
 
-            // ExportPackageCommand = new DelegateCommand(ExportPackage);
+            ExportPackageCommand = new DelegateCommand(() => _ = ExportPackageAsync());
+
             // UninstallCommand = new DelegateCommand(UninstallApplication);
         }
 
@@ -756,9 +758,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        //////////////////////////////////////////////////////
-
-        private async void ExportPackage()
+        private async Task ExportPackageAsync()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
             {
@@ -766,125 +766,79 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            await Task.Run(async () =>
+            ResetExportProgress();
+
+            try
             {
-                // Step 1: 获取应用安装路径
-                // adb -s <设备序列号> shell pm path <应用包名>
-                string packagePath = null;
+                await Task.Run(async () =>
                 {
-                    var argument = new ArgumentCreator();
-                    var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
-                        .Append("pm")
-                        .Append("path")
-                        .Append(_selectedPackage)
-                        .ToCommandLine();
-                    var pathExecutor = new CommandExecutor(cmdStr);
-                    pathExecutor.OnStandardOutput += delegate(string value)
+                    // 获取应用安装路径
+                    // adb -s <设备序列号> shell pm path <应用包名>
+                    var pathOutput = GetRunCommandOutput("-s", _currentDevice, "shell", "pm", "path", _selectedPackage);
+                    var packagePath = ExtractPackagePath(pathOutput);
+
+                    if (string.IsNullOrEmpty(packagePath))
                     {
-                        if (value.Contains("package:"))
-                        {
-                            packagePath = value.Replace("package:", "").Trim();
-                        }
-                    };
-                    pathExecutor.Execute("adb");
-                }
-
-                if (string.IsNullOrEmpty(packagePath))
-                {
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        ExportProgressVisibility = Visibility.Hidden;
-                        MessageBox.Show("未找到应用的安装路径，请重新选择", "导出应用",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    });
-                    return;
-                }
-
-                // Step 2: 获取远端文件大小
-                // adb -s <设备> shell stat -c %s <路径>
-                long remoteFileSize = 0;
-                {
-                    var argument = new ArgumentCreator();
-                    var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
-                        .Append("stat")
-                        .Append("-c")
-                        .Append("%s")
-                        .Append(packagePath)
-                        .ToCommandLine();
-                    var sizeExecutor = new CommandExecutor(cmdStr);
-                    sizeExecutor.OnStandardOutput += delegate(string value)
-                    {
-                        long.TryParse(value.Trim(), out remoteFileSize);
-                    };
-                    sizeExecutor.Execute("adb");
-                }
-
-                var fileName = $"{_selectedPackage}.apk";
-                var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
-
-                Application.Current.Dispatcher.Invoke(delegate { ExportProgressVisibility = Visibility.Visible; });
-
-                {
-                    if (remoteFileSize <= 0)
-                    {
-                        // 降级：不显示进度的同步 pull
-                        var argument = new ArgumentCreator();
-                        var cmdStr = argument.Append("-s").Append(_currentDevice)
-                            .Append("pull")
-                            .Append(packagePath)
-                            .Append(filePath)
-                            .ToCommandLine();
-                        new CommandExecutor(cmdStr).Execute("adb");
-
-                        Application.Current.Dispatcher.Invoke(delegate
-                        {
-                            ExportProgress = 100;
-                            ExportProgressVisibility = Visibility.Hidden;
-                            MessageBox.Show($"导出完成：{filePath}", "导出应用",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-                        });
+                        ShowExportResult("未找到应用的安装路径，请重新选择", false);
                         return;
                     }
-                }
 
-                // Step 3: 非阻塞启动 pull + 轮询本地文件大小
-                if (File.Exists(filePath)) File.Delete(filePath);
+                    // 获取远端文件大小
+                    // adb -s <设备> shell stat -c %s <路径>
+                    var sizeOutput = GetRunCommandOutput("-s", _currentDevice, "shell", "stat", "-c", "%s", packagePath);
+                    long.TryParse(sizeOutput, out var remoteFileSize);
 
-                {
-                    var argument = new ArgumentCreator();
-                    var cmdStr = argument.Append("-s").Append(_currentDevice)
-                        .Append("pull")
-                        .Append(packagePath)
-                        .Append(filePath)
-                        .ToCommandLine();
-                    var pullExecutor = new CommandExecutor(cmdStr);
-                    var process = pullExecutor.StartNonBlocking("adb");
+                    var fileName = $"{_selectedPackage}.apk";
+                    var filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
 
-                    // Step 4: 每 100ms 轮询本地文件大小，计算进度
-                    while (!process.HasExited)
+                    ShowExportProgress();
+
+                    if (remoteFileSize <= 0)
                     {
-                        if (File.Exists(filePath))
-                        {
-                            var fileInfo = new FileInfo(filePath);
-                            var progress = Math.Min((double)fileInfo.Length / remoteFileSize * 100, 99);
-                            Application.Current.Dispatcher.Invoke(() => { ExportProgress = progress; });
-                        }
-
-                        await Task.Delay(100);
+                        // 降级：拿不到大小就同步 pull，不显示进度
+                        GetRunCommandOutput("-s", _currentDevice, "pull", packagePath, filePath);
+                        ShowExportResult($"导出完成：{filePath}", true);
+                        return;
                     }
 
-                    process.Close();
-                }
+                    // 非阻塞启动 pull + 轮询本地文件大小
+                    if (File.Exists(filePath)) File.Delete(filePath);
 
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    ExportProgress = 100;
-                    ExportProgressVisibility = Visibility.Hidden;
-                    MessageBox.Show($"导出完成：{filePath}", "导出应用",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    var argument = new ArgumentCreator();
+                    var cmdStr = argument.Append("-s").Append(_currentDevice)
+                        .Append("pull").Append(packagePath).Append(filePath)
+                        .ToCommandLine();
+
+                    var pullExecutor = new CommandExecutor(cmdStr);
+                    using (var process = pullExecutor.StartNonBlocking("adb"))
+                    {
+                        while (!process.HasExited)
+                        {
+                            if (File.Exists(filePath))
+                            {
+                                var info = new FileInfo(filePath);
+                                var progress = Math.Min(info.Length * 100.0 / remoteFileSize, 99);
+                                UpdateExportProgress(progress);
+                            }
+
+                            await Task.Delay(100);
+                        }
+                    }
+
+                    ShowExportResult($"导出完成：{filePath}", true);
                 });
-            });
+            }
+            catch (Exception e)
+            {
+                ShowExportResult($"导出失败：{e.Message}", false);
+            }
+            finally
+            {
+                HideExportProgress();
+            }
         }
+
+        //////////////////////////////////////////////////////
 
         private void UninstallApplication()
         {
@@ -1048,6 +1002,92 @@ namespace DevKit.ViewModels
 
             _toastTimer.Stop();
             _toastTimer.Start();
+        }
+
+        private string GetRunCommandOutput(params string[] args)
+        {
+            var argument = new ArgumentCreator();
+            foreach (var a in args) argument.Append(a);
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = "adb",
+                Arguments = argument.ToCommandLine(),
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            var process = Process.Start(psi);
+            if (process == null)
+            {
+                throw new InvalidOperationException("无法启动 adb 进程");
+            }
+
+            using (process)
+            {
+                var output = process.StandardOutput.ReadToEndAsync();
+                var error = process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+                Task.WaitAll(output, error); // 等异步读取结束，确保拿全输出
+                return string.IsNullOrWhiteSpace(output.Result) ? error.Result?.Trim() : output.Result?.Trim();
+            }
+        }
+
+
+        private void ResetExportProgress()
+        {
+            ExportProgress = 0;
+            ExportProgressVisibility = Visibility.Hidden;
+        }
+
+        private void ShowExportProgress()
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ExportProgress = 0;
+                ExportProgressVisibility = Visibility.Visible;
+            }));
+        }
+
+        private void UpdateExportProgress(double progress)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => { ExportProgress = Math.Round(progress, 0); }));
+        }
+
+        private void HideExportProgress()
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ExportProgressVisibility = Visibility.Hidden;
+            }));
+        }
+
+        private void ShowExportResult(string message, bool success)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (success) ExportProgress = 100;
+                ExportProgressVisibility = Visibility.Hidden;
+                MessageBox.Show(message, "导出应用", MessageBoxButton.OK,
+                    success ? MessageBoxImage.Information : MessageBoxImage.Error);
+            }));
+        }
+
+        private static string ExtractPackagePath(string output)
+        {
+            if (string.IsNullOrEmpty(output)) return null;
+
+            foreach (var line in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (line.StartsWith("package:", StringComparison.OrdinalIgnoreCase))
+                {
+                    return line.Substring("package:".Length).Trim();
+                }
+            }
+
+            return null;
         }
     }
 }
