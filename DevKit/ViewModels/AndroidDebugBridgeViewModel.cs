@@ -369,7 +369,6 @@ namespace DevKit.ViewModels
         private DispatcherTimer _toastTimer;
         private long _chargeCounterUah;
         private bool _isAscending;
-        
         private string _selectedPackage = string.Empty;
 
         public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
@@ -419,19 +418,19 @@ namespace DevKit.ViewModels
             {
                 var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (result != MessageBoxResult.OK) return;
-                
+
                 var argument = new ArgumentCreator();
                 //重启设备
                 //adb reboot 
                 argument.Append("-s").Append(_currentDevice).Append("reboot");
                 new CommandExecutor(argument.ToCommandLine()).Execute("adb");
             });
-            
+
             ShutdownDeviceCommand = new DelegateCommand(() =>
             {
                 var result = MessageBox.Show("确定关闭该设备？", "关机", MessageBoxButton.OKCancel, MessageBoxImage.Question);
                 if (result != MessageBoxResult.OK) return;
-                
+
                 var argument = new ArgumentCreator();
                 //关机
                 //adb shell reboot -p 
@@ -453,10 +452,11 @@ namespace DevKit.ViewModels
 
                 ApplicationPackages = new ObservableCollection<string>(sorted);
             });
-            
+
             RefreshApplicationCommand = new DelegateCommand(GetDeviceApplication);
-            
-            // PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
+
+            PackageSelectedCommand = new DelegateCommand<string>(item => { _selectedPackage = item; });
+
             // ExportPackageCommand = new DelegateCommand(ExportPackage);
             // UninstallCommand = new DelegateCommand(UninstallApplication);
         }
@@ -757,11 +757,6 @@ namespace DevKit.ViewModels
         }
 
         //////////////////////////////////////////////////////
-
-        private void PackageSelected(string package)
-        {
-            _selectedPackage = package;
-        }
 
         private async void ExportPackage()
         {
