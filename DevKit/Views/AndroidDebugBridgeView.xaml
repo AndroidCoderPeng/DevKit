@@ -58,15 +58,6 @@
                                         <TranslateTransform Y="-2" />
                                     </Setter.Value>
                                 </Setter>
-                                <Setter TargetName="ActionButtonBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect
-                                            BlurRadius="6"
-                                            Opacity="0.06"
-                                            ShadowDepth="2"
-                                            Color="#13223D" />
-                                    </Setter.Value>
-                                </Setter>
                             </Trigger>
 
                             <!--  危险 hover：红色（声明在后，覆盖上面的蓝色）  -->
@@ -81,15 +72,6 @@
                                 <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
                                     <Setter.Value>
                                         <TranslateTransform Y="-2" />
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter TargetName="ActionButtonBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect
-                                            BlurRadius="6"
-                                            Opacity="0.06"
-                                            ShadowDepth="2"
-                                            Color="#13223D" />
                                     </Setter.Value>
                                 </Setter>
                             </MultiTrigger>
