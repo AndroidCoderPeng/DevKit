@@ -8,7 +8,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="900"
-    Height="774"
+    Height="790"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -24,6 +24,95 @@
     <UserControl.Resources>
         <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
 
+        <LinearGradientBrush x:Key="GradientForegroundBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Offset="0.0" Color="#3ddc84" />
+            <GradientStop Offset="1.0" Color="#17a95c" />
+        </LinearGradientBrush>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="72" />
+            <Setter Property="Background" Value="#F7F9FC" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource TextBlockForegroundBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ActionButtonBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!--  普通 hover：蓝色  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ActionButtonBorder" Property="Background" Value="#EAF1FE" />
+                                <Setter TargetName="ActionButtonBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="-2" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="ActionButtonBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect
+                                            BlurRadius="6"
+                                            Opacity="0.06"
+                                            ShadowDepth="2"
+                                            Color="#13223D" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+
+                            <!--  危险 hover：红色（声明在后，覆盖上面的蓝色）  -->
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="Tag" Value="Danger" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="ActionButtonBorder" Property="Background" Value="#FDEBEC" />
+                                <Setter TargetName="ActionButtonBorder" Property="BorderBrush" Value="#E5484D" />
+                                <Setter Property="TextElement.Foreground" Value="#E5484D" />
+                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="-2" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="ActionButtonBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect
+                                            BlurRadius="6"
+                                            Opacity="0.06"
+                                            ShadowDepth="2"
+                                            Color="#13223D" />
+                                    </Setter.Value>
+                                </Setter>
+                            </MultiTrigger>
+
+                            <!--  按下：复位  -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="0" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+
+                            <!--  禁用：半透明  -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ExportProgressStyle" TargetType="Border">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsExporting}" Value="False">
@@ -31,11 +120,6 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-
-        <LinearGradientBrush x:Key="GradientForegroundBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Offset="0.0" Color="#3ddc84" />
-            <GradientStop Offset="1.0" Color="#17a95c" />
-        </LinearGradientBrush>
     </UserControl.Resources>
 
     <Grid>
@@ -206,7 +290,7 @@
                                 Margin="12"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="32"
-                                Foreground="{StaticResource PrimaryBrush}"
+                                Foreground="#2E7CF6"
                                 Text="&#xe6bf;" />
                         </Border>
 
@@ -418,7 +502,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="24"
-                                    Foreground="{StaticResource PrimaryBrush}"
+                                    Foreground="#2E7CF6"
                                     Text="&#xe66c;">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -480,7 +564,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="24"
-                                    Foreground="{StaticResource PrimaryBrush}"
+                                    Foreground="#2E7CF6"
                                     Text="&#xe66c;">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -603,12 +687,10 @@
                         Rows="2">
 
                         <Button
-                            Height="64"
                             Margin="0,0,4,4"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding OutputImageCommand}">
+                            Command="{Binding OutputImageCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
@@ -625,12 +707,10 @@
                         </Button>
 
                         <Button
-                            Height="64"
                             Margin="4,0,4,4"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding ScreenshotCommand}">
+                            Command="{Binding ScreenshotCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
@@ -647,12 +727,10 @@
                         </Button>
 
                         <Button
-                            Height="64"
                             Margin="4,0,0,4"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding GetLogCommand}">
+                            Command="{Binding GetLogCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
@@ -669,12 +747,10 @@
                         </Button>
 
                         <Button
-                            Height="64"
                             Margin="0,4,4,0"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding InstallCommand}">
+                            Command="{Binding InstallCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
@@ -691,12 +767,10 @@
                         </Button>
 
                         <Button
-                            Height="64"
                             Margin="4,4,4,0"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding RebootDeviceCommand}">
+                            Command="{Binding RebootDeviceCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
@@ -713,12 +787,11 @@
                         </Button>
 
                         <Button
-                            Height="64"
                             Margin="4,4,0,0"
                             HorizontalAlignment="Stretch"
-                            Background="#F7F9FC"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
-                            Command="{Binding ShutdownDeviceCommand}">
+                            Command="{Binding ShutdownDeviceCommand}"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Tag="Danger">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock
