@@ -184,8 +184,8 @@
     <Compile Include="Dialogs\LoadingDialog.xaml.cs">
       <DependentUpon>LoadingDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\ScreenShotListDialog.xaml.cs">
-      <DependentUpon>ScreenShotListDialog.xaml</DependentUpon>
+    <Compile Include="Dialogs\ScreenshotExportDialog.xaml.cs">
+      <DependentUpon>ScreenshotExportDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
@@ -210,7 +210,7 @@
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\NetConfigurationViewModel.cs" />
-    <Compile Include="ViewModels\ScreenShotListDialogViewModel.cs" />
+    <Compile Include="ViewModels\ScreenshotExportDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
@@ -281,7 +281,7 @@
     <Page Include="Dialogs\CommandScriptDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
     <Page Include="Dialogs\LoadingDialog.xaml" />
-    <Page Include="Dialogs\ScreenShotListDialog.xaml" />
+    <Page Include="Dialogs\ScreenshotExportDialog.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />
     <Page Include="Views\ColorResourceView.xaml" />

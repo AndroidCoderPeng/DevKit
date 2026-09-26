@@ -83,6 +83,8 @@ namespace DevKit.ViewModels
             }
         }
 
+        public Visibility ExportProgressVisibility => IsExporting ? Visibility.Visible : Visibility.Collapsed;
+
         private bool _isExporting;
 
         public bool IsExporting
@@ -92,6 +94,7 @@ namespace DevKit.ViewModels
             {
                 _isExporting = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(ExportProgressVisibility));
             }
         }
 
@@ -244,24 +247,17 @@ namespace DevKit.ViewModels
                 var selected = _screenshots.Where(s => s.IsSelected).Select(s => s.FilePath).ToList();
                 if (selected.Count == 0)
                 {
-                    MessageBox.Show("请先选择要导出的截屏", "截屏导出",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("请先选择要导出的截屏", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(SaveDirectory))
                 {
-                    MessageBox.Show("请选择保存目录", "截屏导出",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("请选择保存目录", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var parameters = new DialogParameters
-                {
-                    { "selectedImages", selected },
-                    { "saveDirectory", SaveDirectory }
-                };
-                RequestClose?.Invoke(new Prism.Services.Dialogs.DialogResult(ButtonResult.OK, parameters));
+                _ = ExportAsync(selected, SaveDirectory);
             });
         }
 
@@ -275,7 +271,7 @@ namespace DevKit.ViewModels
         {
             _device = parameters.GetValue<string>("device");
             _view = (ListCollectionView)CollectionViewSource.GetDefaultView(_screenshots);
-            
+
             // 排序只设置一次，之后集合增删由 ListCollectionView 自动重排
             _view.SortDescriptions.Clear();
             _view.SortDescriptions.Add(new SortDescription("Time", ListSortDirection.Descending));
@@ -429,6 +425,65 @@ namespace DevKit.ViewModels
                 .Append("pull").Append(item.FilePath).Append(local).ToCommandLine();
             new CommandExecutor(cmdStr).Execute("adb");
             return local;
+        }
+
+        private async Task ExportAsync(List<string> remotePaths, string saveDirectory)
+        {
+            IsExporting = true;
+            ExportProgress = 0;
+
+            var total = remotePaths.Count;
+            var done = 0;
+            var failed = 0;
+
+            try
+            {
+                Directory.CreateDirectory(saveDirectory);
+
+                foreach (var remotePath in remotePaths)
+                {
+                    var fileName = Path.GetFileName(remotePath);
+                    if (string.IsNullOrWhiteSpace(fileName)) continue;
+
+                    var localPath = GetUniqueFilePath(Path.Combine(saveDirectory, fileName));
+                    var argument = new ArgumentCreator();
+                    var cmdStr = argument.Append("-s").Append(_device)
+                        .Append("pull").Append(remotePath).Append(localPath).ToCommandLine();
+
+                    var exitCode = await Task.Run(() => new CommandExecutor(cmdStr).Execute("adb"));
+                    if (exitCode != 0 || !File.Exists(localPath)) failed++;
+
+                    done++;
+                    ExportProgress = done * 100.0 / total; // 每导完一张更新一次
+                }
+            }
+            finally
+            {
+                IsExporting = false; // 进度条自动隐藏
+            }
+
+            var success = done - failed;
+            MessageBox.Show(failed == 0
+                    ? $"已导出 {success} 张截屏到 {saveDirectory}"
+                    : $"导出完成：成功 {success} 张，失败 {failed} 张",
+                "截屏导出", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private static string GetUniqueFilePath(string path)
+        {
+            if (!File.Exists(path)) return path;
+
+            var directory = Path.GetDirectoryName(path) ?? string.Empty;
+            var name = Path.GetFileNameWithoutExtension(path);
+            var extension = Path.GetExtension(path);
+
+            for (var i = 1; i < 1000; i++)
+            {
+                var candidate = Path.Combine(directory, $"{name} ({i}){extension}");
+                if (!File.Exists(candidate)) return candidate;
+            }
+
+            return Path.Combine(directory, $"{name} ({DateTime.Now:HHmmss}){extension}");
         }
     }
 }

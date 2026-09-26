@@ -93,7 +93,7 @@ namespace DevKit
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
             containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
-            containerRegistry.RegisterDialog<ScreenShotListDialog, ScreenShotListDialogViewModel>();
+            containerRegistry.RegisterDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
         }
     }
 }

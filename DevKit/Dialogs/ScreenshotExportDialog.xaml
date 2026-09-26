@@ -512,7 +512,6 @@
 
                     <TextBox
                         x:Name="SaveDirectoryTextBox"
-                        Margin="12,0"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Center"
                         Background="Transparent"
@@ -537,6 +536,7 @@
                     Width="120"
                     Height="8"
                     Margin="8,0"
+                    Visibility="{Binding ExportProgressVisibility}"
                     Value="{Binding ExportProgress}">
                     <ProgressBar.Style>
                         <Style TargetType="ProgressBar">

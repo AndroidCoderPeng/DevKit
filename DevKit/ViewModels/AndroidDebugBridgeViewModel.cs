@@ -576,29 +576,18 @@ namespace DevKit.ViewModels
 
         private void ExportScreenshot()
         {
+            if (CurrentDevice == "未连接任何设备")
+            {
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+
             var dialogParameters = new DialogParameters
             {
                 { "device", _currentDevice }
             };
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                _dialogService.ShowDialog("ScreenShotListDialog", dialogParameters, dialogResult =>
-                {
-                    if (dialogResult.Result == ButtonResult.OK)
-                    {
-                        var selectedImage = dialogResult.Parameters.GetValue<string>("selectedImage");
-                        var fileName = Path.GetFileName(selectedImage);
-                        var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/{fileName}";
-                        Task.Run(() =>
-                        {
-                            var argument = new ArgumentCreator();
-                            argument.Append("-s").Append(_currentDevice).Append("pull").Append(selectedImage)
-                                .Append(filePath);
-                            new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-                        });
-                    }
-                });
-            }));
+
+            _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
         }
 
         //////////////////////////////////////////////////////
@@ -796,10 +785,7 @@ namespace DevKit.ViewModels
                 var fileName = $"{_selectedPackage}.apk";
                 var filePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\{fileName}";
 
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    ExportProgressVisibility = Visibility.Visible;
-                });
+                Application.Current.Dispatcher.Invoke(delegate { ExportProgressVisibility = Visibility.Visible; });
 
                 {
                     if (remoteFileSize <= 0)
