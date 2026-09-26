@@ -34,6 +34,7 @@ namespace DevKit.Utils
             using (var process = Start(executor))
             {
                 process.WaitForExit();
+                process.WaitForExit(); // 第二次 WaitForExit() 是标准做法，等待异步输出流彻底读完，避免丢最后几行
                 return process.ExitCode;
             }
         }

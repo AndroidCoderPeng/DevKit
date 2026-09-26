@@ -290,6 +290,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private bool _canInstall = true;
+
+        public bool CanInstall
+        {
+            get => _canInstall;
+            set
+            {
+                _canInstall = value;
+                RaisePropertyChanged();
+            }
+        }
+
         // ----------- ***** -----------
 
         private Visibility _exportProgressVisibility = Visibility.Hidden;
@@ -393,11 +405,12 @@ namespace DevKit.ViewModels
                 {
                     { "device", _currentDevice }
                 };
-                
+
                 _dialogService.ShowDialog("AndroidLogcatDialog", dialogParameters, _ => { });
             });
 
-            // InstallCommand = new DelegateCommand(InstallApplication);
+            InstallCommand = new DelegateCommand(() => _ = InstallApplicationAsync());
+
             // RebootDeviceCommand = new DelegateCommand(RebootDevice);
             // ShutdownDeviceCommand = new DelegateCommand(ShutdownDevice);
             // RefreshApplicationCommand = new DelegateCommand(RefreshApplication);
@@ -616,6 +629,92 @@ namespace DevKit.ViewModels
             _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
         }
 
+        private async Task InstallApplicationAsync()
+        {
+            if (CurrentDevice == "未连接任何设备")
+            {
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+
+            var fileDialog = new OpenFileDialog
+            {
+                DefaultExt = ".apk",
+                Filter = "安装包文件(*.apk)|*.apk"
+            };
+            if (fileDialog.ShowDialog() != true) return;
+
+            var filePath = fileDialog.FileName;
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                MessageBox.Show("安装包路径错误，请重新选择");
+                return;
+            }
+
+            if (!CanInstall) return;
+            CanInstall = false;
+
+            var dialogParameters = new DialogParameters
+            {
+                { "LoadingMessage", "软件安装中，请稍后......" }
+            };
+
+            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    var argument = new ArgumentCreator();
+                    // adb -s <设备序列号> install -r <apk路径>
+                    var cmdStr = argument.Append("-s").Append(_currentDevice)
+                        .Append("install")
+                        .Append("-r")
+                        .Append(filePath)
+                        .ToCommandLine();
+
+                    var executor = new CommandExecutor(cmdStr);
+                    string lastLine = null;
+                    executor.OnStandardOutput += line => lastLine = line;
+                    executor.OnStandardError += line => lastLine = line;
+
+                    var exitCode = executor.Execute("adb");
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+
+                        var success = exitCode == 0 &&
+                                      lastLine != null &&
+                                      lastLine.Trim().StartsWith("Success", StringComparison.OrdinalIgnoreCase);
+
+                        if (success)
+                        {
+                            MessageBox.Show("安装成功", "安装应用", MessageBoxButton.OK, MessageBoxImage.Information);
+                            GetDeviceApplication();
+                        }
+                        else
+                        {
+                            MessageBox.Show(lastLine ?? "安装失败，请检查设备连接或 apk 包", "安装应用", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    });
+                });
+            }
+            catch (Exception e)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                    MessageBox.Show($"安装失败：{e.Message}", "安装应用", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
+            }
+            finally
+            {
+                CanInstall = true;
+            }
+        }
+
         //////////////////////////////////////////////////////
 
         private void RebootDevice()
@@ -646,55 +745,6 @@ namespace DevKit.ViewModels
                     .ToCommandLine();
                 new CommandExecutor(cmdStr).Execute("adb");
             }
-        }
-
-        private void InstallApplication()
-        {
-            var fileDialog = new OpenFileDialog
-            {
-                // 设置默认格式
-                DefaultExt = ".apk",
-                Filter = "安装包文件(*.apk)|*.apk"
-            };
-            var result = fileDialog.ShowDialog();
-            if (result != true) return;
-            var filePath = fileDialog.FileName;
-            if (string.IsNullOrEmpty(filePath))
-            {
-                MessageBox.Show("安装包路径错误，请重新选择");
-                return;
-            }
-
-            var dialogParameters = new DialogParameters
-            {
-                { "LoadingMessage", "软件安装中，请稍后......" }
-            };
-            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-            Task.Run(() =>
-            {
-                var argument = new ArgumentCreator();
-                //覆盖安装应用（apk）
-                //adb -s <设备序列号> install  -r 
-                var cmdStr = argument.Append("-s").Append(_currentDevice)
-                    .Append("install")
-                    .Append("-r")
-                    .Append(filePath)
-                    .ToCommandLine();
-                var executor = new CommandExecutor(cmdStr);
-                executor.OnStandardOutput += delegate(string value)
-                {
-                    if (value.Equals("Success"))
-                    {
-                        Application.Current.Dispatcher.Invoke(delegate
-                        {
-                            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                            MessageBox.Show(value, "安装应用", MessageBoxButton.OK, MessageBoxImage.Information);
-                            GetDeviceApplication();
-                        });
-                    }
-                };
-                executor.Execute("adb");
-            });
         }
 
         private void RefreshApplication()

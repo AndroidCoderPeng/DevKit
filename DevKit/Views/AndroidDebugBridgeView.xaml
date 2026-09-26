@@ -807,6 +807,7 @@
                             Margin="0,4,4,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding InstallCommand}"
+                            IsEnabled="{Binding CanInstall}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
                                 <StackPanel Orientation="Vertical">
