@@ -83,8 +83,8 @@ namespace DevKit.ViewModels
 
         private Process _logcatProcess;
         private bool _isPaused;
-        private readonly HashSet<string> _enabledLevels = new HashSet<string> { "D", "I", "W", "E" };
-        private ICollectionView _logsView;
+        private readonly HashSet<string> _enabledLevels = new HashSet<string> { "D" };
+        private readonly ICollectionView _logsView;
 
         public AndroidLogcatDialogViewModel()
         {
@@ -145,7 +145,7 @@ namespace DevKit.ViewModels
         {
             if (_isPaused) return;
             if (string.IsNullOrEmpty(line)) return;
-            
+
             if (string.IsNullOrEmpty(line)) return;
 
             var match = LogcatLineRegex.Match(line);

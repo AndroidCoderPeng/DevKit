@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="900"
@@ -25,8 +26,8 @@
         <SolidColorBrush x:Key="TextMutedBrush" Color="#93a0ae" />
 
         <SolidColorBrush x:Key="LevelVBrush" Color="#93A0AE" />
-        <SolidColorBrush x:Key="LevelDBrush" Color="#2E7CF6" />
-        <SolidColorBrush x:Key="LevelIBrush" Color="#16A34A" />
+        <SolidColorBrush x:Key="LevelDBrush" Color="#16A34A" />
+        <SolidColorBrush x:Key="LevelIBrush" Color="#2E7CF6" />
         <SolidColorBrush x:Key="LevelWBrush" Color="#F2994A" />
         <SolidColorBrush x:Key="LevelEBrush" Color="#E5484D" />
 
@@ -166,6 +167,10 @@
 
         <!--  日志级别徽标：按 Level 着底色  -->
         <Style x:Key="LevelBadgeStyle" TargetType="Border">
+            <d:Style.DataContext>
+                <x:Type Type="model:LogcatModel" />
+            </d:Style.DataContext>
+
             <Setter Property="MinWidth" Value="18" />
             <Setter Property="CornerRadius" Value="4" />
             <Setter Property="Background" Value="#2E7CF6" />
@@ -281,7 +286,6 @@
                         Command="{Binding ToggleLevelCommand}"
                         CommandParameter="I"
                         Content="I"
-                        IsChecked="True"
                         Style="{StaticResource LevelChipStyle}" />
 
                     <ToggleButton
@@ -290,7 +294,6 @@
                         Command="{Binding ToggleLevelCommand}"
                         CommandParameter="W"
                         Content="W"
-                        IsChecked="True"
                         Style="{StaticResource LevelChipStyle}" />
 
                     <ToggleButton
@@ -299,7 +302,6 @@
                         Command="{Binding ToggleLevelCommand}"
                         CommandParameter="E"
                         Content="E"
-                        IsChecked="True"
                         Style="{StaticResource LevelChipStyle}" />
                 </StackPanel>
             </Border>
@@ -445,6 +447,10 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
+
+                                <d:Style.DataContext>
+                                    <x:Type Type="model:LogcatModel" />
+                                </d:Style.DataContext>
 
                                 <!--  时间  -->
                                 <TextBlock
