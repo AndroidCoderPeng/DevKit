@@ -741,7 +741,6 @@
                         Grid.Row="4"
                         Margin="16"
                         Columns="3"
-                        IsEnabled="{Binding HasSelectedDevice}"
                         Rows="2">
 
                         <Button
