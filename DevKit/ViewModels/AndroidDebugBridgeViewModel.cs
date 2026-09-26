@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.Events;
 using DevKit.Utils;
 using Prism.Commands;
@@ -265,6 +266,30 @@ namespace DevKit.ViewModels
             }
         }
 
+        private string _toastMessage;
+
+        public string ToastMessage
+        {
+            get => _toastMessage;
+            set
+            {
+                _toastMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _isToastVisible;
+
+        public bool IsToastVisible
+        {
+            get => _isToastVisible;
+            set
+            {
+                _isToastVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        
         // ----------- ***** -----------
 
         private bool _isExporting;
@@ -328,6 +353,7 @@ namespace DevKit.ViewModels
         private static readonly Regex InetRegex = new Regex(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})", RegexOptions.Compiled);
         private static readonly Regex WifiRegex = new Regex(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$", RegexOptions.Compiled);
         private volatile bool _deviceLoaded;
+        private DispatcherTimer _toastTimer;
 
         private string _selectedPackage = string.Empty;
         private bool _isAscending;
@@ -555,8 +581,7 @@ namespace DevKit.ViewModels
             var dataObject = new DataObject(DataFormats.UnicodeText, text);
             Clipboard.SetDataObject(dataObject);
             
-            // TODO 改为自定义的Toast提示
-            // Growl.Success("参数已复制");
+            ShowToast("参数已复制");
         }
 
         //////////////////////////////////////////////////////
@@ -968,5 +993,24 @@ namespace DevKit.ViewModels
                 { "kalama", "骁龙 8 Gen 2" },
                 { "sm8650", "骁龙 8 Gen 3" },
             };
+        
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
     }
 }
