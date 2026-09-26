@@ -460,7 +460,7 @@ namespace DevKit.ViewModels
 
             ExportPackageCommand = new DelegateCommand(() => _ = ExportPackageAsync());
 
-            // UninstallCommand = new DelegateCommand(UninstallApplication);
+            UninstallCommand = new DelegateCommand(() => _ = UninstallApplicationAsync());
         }
 
         /// <summary>
@@ -785,7 +785,8 @@ namespace DevKit.ViewModels
 
                     // 获取远端文件大小
                     // adb -s <设备> shell stat -c %s <路径>
-                    var sizeOutput = GetRunCommandOutput("-s", _currentDevice, "shell", "stat", "-c", "%s", packagePath);
+                    var sizeOutput =
+                        GetRunCommandOutput("-s", _currentDevice, "shell", "stat", "-c", "%s", packagePath);
                     long.TryParse(sizeOutput, out var remoteFileSize);
 
                     var fileName = $"{_selectedPackage}.apk";
@@ -838,9 +839,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        //////////////////////////////////////////////////////
-
-        private void UninstallApplication()
+        private async Task UninstallApplicationAsync()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
             {
@@ -848,28 +847,46 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-            if (result == MessageBoxResult.OK)
+            if (CurrentDevice == "未连接任何设备")
             {
-                Task.Run(() =>
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+
+            // 拷贝局部变量，避免执行期间选中项被切换导致误删
+            var package = _selectedPackage;
+
+            var result = MessageBox.Show("确定卸载该应用？", "卸载应用", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (result != MessageBoxResult.OK) return;
+
+            try
+            {
+                await Task.Run(() =>
                 {
-                    var argument = new ArgumentCreator();
-                    //卸载应用（应用包名）
-                    //adb -s <设备序列号> uninstall 
-                    var cmdStr = argument.Append("-s").Append(_currentDevice)
-                        .Append("uninstall")
-                        .Append(_selectedPackage)
-                        .ToCommandLine();
-                    var executor = new CommandExecutor(cmdStr);
-                    executor.OnStandardOutput += delegate(string value)
+                    var output = GetRunCommandOutput("-s", _currentDevice, "uninstall", package);
+                    var success = !string.IsNullOrEmpty(output) &&
+                                  output.Trim().StartsWith("Success", StringComparison.OrdinalIgnoreCase);
+
+                    Application.Current.Dispatcher.Invoke(delegate
                     {
-                        Application.Current.Dispatcher.Invoke(delegate
+                        if (success)
                         {
-                            ApplicationPackages.Remove(_selectedPackage);
-                            MessageBox.Show(value, "卸载应用", MessageBoxButton.OK, MessageBoxImage.Information);
-                        });
-                    };
-                    executor.Execute("adb");
+                            ApplicationPackages.Remove(package);
+                            MessageBox.Show("卸载成功", "卸载应用", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        else
+                        {
+                            MessageBox.Show(output ?? "卸载失败，请检查设备连接", "卸载应用", MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    });
+                });
+            }
+            catch (Exception e)
+            {
+                Application.Current.Dispatcher.Invoke(delegate
+                {
+                    MessageBox.Show($"卸载失败：{e.Message}", "卸载应用", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
         }
