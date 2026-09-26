@@ -167,6 +167,7 @@
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />
     <Compile Include="Converters\EnableStateConverter.cs" />
+    <Compile Include="Converters\FirstCharConverter.cs" />
     <Compile Include="Converters\ListenStateConverter.cs" />
     <Compile Include="Converters\MessageCountConverter.cs" />
     <Compile Include="Converters\MessageTagBgConverter.cs" />
