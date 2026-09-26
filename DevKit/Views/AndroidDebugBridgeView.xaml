@@ -900,12 +900,12 @@
                         <Border
                             Grid.Column="1"
                             Margin="8,0"
-                            Background="AliceBlue"
+                            Background="#1A2E7CF6"
                             CornerRadius="12">
                             <TextBlock
                                 Margin="8,2"
                                 FontFamily="微软雅黑"
-                                Foreground="Blue"
+                                Foreground="#FF2E7CF6"
                                 Text="{Binding ApplicationPackages.Count}" />
                         </Border>
 
