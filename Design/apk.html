@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>APK 应用包 · 签名配置</title>
+    <link rel="stylesheet" href="apk.css"/>
+</head>
+<body>
+
+<div class="app">
+    <div class="window">
+
+        <!-- ============ 主体 ============ -->
+        <main class="content">
+
+            <!-- ---------- 签名配置 ---------- -->
+            <section class="panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M16.5 7.5V6a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v1.5M9 11v3m6-3v3M8 20h8a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2z"/>
+                        </svg>
+                        签名配置
+                    </div>
+                    <span class="panel-tip">用于 keytool 查看 SHA1</span>
+                </header>
+
+                <div class="form-grid">
+                    <div class="field field-wide">
+                        <span class="field-label">证书路径</span>
+                        <div class="input-row">
+                            <input type="text" id="keyFile" value="D:\keys\release.jks"/>
+                            <button class="btn btn-ghost" id="btnKey">选择</button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">签名别名</span>
+                        <input type="text" id="keyAlias" value="release"/>
+                    </div>
+
+                    <div class="field">
+                        <span class="field-label">密码</span>
+                        <input type="password" id="keyPassword" value="123456"/>
+                    </div>
+                </div>
+
+                <div class="sha1-area">
+                    <button class="btn btn-primary" id="btnSha1">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                        </svg>
+                        查看 SHA1
+                    </button>
+
+                    <div class="terminal" id="terminal">
+                        <div class="terminal-bar">
+                            <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+                            <span class="terminal-title">keytool -list -v</span>
+                        </div>
+                        <pre id="terminalText">等待查看…</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------- APK 归档 ---------- -->
+            <section class="panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        </svg>
+                        APK 归档
+                    </div>
+                    <span class="apk-total">共 <b id="apkCount">12</b> 个安装包</span>
+                </header>
+
+                <div class="root-field">
+                    <span class="field-label">根目录</span>
+                    <input type="text" id="apkRoot" value="D:\APK\release"/>
+                    <button class="btn btn-ghost" id="btnRoot">浏览</button>
+                    <button class="btn btn-ghost" id="btnRefresh">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5"/>
+                        </svg>
+                        刷新
+                    </button>
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16.5 16.5L21 21"/>
+                        </svg>
+                        <input type="text" id="apkSearch" placeholder="搜索应用包"/>
+                    </div>
+                </div>
+
+                <ul class="apk-grid" id="apkGrid"></ul>
+
+                <!-- 空态 -->
+                <div class="empty" id="emptyState">
+                    <svg viewBox="0 0 24 24" width="52" height="52" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" fill="none" stroke="currentColor"
+                                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="empty-title">没有找到安装包</div>
+                    <div class="empty-desc">该目录下没有可用的 APK 文件，请确认根目录或更换搜索关键词。</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ============ 状态栏 ============ -->
+        <footer class="statusbar">
+            <span>APK 工具 · 已就绪</span>
+            <span class="statusbar-right">点击卡片可在资源管理器中打开所在位置</span>
+        </footer>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="apk.js"></script>
+</body>
+</html>

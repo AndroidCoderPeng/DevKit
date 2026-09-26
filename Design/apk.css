@@ -1,0 +1,509 @@
+/* ============================================================
+   APK 应用包 · 签名配置 —— 界面重设计稿（静态页面）
+   配色沿用 DevKit 浅色主题，与 adb.css / screenshot.css 保持同源
+   ============================================================ */
+
+:root {
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+    --font: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, sans-serif;
+    --mono: "Cascadia Mono", Consolas, "JetBrains Mono", monospace;
+    --duration: .18s;
+
+    color-scheme: light;
+    --page-bg: #eef2f7;
+    --window-bg: #f3f9fe;
+    --surface: #ffffff;
+    --surface-2: #f7f9fc;
+    --border: #eeeef0;
+    --border-strong: #dfe3ea;
+    --text: #1b1b1b;
+    --text-2: #5f6b7a;
+    --text-3: #93a0ae;
+    --accent: #2e7cf6;
+    --accent-soft: rgba(46, 124, 246, .10);
+    --success: #16a34a;
+    --danger: #e5484d;
+    --apk: #17a95c;
+    --apk-soft: rgba(23, 169, 92, .12);
+    --shadow: 0 10px 30px rgba(19, 34, 61, .10);
+    --shadow-sm: 0 2px 6px rgba(19, 34, 61, .06);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    font-family: var(--font);
+    background: var(--page-bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+.app {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* ================= 窗口 ================= */
+.window {
+    width: 100%;
+    max-width: 920px;
+    background: var(--window-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.apk-total {
+    font-size: 12px;
+    color: var(--text-2);
+}
+
+.apk-total b {
+    color: var(--apk);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ================= 主体 ================= */
+.content {
+    padding: 16px 20px;
+}
+
+.panel + .panel {
+    margin-top: 16px;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+}
+
+/* ================= 面板标题 ================= */
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.panel-title svg {
+    color: var(--apk);
+}
+
+.panel-tip {
+    font-size: 11.5px;
+    color: var(--text-3);
+}
+
+.count {
+    min-width: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--apk);
+    background: var(--apk-soft);
+    border-radius: 999px;
+}
+
+/* ================= 表单 ================= */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-wide {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 12.5px;
+    color: var(--text-2);
+}
+
+.field input {
+    height: 34px;
+    padding: 0 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--duration) ease;
+}
+
+.field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: var(--surface);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ================= 按钮 ================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    font-family: var(--font);
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--duration) ease;
+}
+
+.btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background: #1c6ae0;
+    border-color: #1c6ae0;
+}
+
+.btn-ghost {
+    background: transparent;
+    padding: 0 12px;
+}
+
+/* ================= SHA1 输出 ================= */
+.sha1-area {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sha1-area .btn-primary {
+    align-self: flex-start;
+}
+
+.terminal {
+    background: #0c0c0c;
+    border: 1px solid #1f1f1f;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #161616;
+    border-bottom: 1px solid #262626;
+}
+
+.terminal-bar .dot-r,
+.terminal-bar .dot-y,
+.terminal-bar .dot-g {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+
+.terminal-title {
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #6b6b6b;
+}
+
+.terminal pre {
+    margin: 0;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: #4ade80;
+    min-height: 120px;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ================= APK 归档 ================= */
+.root-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.root-field .field-label {
+    white-space: nowrap;
+}
+
+.root-field input {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    padding: 0 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--duration) ease;
+}
+
+.root-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: var(--surface);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all var(--duration) ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.search-box input {
+    width: 150px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: var(--text-3);
+}
+
+/* ================= APK 卡片网格 ================= */
+.apk-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.apk-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--duration) ease;
+}
+
+.apk-card:hover {
+    border-color: var(--apk);
+    background: var(--apk-soft);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.apk-icon {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: linear-gradient(135deg, #6fe0a5, #17a95c);
+    border-radius: 11px;
+}
+
+.apk-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.apk-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.apk-card:hover .apk-name {
+    color: var(--apk);
+}
+
+.apk-meta {
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-3);
+}
+
+.tag {
+    padding: 1px 7px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 999px;
+}
+
+/* ================= 空态 ================= */
+.empty {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 48px 0;
+    color: var(--text-3);
+}
+
+.empty.show {
+    display: flex;
+}
+
+.empty svg {
+    color: var(--border-strong);
+}
+
+.empty-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+}
+
+.empty-desc {
+    font-size: 12px;
+    max-width: 320px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ================= 状态栏 ================= */
+.statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-size: 11.5px;
+    color: var(--text-3);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+/* ================= Toast ================= */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 40px;
+    transform: translate(-50%, 16px);
+    padding: 9px 18px;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(22, 163, 74, .95);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* ================= 响应式 ================= */
+@media (max-width: 760px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .apk-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
