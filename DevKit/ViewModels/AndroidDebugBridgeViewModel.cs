@@ -353,8 +353,8 @@ namespace DevKit.ViewModels
         public DelegateCommand InstallCommand { set; get; }
         public DelegateCommand RebootDeviceCommand { set; get; }
         public DelegateCommand ShutdownDeviceCommand { set; get; }
-        public DelegateCommand RefreshApplicationCommand { set; get; }
         public DelegateCommand SortApplicationCommand { set; get; }
+        public DelegateCommand RefreshApplicationCommand { set; get; }
         public DelegateCommand<string> PackageSelectedCommand { set; get; }
         public DelegateCommand ExportPackageCommand { set; get; }
         public DelegateCommand UninstallCommand { set; get; }
@@ -368,9 +368,9 @@ namespace DevKit.ViewModels
         private volatile bool _deviceLoaded;
         private DispatcherTimer _toastTimer;
         private long _chargeCounterUah;
-
-        private string _selectedPackage = string.Empty;
         private bool _isAscending;
+        
+        private string _selectedPackage = string.Empty;
 
         public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
@@ -386,8 +386,12 @@ namespace DevKit.ViewModels
             {
                 var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
                 var argument = new ArgumentCreator();
-                var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
-                    .Append("screencap").Append("-p").Append($"/sdcard/{fileName}").ToCommandLine();
+                var cmdStr = argument.Append("-s").Append(_currentDevice)
+                    .Append("shell")
+                    .Append("screencap")
+                    .Append("-p")
+                    .Append($"/sdcard/{fileName}")
+                    .ToCommandLine();
                 new CommandExecutor(cmdStr).Execute("adb");
                 ExportScreenshot();
             });
@@ -411,10 +415,47 @@ namespace DevKit.ViewModels
 
             InstallCommand = new DelegateCommand(() => _ = InstallApplicationAsync());
 
-            // RebootDeviceCommand = new DelegateCommand(RebootDevice);
-            // ShutdownDeviceCommand = new DelegateCommand(ShutdownDevice);
-            // RefreshApplicationCommand = new DelegateCommand(RefreshApplication);
-            // SortApplicationCommand = new DelegateCommand(SortApplication);
+            RebootDeviceCommand = new DelegateCommand(() =>
+            {
+                var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (result != MessageBoxResult.OK) return;
+                
+                var argument = new ArgumentCreator();
+                //重启设备
+                //adb reboot 
+                argument.Append("-s").Append(_currentDevice).Append("reboot");
+                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
+            });
+            
+            ShutdownDeviceCommand = new DelegateCommand(() =>
+            {
+                var result = MessageBox.Show("确定关闭该设备？", "关机", MessageBoxButton.OKCancel, MessageBoxImage.Question);
+                if (result != MessageBoxResult.OK) return;
+                
+                var argument = new ArgumentCreator();
+                //关机
+                //adb shell reboot -p 
+                var cmdStr = argument.Append("-s").Append(_currentDevice)
+                    .Append("shell")
+                    .Append("reboot")
+                    .Append("-p")
+                    .ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
+            });
+
+            SortApplicationCommand = new DelegateCommand(() =>
+            {
+                _isAscending = !_isAscending;
+
+                var sorted = _isAscending
+                    ? _applicationPackages.OrderBy(x => x, StringComparer.Ordinal)
+                    : _applicationPackages.OrderByDescending(x => x, StringComparer.Ordinal);
+
+                ApplicationPackages = new ObservableCollection<string>(sorted);
+            });
+            
+            RefreshApplicationCommand = new DelegateCommand(GetDeviceApplication);
+            
             // PackageSelectedCommand = new DelegateCommand<string>(PackageSelected);
             // ExportPackageCommand = new DelegateCommand(ExportPackage);
             // UninstallCommand = new DelegateCommand(UninstallApplication);
@@ -716,63 +757,6 @@ namespace DevKit.ViewModels
         }
 
         //////////////////////////////////////////////////////
-
-        private void RebootDevice()
-        {
-            var result = MessageBox.Show("确定重启该设备？", "重启设备", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-            if (result == MessageBoxResult.OK)
-            {
-                var argument = new ArgumentCreator();
-                //重启设备
-                //adb reboot 
-                argument.Append("-s").Append(_currentDevice).Append("reboot");
-                new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-            }
-        }
-
-        private void ShutdownDevice()
-        {
-            var result = MessageBox.Show("确定关闭该设备？", "关机", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-            if (result == MessageBoxResult.OK)
-            {
-                var argument = new ArgumentCreator();
-                //关机
-                //adb shell reboot -p 
-                var cmdStr = argument.Append("-s").Append(_currentDevice)
-                    .Append("shell")
-                    .Append("reboot")
-                    .Append("-p")
-                    .ToCommandLine();
-                new CommandExecutor(cmdStr).Execute("adb");
-            }
-        }
-
-        private void RefreshApplication()
-        {
-            GetDeviceApplication();
-        }
-
-        private void SortApplication()
-        {
-            var list = _applicationPackages.ToList();
-
-            if (_isAscending)
-            {
-                list.Sort((x, y) => Comparer<string>.Default.Compare(y, x));
-                _isAscending = false;
-            }
-            else
-            {
-                list.Sort();
-                _isAscending = true;
-            }
-
-            ApplicationPackages.Clear();
-            foreach (var item in list)
-            {
-                ApplicationPackages.Add(item);
-            }
-        }
 
         private void PackageSelected(string package)
         {
