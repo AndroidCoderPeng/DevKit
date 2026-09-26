@@ -55,6 +55,7 @@ namespace DevKit.ViewModels
             {
                 _keyword = value;
                 RaisePropertyChanged();
+                _logsView?.Refresh();
             }
         }
 
@@ -89,7 +90,11 @@ namespace DevKit.ViewModels
         public AndroidLogcatDialogViewModel()
         {
             _logsView = CollectionViewSource.GetDefaultView(Logs);
-            _logsView.Filter = o => o is LogcatModel m && _enabledLevels.Contains(m.Level);
+            _logsView.Filter = o => o is LogcatModel m
+                                    && _enabledLevels.Contains(m.Level)
+                                    && (string.IsNullOrEmpty(_keyword)
+                                        || m.Tag.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                                        || m.Message.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0);
 
             ClearCommand = new DelegateCommand(() => { Logs.Clear(); });
 
