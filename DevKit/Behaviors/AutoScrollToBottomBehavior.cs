@@ -8,6 +8,18 @@ namespace DevKit.Behaviors
 {
     public class AutoScrollToBottomBehavior : Behavior<ListBox>
     {
+        public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(
+            nameof(IsEnabled),
+            typeof(bool),
+            typeof(AutoScrollToBottomBehavior),
+            new PropertyMetadata(true));
+
+        public bool IsEnabled
+        {
+            get => (bool)GetValue(IsEnabledProperty);
+            set => SetValue(IsEnabledProperty, value);
+        }
+
         /// <summary>
         /// 当ListBox的ItemsSource集合发生变化时触发
         /// </summary>
@@ -45,6 +57,8 @@ namespace DevKit.Behaviors
         // 处理ItemsSource的CollectionChanged事件
         private void ItemsSource_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (!IsEnabled) return;
+            
             // 检查是否添加了新项（例如，当e.Action == NotifyCollectionChangedAction.Add时）
             if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Reset)
             {
@@ -64,13 +78,13 @@ namespace DevKit.Behaviors
             var scrollViewer = FindScrollViewer(AssociatedObject);
             scrollViewer?.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
         }
-        
+
         private ScrollViewer FindScrollViewer(DependencyObject parent)
         {
             if (parent == null) return null;
- 
+
             ScrollViewer foundScrollViewer = null;
- 
+
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
@@ -83,7 +97,7 @@ namespace DevKit.Behaviors
                 foundScrollViewer = FindScrollViewer(child);
                 if (foundScrollViewer != null) break;
             }
- 
+
             return foundScrollViewer;
         }
     }
