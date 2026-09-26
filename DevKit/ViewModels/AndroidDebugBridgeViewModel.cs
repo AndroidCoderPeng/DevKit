@@ -367,8 +367,8 @@ namespace DevKit.ViewModels
             RefreshDeviceCommand = new DelegateCommand(LoadConnectedDevice);
             AndroidIdLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
+            OutputImageCommand = new DelegateCommand(ExportScreenshot);
             
-            // OutputImageCommand = new DelegateCommand(PullScreenshot);
             // ScreenshotCommand = new DelegateCommand(TakeScreenshot);
             // InstallCommand = new DelegateCommand(InstallApplication);
             // RebootDeviceCommand = new DelegateCommand(RebootDevice);
@@ -574,27 +574,7 @@ namespace DevKit.ViewModels
             ShowToast("参数已复制");
         }
 
-        //////////////////////////////////////////////////////
-        
-        private void TakeScreenshot()
-        {
-            Task.Run(() =>
-            {
-                var argument = new ArgumentCreator();
-                //截取屏幕截图并保存到指定位置
-                //adb shell screencap -p /sdcard/20241214112123.png 
-                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-                var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
-                    .Append("screencap")
-                    .Append("-p")
-                    .Append($"/sdcard/{fileName}")
-                    .ToCommandLine();
-                new CommandExecutor(cmdStr).Execute("adb");
-                PullScreenshot();
-            });
-        }
-
-        private void PullScreenshot()
+        private void ExportScreenshot()
         {
             var dialogParameters = new DialogParameters
             {
@@ -619,6 +599,26 @@ namespace DevKit.ViewModels
                     }
                 });
             }));
+        }
+        
+        //////////////////////////////////////////////////////
+        
+        private void TakeScreenshot()
+        {
+            Task.Run(() =>
+            {
+                var argument = new ArgumentCreator();
+                //截取屏幕截图并保存到指定位置
+                //adb shell screencap -p /sdcard/20241214112123.png 
+                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
+                var cmdStr = argument.Append("-s").Append(_currentDevice).Append("shell")
+                    .Append("screencap")
+                    .Append("-p")
+                    .Append($"/sdcard/{fileName}")
+                    .ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
+                ExportScreenshot();
+            });
         }
 
         private void RebootDevice()
