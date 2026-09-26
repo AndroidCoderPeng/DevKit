@@ -78,6 +78,7 @@ namespace DevKit
 
             //Window
             containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
+            containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
             containerRegistry.RegisterDialog<JNIReverseView, JNIReverseViewModel>();
             containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
@@ -90,10 +91,11 @@ namespace DevKit
             containerRegistry.RegisterForNavigation<NetConfigurationView, NetConfigurationViewModel>();
 
             //Dialog
+            containerRegistry.RegisterDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
+            containerRegistry.RegisterDialog<AndroidLogcatDialog, AndroidLogcatDialogViewModel>();
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
             containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
-            containerRegistry.RegisterDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
         }
     }
 }

@@ -399,7 +399,7 @@
                                     Width="48"
                                     Height="48"
                                     HorizontalAlignment="Center"
-                                    Background="#1F2E7CF6"
+                                    Background="#1F7C5CFF"
                                     CornerRadius="12">
                                     <TextBlock
                                         HorizontalAlignment="Center"

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Logcat · Android 日志</title>
+    <link rel="stylesheet" href="logcat.css"/>
+</head>
+<body>
+
+<!-- ============ 演示用：状态切换器（仅设计稿，真实实现不需要） ============ -->
+<div class="demo-switch">
+    <span class="demo-title">演示状态</span>
+    <button class="demo-btn active" data-status="streaming">实时</button>
+    <button class="demo-btn" data-status="paused">暂停</button>
+    <button class="demo-btn" data-status="storm">错误风暴</button>
+    <button class="demo-btn" data-status="empty">空态</button>
+</div>
+
+<!-- ============ Logcat 弹窗 ============ -->
+<div class="mask show" id="logcatMask">
+    <section class="modal" role="dialog" aria-label="Logcat">
+
+        <!-- 标题栏 -->
+        <header class="modal-head">
+            <div class="modal-title">
+                <span class="modal-logo">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <polyline points="4 17 10 11 4 5" fill="none" stroke="currentColor"
+                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="12" y1="19" x2="20" y2="19" stroke="currentColor" stroke-width="2"
+                              stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <div>
+                    <h2>Logcat</h2>
+                    <p>
+                        <span class="dot"></span>
+                        <span id="logcatDevice">192.168.3.126:5555</span>
+                        · <b id="levelText">Debug 及以上</b> · 共 <b id="logCount">0</b> 条
+                    </p>
+                </div>
+            </div>
+            <button class="icon-btn close" id="closeModal" title="关闭">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          d="M6 6l12 12M18 6L6 18"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- 工具条 -->
+        <div class="log-toolbar">
+            <button class="btn btn-sm" id="btnClear">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0l1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/>
+                </svg>
+                清除
+            </button>
+
+            <button class="btn btn-sm" id="btnPause">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+                    <rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>
+                </svg>
+                <span id="pauseText">暂停</span>
+            </button>
+
+            <div class="toolbar-spacer"></div>
+
+            <!-- 级别过滤（Debug 及以上默认开启，Verbose 关闭） -->
+            <div class="level-chips" id="levelChips">
+                <button class="level-chip level-v" data-level="V" title="Verbose">V</button>
+                <button class="level-chip level-d active" data-level="D" title="Debug">D</button>
+                <button class="level-chip level-i active" data-level="I" title="Info">I</button>
+                <button class="level-chip level-w active" data-level="W" title="Warn">W</button>
+                <button class="level-chip level-e active" data-level="E" title="Error">E</button>
+                <button class="level-chip level-f active" data-level="F" title="Fatal">F</button>
+            </div>
+
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16.5 16.5L21 21"/>
+                </svg>
+                <input type="text" id="logSearch" placeholder="搜索 tag 或内容"/>
+            </div>
+
+            <label class="topmost" title="自动滚动到底部">
+                <span class="topmost-label">自动滚动</span>
+                <input type="checkbox" class="switch-input" id="autoScroll" checked/>
+                <span class="switch"></span>
+            </label>
+        </div>
+
+        <!-- 日志主体 -->
+        <div class="log-body">
+            <div class="log-list" id="logList"></div>
+
+            <!-- 空态 -->
+            <div class="log-empty" id="logEmpty">
+                <svg viewBox="0 0 24 24" width="52" height="52" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8z"/>
+                    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                          stroke-linejoin="round" d="M14 3v6h6"/>
+                    <line x1="9" y1="13" x2="15" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <line x1="9" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <div class="empty-title">暂无日志</div>
+                <div class="empty-desc">点击「清除」后这里会清空，日志将在下一帧自动出现。</div>
+            </div>
+        </div>
+
+        <!-- 底部状态栏 -->
+        <footer class="log-foot">
+            <span id="footState"><span class="dot"></span> 正在监听 · adb logcat</span>
+            <span class="foot-stats" id="footStats"></span>
+        </footer>
+
+    </section>
+</div>
+
+<script src="logcat.js"></script>
+</body>
+</html>
