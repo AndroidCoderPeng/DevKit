@@ -24,7 +24,6 @@
     <UserControl.Resources>
         <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
         <SolidColorBrush x:Key="TextMutedBrush" Color="#93a0ae" />
-        <SolidColorBrush x:Key="ApkBrush" Color="#17a95c" />
 
         <!--  APK 图标渐变（绿色）  -->
         <LinearGradientBrush x:Key="ApkIconBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
@@ -287,14 +286,9 @@
                         <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="密码" />
 
                         <PasswordBox
-                            Height="34"
                             Margin="0,8,0,0"
-                            VerticalContentAlignment="Center"
                             utils:PasswordAttachAttribute.Attach="True"
                             utils:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Background="#F7F9FC"
-                            BorderBrush="#DFE3EA"
-                            BorderThickness="1"
                             FontSize="14"
                             Style="{StaticResource FieldPasswordBoxStyle}" />
                     </StackPanel>
