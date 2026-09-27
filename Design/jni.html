@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>JNI 逆向 · Native 崩溃地址解析</title>
+    <link rel="stylesheet" href="jni.css"/>
+</head>
+<body>
+<div class="app-shell">
+    <div class="window">
+
+        <!-- ============ 主体 ============ -->
+        <main class="content">
+
+            <!-- 解析配置 -->
+            <section class="panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        <span class="panel-icon">⌁</span>
+                        <span>解析配置</span>
+                    </div>
+                </header>
+
+                <div class="field">
+                    <label class="field-label" for="ndkPath">NDK 目录</label>
+                    <div class="input-row">
+                        <input type="text" id="ndkPath" value="D:\Dev\Android\Sdk\ndk\21.4.7075529"
+                               placeholder="精确到版本号，如 D:\Dev\Android\Sdk\ndk\21.4.7075529"/>
+                        <button class="btn btn-ghost" type="button">选择</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="sharedPath">动态库路径</label>
+                    <div class="input-row">
+                        <input type="text" id="sharedPath" value="D:\symbols\arm64-v8a\libnative-lib.so"
+                               placeholder="选择报错的 Android 动态库文件（*.so）"/>
+                        <button class="btn btn-ghost" type="button">选择</button>
+                    </div>
+                    <small class="field-note">请使用与崩溃版本一致、未剥离符号的动态库</small>
+                </div>
+            </section>
+
+            <!-- 崩溃地址 -->
+            <section class="panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        <span class="panel-icon icon-blue">⌕</span>
+                        <span>崩溃地址</span>
+                    </div>
+                    <span class="panel-tip">HEX · arm64-v8a</span>
+                </header>
+
+                <div class="address-row">
+                    <div class="input-row address-input-row">
+                        <span class="address-prefix">0x</span>
+                        <input type="text" id="stackAddress" value="0000000000131b60"
+                               placeholder="0000000000000000" maxlength="16" spellcheck="false"/>
+                    </div>
+                    <button class="btn btn-primary" type="button">
+                        <span class="play-icon">▶</span> 开始逆向
+                    </button>
+                </div>
+                <small class="field-note">粘贴 logcat 或 tombstone 中的内存地址，按 Enter 开始解析</small>
+            </section>
+
+            <!-- 解析结果 -->
+            <section class="panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        <span class="panel-icon icon-green">›</span>
+                        <span>解析结果</span>
+                    </div>
+                    <span class="result-state"><span class="status-dot"></span>已完成</span>
+                </header>
+
+                <div class="terminal">
+                    <div class="terminal-bar">
+                        <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+                        <span class="terminal-title">aarch64-linux-android-addr2line -e libnative-lib.so -f -C</span>
+                        <span class="terminal-state">已完成</span>
+                    </div>
+                    <pre>Java_com_example_native_NativeBridge_process
+D:/workspace/native/src/bridge.cpp:128</pre>
+                </div>
+
+                <div class="result-meta">
+                    <div class="result-item">
+                        <span class="result-label">函数名</span>
+                        <span class="result-value value-blue">Java_com_example_native_NativeBridge_process</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">源码位置</span>
+                        <span class="result-value value-green">bridge.cpp:128</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">地址</span>
+                        <span class="result-value value-amber">0x0000000000131b60</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 提示 -->
+            <div class="tip-card">
+                <span class="tip-mark">i</span>
+                <div>
+                    <strong>结果为 ??:0 ？</strong>
+                    <p>通常表示动态库版本或架构不匹配，请确认 NDK、动态库与崩溃设备架构一致。</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ============ 状态栏 ============ -->
+        <footer class="statusbar">
+            <span><span class="status-dot"></span> JNI 逆向 · 已就绪</span>
+            <span class="statusbar-right">NDK 21.4 · arm64-v8a</span>
+        </footer>
+
+    </div>
+</div>
+</body>
+</html>
