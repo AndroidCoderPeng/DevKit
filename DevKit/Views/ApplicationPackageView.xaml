@@ -233,6 +233,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <StackPanel
@@ -291,6 +292,39 @@
                             utils:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             FontSize="14"
                             Style="{StaticResource FieldPasswordBoxStyle}" />
+                    </StackPanel>
+
+                    <StackPanel
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="0,16,0,0">
+                        <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="JDK路径" />
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox
+                                Grid.Column="0"
+                                Style="{StaticResource FieldTextBoxStyle}"
+                                Text="{Binding JdkPath}" />
+
+                            <Button
+                                Grid.Column="1"
+                                Margin="8,0,0,0"
+                                Command="{Binding SelectJdkCommand}"
+                                Style="{StaticResource CompactButtonStyle}">
+                                <Button.Content>
+                                    <TextBlock
+                                        Margin="16,0"
+                                        FontSize="13"
+                                        Text="选择" />
+                                </Button.Content>
+                            </Button>
+                        </Grid>
                     </StackPanel>
                 </Grid>
 

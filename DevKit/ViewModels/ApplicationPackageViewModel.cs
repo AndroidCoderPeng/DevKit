@@ -50,18 +50,6 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _jdkPath = string.Empty;
-
-        public string JdkPath
-        {
-            get => _jdkPath;
-            set
-            {
-                _jdkPath = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private string _keyFilePath = string.Empty;
 
         public string KeyFilePath
@@ -98,7 +86,19 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _outputResult = string.Empty;
+        private string _jdkPath = string.Empty;
+
+        public string JdkPath
+        {
+            get => _jdkPath;
+            set
+            {
+                _jdkPath = value;
+                RaisePropertyChanged();
+            }
+        }
+        
+        private string _outputResult = "请手动查看";
 
         public string OutputResult
         {
@@ -138,8 +138,8 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand SelectJdkCommand { set; get; }
         public DelegateCommand SelectKeyCommand { set; get; }
+        public DelegateCommand SelectJdkCommand { set; get; }
         public DelegateCommand ShowSha1Command { set; get; }
         public DelegateCommand SelectApkRootFolderCommand { set; get; }
         public DelegateCommand RefreshApkFilesCommand { set; get; }
@@ -155,61 +155,51 @@ namespace DevKit.ViewModels
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
 
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ApkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
-                if (queryResult != null)
-                {
-                    JdkPath = queryResult.JdkPath;
-                    KeyFilePath = queryResult.KeyPath;
-                    KeyAlias = queryResult.Alias;
-                    KeyPassword = queryResult.Password;
-                    ApkRootFolderPath = queryResult.ApkRootFolder;
-                }
-            }
+            var config = SettingsStore.Load<ApkConfigCache>(ApkConfigCache.FileName);
+            JdkPath = config.JdkPath;
+            KeyFilePath = config.KeyPath;
+            KeyAlias = config.Alias;
+            KeyPassword = config.Password;
+            ApkRootFolderPath = config.ApkRootFolder;
 
-            SelectJdkCommand = new DelegateCommand(SelectJdk);
-            SelectKeyCommand = new DelegateCommand(SelectKey);
+            SelectKeyCommand = new DelegateCommand(() =>
+            {
+                var fileDialog = new OpenFileDialog
+                {
+                    DefaultExt = ".jks",
+                    Filter = "秘钥文件(*.jks)|*.jks"
+                };
+                if (fileDialog.ShowDialog() == true)
+                {
+                    KeyFilePath = fileDialog.FileName;
+                    UpdateConfigCache();
+                }
+            });
+            
+            SelectJdkCommand = new DelegateCommand(() =>
+            {
+                using (var folderDialog = new FolderBrowserDialog())
+                {
+                    if (folderDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        //C:\Program Files\Java\jdk1.8.0_311
+                        //C:\Program Files\Java\jdk1.8.0_311\bin
+                        var selectedPath = folderDialog.SelectedPath;
+                        if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            selectedPath = Path.Combine(selectedPath, "bin");
+                        }
+
+                        JdkPath = selectedPath;
+                        UpdateConfigCache();
+                    }
+                }
+            });
+            
             ShowSha1Command = new DelegateCommand(ShowSha1Async);
             SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
             RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
             OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
-        }
-
-        private void SelectJdk()
-        {
-            using (var folderDialog = new FolderBrowserDialog())
-            {
-                if (folderDialog.ShowDialog() == DialogResult.OK)
-                {
-                    //C:\Program Files\Java\jdk1.8.0_311
-                    //C:\Program Files\Java\jdk1.8.0_311\bin
-                    var selectedPath = folderDialog.SelectedPath;
-                    if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        selectedPath = Path.Combine(selectedPath, "bin");
-                    }
-
-                    JdkPath = selectedPath;
-                    UpdateConfigCache();
-                }
-            }
-        }
-
-        private void SelectKey()
-        {
-            var fileDialog = new OpenFileDialog
-            {
-                // 设置默认格式
-                DefaultExt = ".jks",
-                Filter = "秘钥文件(*.jks)|*.jks"
-            };
-            var result = fileDialog.ShowDialog();
-            if (result == true)
-            {
-                KeyFilePath = fileDialog.FileName;
-                UpdateConfigCache();
-            }
         }
 
         private async void ShowSha1Async()
@@ -223,8 +213,7 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                UpdateConfigCache();
-
+                // 清空输出结果
                 if (!string.IsNullOrEmpty(_outputResult))
                 {
                     OutputResult = string.Empty;
@@ -318,35 +307,6 @@ namespace DevKit.ViewModels
                             ApkFileCollection = totalFiles.ToObservableCollection();
                         });
                     });
-                }
-            }
-        }
-
-        private void UpdateConfigCache()
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ApkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
-                if (queryResult == null)
-                {
-                    var config = new ApkConfigCache
-                    {
-                        JdkPath = _jdkPath,
-                        KeyPath = _keyFilePath,
-                        Alias = _keyAlias,
-                        Password = KeyPassword,
-                        ApkRootFolder = _apkRootFolderPath
-                    };
-                    dataBase.Insert(config);
-                }
-                else
-                {
-                    queryResult.JdkPath = _jdkPath;
-                    queryResult.KeyPath = _keyFilePath;
-                    queryResult.Alias = _keyAlias;
-                    queryResult.Password = KeyPassword;
-                    queryResult.ApkRootFolder = _apkRootFolderPath;
-                    dataBase.Update(queryResult);
                 }
             }
         }
@@ -453,6 +413,20 @@ namespace DevKit.ViewModels
             {
                 MessageBox.Show(e.Message, "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+        
+        // ---- 私有辅助函数 -----
+        
+        private void UpdateConfigCache()
+        {
+            SettingsStore.Save(ApkConfigCache.FileName, new ApkConfigCache
+            {
+                JdkPath = _jdkPath,
+                KeyPath = _keyFilePath,
+                Alias = _keyAlias,
+                Password = KeyPassword,
+                ApkRootFolder = _apkRootFolderPath
+            });
         }
     }
 }

@@ -1,13 +1,9 @@
-﻿using SQLite;
-
-namespace DevKit.Cache
+﻿namespace DevKit.Cache
 {
-    [Table("ApkConfigCache")]
     public class ApkConfigCache
     {
-        [PrimaryKey, Unique, NotNull, AutoIncrement]
-        public int Id { get; set; }
-
+        public const string FileName = "apk-config.json";
+        
         public string JdkPath { get; set; }
         public string KeyPath { get; set; }
         public string Alias { get; set; }

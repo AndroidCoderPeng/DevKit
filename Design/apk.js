@@ -88,10 +88,18 @@
         toast('演示：选择签名证书（*.jks）');
     });
 
+    $('#btnJdk').addEventListener('click', function () {
+        toast('演示：选择 JDK 安装目录（例如 C:\\Program Files\\Java\\jdk-17）');
+    });
+
     /* ---------------- 查看 SHA1 ---------------- */
     $('#btnSha1').addEventListener('click', function () {
         const alias = $('#keyAlias').value || 'release';
+        const jdkPath = $('#jdkPath').value.trim() || '未配置';
         const text = [
+            'JDK 路径: ' + jdkPath,
+            'JAVA_HOME: ' + (jdkPath === '未配置' ? '未配置' : jdkPath),
+            '',
             '别名: ' + alias,
             '创建日期: 2025-6-10',
             '条目类型: PrivateKeyEntry',
@@ -108,7 +116,7 @@
             '主体公共密钥算法: 2048 位 RSA 密钥'
         ].join('\n');
         $('#terminalText').textContent = text;
-        toast('已获取证书指纹');
+        toast('已获取证书指纹，并读取 JDK 路径');
     });
 
     /* ---------------- 打开文件夹 ---------------- */

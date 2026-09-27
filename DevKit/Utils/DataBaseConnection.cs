@@ -8,7 +8,6 @@ namespace DevKit.Utils
     {
         public DataBaseConnection() : base($@"{AppDomain.CurrentDomain.BaseDirectory}DevKit.db")
         {
-            CreateTable<ApkConfigCache>();
             CreateTable<ClientConfigCache>();
             CreateTable<ExCommandCache>();
             CreateTable<ColorResourceCache>();
