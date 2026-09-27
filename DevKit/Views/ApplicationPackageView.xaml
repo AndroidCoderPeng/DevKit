@@ -442,6 +442,41 @@
                     ItemsSource="{Binding ApkFileCollection}"
                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <!--  空状态模板  -->
+                    <ListBox.Template>
+                        <ControlTemplate TargetType="ListBox">
+                            <Grid>
+                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                    <ItemsPresenter />
+                                </ScrollViewer>
+
+                                <StackPanel
+                                    x:Name="EmptyHint"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Visibility="Collapsed">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="40"
+                                        Foreground="#C6CDD6"
+                                        Text="&#xe700;" />
+                                    <TextBlock
+                                        Margin="0,10,0,0"
+                                        HorizontalAlignment="Center"
+                                        FontSize="13"
+                                        Foreground="#93A0AE"
+                                        Text="暂无安装包，请先选择 APK 归档目录" />
+                                </StackPanel>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="HasItems" Value="False">
+                                    <Setter TargetName="EmptyHint" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </ListBox.Template>
+
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Columns="3" />
