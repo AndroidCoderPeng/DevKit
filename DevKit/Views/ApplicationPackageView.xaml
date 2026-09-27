@@ -7,7 +7,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="720"
+    Width="860"
     Height="776"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -357,7 +357,7 @@
                         Background="#0C0C0C"
                         CornerRadius="10">
                         <TextBox
-                            Margin="4,12"
+                            Margin="4,8"
                             VerticalAlignment="Top"
                             Background="Transparent"
                             BorderThickness="0"

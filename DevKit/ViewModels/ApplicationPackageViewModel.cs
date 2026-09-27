@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -97,7 +96,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private string _outputResult = "请手动查看";
 
         public string OutputResult
@@ -175,7 +174,7 @@ namespace DevKit.ViewModels
                     UpdateConfigCache();
                 }
             });
-            
+
             SelectJdkCommand = new DelegateCommand(() =>
             {
                 using (var folderDialog = new FolderBrowserDialog())
@@ -195,68 +194,24 @@ namespace DevKit.ViewModels
                     }
                 }
             });
-            
-            ShowSha1Command = new DelegateCommand(ShowSha1Async);
+
+            ShowSha1Command = new DelegateCommand(() => _ = ShowSha1Async());
+
             SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
             RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
             OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
         }
 
-        private async void ShowSha1Async()
+        private async Task ShowSha1Async()
         {
-            try
+            if (string.IsNullOrWhiteSpace(_keyFilePath) || string.IsNullOrWhiteSpace(_keyAlias) ||
+                string.IsNullOrWhiteSpace(_keyPassword))
             {
-                if (string.IsNullOrWhiteSpace(_keyFilePath) || string.IsNullOrWhiteSpace(_keyAlias) ||
-                    string.IsNullOrWhiteSpace(_keyPassword))
-                {
-                    MessageBox.Show("请完善签名Key配置", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // 清空输出结果
-                if (!string.IsNullOrEmpty(_outputResult))
-                {
-                    OutputResult = string.Empty;
-                }
-
-                var list = new List<string>();
-                await Task.Run(() => ExecuteCommand(list));
-                var builder = new StringBuilder();
-                for (var i = 0; i < list.Count; i++)
-                {
-                    switch (i)
-                    {
-                        case 1:
-                        case 5:
-                        case 8:
-                            builder.Append(list[i]).Append(Environment.NewLine);
-                            break;
-                        case 10:
-                            var sha1 = list[i].Replace("\t", "").Replace(" ", "").Replace("SHA1:", "SHA1值: ");
-                            builder.Append(sha1).Append(Environment.NewLine);
-                            break;
-                        case 12:
-                            builder.Append(list[i]);
-                            break;
-                    }
-                }
-
-                if (builder.ToString().Contains("Exception"))
-                {
-                    MessageBox.Show(builder.ToString(), "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                OutputResult = builder.ToString();
+                MessageBox.Show("请完善签名Key配置", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
 
-        private void ExecuteCommand(List<string> list)
-        {
+            // keytool 路径检查放在 UI 线程，避免后台线程弹窗
             var keytoolPath = Path.Combine(_jdkPath, "keytool.exe");
             if (!File.Exists(keytoolPath))
             {
@@ -264,15 +219,26 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var argument = new ArgumentCreator();
-            argument.Append("-v")
-                .Append("-list")
-                .Append("-alias").Append(_keyAlias)
-                .Append("-keystore").Append(_keyFilePath)
-                .Append("-storepass").Append(_keyPassword);
-            var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += list.Add;
-            executor.Execute(keytoolPath);
+            // 清空输出结果
+            if (!string.IsNullOrEmpty(_outputResult)) OutputResult = string.Empty;
+
+            try
+            {
+                var output = await Task.Run(() => RunKeytool(keytoolPath, _keyAlias, _keyFilePath, _keyPassword));
+
+                // keytool 的错误信息固定以 "keytool error" 开头（走 stdout）
+                if (output.StartsWith("keytool error", StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show(output, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                OutputResult = output;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SelectApkRootFolder()
@@ -414,9 +380,9 @@ namespace DevKit.ViewModels
                 MessageBox.Show(e.Message, "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
+
         // ---- 私有辅助函数 -----
-        
+
         private void UpdateConfigCache()
         {
             SettingsStore.Save(ApkConfigCache.FileName, new ApkConfigCache
@@ -427,6 +393,40 @@ namespace DevKit.ViewModels
                 Password = KeyPassword,
                 ApkRootFolder = _apkRootFolderPath
             });
+        }
+
+        private string RunKeytool(string keytoolPath, string alias, string keyFile, string password)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = keytoolPath,
+                Arguments = new ArgumentCreator()
+                    .Append("-v")
+                    .Append("-list")
+                    .Append("-alias").Append(alias)
+                    .Append("-keystore").Append(keyFile)
+                    .Append("-storepass").Append(password)
+                    .ToCommandLine(),
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            var process = Process.Start(psi);
+            if (process == null)
+            {
+                throw new InvalidOperationException("无法启动 keytool 进程");
+            }
+
+            using (process)
+            {
+                var output = process.StandardOutput.ReadToEndAsync();
+                var error = process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+                Task.WaitAll(output, error); // 等异步读取结束，确保拿全输出
+                return string.IsNullOrWhiteSpace(output.Result) ? error.Result?.Trim() : output.Result?.Trim();
+            }
         }
     }
 }
