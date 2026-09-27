@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Forms;
 using DevKit.Cache;
 using DevKit.Models;
@@ -118,7 +119,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        // TODO 暂未未实现
         private string _keyword = string.Empty;
 
         public string Keyword
@@ -128,6 +128,7 @@ namespace DevKit.ViewModels
             {
                 _keyword = value;
                 RaisePropertyChanged();
+                ApplyFilter();
             }
         }
 
@@ -320,6 +321,7 @@ namespace DevKit.ViewModels
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         ApkFileCollection = totalFiles.ToObservableCollection();
+                        ApplyFilter();
                     });
                 }
                 catch (Exception e)
@@ -449,6 +451,29 @@ namespace DevKit.ViewModels
                 Task.WaitAll(output, error); // 等异步读取结束，确保拿全输出
                 return string.IsNullOrWhiteSpace(output.Result) ? error.Result?.Trim() : output.Result?.Trim();
             }
+        }
+        
+        /// <summary>
+        /// 按名称或版本过滤 APK 列表
+        /// </summary>
+        private void ApplyFilter()
+        {
+            if (ApkFileCollection == null) return;
+
+            var view = CollectionViewSource.GetDefaultView(ApkFileCollection);
+            var keyword = (Keyword ?? string.Empty).Trim();
+
+            view.Filter = o =>
+            {
+                if (keyword.Length == 0) return true;
+
+                if (!(o is ApkFileModel apk)) return false;
+
+                var matchName = apk.FileName?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
+                var matchVersion = apk.Version?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
+                return matchName || matchVersion;
+            };
+            view.Refresh();
         }
     }
 }

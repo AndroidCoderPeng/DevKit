@@ -416,6 +416,7 @@
                                 <TextBox
                                     x:Name="ApkSearchTextBox"
                                     Width="196"
+                                    Padding="0"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Background="Transparent"
