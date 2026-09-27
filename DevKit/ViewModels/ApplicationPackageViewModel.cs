@@ -9,12 +9,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using DevKit.Cache;
-using DevKit.Events;
 using DevKit.Models;
 using DevKit.Utils;
-using HandyControl.Controls;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Application = System.Windows.Application;
@@ -26,7 +23,7 @@ namespace DevKit.ViewModels
 {
     public class ApplicationPackageViewModel : BindableBase, IDialogAware
     {
-        public string Title => "APK";
+        public string Title => "安装包归档";
 
         public event Action<IDialogResult> RequestClose
         {
@@ -121,6 +118,43 @@ namespace DevKit.ViewModels
             }
         }
 
+        // TODO 暂未未实现
+        private string _keyword = string.Empty;
+
+        public string Keyword
+        {
+            get => _keyword;
+            set
+            {
+                _keyword = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private Visibility _scanVisibility = Visibility.Hidden;
+
+        public Visibility ScanVisibility
+        {
+            get => _scanVisibility;
+            set
+            {
+                _scanVisibility = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private double _scanProgress;
+
+        public double ScanProgress
+        {
+            get => _scanProgress;
+            set
+            {
+                _scanProgress = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private ObservableCollection<ApkFileModel> _apkFileCollection;
 
         public ObservableCollection<ApkFileModel> ApkFileCollection
@@ -146,14 +180,8 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly IDialogService _dialogService;
-        private readonly IEventAggregator _eventAggregator;
-
-        public ApplicationPackageViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
+        public ApplicationPackageViewModel()
         {
-            _dialogService = dialogService;
-            _eventAggregator = eventAggregator;
-
             var config = SettingsStore.Load<ApkConfigCache>(ApkConfigCache.FileName);
             JdkPath = config.JdkPath;
             KeyFilePath = config.KeyPath;
@@ -197,9 +225,42 @@ namespace DevKit.ViewModels
 
             ShowSha1Command = new DelegateCommand(() => _ = ShowSha1Async());
 
-            SelectApkRootFolderCommand = new DelegateCommand(SelectApkRootFolder);
-            RefreshApkFilesCommand = new DelegateCommand(RefreshApkFiles);
-            OpenFileFolderCommand = new DelegateCommand<string>(OpenFileFolder);
+            SelectApkRootFolderCommand = new DelegateCommand(() =>
+            {
+                using (var folderDialog = new FolderBrowserDialog())
+                {
+                    folderDialog.Description = @"请选择apk安装包归档的根目录";
+                    if (folderDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        ApkRootFolderPath = folderDialog.SelectedPath;
+                        UpdateConfigCache();
+                        StartScan();
+                    }
+                }
+            });
+
+            RefreshApkFilesCommand = new DelegateCommand(() =>
+            {
+                if (string.IsNullOrWhiteSpace(_apkRootFolderPath))
+                {
+                    MessageBox.Show("Android安装包根目录路径为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                StartScan();
+            });
+
+            OpenFileFolderCommand = new DelegateCommand<string>(path =>
+            {
+                var directoryPath = Path.GetDirectoryName(path);
+                if (directoryPath == null) return;
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = directoryPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            });
         }
 
         private async Task ShowSha1Async()
@@ -241,62 +302,83 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void SelectApkRootFolder()
+        /// <summary>
+        /// 统一扫描入口
+        /// </summary>
+        private void StartScan()
         {
-            using (var folderDialog = new FolderBrowserDialog())
+            ApkFileCollection?.Clear();
+
+            ScanProgress = 0;
+            ScanVisibility = Visibility.Visible;
+
+            Task.Run(async () =>
             {
-                folderDialog.Description = @"请选择apk安装包归档的根目录";
-                if (folderDialog.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    ApkRootFolderPath = folderDialog.SelectedPath;
-                    UpdateConfigCache();
-
-                    ApkFileCollection?.Clear();
-
-                    //异步遍历文件夹下面的apk文件
-                    var dialogParameters = new DialogParameters
+                    var totalFiles = await GetApkFilesAsync();
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        { "LoadingMessage", "文件检索中，请稍后......" }
-                    };
-                    _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-                    Task.Run(async () =>
-                    {
-                        var totalFiles = await GetApkFilesAsync();
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                            if (!totalFiles.Any())
-                            {
-                                Growl.Info("该文件夹下面不包含Android安装包");
-                            }
-
-                            ApkFileCollection = totalFiles.ToObservableCollection();
-                        });
+                        ApkFileCollection = totalFiles.ToObservableCollection();
                     });
                 }
-            }
+                catch (Exception e)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show($"扫描失败：{e.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
+                }
+                finally
+                {
+                    // 无论成败，进度条一定收起
+                    Application.Current.Dispatcher.Invoke(() => { ScanVisibility = Visibility.Collapsed; });
+                }
+            });
         }
 
-        private async Task<List<ApkFileModel>> GetApkFilesAsync()
+        private Task<List<ApkFileModel>> GetApkFilesAsync()
         {
             var list = new List<ApkFileModel>();
-            await Task.Run(() => TraverseFolder(_apkRootFolderPath, list));
-            return list;
+            return Task.Run(() =>
+            {
+                TraverseFolder(_apkRootFolderPath, list, (processed, total) =>
+                {
+                    var progress = total == 0 ? 100 : processed * 100.0 / total;
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        ScanProgress = Math.Round(progress);
+                    }));
+                });
+                return list;
+            });
         }
 
         /// <summary>
         /// 遍历文件夹并生成相应的数据类型集合
         /// </summary>
-        /// <param name="folderPath"></param>
-        /// <param name="apkFiles"></param>
-        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles)
+        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles, Action<int, int> onProgress = null)
         {
             var files = new DirectoryInfo(folderPath)
                 .GetFiles("*.apk", SearchOption.AllDirectories)
                 .OrderBy(file => file.LastWriteTime)
-                .Reverse();
+                .Reverse()
+                .ToArray();
+
+            var total = files.Length;
+            var processed = 0;
+            var dispatcher = Application.Current.Dispatcher;
+
             foreach (var file in files)
             {
+                // 进度按「已处理的文件数」上报（含被过滤的 debug 文件），放在 continue 之前
+                processed++;
+                if (onProgress != null)
+                {
+                    var progress = total == 0 ? 100 : processed * 100.0 / total;
+                    dispatcher.BeginInvoke(new Action(() => ScanProgress = Math.Round(progress)));
+                }
+
                 var fullName = file.FullName;
                 if (fullName.Contains("debug") || file.Name.StartsWith(".")) continue;
 
@@ -323,61 +405,6 @@ namespace DevKit.ViewModels
                 }
 
                 apkFiles.Add(apk);
-            }
-        }
-
-        private void RefreshApkFiles()
-        {
-            if (string.IsNullOrWhiteSpace(_apkRootFolderPath))
-            {
-                MessageBox.Show("Android安装包根目录路径为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            ApkFileCollection?.Clear();
-            //异步遍历文件夹下面的apk文件
-            var dialogParameters = new DialogParameters
-            {
-                { "LoadingMessage", "文件检索中，请稍后......" }
-            };
-            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-            Task.Run(async () =>
-            {
-                var totalFiles = await GetApkFilesAsync();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-                    if (!totalFiles.Any())
-                    {
-                        Growl.Info("该文件夹下面不包含Android安装包");
-                    }
-
-                    ApkFileCollection = totalFiles.ToObservableCollection();
-                });
-            });
-        }
-
-        private void OpenFileFolder(string path)
-        {
-            if (path == null)
-            {
-                return;
-            }
-
-            var directoryPath = Path.GetDirectoryName(path);
-            try
-            {
-                Debug.Assert(directoryPath != null, nameof(directoryPath) + " != null");
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = directoryPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

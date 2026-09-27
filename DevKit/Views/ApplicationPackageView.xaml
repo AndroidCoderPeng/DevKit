@@ -8,7 +8,7 @@
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="860"
-    Height="874"
+    Height="872"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -27,6 +27,11 @@
 
         <!--  APK 图标渐变（绿色）  -->
         <LinearGradientBrush x:Key="ApkIconBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Offset="0.0" Color="#6fe0a5" />
+            <GradientStop Offset="1.0" Color="#17a95c" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="ScanProgressForegroundBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Offset="0.0" Color="#6fe0a5" />
             <GradientStop Offset="1.0" Color="#17a95c" />
         </LinearGradientBrush>
@@ -359,80 +364,165 @@
                     </Grid>
                 </Border>
 
-                <Border
-                    Grid.Row="3"
-                    Width="256"
-                    Height="34"
-                    Margin="0,8"
-                    HorizontalAlignment="Left"
-                    Background="#F7F9FC"
-                    BorderThickness="1"
-                    CornerRadius="10">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#2E7CF6" />
-                                    <Setter Property="Effect">
-                                        <Setter.Value>
-                                            <DropShadowEffect
-                                                BlurRadius="6"
-                                                Opacity="0.18"
-                                                ShadowDepth="0"
-                                                Color="#2E7CF6" />
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
 
-                    <Grid Margin="12,0">
+                    <Border
+                        Grid.Column="0"
+                        Width="256"
+                        Height="34"
+                        Margin="0,8"
+                        HorizontalAlignment="Left"
+                        Background="#F7F9FC"
+                        BorderThickness="1"
+                        CornerRadius="10">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
+                                        <Setter Property="BorderBrush" Value="#2E7CF6" />
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect
+                                                    BlurRadius="6"
+                                                    Opacity="0.18"
+                                                    ShadowDepth="0"
+                                                    Color="#2E7CF6" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+
+                        <Grid Margin="12,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="18"
+                                Foreground="#93A0AE"
+                                Text="&#xe6cc;" />
+
+                            <Grid Grid.Column="1">
+                                <TextBox
+                                    x:Name="ApkSearchTextBox"
+                                    Width="196"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Foreground="#93A0AE"
+                                    IsHitTestVisible="False"
+                                    Text="按名称或版本筛选">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Grid
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Visibility="{Binding ScanVisibility}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock
+                        <Border
                             Grid.Column="0"
+                            Width="13"
+                            Height="13"
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="18"
-                            Foreground="#93A0AE"
-                            Text="&#xe6cc;" />
+                            Background="#2E3DDC84"
+                            CornerRadius="7">
+                            <Border
+                                Width="7"
+                                Height="7"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="#FF16A34A"
+                                CornerRadius="4" />
+                        </Border>
 
-                        <Grid Grid.Column="1">
-                            <TextBox
-                                x:Name="ApkSearchTextBox"
-                                Width="196"
-                                VerticalAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                FontSize="13"
-                                Foreground="{DynamicResource DevKitTextBrush}"
-                                Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
-                            <TextBlock
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                Foreground="#93A0AE"
-                                IsHitTestVisible="False"
-                                Text="按名称或版本筛选">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}" Value="">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource TextBlockForegroundBrush}"
+                            Text="扫描中" />
+
+                        <ProgressBar
+                            Grid.Column="2"
+                            Width="192"
+                            Margin="8,0"
+                            Value="{Binding ScanProgress}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Setter Property="Height" Value="6" />
+                                    <Setter Property="Width" Value="92" />
+                                    <Setter Property="Background" Value="#F7F9FC" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource ScanProgressForegroundBrush}" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ProgressBar">
+                                                <Grid>
+                                                    <Border
+                                                        x:Name="PART_Track"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="3" />
+                                                    <Border
+                                                        x:Name="PART_Indicator"
+                                                        Margin="1"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{TemplateBinding Foreground}"
+                                                        CornerRadius="2" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+
+                        <TextBlock
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            Foreground="#17a95c"
+                            Text="{Binding ScanProgress, StringFormat={}{0}%}" />
                     </Grid>
-                </Border>
+                </Grid>
 
                 <!--  APK 卡片列表  -->
                 <ListBox

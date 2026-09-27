@@ -35,7 +35,11 @@
                     </div>
 
                     <div class="list-toolbar">
-                        <div class="scan-progress hidden" id="scanProgress" aria-live="polite"><span>扫描中</span><div class="scan-progress-track"><div class="scan-progress-bar" id="scanProgressBar"></div></div><strong id="scanPercentText">0%</strong></div>
+                        <div class="scan-progress hidden" id="scanProgress" aria-live="polite">
+                            <span class="scan-progress-copy"><span class="scan-pulse"></span><span>扫描 APK</span></span>
+                            <span class="scan-progress-track"><span class="scan-progress-bar" id="scanProgressBar"></span></span>
+                            <strong class="scan-percent" id="scanPercentText">0%</strong>
+                        </div>
                         <div class="search-box"><span>⌕</span><input type="text" id="apkSearch" placeholder="按名称或版本筛选" /></div>
                     </div>
 

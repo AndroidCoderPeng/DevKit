@@ -694,6 +694,181 @@ body {
     margin-top: 16px;
 }
 
+.btn-refresh {
+    position: relative;
+    width: 112px;
+    min-width: 112px;
+    padding: 0 10px;
+}
+
+.refresh-default,
+.refresh-progress {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.refresh-default {
+    gap: 6px;
+}
+
+.btn-refresh .scan-progress.hidden {
+    display: none;
+}
+
+.btn-refresh .scan-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    animation: none;
+}
+
+.refresh-progress-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+}
+
+.refresh-progress-top .scan-pulse {
+    width: 6px;
+    height: 6px;
+    margin-right: 4px;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .2);
+}
+
+.refresh-progress-top > span:nth-child(2) {
+    flex: 1;
+    text-align: left;
+}
+
+.refresh-progress-top strong {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.refresh-progress-track {
+    display: block;
+    width: 100%;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .3);
+}
+
+.refresh-progress-bar {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: #fff;
+    transition: width .18s ease;
+}
+
+.scan-progress {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 14px;
+    min-height: 58px;
+    margin-top: 10px;
+    padding: 10px 13px;
+    border: 1px solid #cfe5da;
+    border-radius: 11px;
+    background: linear-gradient(90deg, #f2fbf6 0%, #f8fcfa 100%);
+    animation: scan-in .2s ease-out;
+}
+
+.scan-progress.hidden {
+    display: none;
+}
+
+.scan-progress-copy {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.scan-progress-copy > div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.scan-progress-copy strong {
+    color: #246a4a;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.scan-progress-copy span:not(.scan-pulse) {
+    overflow: hidden;
+    color: #7a998a;
+    font-size: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.scan-pulse {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--green-bright);
+    box-shadow: 0 0 0 4px rgba(33, 184, 116, .13);
+    animation: scan-pulse 1.4s ease-in-out infinite;
+}
+
+.scan-progress-track {
+    height: 8px;
+    overflow: hidden;
+    border: 1px solid #d5eade;
+    border-radius: 999px;
+    background: #e5f2ea;
+}
+
+.scan-progress-bar {
+    position: relative;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #55c98b, #1caa6c);
+    transition: width .18s ease;
+}
+
+.scan-progress-bar::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 44px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+    content: "";
+    animation: scan-shine 1.4s linear infinite;
+}
+
+.scan-percent {
+    color: #16885a;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
 .list-toolbar {
     min-height: 48px;
 }
@@ -731,6 +906,21 @@ body {
     width: 100%;
 }
 
+@keyframes scan-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scan-pulse {
+    0%, 100% { opacity: .55; transform: scale(.9); }
+    50% { opacity: 1; transform: scale(1.12); }
+}
+
+@keyframes scan-shine {
+    from { transform: translateX(-46px); }
+    to { transform: translateX(46px); }
+}
+
 @media (max-width: 680px) {
     body {
         padding: 10px;
@@ -747,5 +937,93 @@ body {
 
     .signing-panel .sha-button {
         width: 100%;
+    }
+
+    .btn-refresh {
+        width: 112px;
+        min-width: 112px;
+    }
+
+    .scan-progress {
+        grid-template-columns: 1fr 42px;
+        gap: 8px 10px;
+    }
+
+    .scan-progress-copy {
+        grid-column: 1 / -1;
+    }
+
+    .scan-progress-track {
+        grid-column: 1;
+    }
+}
+
+/* Keep scanning feedback inside the existing toolbar gap. */
+.btn-refresh {
+    width: auto;
+    min-width: 112px;
+}
+
+.list-toolbar {
+    align-items: center;
+    min-height: 48px;
+}
+
+.list-toolbar .scan-progress {
+    display: grid;
+    grid-template-columns: auto minmax(76px, 160px) 34px;
+    align-items: center;
+    gap: 9px;
+    width: min(330px, 48%);
+    min-height: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    animation: scan-in .2s ease-out;
+}
+
+.list-toolbar .scan-progress.hidden {
+    display: none;
+}
+
+.list-toolbar .scan-progress-copy {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #547865;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.list-toolbar .scan-progress-copy > span:last-child {
+    color: #547865;
+    font-size: 10px;
+}
+
+.list-toolbar .scan-pulse {
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 0 3px rgba(33, 184, 116, .12);
+}
+
+.list-toolbar .scan-progress-track {
+    width: auto;
+    height: 6px;
+}
+
+.list-toolbar .scan-percent {
+    font-size: 10px;
+}
+
+@media (max-width: 560px) {
+    .list-toolbar .scan-progress {
+        grid-template-columns: auto minmax(54px, 1fr) 30px;
+        width: 52%;
+        gap: 6px;
+    }
+
+    .list-toolbar .scan-progress-copy > span:last-child {
+        display: none;
     }
 }
