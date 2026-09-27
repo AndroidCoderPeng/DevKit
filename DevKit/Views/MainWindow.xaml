@@ -7,7 +7,7 @@
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="DevKit（开发者工具集）"
     Width="418"
-    Height="754"
+    Height="756"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="CanMinimize"
@@ -99,16 +99,21 @@
         </Style>
     </Window.Resources>
 
-    <StackPanel Orientation="Vertical">
-        <Grid Margin="16">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
+                <RowDefinition Height="2*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Border
@@ -445,7 +450,10 @@
             </ListBox>
         </Grid>
 
-        <DockPanel Background="White" LastChildFill="True">
+        <DockPanel
+            Grid.Row="1"
+            Background="White"
+            LastChildFill="True">
             <TextBlock
                 Margin="16"
                 Foreground="{StaticResource TextBlockForegroundBrush}"
@@ -457,5 +465,5 @@
                 Foreground="{StaticResource TextBlockForegroundBrush}"
                 Text="点击工具卡片即可打开" />
         </DockPanel>
-    </StackPanel>
+    </Grid>
 </Window>
