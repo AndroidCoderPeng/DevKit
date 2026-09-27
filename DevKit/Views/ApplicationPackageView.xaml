@@ -259,7 +259,6 @@
 
                     <Border
                         Grid.Column="1"
-                        Margin="0,4"
                         Background="#104ADE80"
                         BorderBrush="#FF4ADE80"
                         BorderThickness="3,0,0,0">

@@ -367,17 +367,12 @@ namespace DevKit.ViewModels
 
             var total = files.Length;
             var processed = 0;
-            var dispatcher = Application.Current.Dispatcher;
 
             foreach (var file in files)
             {
                 // 进度按「已处理的文件数」上报（含被过滤的 debug 文件），放在 continue 之前
                 processed++;
-                if (onProgress != null)
-                {
-                    var progress = total == 0 ? 100 : processed * 100.0 / total;
-                    dispatcher.BeginInvoke(new Action(() => ScanProgress = Math.Round(progress)));
-                }
+                onProgress?.Invoke(processed, total);
 
                 var fullName = file.FullName;
                 if (fullName.Contains("debug") || file.Name.StartsWith(".")) continue;
