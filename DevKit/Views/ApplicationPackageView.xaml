@@ -164,6 +164,36 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!--  圆角密码框，和 TextBox 保持一致  -->
+        <Style x:Key="FieldPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="#F7F9FC" />
+            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="12,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="16">
@@ -238,7 +268,6 @@
                         </Grid>
                     </StackPanel>
 
-                    <!--  签名别名  -->
                     <StackPanel
                         Grid.Row="1"
                         Grid.Column="0"
@@ -251,7 +280,6 @@
                             Text="{Binding KeyAlias}" />
                     </StackPanel>
 
-                    <!--  密码  -->
                     <StackPanel
                         Grid.Row="1"
                         Grid.Column="1"
@@ -267,7 +295,8 @@
                             Background="#F7F9FC"
                             BorderBrush="#DFE3EA"
                             BorderThickness="1"
-                            FontSize="14" />
+                            FontSize="14"
+                            Style="{StaticResource FieldPasswordBoxStyle}" />
                     </StackPanel>
                 </Grid>
 
