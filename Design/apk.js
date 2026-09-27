@@ -10,6 +10,7 @@
 
     /* ---------------- Toast ---------------- */
     let toastTimer = null;
+    let scanTimer = null;
 
     function toast(text) {
         const el = $('#toast');
@@ -19,20 +20,64 @@
         toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
     }
 
+    function setScanProgress(percent) {
+        const bar = $('#scanProgressBar');
+        const text = $('#scanPercentText');
+        if (!bar || !text) return;
+        const value = Math.max(0, Math.min(100, percent));
+        bar.style.width = value + '%';
+        text.textContent = Math.round(value) + '%';
+    }
+
+    function startScanProgress() {
+        const btn = $('#btnRefresh');
+        const panel = $('#scanProgress');
+        if (!btn || !panel) return;
+
+        clearInterval(scanTimer);
+        btn.disabled = true;
+        panel.classList.remove('hidden');
+        setScanProgress(0);
+
+        let progress = 0;
+        scanTimer = setInterval(function () {
+            progress += 7 + Math.random() * 14;
+            if (progress >= 98) {
+                progress = 98;
+            }
+            setScanProgress(progress);
+        }, 120);
+    }
+
+    function finishScanProgress() {
+        clearInterval(scanTimer);
+        const btn = $('#btnRefresh');
+        const panel = $('#scanProgress');
+        if (btn) {
+            btn.disabled = false;
+        }
+        setScanProgress(100);
+        if (panel) {
+            setTimeout(function () {
+                panel.classList.add('hidden');
+            }, 500);
+        }
+    }
+
     /* ---------------- 模拟数据 ---------------- */
     const APKS = [
-        { name: '微信', version: '1.0.1.0', size: '2.14 MB', time: '2026-09-26 14:21' },
-        { name: '抖音', version: '1.2.3', size: '3.02 MB', time: '2026-09-26 11:04' },
-        { name: '哔哩哔哩', version: '2.0.5', size: '2.66 MB', time: '2026-09-25 20:31' },
-        { name: '淘宝', version: '3.4.1', size: '1.87 MB', time: '2026-09-25 17:55' },
-        { name: '支付宝', version: '10.5.20', size: '3.41 MB', time: '2026-09-24 22:13' },
-        { name: '高德地图', version: '13.1.0', size: '2.05 MB', time: '2026-09-24 19:05' },
-        { name: '网易云音乐', version: '8.9.20', size: '1.53 MB', time: '2026-09-23 16:39' },
-        { name: '钉钉', version: '7.0.1', size: '2.91 MB', time: '2026-09-23 10:47' },
-        { name: '知乎', version: '9.8.1', size: '1.24 MB', time: '2026-09-22 11:48' },
-        { name: '京东', version: '12.2.0', size: '2.38 MB', time: '2026-09-21 09:33' },
-        { name: '美团', version: '11.6.3', size: '1.66 MB', time: '2026-09-20 15:21' },
-        { name: '小红书', version: '8.11.5', size: '2.72 MB', time: '2026-09-19 18:02' }
+        { fileName: '微信', fullName: 'D:\\APK\\release\\微信_20260926_1.0.1.0.apk', fileSize: '2.14 MB', modifyTime: '2026-09-26 14:21:08', buildTime: '20260926', version: '1.0.1.0', extraInfo: '' },
+        { fileName: '抖音', fullName: 'D:\\APK\\release\\抖音_20260926_1.2.3.apk', fileSize: '3.02 MB', modifyTime: '2026-09-26 11:04:21', buildTime: '20260926', version: '1.2.3', extraInfo: '' },
+        { fileName: '哔哩哔哩', fullName: 'D:\\APK\\release\\哔哩哔哩_20260925_2.0.5_release.apk', fileSize: '2.66 MB', modifyTime: '2026-09-25 20:31:42', buildTime: '20260925', version: '2.0.5', extraInfo: 'release' },
+        { fileName: '淘宝', fullName: 'D:\\APK\\release\\淘宝_20260925_3.4.1.apk', fileSize: '1.87 MB', modifyTime: '2026-09-25 17:55:06', buildTime: '20260925', version: '3.4.1', extraInfo: '' },
+        { fileName: '支付宝', fullName: 'D:\\APK\\release\\支付宝_20260924_10.5.20.apk', fileSize: '3.41 MB', modifyTime: '2026-09-24 22:13:18', buildTime: '20260924', version: '10.5.20', extraInfo: '' },
+        { fileName: '高德地图', fullName: 'D:\\APK\\release\\高德地图_20260924_13.1.0.apk', fileSize: '2.05 MB', modifyTime: '2026-09-24 19:05:32', buildTime: '20260924', version: '13.1.0', extraInfo: '' },
+        { fileName: '网易云音乐', fullName: 'D:\\APK\\release\\网易云音乐_20260923_8.9.20.apk', fileSize: '1.53 MB', modifyTime: '2026-09-23 16:39:04', buildTime: '20260923', version: '8.9.20', extraInfo: '' },
+        { fileName: '钉钉', fullName: 'D:\\APK\\release\\钉钉_20260923_7.0.1.apk', fileSize: '2.91 MB', modifyTime: '2026-09-23 10:47:15', buildTime: '20260923', version: '7.0.1', extraInfo: '' },
+        { fileName: '知乎', fullName: 'D:\\APK\\release\\知乎_20260922_9.8.1.apk', fileSize: '1.24 MB', modifyTime: '2026-09-22 11:48:27', buildTime: '20260922', version: '9.8.1', extraInfo: '' },
+        { fileName: '京东', fullName: 'D:\\APK\\release\\京东_20260921_12.2.0.apk', fileSize: '2.38 MB', modifyTime: '2026-09-21 09:33:11', buildTime: '20260921', version: '12.2.0', extraInfo: '' },
+        { fileName: '美团', fullName: 'D:\\APK\\release\\美团_20260920_11.6.3.apk', fileSize: '1.66 MB', modifyTime: '20260920', buildTime: '20260920', version: '11.6.3', extraInfo: '' },
+        { fileName: '小红书', fullName: 'D:\\APK\\release\\小红书_20260919_8.11.5.apk', fileSize: '2.72 MB', modifyTime: '2026-09-19 18:02:50', buildTime: '20260919', version: '8.11.5', extraInfo: '' }
     ];
 
     /* ---------------- 渲染 ---------------- */
@@ -47,14 +92,15 @@
     }
 
     function cardHTML(a) {
-        return '<li class="apk-card" data-name="' + a.name + '">' +
-            iconHTML(a.name) +
+        const extra = a.extraInfo ? '<span>' + a.extraInfo + '</span>' : '';
+        const version = a.version ? '<span class="tag">v' + a.version + '</span>' : '<span class="tag">未解析版本</span>';
+        const build = a.buildTime ? a.buildTime.slice(0, 4) + '-' + a.buildTime.slice(4, 6) + '-' + a.buildTime.slice(6, 8) : '未解析日期';
+        return '<li class="apk-card" data-path="' + a.fullName.replace(/"/g, '&quot;') + '">' +
+            iconHTML(a.fileName) +
             '<div class="apk-info">' +
-            '<div class="apk-name">' + a.name + '</div>' +
+            '<div class="apk-name">' + a.fileName + '</div>' +
             '<div class="apk-meta">' +
-            '<span class="tag">v' + a.version + '</span>' +
-            '<span>' + a.size + '</span>' +
-            '<span>' + a.time.slice(5, 16) + '</span>' +
+            version + '<span>' + a.fileSize + '</span><span>' + build + '</span>' + extra +
             '</div></div></li>';
     }
 
@@ -62,12 +108,13 @@
         const grid = $('#apkGrid');
         const kw = $('#apkSearch').value.trim().toLowerCase();
         const list = APKS.filter(function (a) {
-            return a.name.toLowerCase().indexOf(kw) !== -1;
+            return [a.fileName, a.version, a.extraInfo].join(' ').toLowerCase().indexOf(kw) !== -1;
         });
 
         grid.innerHTML = list.map(cardHTML).join('');
         $('#apkCount').textContent = list.length;
         $('#emptyState').classList.toggle('show', list.length === 0);
+        $('#footerStatus').textContent = list.length ? '最近扫描：刚刚' : '目录为空或无匹配结果';
     }
 
     /* ---------------- 搜索 ---------------- */
@@ -75,8 +122,17 @@
 
     /* ---------------- 刷新 ---------------- */
     $('#btnRefresh').addEventListener('click', function () {
-        toast('正在扫描目录：' + $('#apkRoot').value);
-        render();
+        const root = $('#apkRoot').value.trim() || 'D:\\APK\\release';
+        toast('正在扫描目录：' + root);
+        $('#headerStatus').textContent = '扫描中';
+        startScanProgress();
+
+        setTimeout(function () {
+            render();
+            finishScanProgress();
+            $('#headerStatus').textContent = '已就绪';
+            toast('扫描完成：已遍历 ' + root);
+        }, 1600);
     });
 
     /* ---------------- 浏览目录 ---------------- */
@@ -123,7 +179,7 @@
     $('#apkGrid').addEventListener('click', function (e) {
         const card = e.target.closest('.apk-card');
         if (!card) return;
-        toast('演示：explorer.exe /select,' + $('#apkRoot').value + '\\' + card.dataset.name + '.apk');
+        toast('演示：打开目录 ' + card.dataset.path);
     });
 
     /* ---------------- 启动 ---------------- */

@@ -8,7 +8,7 @@
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="860"
-    Height="776"
+    Height="874"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -197,13 +197,348 @@
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <!--  ============ APK 归档 ============  -->
+        <Border
+            Grid.Row="0"
+            Padding="16"
+            Background="White"
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="1" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            FontFamily="Consolas"
+                            FontWeight="SemiBold"
+                            Foreground="#2e7cf6"
+                            Text="ARCHIVE WORKSPACE" />
+
+                        <TextBlock
+                            Grid.Row="1"
+                            Margin="0,2"
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            Foreground="Black"
+                            Text="安装包归档" />
+
+                        <TextBlock
+                            Grid.Row="2"
+                            Foreground="{StaticResource TextBlockForegroundBrush}"
+                            Text="检索目录中的APK，排除debug与隐藏文件" />
+                    </Grid>
+
+                    <Border
+                        Grid.Column="1"
+                        Margin="0,4"
+                        Background="#104ADE80"
+                        BorderBrush="#FF4ADE80"
+                        BorderThickness="3,0,0,0">
+                        <Grid Margin="16,0" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0"
+                                FontSize="18"
+                                FontWeight="SemiBold"
+                                Foreground="#17A95C"
+                                Text="{Binding ApkFileCollection.Count, FallbackValue=0}" />
+
+                            <TextBlock
+                                Grid.Row="1"
+                                Margin="0,2"
+                                FontSize="10"
+                                Foreground="#17A95C"
+                                Text="个安装包" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1" Background="{StaticResource DevKitBorderBrush}" />
+
+                <Border
+                    Grid.Row="2"
+                    Margin="0,16,0,0"
+                    BorderBrush="{StaticResource DevKitBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="18"
+                            Foreground="#2E7CF6"
+                            Text="&#xe680;" />
+
+                        <TextBox Grid.Column="1" Text="{Binding ApkRootFolderPath}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Height" Value="34" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <ScrollViewer x:Name="PART_ContentHost" Margin="4,0" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <Button
+                            Grid.Column="2"
+                            Margin="8,0"
+                            Command="{Binding SelectApkRootFolderCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
+                            <Button.Content>
+                                <TextBlock
+                                    Margin="16,0"
+                                    FontSize="13"
+                                    Text="选择目录" />
+                            </Button.Content>
+                        </Button>
+
+                        <Button
+                            Grid.Column="3"
+                            Command="{Binding RefreshApkFilesCommand}"
+                            Style="{StaticResource PrimaryCompactButtonStyle}">
+                            <Button.Content>
+                                <StackPanel Margin="12,0" Orientation="Horizontal">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="16"
+                                        Text="&#xe602;" />
+                                    <TextBlock
+                                        Margin="6,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Text="扫描目录" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <Border
+                    Grid.Row="3"
+                    Width="256"
+                    Height="34"
+                    Margin="0,8"
+                    HorizontalAlignment="Left"
+                    Background="#F7F9FC"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#2E7CF6" />
+                                    <Setter Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect
+                                                BlurRadius="6"
+                                                Opacity="0.18"
+                                                ShadowDepth="0"
+                                                Color="#2E7CF6" />
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Grid Margin="12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="18"
+                            Foreground="#93A0AE"
+                            Text="&#xe6cc;" />
+
+                        <Grid Grid.Column="1">
+                            <TextBox
+                                x:Name="ApkSearchTextBox"
+                                Width="196"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontSize="13"
+                                Foreground="{DynamicResource DevKitTextBrush}"
+                                Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Foreground="#93A0AE"
+                                IsHitTestVisible="False"
+                                Text="按名称或版本筛选">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!--  APK 卡片列表  -->
+                <ListBox
+                    Grid.Row="4"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    ItemsSource="{Binding ApkFileCollection}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button
+                                Command="{Binding DataContext.OpenFileFolderCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                CommandParameter="{Binding FullName}"
+                                Style="{StaticResource ApkCardButtonStyle}">
+                                <Button.Content>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!--  图标  -->
+                                        <Border
+                                            Width="44"
+                                            Height="44"
+                                            Background="{StaticResource ApkIconBackgroundBrush}"
+                                            CornerRadius="8">
+                                            <TextBlock
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="20"
+                                                Foreground="White"
+                                                Text="&#xe700;" />
+                                        </Border>
+
+                                        <!--  信息  -->
+                                        <StackPanel Grid.Column="1" Margin="8,4,0,0">
+                                            <TextBlock
+                                                FontSize="13"
+                                                FontWeight="SemiBold"
+                                                Foreground="Black"
+                                                Text="{Binding FileName}"
+                                                TextTrimming="CharacterEllipsis" />
+
+                                            <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                                <Border
+                                                    Padding="4,2"
+                                                    Background="#1A2E7CF6"
+                                                    CornerRadius="8">
+                                                    <TextBlock
+                                                        Margin="2,1"
+                                                        FontSize="10"
+                                                        Foreground="#2E7CF6"
+                                                        Text="{Binding Version}" />
+                                                </Border>
+
+                                                <TextBlock
+                                                    Margin="8,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="10"
+                                                    Foreground="{StaticResource TextMutedBrush}"
+                                                    Text="{Binding FileSize}" />
+
+                                                <TextBlock
+                                                    Margin="8,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="10"
+                                                    Foreground="{StaticResource TextMutedBrush}"
+                                                    Text="{Binding ModifyTime}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </Button.Content>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
 
         <!--  ============ 签名配置 ============  -->
         <Border
-            Grid.Row="0"
+            Grid.Row="1"
+            Margin="0,16,0,0"
             Padding="16"
             Background="White"
             BorderBrush="{DynamicResource DevKitBorderBrush}"
@@ -219,9 +554,9 @@
                         Text="签名配置" />
                     <TextBlock
                         Margin="8,0,0,0"
-                        VerticalAlignment="Center"
+                        VerticalAlignment="Bottom"
                         Foreground="{StaticResource TextMutedBrush}"
-                        Text="用于 keytool 查看 SHA1" />
+                        Text="配置 JKS 与 JDK 后读取证书 SHA1 / SHA256。" />
                 </StackPanel>
 
                 <Grid Margin="0,16,0,0">
@@ -242,7 +577,7 @@
                         Grid.ColumnSpan="2">
                         <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="证书路径" />
 
-                        <Grid Margin="0,8,0,0">
+                        <Grid Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -275,7 +610,7 @@
                         <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="签名别名" />
 
                         <TextBox
-                            Margin="0,8,0,0"
+                            Margin="0,4,0,0"
                             Style="{StaticResource FieldTextBoxStyle}"
                             Text="{Binding KeyAlias}" />
                     </StackPanel>
@@ -287,7 +622,7 @@
                         <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="密码" />
 
                         <PasswordBox
-                            Margin="0,8,0,0"
+                            Margin="0,4,0,0"
                             utils:PasswordAttachAttribute.Attach="True"
                             utils:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             FontSize="14"
@@ -301,7 +636,7 @@
                         Margin="0,16,0,0">
                         <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="JDK路径" />
 
-                        <Grid Margin="0,8,0,0">
+                        <Grid Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -340,7 +675,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="16"
-                                    Text="&#xe60c;" />
+                                    Text="&#xe80f;" />
                                 <TextBlock
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Center"
@@ -372,203 +707,6 @@
                     </Border>
                 </StackPanel>
             </StackPanel>
-        </Border>
-
-        <!--  ============ APK 归档 ============  -->
-        <Border
-            Grid.Row="1"
-            Margin="0,16,0,0"
-            Padding="16"
-            Background="White"
-            BorderBrush="{DynamicResource DevKitBorderBrush}"
-            BorderThickness="1"
-            CornerRadius="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0">
-                    <TextBlock
-                        VerticalAlignment="Center"
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        Foreground="Black"
-                        Text="APK 归档" />
-
-                    <TextBlock
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Foreground="{StaticResource TextBlockForegroundBrush}">
-                        <Run Text="共 " />
-                        <Run
-                            FontWeight="SemiBold"
-                            Foreground="#17A95C"
-                            Text="{Binding ApkFileCollection.Count, Mode=OneWay}" />
-                        <Run Text=" 个安装包" />
-                    </TextBlock>
-                </Grid>
-
-                <Grid Grid.Row="1" Margin="0,16,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                        Text="根目录" />
-
-                    <TextBox
-                        Grid.Column="1"
-                        Margin="8,0"
-                        Style="{StaticResource FieldTextBoxStyle}"
-                        Text="{Binding ApkRootFolderPath}" />
-
-                    <Button
-                        Grid.Column="2"
-                        Command="{Binding SelectApkRootFolderCommand}"
-                        Style="{StaticResource CompactButtonStyle}">
-                        <Button.Content>
-                            <TextBlock
-                                Margin="16,0"
-                                FontSize="13"
-                                Text="浏览" />
-                        </Button.Content>
-                    </Button>
-
-                    <Button
-                        Grid.Column="3"
-                        Margin="8,0,0,0"
-                        Command="{Binding RefreshApkFilesCommand}"
-                        Style="{StaticResource CompactButtonStyle}">
-                        <Button.Content>
-                            <StackPanel Margin="12,0" Orientation="Horizontal">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="16"
-                                    Text="&#xe602;" />
-                                <TextBlock
-                                    Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="13"
-                                    Text="刷新" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                </Grid>
-
-                <!--  APK 卡片列表  -->
-                <ListBox
-                    Grid.Row="2"
-                    Margin="0,16,0,0"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    ItemsSource="{Binding ApkFileCollection}"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                    ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="3" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Margin" Value="4,0,4,8" />
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <ContentPresenter />
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Button
-                                Command="{Binding DataContext.OpenFileFolderCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                CommandParameter="{Binding FullName}"
-                                Style="{StaticResource ApkCardButtonStyle}">
-                                <Button.Content>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!--  图标  -->
-                                        <Border
-                                            Width="42"
-                                            Height="42"
-                                            Background="{StaticResource ApkIconBackgroundBrush}"
-                                            CornerRadius="10">
-                                            <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                FontSize="20"
-                                                Foreground="White"
-                                                Text="&#xe608;" />
-                                        </Border>
-
-                                        <!--  信息  -->
-                                        <StackPanel
-                                            Grid.Column="1"
-                                            Margin="8,0,0,0"
-                                            VerticalAlignment="Center">
-                                            <TextBlock
-                                                FontSize="13"
-                                                FontWeight="SemiBold"
-                                                Foreground="Black"
-                                                Text="{Binding FileName}"
-                                                TextTrimming="CharacterEllipsis" />
-
-                                            <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
-                                                <Border
-                                                    Padding="4,2"
-                                                    Background="#EAF1FE"
-                                                    CornerRadius="4">
-                                                    <TextBlock
-                                                        Margin="2,1"
-                                                        FontSize="10"
-                                                        FontWeight="SemiBold"
-                                                        Foreground="#2E7CF6"
-                                                        Text="{Binding Version}" />
-                                                </Border>
-
-                                                <TextBlock
-                                                    Margin="8,0,0,0"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="10"
-                                                    Foreground="{StaticResource TextMutedBrush}"
-                                                    Text="{Binding FileSize}" />
-
-                                                <TextBlock
-                                                    Margin="8,0,0,0"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="10"
-                                                    Foreground="{StaticResource TextMutedBrush}"
-                                                    Text="{Binding ModifyTime}" />
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </Grid>
-                                </Button.Content>
-                            </Button>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Grid>
         </Border>
     </Grid>
 </UserControl>

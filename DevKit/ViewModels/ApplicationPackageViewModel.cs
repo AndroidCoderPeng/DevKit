@@ -97,7 +97,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _outputResult = "请手动查看";
+        private string _outputResult = "配置完成后，点击“查看 SHA1”读取证书信息。";
 
         public string OutputResult
         {
@@ -309,7 +309,7 @@ namespace DevKit.ViewModels
                     FileName = fileName,
                     FullName = fullName,
                     FileSize = file.Length.ToFileSize(),
-                    ModifyTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+                    ModifyTime = file.LastWriteTime.ToString("yyyy-MM-dd")
                 };
 
                 // 匹配日期和版本号的正则表达式模式，支持 YYYYMMDD_版本号 或 _XX_YYYYMMDD_版本号 或 YYYYMMDD_版本号_附加信息
