@@ -316,8 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\apk.png" />
-    <Content Include="Shell\build_release_script.bat" />
-    <Content Include="Shell\DevKit.iss" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\TouchSocket.Core.3.1.0\analyzers\dotnet\cs\TouchSocket.Core.SourceGenerator.dll" />

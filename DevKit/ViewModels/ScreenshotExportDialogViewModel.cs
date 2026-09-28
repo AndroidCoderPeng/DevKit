@@ -27,7 +27,11 @@ namespace DevKit.ViewModels
     {
         public string Title => "截屏导出";
 
-        public event Action<IDialogResult> RequestClose;
+        public event Action<IDialogResult> RequestClose
+        {
+            add { }
+            remove { }
+        }
 
         private static readonly string CacheDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
