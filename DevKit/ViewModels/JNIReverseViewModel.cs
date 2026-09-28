@@ -52,15 +52,27 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
+        
+        private string _ndkState = string.Empty;
 
-        private string _sharedFilePath = string.Empty;
-
-        public string SharedFilePath
+        public string NdkState
         {
-            get => _sharedFilePath;
+            get => _ndkState;
             set
             {
-                _sharedFilePath = value;
+                _ndkState = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _sharedLibPath = string.Empty;
+
+        public string SharedLibPath
+        {
+            get => _sharedLibPath;
+            set
+            {
+                _sharedLibPath = value;
                 RaisePropertyChanged();
             }
         }
@@ -94,7 +106,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand SelectNdkCommand { set; get; }
-        public DelegateCommand SelectSharedFileCommand { set; get; }
+        public DelegateCommand SelectSharedLibCommand { set; get; }
         public DelegateCommand ReverseAddressCommand { set; get; }
 
         #endregion
@@ -111,7 +123,7 @@ namespace DevKit.ViewModels
             }
 
             SelectNdkCommand = new DelegateCommand(SelectNdk);
-            SelectSharedFileCommand = new DelegateCommand(SelectSharedFile);
+            SelectSharedLibCommand = new DelegateCommand(SelectSharedFile);
             ReverseAddressCommand = new DelegateCommand(ReverseAddressAsync);
         }
 
@@ -160,7 +172,7 @@ namespace DevKit.ViewModels
             var result = fileDialog.ShowDialog();
             if (result == true)
             {
-                SharedFilePath = fileDialog.FileName;
+                SharedLibPath = fileDialog.FileName;
             }
         }
 
@@ -168,7 +180,7 @@ namespace DevKit.ViewModels
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_ndkPath) || string.IsNullOrWhiteSpace(_sharedFilePath) ||
+                if (string.IsNullOrWhiteSpace(_ndkPath) || string.IsNullOrWhiteSpace(_sharedLibPath) ||
                     string.IsNullOrWhiteSpace(_stackAddress))
                 {
                     MessageBox.Show("请完善缺少的参数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -215,7 +227,7 @@ namespace DevKit.ViewModels
 
             var argument = new ArgumentCreator();
             argument.Append("-e")
-                .Append(_sharedFilePath)
+                .Append(_sharedLibPath)
                 .Append("-f")
                 .Append("-C")
                 .Append(_stackAddress);
