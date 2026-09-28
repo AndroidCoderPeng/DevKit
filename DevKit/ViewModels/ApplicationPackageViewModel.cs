@@ -183,7 +183,7 @@ namespace DevKit.ViewModels
 
         public ApplicationPackageViewModel()
         {
-            var config = SettingsStore.Load<ApkConfigCache>(ApkConfigCache.FileName);
+            var config = SettingsStore.Load<AppConfigCache>(AppConfigCache.FileName);
             JdkPath = config.JdkPath;
             KeyFilePath = config.KeyPath;
             KeyAlias = config.Alias;
@@ -409,7 +409,7 @@ namespace DevKit.ViewModels
 
         private void UpdateConfigCache()
         {
-            SettingsStore.Save(ApkConfigCache.FileName, new ApkConfigCache
+            SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
             {
                 JdkPath = _jdkPath,
                 KeyPath = _keyFilePath,

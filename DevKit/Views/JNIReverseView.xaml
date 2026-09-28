@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="620"
+    Width="800"
     Height="700"
     d:DataContext="{d:DesignInstance Type=vm:JNIReverseViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"

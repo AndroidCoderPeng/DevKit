@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace DevKit.Utils
 {
+    // TODO NDK存储会把其他的配置清空
     public class SettingsStore
     {
         private static readonly string Dir = Path.Combine(

@@ -158,11 +158,10 @@
     <Compile Include="Behaviors\AutoScrollToBottomBehavior.cs" />
     <Compile Include="Behaviors\ListBoxItemMarginBehavior.cs" />
     <Compile Include="Behaviors\NumericRangeBehavior.cs" />
-    <Compile Include="Cache\ApkConfigCache.cs" />
+    <Compile Include="Cache\AppConfigCache.cs" />
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\ExCommandCache.cs" />
     <Compile Include="Cache\ClientConfigCache.cs" />
-    <Compile Include="Cache\SdkConfigCache.cs" />
     <Compile Include="Converters\AlphaValueConverter.cs" />
     <Compile Include="Converters\ColorTagForegroundConverter.cs" />
     <Compile Include="Converters\ConnectStateConverter.cs" />

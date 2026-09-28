@@ -113,67 +113,38 @@ namespace DevKit.ViewModels
 
         public JNIReverseViewModel()
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<SdkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
-                if (queryResult != null)
-                {
-                    NdkPath = queryResult.NdkPath;
-                }
-            }
+            NdkPath = SettingsStore.Load<AppConfigCache>(AppConfigCache.FileName).NdkPath;
 
-            SelectNdkCommand = new DelegateCommand(SelectNdk);
-            SelectSharedLibCommand = new DelegateCommand(SelectSharedFile);
-            ReverseAddressCommand = new DelegateCommand(ReverseAddressAsync);
-        }
-
-        private void SelectNdk()
-        {
-            using (var folderDialog = new FolderBrowserDialog())
-            {
-                if (folderDialog.ShowDialog() == DialogResult.OK)
+            SelectNdkCommand = new DelegateCommand(()=>{
+                using (var folderDialog = new FolderBrowserDialog())
                 {
+                    if (folderDialog.ShowDialog() != DialogResult.OK) return;
+                
                     //D:\Dev\Android\Sdk\ndk\21.4.7075529
                     NdkPath = folderDialog.SelectedPath;
-                    UpdateConfigCache();
-                }
-            }
-        }
-
-        private void UpdateConfigCache()
-        {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<SdkConfigCache>().OrderByDescending(x => x.Id).FirstOrDefault();
-                if (queryResult == null)
-                {
-                    var config = new SdkConfigCache
+                    SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
                     {
                         NdkPath = _ndkPath
-                    };
-                    dataBase.Insert(config);
+                    });
                 }
-                else
+            });
+            
+            SelectSharedLibCommand = new DelegateCommand(() =>
+            {
+                var fileDialog = new OpenFileDialog
                 {
-                    queryResult.NdkPath = _ndkPath;
-                    dataBase.Update(queryResult);
+                    // 设置默认格式
+                    DefaultExt = ".so",
+                    Filter = "动态库文件(*.so)|*.so"
+                };
+                var result = fileDialog.ShowDialog();
+                if (result == true)
+                {
+                    SharedLibPath = fileDialog.FileName;
                 }
-            }
-        }
-
-        private void SelectSharedFile()
-        {
-            var fileDialog = new OpenFileDialog
-            {
-                // 设置默认格式
-                DefaultExt = ".so",
-                Filter = "动态库文件(*.so)|*.so"
-            };
-            var result = fileDialog.ShowDialog();
-            if (result == true)
-            {
-                SharedLibPath = fileDialog.FileName;
-            }
+            });
+            
+            ReverseAddressCommand = new DelegateCommand(ReverseAddressAsync);
         }
 
         private async void ReverseAddressAsync()
@@ -192,6 +163,11 @@ namespace DevKit.ViewModels
                     OutputResult = string.Empty;
                 }
 
+                SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
+                {
+                    NdkPath = _ndkPath
+                });
+                
                 var list = new List<string>();
                 await Task.Run(() => ExecuteCommand(list));
                 var builder = new StringBuilder();
@@ -235,5 +211,7 @@ namespace DevKit.ViewModels
             executor.OnStandardOutput += list.Add;
             executor.Execute(keytoolPath);
         }
+        
+        // ---- 私有辅助函数 -----
     }
 }
