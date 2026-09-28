@@ -55,7 +55,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -91,7 +91,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -243,13 +243,13 @@
             <Border
                 Grid.Column="1"
                 Height="36"
-                Margin="16,0"
+                Margin="16,0,8,0"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 Background="White"
                 BorderBrush="#DFE3EA"
                 BorderThickness="1"
-                CornerRadius="10">
+                CornerRadius="8">
                 <StackPanel
                     Margin="12,0"
                     VerticalAlignment="Center"
@@ -385,7 +385,7 @@
                                     Background="#1F3DDC84"
                                     BorderBrush="#593DDC84"
                                     BorderThickness="1"
-                                    CornerRadius="10">
+                                    CornerRadius="8">
                                     <TextBlock
                                         Margin="8,2"
                                         Foreground="#FF16A34A"
@@ -979,7 +979,7 @@
                         Margin="0,8"
                         Background="#F7F9FC"
                         BorderThickness="1"
-                        CornerRadius="10">
+                        CornerRadius="8">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
@@ -1052,7 +1052,7 @@
                         Background="#F7F9FC"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="10">
+                        CornerRadius="8">
                         <ListBox
                             x:Name="PackageListBox"
                             Background="Transparent"

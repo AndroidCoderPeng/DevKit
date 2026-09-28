@@ -45,7 +45,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -82,7 +82,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -118,7 +118,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -152,7 +152,7 @@
                                 Background="White"
                                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                                 BorderThickness="2"
-                                CornerRadius="10">
+                                CornerRadius="8">
                                 <ContentPresenter />
                             </Border>
 
@@ -167,7 +167,7 @@
                                 Background="#38000000"
                                 BorderBrush="#E6FFFFFF"
                                 BorderThickness="1.5"
-                                CornerRadius="10"
+                                CornerRadius="8"
                                 Opacity="0">
                                 <Path
                                     x:Name="CheckMark"
@@ -378,7 +378,7 @@
                                 </i:Interaction.Triggers>
                                 <StackPanel>
                                     <Grid Width="132">
-                                        <Border Background="#F0F3F7" CornerRadius="10">
+                                        <Border Background="#F0F3F7" CornerRadius="8">
                                             <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
                                         </Border>
 
@@ -489,7 +489,7 @@
                     Margin="8,0"
                     Background="#F7F9FC"
                     BorderThickness="1"
-                    CornerRadius="10">
+                    CornerRadius="8">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="BorderBrush" Value="#DFE3EA" />

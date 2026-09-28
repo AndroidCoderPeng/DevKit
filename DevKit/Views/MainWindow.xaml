@@ -200,7 +200,7 @@
                             Background="White"
                             BorderBrush="#EEEFF0"
                             BorderThickness="1"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
                                 <Border
                                     Width="48"
@@ -299,7 +299,7 @@
                             Background="White"
                             BorderBrush="#EEEFF0"
                             BorderThickness="1"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
                                 <Border
                                     Width="48"
@@ -398,7 +398,7 @@
                             Background="White"
                             BorderBrush="#EEEFF0"
                             BorderThickness="1"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
                                 <Border
                                     Width="48"

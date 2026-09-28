@@ -3,12 +3,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="615"
-    Height="595"
+    Width="620"
+    Height="700"
     d:DataContext="{d:DesignInstance Type=vm:JNIReverseViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -39,8 +38,8 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="12,0" />
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -69,7 +68,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -106,7 +105,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -133,136 +132,382 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border
-            Grid.Row="0"
-            Margin="16"
-            Background="White"
-            BorderBrush="{DynamicResource DevKitBorderBrush}"
-            BorderThickness="1"
-            CornerRadius="10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                <StackPanel
-                    Grid.Row="0"
-                    Margin="16"
-                    Orientation="Horizontal">
-                    <TextBlock />
+            <Border
+                Grid.Row="0"
+                Margin="16"
+                Background="White"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel
+                        Grid.Row="0"
+                        Margin="16"
+                        Orientation="Horizontal">
+                        <Border Background="#1F2E7CF6" CornerRadius="8">
+                            <TextBlock
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="14"
+                                Foreground="#2E7CF6"
+                                Text="&#xe837;" />
+                        </Border>
+
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="解析配置" />
+                    </StackPanel>
+
                     <TextBlock
-                        FontSize="16"
-                        FontWeight="Bold"
-                        Text="解析配置" />
-                </StackPanel>
-
-                <TextBlock
-                    Grid.Row="1"
-                    Margin="16,0"
-                    Foreground="{StaticResource TextBlockForegroundBrush}"
-                    Text="NDK目录" />
-
-                <Grid Grid.Row="2" Margin="0,4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox
-                        Grid.Column="0"
-                        Margin="16,0,0,0"
-                        VerticalContentAlignment="Center"
-                        Style="{StaticResource FieldTextBoxStyle}"
-                        Text="{Binding NdkPath}" />
-
-                    <Button
-                        Grid.Column="1"
+                        Grid.Row="1"
                         Margin="16,0"
-                        Command="{Binding SelectNdkCommand}"
-                        Style="{StaticResource CompactButtonStyle}">
-                        <TextBlock Margin="16,0" Text="选择目录" />
-                    </Button>
-                </Grid>
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Text="NDK目录" />
 
-                <Grid Grid.Row="10" Margin="10,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="2" Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox
+                            Grid.Column="0"
+                            Margin="16,0,0,0"
+                            Style="{StaticResource FieldTextBoxStyle}"
+                            Text="{Binding NdkPath}" />
+
+                        <Button
+                            Grid.Column="1"
+                            Margin="8,0,16,0"
+                            Command="{Binding SelectNdkCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
+                            <TextBlock Margin="16,0" Text="选择目录" />
+                        </Button>
+                    </Grid>
 
                     <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
+                        Grid.Row="3"
+                        Margin="16,8,16,0"
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
                         Text="动态库路径" />
 
-                    <hc:TextBox
-                        Grid.Column="1"
-                        Margin="10,0"
-                        VerticalAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        hc:InfoElement.Placeholder="请选择报错的Android动态库文件（*.so）"
-                        hc:InfoElement.ShowClearButton="True"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        Text="{Binding SharedFilePath}"
-                        ToolTip="{Binding SharedFilePath}" />
+                    <Grid Grid.Row="4" Margin="0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button
-                        Grid.Column="2"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Command="{Binding SelectSharedFileCommand}"
-                        Content="选择" />
-                </Grid>
+                        <TextBox
+                            Grid.Column="0"
+                            Margin="16,0,0,0"
+                            Style="{StaticResource FieldTextBoxStyle}"
+                            Text="{Binding SharedLibPath}"
+                            ToolTip="{Binding SharedLibPath}" />
 
-                <Grid Grid.Row="20" Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                        <Button
+                            Grid.Column="1"
+                            Margin="8,0,16,0"
+                            Command="{Binding SelectSharedLibCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
+                            <TextBlock Margin="16,0" Text="选择目录" />
+                        </Button>
+                    </Grid>
 
                     <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        Text="报错堆栈" />
-
-                    <hc:TextBox
-                        Grid.Column="1"
-                        Margin="10,0"
-                        VerticalContentAlignment="Center"
-                        hc:InfoElement.Placeholder="请输入C++报错内存地址，如：0000000000131b60"
-                        hc:InfoElement.ShowClearButton="True"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        Text="{Binding StackAddress}" />
-
-                    <Button
-                        Grid.Column="2"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Command="{Binding ReverseAddressCommand}"
-                        Content="逆向" />
+                        Grid.Row="5"
+                        Margin="16,4,16,16"
+                        FontSize="10"
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Text="请使用与崩溃版本一致、未剥离符号的动态库" />
                 </Grid>
+            </Border>
 
-                <TextBox
-                    Grid.Row="3"
-                    Margin="10,0,10,10"
-                    Padding="5,3"
-                    VerticalContentAlignment="Top"
-                    Background="#0C0C0C"
-                    BorderThickness="0"
-                    FontSize="14"
-                    Foreground="#00FF00"
-                    HorizontalScrollBarVisibility="Auto"
-                    IsReadOnly="True"
-                    Text="{Binding OutputResult}"
-                    TextWrapping="NoWrap"
-                    VerticalScrollBarVisibility="Auto" />
-            </Grid>
-        </Border>
+            <Border
+                Grid.Row="1"
+                Margin="16,0"
+                Background="White"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Column="0" Margin="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Grid.Column="0"
+                            Background="#1F2E7CF6"
+                            CornerRadius="8">
+                            <TextBlock
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="14"
+                                Foreground="#2E7CF6"
+                                Text="&#xe7de;" />
+                        </Border>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="崩溃地址" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox
+                            Grid.Column="0"
+                            Margin="16,0,0,0"
+                            FontFamily="Consolas"
+                            Text="{Binding StackAddress}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Height" Value="34" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="Background" Value="#F7F9FC" />
+                                    <Setter Property="BorderBrush" Value="#DFE3EA" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border
+                                                    x:Name="FieldBorder"
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="8">
+                                                    <Grid Margin="8,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock
+                                                            Grid.Column="0"
+                                                            VerticalAlignment="Center"
+                                                            FontFamily="Consolas"
+                                                            FontSize="13"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="#2E7CF6"
+                                                            Text="0x" />
+
+                                                        <ScrollViewer
+                                                            x:Name="PART_ContentHost"
+                                                            Grid.Column="1"
+                                                            Margin="6,0,0,0"
+                                                            VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                                        <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                                        <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+
+                        <Button
+                            Grid.Column="1"
+                            Margin="8,0"
+                            Command="{Binding ReverseAddressCommand}"
+                            Style="{StaticResource PrimaryCompactButtonStyle}">
+                            <Button.Content>
+                                <StackPanel Margin="12,0" Orientation="Horizontal">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="16"
+                                        Text="&#xe877;" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        FontSize="13"
+                                        Text="开始逆向" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+
+                    <TextBlock
+                        Grid.Row="2"
+                        Margin="16,8,16,16"
+                        FontSize="10"
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Text="粘贴 logcat 或 tombstone 中的内存地址，按 Enter 开始解析" />
+                </Grid>
+            </Border>
+
+            <Border
+                Grid.Row="2"
+                Margin="16"
+                Background="White"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="16,16,16,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Grid.Column="0"
+                            Background="#1F16A34A"
+                            CornerRadius="8">
+                            <TextBlock
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="14"
+                                Foreground="#16A34A"
+                                Text="&#xe824;" />
+                        </Border>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Text="解析结果" />
+                    </Grid>
+
+                    <Border
+                        Grid.Row="1"
+                        Margin="16,0,16,16"
+                        Background="#0C0C0C"
+                        CornerRadius="8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="1" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel
+                                Grid.Row="0"
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#ff5f57" />
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Margin="8,0"
+                                    Fill="#febc2e" />
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#28c840" />
+
+                                <TextBlock
+                                    Margin="16,0,0,0"
+                                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                                    Text="aarch64-linux-android-addr2line -e libnative.so -f -C" />
+                            </StackPanel>
+
+                            <Border Grid.Row="1" Background="#1fe7ebf1" />
+
+                            <TextBlock
+                                Grid.Row="2"
+                                Padding="12,8"
+                                FontFamily="Consolas"
+                                FontSize="14"
+                                Foreground="#7ee2a0"
+                                Text="{Binding OutputResult}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border
+                Grid.Row="3"
+                Margin="16,0,16,12"
+                Background="#f2fbf6"
+                BorderBrush="#dceee5"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Margin="16" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Border
+                            Width="18"
+                            Height="18"
+                            Background="#d8f2e3"
+                            CornerRadius="9">
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Foreground="#21875a"
+                                Text="i" />
+                        </Border>
+
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontWeight="Bold"
+                            Foreground="#267453"
+                            Text="结果为 ??:0 ？" />
+                    </StackPanel>
+                    <TextBlock
+                        Margin="26,4,0,0"
+                        Foreground="#6f9683"
+                        Text="通常表示动态库版本或架构不匹配，请确认 NDK、动态库与崩溃设备架构一致。" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <Grid Grid.Row="1" Margin="16,0,16,16">
             <Grid.ColumnDefinitions>
@@ -299,7 +544,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Foreground="{StaticResource TextBlockForegroundBrush}"
-                Text="{Binding NdkState, StringFormat={}{}, FallbackValue=NDK 21.4 · arm64-v8a}" />
+                Text="{Binding NdkState, StringFormat={}{0} · {1}}" />
         </Grid>
     </Grid>
 </UserControl>

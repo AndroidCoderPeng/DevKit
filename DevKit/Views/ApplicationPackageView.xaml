@@ -52,7 +52,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -89,7 +89,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -125,7 +125,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
+                            CornerRadius="8">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -155,8 +155,8 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="12,0" />
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -185,8 +185,8 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="10">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="12,0" />
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
@@ -213,7 +213,7 @@
             Background="White"
             BorderBrush="{DynamicResource DevKitBorderBrush}"
             BorderThickness="1"
-            CornerRadius="10">
+            CornerRadius="8">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -292,7 +292,7 @@
                     Margin="0,16,0,0"
                     BorderBrush="{StaticResource DevKitBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="10">
+                    CornerRadius="8">
                     <Grid Margin="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -377,7 +377,7 @@
                         HorizontalAlignment="Left"
                         Background="#F7F9FC"
                         BorderThickness="1"
-                        CornerRadius="10">
+                        CornerRadius="8">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
@@ -668,7 +668,7 @@
             Background="White"
             BorderBrush="{DynamicResource DevKitBorderBrush}"
             BorderThickness="1"
-            CornerRadius="10">
+            CornerRadius="8">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock
@@ -815,7 +815,7 @@
                         Height="144"
                         Margin="0,8,0,0"
                         Background="#0C0C0C"
-                        CornerRadius="10">
+                        CornerRadius="8">
                         <TextBox
                             Margin="4,8"
                             VerticalAlignment="Top"
