@@ -125,8 +125,6 @@ namespace DevKit.ViewModels
                 using (var folderDialog = new FolderBrowserDialog())
                 {
                     if (folderDialog.ShowDialog() != DialogResult.OK) return;
-
-                    //D:\Dev\Android\Sdk\ndk\21.4.7075529
                     NdkPath = folderDialog.SelectedPath;
                 }
             });
@@ -139,17 +137,14 @@ namespace DevKit.ViewModels
                     DefaultExt = ".so",
                     Filter = "动态库文件(*.so)|*.so"
                 };
-                var result = fileDialog.ShowDialog();
-                if (result == true)
-                {
-                    SharedLibPath = fileDialog.FileName;
-                }
+                if (fileDialog.ShowDialog() != true) return;
+                SharedLibPath = fileDialog.FileName;
             });
 
-            ReverseAddressCommand = new DelegateCommand(ReverseAddressAsync);
+            ReverseAddressCommand = new DelegateCommand(() => _ = ReverseAddressAsync());
         }
 
-        private async void ReverseAddressAsync()
+        private async Task ReverseAddressAsync()
         {
             try
             {
@@ -208,7 +203,5 @@ namespace DevKit.ViewModels
             executor.OnStandardOutput += list.Add;
             executor.Execute(keytoolPath);
         }
-
-        // ---- 私有辅助函数 -----
     }
 }
