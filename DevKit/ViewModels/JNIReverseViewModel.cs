@@ -33,6 +33,11 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Jni, new JniReverseConfig
+            {
+                NdkPath = _ndkPath,
+                SharedLibPath = _sharedLibPath
+            });
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -52,7 +57,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private string _ndkState = string.Empty;
 
         public string NdkState
@@ -113,22 +118,19 @@ namespace DevKit.ViewModels
 
         public JNIReverseViewModel()
         {
-            NdkPath = SettingsStore.Load<AppConfigCache>(AppConfigCache.FileName).NdkPath;
+            NdkPath = SettingsStore.Load<JniReverseConfig>(ConfigSections.FileName, ConfigSections.Jni).NdkPath;
 
-            SelectNdkCommand = new DelegateCommand(()=>{
+            SelectNdkCommand = new DelegateCommand(() =>
+            {
                 using (var folderDialog = new FolderBrowserDialog())
                 {
                     if (folderDialog.ShowDialog() != DialogResult.OK) return;
-                
+
                     //D:\Dev\Android\Sdk\ndk\21.4.7075529
                     NdkPath = folderDialog.SelectedPath;
-                    SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
-                    {
-                        NdkPath = _ndkPath
-                    });
                 }
             });
-            
+
             SelectSharedLibCommand = new DelegateCommand(() =>
             {
                 var fileDialog = new OpenFileDialog
@@ -143,7 +145,7 @@ namespace DevKit.ViewModels
                     SharedLibPath = fileDialog.FileName;
                 }
             });
-            
+
             ReverseAddressCommand = new DelegateCommand(ReverseAddressAsync);
         }
 
@@ -163,11 +165,6 @@ namespace DevKit.ViewModels
                     OutputResult = string.Empty;
                 }
 
-                SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
-                {
-                    NdkPath = _ndkPath
-                });
-                
                 var list = new List<string>();
                 await Task.Run(() => ExecuteCommand(list));
                 var builder = new StringBuilder();
@@ -175,13 +172,13 @@ namespace DevKit.ViewModels
                 {
                     builder.Append(str).Append(Environment.NewLine);
                 }
-                
+
                 if (builder.ToString().Contains("Exception"))
                 {
                     MessageBox.Show(builder.ToString(), "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 OutputResult = builder.ToString();
             }
             catch (Exception e)
@@ -211,7 +208,7 @@ namespace DevKit.ViewModels
             executor.OnStandardOutput += list.Add;
             executor.Execute(keytoolPath);
         }
-        
+
         // ---- 私有辅助函数 -----
     }
 }

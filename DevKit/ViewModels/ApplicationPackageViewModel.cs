@@ -39,6 +39,14 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Apk, new AppPackageConfig
+            {
+                JdkPath = _jdkPath,
+                KeyPath = _keyFilePath,
+                Alias = _keyAlias,
+                Password = KeyPassword,
+                ApkRootFolder = _apkRootFolderPath
+            });
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -183,7 +191,7 @@ namespace DevKit.ViewModels
 
         public ApplicationPackageViewModel()
         {
-            var config = SettingsStore.Load<AppConfigCache>(AppConfigCache.FileName);
+            var config = SettingsStore.Load<AppPackageConfig>(ConfigSections.FileName, ConfigSections.Apk);
             JdkPath = config.JdkPath;
             KeyFilePath = config.KeyPath;
             KeyAlias = config.Alias;
@@ -200,7 +208,6 @@ namespace DevKit.ViewModels
                 if (fileDialog.ShowDialog() == true)
                 {
                     KeyFilePath = fileDialog.FileName;
-                    UpdateConfigCache();
                 }
             });
 
@@ -219,7 +226,6 @@ namespace DevKit.ViewModels
                         }
 
                         JdkPath = selectedPath;
-                        UpdateConfigCache();
                     }
                 }
             });
@@ -234,7 +240,6 @@ namespace DevKit.ViewModels
                     if (folderDialog.ShowDialog() == DialogResult.OK)
                     {
                         ApkRootFolderPath = folderDialog.SelectedPath;
-                        UpdateConfigCache();
                         StartScan();
                     }
                 }
@@ -407,18 +412,6 @@ namespace DevKit.ViewModels
 
         // ---- 私有辅助函数 -----
 
-        private void UpdateConfigCache()
-        {
-            SettingsStore.Save(AppConfigCache.FileName, new AppConfigCache
-            {
-                JdkPath = _jdkPath,
-                KeyPath = _keyFilePath,
-                Alias = _keyAlias,
-                Password = KeyPassword,
-                ApkRootFolder = _apkRootFolderPath
-            });
-        }
-
         private string RunKeytool(string keytoolPath, string alias, string keyFile, string password)
         {
             var psi = new ProcessStartInfo
@@ -452,7 +445,7 @@ namespace DevKit.ViewModels
                 return string.IsNullOrWhiteSpace(output.Result) ? error.Result?.Trim() : output.Result?.Trim();
             }
         }
-        
+
         /// <summary>
         /// 按名称或版本过滤 APK 列表
         /// </summary>

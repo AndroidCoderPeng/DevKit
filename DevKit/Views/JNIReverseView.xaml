@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="800"
+    Width="600"
     Height="700"
     d:DataContext="{d:DesignInstance Type=vm:JNIReverseViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -237,8 +237,8 @@
                     <TextBlock
                         Grid.Row="5"
                         Margin="16,4,16,16"
-                        FontSize="10"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        FontSize="11"
+                        Foreground="#8d97a5"
                         Text="请使用与崩溃版本一致、未剥离符号的动态库" />
                 </Grid>
             </Border>
@@ -338,8 +338,10 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsKeyboardFocused" Value="True">
-                                                        <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                                        <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                                        <Setter TargetName="FieldBorder" Property="BorderBrush"
+                                                                Value="#2E7CF6" />
+                                                        <Setter TargetName="FieldBorder" Property="Background"
+                                                                Value="White" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -373,9 +375,9 @@
                     <TextBlock
                         Grid.Row="2"
                         Margin="16,8,16,16"
-                        FontSize="10"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                        Text="粘贴 logcat 或 tombstone 中的内存地址，按 Enter 开始解析" />
+                        FontSize="11"
+                        Foreground="#8d97a5"
+                        Text="粘贴 logcat 或 tombstone 中的内存地址" />
                 </Grid>
             </Border>
 
