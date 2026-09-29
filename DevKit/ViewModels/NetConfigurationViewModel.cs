@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Tools;
@@ -50,6 +50,92 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        private string _ip4 = string.Empty;
+
+        public string Ip4
+        {
+            get => _ip4;
+            set
+            {
+                _ip4 = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _subnetMask = string.Empty;
+
+        public string SubnetMask
+        {
+            get => _subnetMask;
+            set
+            {
+                _subnetMask = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _gateway = string.Empty;
+
+        public string Gateway
+        {
+            get => _gateway;
+            set
+            {
+                _gateway = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _deviceMac = string.Empty;
+
+        public string DeviceMac
+        {
+            get => _deviceMac;
+            set
+            {
+                _deviceMac = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _dns = string.Empty;
+
+        public string Dns
+        {
+            get => _dns;
+            set
+            {
+                _dns = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _adapterType = string.Empty;
+
+        public string AdapterType
+        {
+            get => _adapterType;
+            set
+            {
+                _adapterType = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _dhcp = string.Empty;
+
+        public string Dhcp
+        {
+            get => _dhcp;
+            set
+            {
+                _dhcp = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        /////////////////////////////////////////////////////
 
         private ObservableCollection<string> _commandItems = new ObservableCollection<string>();
 
@@ -104,7 +190,8 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand RefreshIpAddressCommand { set; get; }
-        public DelegateCommand<string> ItemSelectedCommand { set; get; }
+        public DelegateCommand<string> AddressItemSelectedCommand { set; get; }
+        public DelegateCommand<string> CommandItemSelectedCommand { set; get; }
         public DelegateCommand TestNetCommand { set; get; }
 
         #endregion
@@ -112,22 +199,34 @@ namespace DevKit.ViewModels
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
             AddressItems.AddRange(appDataService.GetIPv4Address());
-
             CommandItems = new ObservableCollection<string>
             {
                 "ipconfig", "ping"
             };
-            
+
+            AddressItemSelectedCommand = new DelegateCommand<string>(ip =>
+            {
+                // 获取该 IP 的网络信息
+                Ip4 = ip;
+                SubnetMask = GetSubnetMask(ip);
+                Gateway = GetGateway(ip);
+                DeviceMac = GetDeviceMac(ip);
+                Dns = GetDns(ip);
+                AdapterType = GetAdapterType(ip);
+                Dhcp = GetDhcp(ip);
+            });
+
             RefreshIpAddressCommand = new DelegateCommand(() =>
             {
                 if (_addressItems.Any())
                 {
                     AddressItems.Clear();
                 }
+
                 AddressItems.AddRange(appDataService.GetIPv4Address());
             });
-            
-            ItemSelectedCommand = new DelegateCommand<string>(ItemSelected);
+
+            CommandItemSelectedCommand = new DelegateCommand<string>(ItemSelected);
             TestNetCommand = new DelegateCommand(TestNet);
         }
 
@@ -160,21 +259,21 @@ namespace DevKit.ViewModels
             }
             else
             {
-                Task.Run(async () =>
-                {
-                    var addresses = await Dns.GetHostAddressesAsync(_targetAddress);
-                    var ip = addresses.FirstOrDefault()?.ToString() ?? string.Empty;
-                    if (string.IsNullOrEmpty(ip))
-                    {
-                        MessageBox.Show("请输入正确的目标地址", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        var argument = new ArgumentCreator();
-                        argument.Append("ping").Append(ip);
-                        ExecuteCommand(argument.ToCommandLine());
-                    }
-                });
+                // Task.Run(async () =>
+                // {
+                //     var addresses = await Dns.GetHostAddressesAsync(_targetAddress);
+                //     var ip = addresses.FirstOrDefault()?.ToString() ?? string.Empty;
+                //     if (string.IsNullOrEmpty(ip))
+                //     {
+                //         MessageBox.Show("请输入正确的目标地址", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                //     }
+                //     else
+                //     {
+                //         var argument = new ArgumentCreator();
+                //         argument.Append("ping").Append(ip);
+                //         ExecuteCommand(argument.ToCommandLine());
+                //     }
+                // });
             }
         }
 
@@ -188,6 +287,85 @@ namespace DevKit.ViewModels
                 OutputResult = result.ToString();
             };
             executor.Execute("cmd");
+        }
+
+        // ---- 私有辅助函数 -----
+
+        private NetworkInterface FindNetworkInterface(string ip)
+        {
+            return NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(network =>
+                network.OperationalStatus == OperationalStatus.Up &&
+                network.GetIPProperties().UnicastAddresses.Any(address =>
+                    address.Address.AddressFamily == AddressFamily.InterNetwork && address.Address.ToString() == ip)
+            );
+        }
+
+        private string GetSubnetMask(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            var address = network?.GetIPProperties().UnicastAddresses
+                .FirstOrDefault(item => item.Address.ToString() == ip);
+            return address?.IPv4Mask?.ToString() ?? string.Empty;
+        }
+
+        private string GetGateway(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            return network?.GetIPProperties().GatewayAddresses
+                .Select(item => item.Address)
+                .FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork)
+                ?.ToString() ?? string.Empty;
+        }
+
+        private string GetDeviceMac(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            return network == null
+                ? string.Empty
+                : string.Join("-", network.GetPhysicalAddress().GetAddressBytes()
+                    .Select(value => value.ToString("X2")));
+        }
+
+        private string GetDns(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            return network == null
+                ? string.Empty
+                : string.Join(", ",
+                    network.GetIPProperties().DnsAddresses
+                        .Where(address => address.AddressFamily == AddressFamily.InterNetwork));
+        }
+
+        private string GetAdapterType(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            switch (network?.NetworkInterfaceType)
+            {
+                case NetworkInterfaceType.Ethernet:
+                    return "以太网";
+                case NetworkInterfaceType.Wireless80211:
+                    return "Wi-Fi";
+                case NetworkInterfaceType.Loopback:
+                    return "回环网卡";
+                case NetworkInterfaceType.Tunnel:
+                    return "隧道网卡";
+                default:
+                    return network?.NetworkInterfaceType.ToString() ?? string.Empty;
+            }
+        }
+
+        private string GetDhcp(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+            if (network == null)
+            {
+                return string.Empty;
+            }
+
+            var ipv4Properties = network.GetIPProperties().GetIPv4Properties();
+            return ipv4Properties != null && ipv4Properties.IsDhcpEnabled
+                ? "已启用"
+                : "未启用";
         }
     }
 }

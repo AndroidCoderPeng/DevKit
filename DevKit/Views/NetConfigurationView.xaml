@@ -557,6 +557,7 @@
                 Text="网络适配器" />
 
             <ComboBox
+                x:Name="AdapterComboBox"
                 Grid.Column="1"
                 Width="392"
                 Margin="8,0,0,0"
@@ -564,7 +565,13 @@
                 Background="White"
                 BorderThickness="1"
                 ItemsSource="{Binding AddressItems}"
-                Style="{StaticResource FieldComboBoxStyle}" />
+                Style="{StaticResource FieldComboBoxStyle}">
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="SelectionChanged">
+                        <b:InvokeCommandAction Command="{Binding AddressItemSelectedCommand}" CommandParameter="{Binding ElementName=AdapterComboBox, Path=SelectedItem}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+            </ComboBox>
 
             <Button
                 Grid.Column="2"
@@ -618,11 +625,11 @@
                         Style="{StaticResource InfoItemStyle}"
                         Tag="默认网关" />
                     <ContentControl
-                        Content="{Binding Mac}"
+                        Content="{Binding DeviceMac}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="物理地址（MAC）" />
                     <ContentControl
-                        Content="{Binding DNS}"
+                        Content="{Binding Dns}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="DNS 服务器" />
                     <ContentControl
@@ -630,7 +637,7 @@
                         Style="{StaticResource InfoItemStyle}"
                         Tag="适配器类型" />
                     <ContentControl
-                        Content="{Binding DHCP}"
+                        Content="{Binding Dhcp}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="DHCP" />
 
