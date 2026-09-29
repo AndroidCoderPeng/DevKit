@@ -130,19 +130,6 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
-.tool-icon {
-    width: 30px;
-    height: 30px;
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    background: linear-gradient(135deg, #2e7cf6, #6aa9ff);
-    border-radius: 9px;
-    box-shadow: 0 3px 8px rgba(46, 124, 246, .26);
-}
-
 .colon {
     flex: none;
     font-family: var(--mono);

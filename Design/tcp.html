@@ -20,21 +20,20 @@
 <div class="app">
     <!--
       注意：本窗口为 Prism 对话框，窗口标题（TCP 客户端）由系统默认标题栏提供，
-      因此窗口内容顶部不再放置 logo/标题这类自定义标题栏，
-      改为一条「连接工具条」，把地址、端口、连接按钮、状态、置顶集中在一行。
+      因此窗口内容顶部不再放置 logo/标题这类自定义标题栏，改为一条「连接工具条」。
+      工具条首位不放装饰性图标（标题栏已表明是 TCP 客户端），
+      而是把「连接状态」放在最左侧这个最显眼的位置，右侧紧跟地址/端口/连接操作区。
     -->
     <div class="window">
 
         <!-- ============ 连接工具条 ============ -->
         <div class="toolbar">
-            <span class="tool-icon" title="TCP 客户端">
-                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round" d="M22 2L11 13"/>
-                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round" d="M22 2l-7 20-4-9-9-4 22-7z"/>
-                </svg>
+            <span class="state-pill on" id="statePill">
+                <span class="dot on" id="stateDot"></span>
+                <b id="statePillText">已连接</b>
             </span>
+
+            <span class="toolbar-divider"></span>
 
             <label class="input-wrap addr" id="hostWrap">
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
@@ -58,13 +57,6 @@
                 </svg>
                 <span id="btnConnectText">断开连接</span>
             </button>
-
-            <span class="toolbar-divider"></span>
-
-            <span class="state-pill on" id="statePill">
-                <span class="dot on" id="stateDot"></span>
-                <b id="statePillText">已连接</b>
-            </span>
         </div>
 
         <!-- 输入校验提示（有错误时才出现，不占用固定高度） -->
