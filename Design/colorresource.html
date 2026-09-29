@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>颜色值转换 · ColorResource 界面重设计稿</title>
+    <link rel="stylesheet" href="colorresource.css"/>
+</head>
+<body>
+<div class="app">
+    <div class="window">
+
+        <!-- ============ 工具栏（窗口标题由系统标题栏提供，此处不重复） ============ -->
+        <div class="toolbar">
+            <span class="field-label">转换模式</span>
+
+            <div class="segment" id="modeSegment">
+                <button class="seg-btn active" data-mode="rgb2hex">RGB → HEX</button>
+                <button class="seg-btn" data-mode="hex2rgb">HEX → RGB</button>
+            </div>
+
+            <div class="toolbar-spacer"></div>
+
+            <label class="topmost" title="输出 HEX 时是否携带透明通道">
+                <span class="topmost-label">透明通道</span>
+                <input type="checkbox" class="switch-input" id="alphaToggle" checked/>
+                <span class="switch"></span>
+            </label>
+
+            <button class="btn" id="btnRandom">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.4" fill="currentColor"/>
+                    <circle cx="15.5" cy="15.5" r="1.4" fill="currentColor"/>
+                    <circle cx="15.5" cy="8.5" r="1.4" fill="currentColor"/>
+                    <circle cx="8.5" cy="15.5" r="1.4" fill="currentColor"/>
+                </svg>
+                随机
+            </button>
+
+            <button class="btn" id="btnReset">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" d="M3 12a9 9 0 1 0 3.2-6.9M3 4v5h5"/>
+                </svg>
+                重置
+            </button>
+
+            <span class="status-badge">支持 <b>#RGB</b> / <b>#RRGGBB</b> / <b>#AARRGGBB</b></span>
+        </div>
+
+        <!-- ============ 主体 ============ -->
+        <main class="content">
+
+            <!-- ---------- 左：取色与通道 ---------- -->
+            <section class="panel picker-panel">
+
+                <div class="preview" id="preview" title="点击复制当前颜色">
+                    <div class="preview-fill" id="previewFill"></div>
+                    <span class="preview-badge" id="previewBadge">A 255</span>
+                    <span class="preview-tip">点击复制</span>
+                </div>
+
+                <div class="hex-row">
+                    <div class="hex-field readonly" id="hexField">
+                        <span class="hash">#</span>
+                        <input type="text" id="hexInput" spellcheck="false" autocomplete="off"
+                               value="FF2E7CF6" maxlength="8"/>
+                        <span class="auto-tag" id="autoTag">自动</span>
+                    </div>
+                    <button class="btn btn-primary" id="btnCopyHex">
+                        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                        复制
+                    </button>
+                </div>
+
+                <div class="channels" id="channels">
+                    <div class="channel a" data-ch="a">
+                        <span class="ch-label">A</span>
+                        <input type="range" class="ch-slider" id="rangeA" min="0" max="255" value="255"/>
+                        <input type="number" class="ch-num" id="numA" min="0" max="255" value="255"/>
+                    </div>
+                    <div class="channel r" data-ch="r">
+                        <span class="ch-label">R</span>
+                        <input type="range" class="ch-slider" id="rangeR" min="0" max="255" value="46"/>
+                        <input type="number" class="ch-num" id="numR" min="0" max="255" value="46"/>
+                    </div>
+                    <div class="channel g" data-ch="g">
+                        <span class="ch-label">G</span>
+                        <input type="range" class="ch-slider" id="rangeG" min="0" max="255" value="124"/>
+                        <input type="number" class="ch-num" id="numG" min="0" max="255" value="124"/>
+                    </div>
+                    <div class="channel b" data-ch="b">
+                        <span class="ch-label">B</span>
+                        <input type="range" class="ch-slider" id="rangeB" min="0" max="255" value="246"/>
+                        <input type="number" class="ch-num" id="numB" min="0" max="255" value="246"/>
+                    </div>
+                </div>
+
+                <div class="recents">
+                    <span class="recents-label">最近使用</span>
+                    <div class="recent-list" id="recentList"></div>
+                </div>
+            </section>
+
+            <!-- ---------- 右：预设色板 ---------- -->
+            <section class="panel palette-panel">
+                <header class="panel-head">
+                    <div class="panel-title">
+                        预设色板
+                        <span class="count" id="swatchCount">0</span>
+                    </div>
+
+                    <div class="search-box">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16.5 16.5L21 21"/>
+                        </svg>
+                        <input type="text" id="swatchSearch" placeholder="搜索名称或色值，如 主色 / 2E7CF6"/>
+                    </div>
+                </header>
+
+                <div class="palette-scroll">
+                    <div class="palette-grid" id="paletteGrid"></div>
+                    <div class="palette-empty" id="paletteEmpty" hidden>
+                        <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                            <path stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M16.5 16.5L21 21"/>
+                        </svg>
+                        <div>没有匹配的颜色</div>
+                    </div>
+                </div>
+
+                <div class="panel-foot">
+                    单击色板 → 复制 HEX 并回填到左侧通道；
+                    <span class="kbd">RGB → HEX</span> 模式下左侧色值由通道自动计算。
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ============ 状态栏 ============ -->
+        <footer class="statusbar">
+            <span id="statusLeft">RGB → HEX 模式 · 通道实时同步</span>
+            <span class="statusbar-right" id="statusRight">当前颜色 #FF2E7CF6</span>
+        </footer>
+
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="colorresource.js"></script>
+</body>
+</html>

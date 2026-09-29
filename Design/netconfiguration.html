@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>网络信息 · NetConfiguration 界面重设计稿</title>
+    <link rel="stylesheet" href="netconfiguration.css"/>
+</head>
+<body>
+<div class="app">
+    <div class="window">
+
+        <!-- ============ 工具栏（窗口标题由系统标题栏提供，此处不重复） ============ -->
+        <div class="toolbar">
+            <span class="field-label">网络适配器</span>
+
+            <div class="select-wrap">
+                <select id="adapterSelect"></select>
+                <svg class="chevron" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+                </svg>
+            </div>
+
+            <button class="btn" id="btnRefresh">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" d="M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5"/>
+                </svg>
+                刷新
+            </button>
+
+            <button class="btn" id="btnCopyInfo">
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                </svg>
+                复制信息
+            </button>
+
+            <div class="toolbar-spacer"></div>
+
+            <div class="status-badge">
+                <span class="dot"></span>
+                <b id="badgeIp">192.168.3.126</b>
+                <span class="badge-sep">·</span>
+                <span id="badgeAdapter">以太网</span>
+            </div>
+        </div>
+
+        <!-- ============ 主体 ============ -->
+        <main class="content">
+
+            <!-- ---------- 本机网络信息 ---------- -->
+            <section class="panel net-info">
+                <div class="info-grid" id="infoGrid">
+                    <div class="info-item copyable" data-key="ip">
+                        <span class="info-label">IPv4 地址</span>
+                        <span class="info-value mono" data-field="ip">192.168.3.126</span>
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                    </div>
+                    <div class="info-item copyable" data-key="mask">
+                        <span class="info-label">子网掩码</span>
+                        <span class="info-value mono" data-field="mask">255.255.255.0</span>
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                    </div>
+                    <div class="info-item copyable" data-key="gw">
+                        <span class="info-label">默认网关</span>
+                        <span class="info-value mono" data-field="gw">192.168.3.1</span>
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                    </div>
+                    <div class="info-item copyable" data-key="mac">
+                        <span class="info-label">物理地址（MAC）</span>
+                        <span class="info-value mono" data-field="mac">8C-16-45-2A-7F-31</span>
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                    </div>
+                    <div class="info-item copyable" data-key="dns">
+                        <span class="info-label">DNS 服务器</span>
+                        <span class="info-value mono" data-field="dns">114.114.114.114</span>
+                        <svg class="copy-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                        </svg>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">适配器类型</span>
+                        <span class="info-value" data-field="type">有线 · 1000 Mbps</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">DHCP</span>
+                        <span class="info-value" data-field="dhcp">已启用</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">连接状态</span>
+                        <span class="info-value" data-field="state">
+                            <span class="inline-dot"></span>已连接
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ---------- 命令 + 终端 ---------- -->
+            <div class="work">
+
+                <!-- 左：命令配置 -->
+                <section class="panel command-panel">
+                    <div class="panel-title">
+                        常用命令
+                        <span class="count" id="cmdCount">0</span>
+                    </div>
+
+                    <div class="cmd-list" id="cmdList"></div>
+
+                    <div class="cmd-form">
+                        <div class="form-row">
+                            <span class="field-label">目标地址</span>
+                            <input type="text" id="targetInput" placeholder="IP 或域名，如 8.8.8.8 / www.baidu.com"
+                                   value="8.8.8.8" spellcheck="false"/>
+                        </div>
+
+                        <div class="form-actions">
+                            <label class="topmost" title="ping 时持续执行，直到手动停止">
+                                <span class="topmost-label">循环</span>
+                                <input type="checkbox" class="switch-input" id="loopToggle"/>
+                                <span class="switch"></span>
+                            </label>
+
+                            <button class="btn btn-primary btn-run" id="btnRun">
+                                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                                    <path fill="currentColor" d="M8 5.5v13l11-6.5z"/>
+                                </svg>
+                                <span id="runText">执行</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 右：命令输出 -->
+                <section class="terminal">
+                    <header class="term-head">
+                        <span class="term-dots">
+                            <i class="td td-r"></i><i class="td td-y"></i><i class="td td-g"></i>
+                        </span>
+                        <span class="term-title" id="termTitle">cmd.exe — ipconfig</span>
+
+                        <div class="term-actions">
+                            <button class="term-btn" id="btnClear" title="清空输出">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0l1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/>
+                                </svg>
+                                清空
+                            </button>
+
+                            <button class="term-btn" id="btnCopyOut" title="复制全部输出">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                          stroke-linejoin="round" d="M9 9h10v11H9zM5 15H4V4h11v1"/>
+                                </svg>
+                                复制
+                            </button>
+
+                            <label class="topmost term-switch" title="输出时自动滚动到底部">
+                                <span class="topmost-label">自动滚动</span>
+                                <input type="checkbox" class="switch-input" id="autoScrollToggle" checked/>
+                                <span class="switch"></span>
+                            </label>
+                        </div>
+                    </header>
+
+                    <div class="term-body" id="termBody">
+                        <div class="term-line dim">Microsoft Windows [版本 10.0.19045.4291]</div>
+                        <div class="term-line dim">选择左侧命令开始测试，或输入目标地址后点击「执行」。</div>
+                        <div class="term-line cmd">C:\Users\pengxh&gt; <span class="caret"></span></div>
+                    </div>
+
+                    <footer class="term-foot">
+                        <span id="termState"><span class="dot idle"></span>空闲</span>
+                        <span class="term-stats" id="termStats">共 3 行</span>
+                    </footer>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- ============ 状态栏 ============ -->
+        <footer class="statusbar">
+            <span id="footLeft">cmd.exe · 已就绪</span>
+            <span class="statusbar-right" id="footRight">命令执行输出仅供参考</span>
+        </footer>
+
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="netconfiguration.js"></script>
+</body>
+</html>
