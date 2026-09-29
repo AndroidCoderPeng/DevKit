@@ -765,7 +765,7 @@
 
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding ItemSelectedCommand}" CommandParameter="{Binding ElementName=CommandListBox, Path=SelectedItem}" />
+                                    <b:InvokeCommandAction Command="{Binding CommandItemSelectedCommand}" CommandParameter="{Binding ElementName=CommandListBox, Path=SelectedItem}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
                         </ListBox>
@@ -877,7 +877,7 @@
                                 <TextBlock
                                     FontFamily="Consolas"
                                     FontSize="12"
-                                    Text="{Binding ElementName=CommandListBox, Path=SelectedItem, StringFormat={}&#160;—&#160;{0}}">
+                                    Text="{Binding ElementName=CommandListBox, Path=SelectedItem.Command, StringFormat={}&#160;—&#160;{0}}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="#9EAAB8" />

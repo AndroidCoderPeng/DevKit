@@ -218,7 +218,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand RefreshIpAddressCommand { set; get; }
         public DelegateCommand<string> AddressItemSelectedCommand { set; get; }
-        public DelegateCommand<string> CommandItemSelectedCommand { set; get; }
+        public DelegateCommand<CommandCmdModel> CommandItemSelectedCommand { set; get; }
         public DelegateCommand TestNetCommand { set; get; }
 
         #endregion
@@ -266,19 +266,17 @@ namespace DevKit.ViewModels
                 AddressItems.AddRange(appDataService.GetIPv4Address());
             });
 
-            CommandItemSelectedCommand = new DelegateCommand<string>(ItemSelected);
-            TestNetCommand = new DelegateCommand(TestNet);
-        }
-
-        private void ItemSelected(string commandValue)
-        {
-            if (commandValue.Equals("ping"))
+            CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
-                // ping 命令会单独执行
-                return;
-            }
-
-            Task.Run(() => { ExecuteCommand(commandValue); });
+                // if (commandValue.Equals("ping"))
+                // {
+                //     return;
+                // }
+                //
+                // Task.Run(() => { ExecuteCommand(commandValue); });
+            });
+            
+            TestNetCommand = new DelegateCommand(TestNet);
         }
 
         private void TestNet()
