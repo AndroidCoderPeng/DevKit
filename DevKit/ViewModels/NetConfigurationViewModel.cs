@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using DevKit.DataService;
+using DevKit.Models;
 using DevKit.Utils;
 using HandyControl.Tools;
 using Prism.Commands;
@@ -160,9 +161,10 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<string> _commandItems = new ObservableCollection<string>();
+        private ObservableCollection<CommandCmdModel> _commandItems =
+            new ObservableCollection<CommandCmdModel>();
 
-        public ObservableCollection<string> CommandItems
+        public ObservableCollection<CommandCmdModel> CommandItems
         {
             get => _commandItems;
             set
@@ -173,7 +175,7 @@ namespace DevKit.ViewModels
         }
 
         /////////////////////////////////////////////////////
-        
+
         private string _targetAddress = string.Empty;
 
         public string TargetAddress
@@ -224,9 +226,17 @@ namespace DevKit.ViewModels
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
             AddressItems.AddRange(appDataService.GetIPv4Address());
-            CommandItems = new ObservableCollection<string>
+            CommandItems = new ObservableCollection<CommandCmdModel>
             {
-                "ipconfig", "ping"
+                new CommandCmdModel { Command = "ipconfig /all", Description = "查看完整网卡信息" },
+                new CommandCmdModel { Command = "ping", Description = "测试网络连通性" },
+                new CommandCmdModel { Command = "tracert", Description = "查看网络路由路径" },
+                new CommandCmdModel { Command = "nslookup", Description = "查询 DNS 解析" },
+                new CommandCmdModel { Command = "arp -a", Description = "查看 ARP 缓存" },
+                new CommandCmdModel { Command = "route print", Description = "查看本机路由表" },
+                new CommandCmdModel { Command = "netstat -ano", Description = "查看端口和进程 PID" },
+                new CommandCmdModel { Command = "hostname", Description = "查看计算机名" },
+                new CommandCmdModel { Command = "getmac", Description = "查看网卡 MAC 地址" }
             };
 
             AddressItemSelectedCommand = new DelegateCommand<string>(ip =>

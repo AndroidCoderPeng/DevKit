@@ -717,32 +717,49 @@
                         <ListBox
                             x:Name="CommandListBox"
                             Grid.Row="1"
-                            Margin="0,12,0,0"
+                            Margin="0,8,0,0"
                             VerticalAlignment="Top"
                             Background="Transparent"
                             BorderThickness="0"
                             ItemContainerStyle="{StaticResource CommandItemStyle}"
                             ItemsSource="{Binding CommandItems}"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock
-                                        FontFamily="Consolas"
-                                        FontSize="14"
-                                        Text="{Binding}"
-                                        TextTrimming="CharacterEllipsis">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#5F6B7A" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                                                        <Setter Property="Foreground" Value="#2E7CF6" />
-                                                        <Setter Property="FontWeight" Value="SemiBold" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock
+                                            x:Name="CommandText"
+                                            Grid.Column="0"
+                                            FontFamily="Consolas"
+                                            FontSize="14"
+                                            Foreground="#5F6B7A"
+                                            Text="{Binding Command}"
+                                            TextTrimming="CharacterEllipsis" />
+
+                                        <TextBlock
+                                            x:Name="DescriptionText"
+                                            Grid.Column="1"
+                                            FontSize="14"
+                                            Foreground="#5F6B7A"
+                                            Text="{Binding Description}"
+                                            TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                            <Setter TargetName="CommandText" Property="Foreground" Value="#2E7CF6" />
+                                            <Setter TargetName="CommandText" Property="FontWeight" Value="SemiBold" />
+
+                                            <Setter TargetName="DescriptionText" Property="Foreground" Value="#2E7CF6" />
+                                            <Setter TargetName="DescriptionText" Property="FontWeight" Value="SemiBold" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
 

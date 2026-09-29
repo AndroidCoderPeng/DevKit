@@ -190,6 +190,7 @@
     </Compile>
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFileModel.cs" />
+    <Compile Include="Models\CommandCmdModel.cs" />
     <Compile Include="Models\LogcatModel.cs" />
     <Compile Include="Models\LogModel.cs" />
     <Compile Include="Models\MainMenuModel.cs" />
