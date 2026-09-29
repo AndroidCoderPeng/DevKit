@@ -551,7 +551,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
                 Foreground="{StaticResource TextBlockForegroundBrush}"
-                Text="{Binding NdkState, StringFormat={}{0} · {1}}" />
+                Text="{Binding NdkVersion}" />
         </Grid>
     </Grid>
 </UserControl>
