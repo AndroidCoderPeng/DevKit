@@ -138,9 +138,6 @@
             var el = document.querySelector('[data-field="' + key + '"]');
             if (el) el.textContent = map[key];
         });
-
-        $('badgeIp').textContent = a.ip;
-        $('badgeAdapter').textContent = a.name.length > 14 ? a.name.slice(0, 13) + '…' : a.name;
     }
 
     /* ---------- 命令列表 ---------- */
