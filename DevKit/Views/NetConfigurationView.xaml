@@ -32,7 +32,6 @@
         <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#EAF1FE" />
         <SolidColorBrush x:Key="AccentBrush" Color="#2E7CF6" />
         <SolidColorBrush x:Key="TerminalBodyBrush" Color="#0C1016" />
-        <SolidColorBrush x:Key="TerminalHeadBrush" Color="#151A21" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#39434F" />
         <SolidColorBrush x:Key="TerminalDimBrush" Color="#9EAAB8" />
 
@@ -527,44 +526,44 @@
             <!--  本机网络信息（占位数据，待 VM 字段就绪后绑定）  -->
             <Border
                 Grid.Row="0"
-                Padding="16,14"
+                Padding="16"
                 Style="{StaticResource CardStyle}">
                 <UniformGrid
                     Margin="0,0,-10,-10"
                     Columns="4"
                     Rows="2">
                     <ContentControl
-                        Content="192.168.3.126"
+                        Content="{Binding Ip4, FallbackValue=127.0.0.1}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="IPv4 地址" />
                     <ContentControl
-                        Content="255.255.255.0"
+                        Content="{Binding SubnetMask, FallbackValue=255.255.255.0}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="子网掩码" />
                     <ContentControl
-                        Content="192.168.3.1"
+                        Content="{Binding Gateway, FallbackValue=192.168.3.1}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="默认网关" />
                     <ContentControl
-                        Content="8C-16-45-2A-7F-31"
+                        Content="{Binding Mac}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="物理地址（MAC）" />
                     <ContentControl
-                        Content="114.114.114.114"
+                        Content="{Binding DNS}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="DNS 服务器" />
                     <ContentControl
-                        Content="有线 · 1000 Mbps"
+                        Content="{Binding AdapterType}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="适配器类型" />
                     <ContentControl
-                        Content="已启用"
+                        Content="{Binding DHCP}"
                         Style="{StaticResource InfoItemStyle}"
                         Tag="DHCP" />
 
                     <Border
                         Margin="0,0,10,10"
-                        Padding="12,9"
+                        Padding="12"
                         Background="{StaticResource SurfaceBrush}"
                         BorderBrush="Transparent"
                         BorderThickness="1"
@@ -574,14 +573,14 @@
                                 FontSize="11"
                                 Foreground="{StaticResource TertiaryTextBrush}"
                                 Text="连接状态" />
-                            <StackPanel Margin="0,3,0,0" Orientation="Horizontal">
+                            <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
                                 <Ellipse
-                                    Width="7"
-                                    Height="7"
+                                    Width="8"
+                                    Height="8"
                                     VerticalAlignment="Center"
                                     Fill="#16A34A" />
                                 <TextBlock
-                                    Margin="6,0,0,0"
+                                    Margin="8,0,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="13"
                                     Foreground="{DynamicResource DevKitTextBrush}"
@@ -595,8 +594,7 @@
             <!--  命令列表 + 命令输出终端  -->
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="322" />
-                    <ColumnDefinition Width="14" />
+                    <ColumnDefinition Width="320" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
@@ -619,7 +617,7 @@
                                 FontWeight="SemiBold"
                                 Foreground="{DynamicResource DevKitTextBrush}"
                                 Text="常用命令" />
-                            <Border Margin="6,0,0,0" Style="{StaticResource CountPillStyle}">
+                            <Border Margin="8,0,0,0" Style="{StaticResource CountPillStyle}">
                                 <TextBlock
                                     FontSize="12"
                                     FontWeight="SemiBold"
@@ -708,22 +706,23 @@
 
                                 <Button
                                     Grid.Column="1"
-                                    Margin="10,0,0,0"
+                                    Margin="14,0,0,0"
                                     Command="{Binding TestNetCommand}"
                                     IsEnabled="{Binding ElementName=CommandListBox, Path=SelectedItem, Converter={StaticResource EnableStateConverterKey}}"
                                     Style="{StaticResource PrimaryButtonStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Viewbox Width="15" Height="15">
-                                            <Canvas Width="24" Height="24">
-                                                <Path Data="M8,5.5 L8,18.5 L19,12 Z" Fill="White" />
-                                            </Canvas>
-                                        </Viewbox>
-                                        <TextBlock
-                                            Margin="6,0,0,0"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Text="执行" />
-                                    </StackPanel>
+                                    <Button.Content>
+                                        <StackPanel Margin="12,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="16"
+                                                Text="&#xe877;" />
+                                            <TextBlock
+                                                Margin="8,0,0,0"
+                                                FontSize="13"
+                                                Text="执行" />
+                                        </StackPanel>
+                                    </Button.Content>
                                 </Button>
                             </Grid>
                         </StackPanel>
@@ -732,20 +731,20 @@
 
                 <!--  终端  -->
                 <Border
-                    Grid.Column="2"
-                    Background="{StaticResource TerminalBodyBrush}"
-                    BorderBrush="{StaticResource TerminalBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="14">
+                    Grid.Column="1"
+                    Margin="14,0,0,0"
+                    Background="#0C0C0C"
+                    CornerRadius="8">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="1" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
                         <!--  终端标题栏  -->
-                        <Grid Grid.Row="0" Background="{StaticResource TerminalHeadBrush}">
+                        <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -758,24 +757,23 @@
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <Ellipse
-                                    Width="10"
-                                    Height="10"
-                                    Fill="#FF5F57" />
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#ff5f57" />
                                 <Ellipse
-                                    Width="10"
-                                    Height="10"
-                                    Margin="6,0,0,0"
-                                    Fill="#FEBC2E" />
+                                    Width="12"
+                                    Height="12"
+                                    Margin="8,0"
+                                    Fill="#febc2e" />
                                 <Ellipse
-                                    Width="10"
-                                    Height="10"
-                                    Margin="6,0,0,0"
-                                    Fill="#28C840" />
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#28c840" />
                             </StackPanel>
 
                             <StackPanel
                                 Grid.Column="1"
-                                Margin="12,0,0,0"
+                                Margin="8,0,0,0"
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <TextBlock
@@ -802,22 +800,16 @@
 
                             <StackPanel
                                 Grid.Column="2"
-                                Margin="0,8,12,8"
+                                Margin="0,8,8,8"
                                 Orientation="Horizontal">
-                                <!--  以下三项依赖 VM 新增命令，暂未接线  -->
-                                <Button Style="{StaticResource TerminalButtonStyle}" ToolTip="待 VM 提供清空命令后启用">
+                                <Button Style="{StaticResource TerminalButtonStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <Viewbox Width="14" Height="14">
-                                            <Canvas Width="24" Height="24">
-                                                <Path
-                                                    Data="M4,7 L20,7 M9,7 L9,5 A1,1 0 0 1 10,4 L14,4 A1,1 0 0 1 15,5 L15,7 M6,7 L7,19 A1,1 0 0 0 8,20 L16,20 A1,1 0 0 0 17,19 L18,7"
-                                                    Stroke="#9EAAB8"
-                                                    StrokeEndLineCap="Round"
-                                                    StrokeLineJoin="Round"
-                                                    StrokeStartLineCap="Round"
-                                                    StrokeThickness="2" />
-                                            </Canvas>
-                                        </Viewbox>
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="16"
+                                            Text="&#xe666;" />
+
                                         <TextBlock
                                             Margin="5,0,0,0"
                                             VerticalAlignment="Center"
@@ -831,17 +823,12 @@
                                     Style="{StaticResource TerminalButtonStyle}"
                                     ToolTip="待 VM 提供输出模型后启用">
                                     <StackPanel Orientation="Horizontal">
-                                        <Viewbox Width="14" Height="14">
-                                            <Canvas Width="24" Height="24">
-                                                <Path
-                                                    Data="M9,9 L19,9 L19,20 L9,20 Z M5,15 L4,15 L4,4 L15,4 L15,5"
-                                                    Stroke="#9EAAB8"
-                                                    StrokeEndLineCap="Round"
-                                                    StrokeLineJoin="Round"
-                                                    StrokeStartLineCap="Round"
-                                                    StrokeThickness="2" />
-                                            </Canvas>
-                                        </Viewbox>
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="16"
+                                            Text="&#xe66c;" />
+
                                         <TextBlock
                                             Margin="5,0,0,0"
                                             VerticalAlignment="Center"
@@ -867,16 +854,18 @@
                             </StackPanel>
                         </Grid>
 
+                        <Border Grid.Row="1" Background="#1fe7ebf1" />
+
                         <!--  命令输出  -->
                         <TextBox
-                            Grid.Row="1"
-                            Padding="12,10"
+                            Grid.Row="2"
+                            Padding="12,-8,12,0"
                             AcceptsReturn="True"
                             Background="{StaticResource TerminalBodyBrush}"
                             BorderThickness="0"
                             CaretBrush="#3DDC84"
                             FontFamily="Consolas"
-                            FontSize="13"
+                            FontSize="14"
                             Foreground="#C9D1D9"
                             HorizontalScrollBarVisibility="Disabled"
                             IsReadOnly="True"
@@ -886,11 +875,10 @@
 
                         <!--  终端状态栏  -->
                         <Border
-                            Grid.Row="2"
-                            Background="{StaticResource TerminalHeadBrush}"
+                            Grid.Row="3"
                             BorderBrush="{StaticResource TerminalBorderBrush}"
                             BorderThickness="0,1,0,0">
-                            <Grid Margin="14,7">
+                            <Grid Margin="14,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
@@ -898,15 +886,16 @@
 
                                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                                     <Ellipse
-                                        Width="7"
-                                        Height="7"
+                                        Width="12"
+                                        Height="12"
                                         VerticalAlignment="Center"
                                         Fill="#9EAAB8" />
+
                                     <TextBlock
                                         Margin="7,0,0,0"
                                         VerticalAlignment="Center"
                                         FontFamily="Consolas"
-                                        FontSize="11.5"
+                                        FontSize="12"
                                         Foreground="{StaticResource TerminalDimBrush}"
                                         Text="空闲" />
                                 </StackPanel>
@@ -928,7 +917,7 @@
         <Border Grid.Row="3" Background="{DynamicResource DevKitBorderBrush}" />
 
         <!--  ============================================================ 状态栏  ============================================================  -->
-        <Grid Grid.Row="4" Margin="20,10">
+        <Grid Grid.Row="4" Margin="16,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -936,13 +925,13 @@
 
             <TextBlock
                 Grid.Column="0"
-                FontSize="11.5"
+                FontSize="12"
                 Foreground="{StaticResource TertiaryTextBrush}"
                 Text="cmd.exe · 已就绪" />
 
             <TextBlock
                 Grid.Column="1"
-                FontSize="11.5"
+                FontSize="12"
                 Foreground="{StaticResource TertiaryTextBrush}"
                 Text="命令执行输出仅供参考" />
         </Grid>
