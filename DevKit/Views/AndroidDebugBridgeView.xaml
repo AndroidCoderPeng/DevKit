@@ -535,7 +535,8 @@
 
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseLeftButtonUp">
-                                    <b:InvokeCommandAction Command="{Binding AndroidIdLabelClickCommand}" CommandParameter="{Binding AndroidId}" />
+                                    <b:InvokeCommandAction Command="{Binding AndroidIdLabelClickCommand}"
+                                                           CommandParameter="{Binding AndroidId}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
 
@@ -566,7 +567,8 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Opacity" Value="0" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=AndroidIdItem}" Value="True">
+                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=AndroidIdItem}"
+                                                             Value="True">
                                                     <Setter Property="Opacity" Value="1" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -597,7 +599,8 @@
 
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseLeftButtonUp">
-                                    <b:InvokeCommandAction Command="{Binding DeviceIpLabelClickCommand}" CommandParameter="{Binding DeviceIp}" />
+                                    <b:InvokeCommandAction Command="{Binding DeviceIpLabelClickCommand}"
+                                                           CommandParameter="{Binding DeviceIp}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
 
@@ -628,7 +631,8 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Opacity" Value="0" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=DeviceIpItem}" Value="True">
+                                                <DataTrigger Binding="{Binding IsMouseOver, ElementName=DeviceIpItem}"
+                                                             Value="True">
                                                     <Setter Property="Opacity" Value="1" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -937,7 +941,8 @@
                                         <Setter Property="Width" Value="92" />
                                         <Setter Property="Background" Value="#F7F9FC" />
                                         <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
-                                        <Setter Property="Foreground" Value="{StaticResource ExportProgressForegroundBrush}" />
+                                        <Setter Property="Foreground"
+                                                Value="{StaticResource ExportProgressForegroundBrush}" />
                                         <Setter Property="BorderThickness" Value="1" />
                                         <Setter Property="Template">
                                             <Setter.Value>
@@ -984,7 +989,8 @@
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=PkgSearchTextBox}" Value="True">
+                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=PkgSearchTextBox}"
+                                                 Value="True">
                                         <Setter Property="BorderBrush" Value="#2E7CF6" />
                                         <Setter Property="Effect">
                                             <Setter.Value>
@@ -1024,7 +1030,8 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     FontSize="13"
-                                    Foreground="{DynamicResource DevKitTextBrush}" />
+                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Center"
@@ -1035,7 +1042,8 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=PkgSearchTextBox}" Value="">
+                                                <DataTrigger Binding="{Binding Text, ElementName=PkgSearchTextBox}"
+                                                             Value="">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -1061,7 +1069,8 @@
                             ScrollViewer.CanContentScroll="False">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
+                                    <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}"
+                                                           CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
 
@@ -1116,15 +1125,19 @@
                                                     BorderBrush="{TemplateBinding BorderBrush}"
                                                     BorderThickness="{TemplateBinding BorderThickness}"
                                                     CornerRadius="8">
-                                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                                    <ContentPresenter HorizontalAlignment="Stretch"
+                                                                      VerticalAlignment="Center" />
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="PkgItemBorder" Property="Background" Value="#EAF1FE" />
+                                                        <Setter TargetName="PkgItemBorder" Property="Background"
+                                                                Value="#EAF1FE" />
                                                     </Trigger>
                                                     <Trigger Property="IsSelected" Value="True">
-                                                        <Setter TargetName="PkgItemBorder" Property="Background" Value="#EAF1FE" />
-                                                        <Setter TargetName="PkgItemBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                                        <Setter TargetName="PkgItemBorder" Property="Background"
+                                                                Value="#EAF1FE" />
+                                                        <Setter TargetName="PkgItemBorder" Property="BorderBrush"
+                                                                Value="#2E7CF6" />
                                                         <Setter Property="TextBlock.Foreground" Value="#2E7CF6" />
                                                         <Setter Property="TextBlock.FontWeight" Value="SemiBold" />
                                                     </Trigger>
@@ -1217,7 +1230,8 @@
             Grid.Row="3"
             Margin="16,0,16,16"
             LastChildFill="True">
-            <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}" Text="{Binding AdbVision, StringFormat={}{0} · 已就绪, TargetNullValue=adb · 已就绪, FallbackValue=adb · 已就绪}" />
+            <TextBlock Foreground="{StaticResource TextBlockForegroundBrush}"
+                       Text="{Binding AdbVision, StringFormat={}{0} · 已就绪, TargetNullValue=adb · 已就绪, FallbackValue=adb · 已就绪}" />
 
             <TextBlock
                 HorizontalAlignment="Right"

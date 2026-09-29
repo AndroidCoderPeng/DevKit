@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 using DevKit.Events;
 using DevKit.Utils;
@@ -267,6 +268,19 @@ namespace DevKit.ViewModels
             }
         }
 
+        private string _keyword = string.Empty;
+
+        public string Keyword
+        {
+            get => _keyword;
+            set
+            {
+                _keyword = value;
+                RaisePropertyChanged();
+                ApplyFilter();
+            }
+        }
+
         private string _toastMessage;
 
         public string ToastMessage
@@ -338,6 +352,7 @@ namespace DevKit.ViewModels
             {
                 _applicationPackages = value;
                 RaisePropertyChanged();
+                ApplyFilter(); // 集合重新赋值后，重新应用当前关键字过滤
             }
         }
 
@@ -1001,6 +1016,30 @@ namespace DevKit.ViewModels
                 { "kalama", "骁龙 8 Gen 2" },
                 { "sm8650", "骁龙 8 Gen 3" },
             };
+
+        /// <summary>
+        /// 按名称包名列表
+        /// </summary>
+        private void ApplyFilter()
+        {
+            var view = CollectionViewSource.GetDefaultView(ApplicationPackages);
+            var keyword = (Keyword ?? string.Empty).Trim();
+
+            // 无关键字：移除过滤，避免空谓词无谓遍历
+            if (keyword.Length == 0)
+            {
+                view.Filter = null;
+                view.Refresh();
+                return;
+            }
+
+            view.Filter = item =>
+            {
+                if (!(item is string package)) return false;
+                return package.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
+            };
+            view.Refresh();
+        }
 
         private void ShowToast(string message)
         {

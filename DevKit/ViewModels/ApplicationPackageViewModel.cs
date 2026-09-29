@@ -173,6 +173,7 @@ namespace DevKit.ViewModels
             {
                 _apkFileCollection = value;
                 RaisePropertyChanged();
+                ApplyFilter(); // 集合重新赋值后，重新应用当前关键字过滤
             }
         }
 
@@ -456,10 +457,16 @@ namespace DevKit.ViewModels
             var view = CollectionViewSource.GetDefaultView(ApkFileCollection);
             var keyword = (Keyword ?? string.Empty).Trim();
 
+            // 无关键字：移除过滤，避免空谓词对每项做无谓调用
+            if (keyword.Length == 0)
+            {
+                view.Filter = null;
+                view.Refresh();
+                return;
+            }
+
             view.Filter = o =>
             {
-                if (keyword.Length == 0) return true;
-
                 if (!(o is ApkFileModel apk)) return false;
 
                 var matchName = apk.FileName?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
