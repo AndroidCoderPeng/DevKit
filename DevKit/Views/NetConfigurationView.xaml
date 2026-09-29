@@ -35,8 +35,8 @@
 
         <!--  ========== 下拉项 ==========  -->
         <Style x:Key="FieldComboBoxItemStyle" TargetType="ComboBoxItem">
-            <Setter Property="Padding" Value="10,8" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="Template">
@@ -66,7 +66,7 @@
         <!--  ========== 输入框（下拉框） ==========  -->
         <Style x:Key="FieldComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
@@ -107,27 +107,32 @@
                                     Stroke="{StaticResource SecondaryTextBrush}"
                                     StrokeEndLineCap="Round"
                                     StrokeStartLineCap="Round"
-                                    StrokeThickness="1.6" />
+                                    StrokeThickness="1" />
                             </Grid>
 
-                            <!--  占位符（未选中时显示，文本取自 ComboBox.Tag）  -->
-                            <TextBlock
-                                x:Name="PlaceholderText"
-                                Margin="13,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="13"
-                                Foreground="{StaticResource TertiaryTextBrush}"
-                                IsHitTestVisible="False"
-                                Text="{TemplateBinding Tag}"
-                                Visibility="Collapsed" />
-
                             <!--  点击层（放最上层以捕获鼠标）  -->
-                            <ToggleButton
-                                Background="Transparent"
-                                BorderThickness="0"
-                                ClickMode="Press"
-                                Focusable="False"
-                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                            <ToggleButton IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Style>
+                                    <Style TargetType="ToggleButton">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="ClickMode" Value="Press" />
+                                        <Setter Property="Focusable" Value="False" />
+                                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                        <Setter Property="VerticalAlignment" Value="Stretch" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}" />
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ToggleButton.Style>
+                            </ToggleButton>
 
                             <!--  下拉浮层  -->
                             <Popup
@@ -136,7 +141,8 @@
                                 Focusable="False"
                                 IsOpen="{TemplateBinding IsDropDownOpen}"
                                 Placement="Bottom"
-                                PopupAnimation="Fade">
+                                PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                PopupAnimation="Slide">
                                 <Border
                                     x:Name="DropDownBorder"
                                     MinWidth="{TemplateBinding ActualWidth}"
@@ -146,15 +152,7 @@
                                     Background="White"
                                     BorderBrush="{StaticResource BorderStrongBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="10">
-                                    <Border.Effect>
-                                        <DropShadowEffect
-                                            BlurRadius="16"
-                                            Direction="270"
-                                            Opacity="0.16"
-                                            ShadowDepth="4"
-                                            Color="#13223D" />
-                                    </Border.Effect>
+                                    CornerRadius="8">
                                     <ScrollViewer
                                         CanContentScroll="True"
                                         SnapsToDevicePixels="True"
@@ -164,6 +162,7 @@
                                 </Border>
                             </Popup>
                         </Grid>
+
                         <ControlTemplate.Triggers>
                             <Trigger Property="HasItems" Value="False">
                                 <Setter TargetName="DropDownBorder" Property="MinHeight" Value="40" />
@@ -176,9 +175,6 @@
                                 <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
                                 <Setter TargetName="Arrow" Property="Data" Value="M 0,5 L 5,0 L 10,5" />
                             </Trigger>
-                            <Trigger Property="SelectedItem" Value="{x:Null}">
-                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
-                            </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.6" />
                             </Trigger>
@@ -187,7 +183,6 @@
                                     <Condition Property="SelectedItem" Value="{x:Null}" />
                                     <Condition Property="Tag" Value="" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Collapsed" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -524,9 +519,6 @@
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="Text" Value="">
-                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
-                            </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                                 <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
