@@ -136,7 +136,7 @@
                         FontFamily="/DevKit;component/Fonts/#iconfont"
                         FontSize="16"
                         Foreground="{DynamicResource TextBlockForegroundBrush}"
-                        Text="&#xe654;" />
+                        Text="&#xe6c2;" />
 
                     <TextBlock
                         Grid.Column="1"
