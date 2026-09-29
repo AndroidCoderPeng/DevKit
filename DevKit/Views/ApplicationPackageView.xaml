@@ -202,14 +202,14 @@
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!--  ============ APK 归档 ============  -->
         <Border
             Grid.Row="0"
-            Padding="16"
+            Padding="16,12"
             Background="White"
             BorderBrush="{DynamicResource DevKitBorderBrush}"
             BorderThickness="1"
@@ -223,7 +223,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid Grid.Row="0" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto" />
@@ -289,7 +289,7 @@
 
                 <Border
                     Grid.Row="2"
-                    Margin="0,16,0,0"
+                    Margin="0,12,0,0"
                     BorderBrush="{StaticResource DevKitBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="8">
@@ -382,7 +382,8 @@
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
+                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}"
+                                                 Value="True">
                                         <Setter Property="BorderBrush" Value="#2E7CF6" />
                                         <Setter Property="Effect">
                                             <Setter.Value>
@@ -434,7 +435,8 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}" Value="">
+                                                <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}"
+                                                             Value="">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -527,6 +529,7 @@
                 <!--  APK 卡片列表  -->
                 <ListBox
                     Grid.Row="4"
+                    VerticalAlignment="Top"
                     Background="Transparent"
                     BorderThickness="0"
                     ItemsSource="{Binding ApkFileCollection}"
@@ -536,7 +539,9 @@
                     <ListBox.Template>
                         <ControlTemplate TargetType="ListBox">
                             <Grid>
-                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                <ScrollViewer
+                                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                                     <ItemsPresenter />
                                 </ScrollViewer>
 
@@ -663,7 +668,7 @@
         <!--  ============ 签名配置 ============  -->
         <Border
             Grid.Row="1"
-            Margin="0,16,0,0"
+            Margin="0,12,0,0"
             Padding="16"
             Background="White"
             BorderBrush="{DynamicResource DevKitBorderBrush}"
@@ -812,23 +817,54 @@
                     </Button>
 
                     <Border
-                        Height="144"
+                        Height="164"
                         Margin="0,8,0,0"
                         Background="#0C0C0C"
                         CornerRadius="8">
-                        <TextBox
-                            Margin="4,8"
-                            VerticalAlignment="Top"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            FontFamily="微软雅黑"
-                            FontSize="14"
-                            Foreground="#4ADE80"
-                            HorizontalScrollBarVisibility="Auto"
-                            IsReadOnly="True"
-                            Text="{Binding OutputResult}"
-                            TextWrapping="NoWrap"
-                            VerticalScrollBarVisibility="Auto" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="1" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel
+                                Grid.Row="0"
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#ff5f57" />
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Margin="8,0"
+                                    Fill="#febc2e" />
+                                <Ellipse
+                                    Width="12"
+                                    Height="12"
+                                    Fill="#28c840" />
+                            </StackPanel>
+
+                            <Border Grid.Row="1" Background="#1fe7ebf1" />
+
+                            <TextBox
+                                Grid.Row="2"
+                                Margin="4,8"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontFamily="微软雅黑"
+                                FontSize="14"
+                                Foreground="#4ADE80"
+                                HorizontalScrollBarVisibility="Auto"
+                                IsReadOnly="True"
+                                Text="{Binding OutputResult}"
+                                TextWrapping="NoWrap"
+                                VerticalScrollBarVisibility="Auto" />
+                        </Grid>
                     </Border>
                 </StackPanel>
             </StackPanel>
