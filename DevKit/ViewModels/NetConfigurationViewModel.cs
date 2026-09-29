@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Tools;
@@ -135,7 +136,29 @@ namespace DevKit.ViewModels
             }
         }
 
-        /////////////////////////////////////////////////////
+        private string _connectionState = "未连接";
+
+        public string ConnectionState
+        {
+            get => _connectionState;
+            set
+            {
+                _connectionState = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private SolidColorBrush _connectionStateColor = new SolidColorBrush(Colors.LightGray);
+
+        public SolidColorBrush ConnectionStateColor
+        {
+            get => _connectionStateColor;
+            set
+            {
+                _connectionStateColor = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private ObservableCollection<string> _commandItems = new ObservableCollection<string>();
 
@@ -149,6 +172,8 @@ namespace DevKit.ViewModels
             }
         }
 
+        /////////////////////////////////////////////////////
+        
         private string _targetAddress = string.Empty;
 
         public string TargetAddress
@@ -214,6 +239,11 @@ namespace DevKit.ViewModels
                 Dns = GetDns(ip);
                 AdapterType = GetAdapterType(ip);
                 Dhcp = GetDhcp(ip);
+
+                // 连接状态
+                var state = GetConnectionState(ip);
+                ConnectionState = state.Item1;
+                ConnectionStateColor = state.Item2;
             });
 
             RefreshIpAddressCommand = new DelegateCommand(() =>
@@ -366,6 +396,23 @@ namespace DevKit.ViewModels
             return ipv4Properties != null && ipv4Properties.IsDhcpEnabled
                 ? "已启用"
                 : "未启用";
+        }
+
+        private (string, SolidColorBrush ) GetConnectionState(string ip)
+        {
+            var network = FindNetworkInterface(ip);
+
+            if (network == null)
+            {
+                return ("未连接", new SolidColorBrush(Colors.LightGray));
+            }
+
+            if (network.OperationalStatus == OperationalStatus.Up)
+            {
+                return ("已连接", new SolidColorBrush(Colors.LimeGreen));
+            }
+
+            return ("未连接", new SolidColorBrush(Colors.LightGray));
         }
     }
 }

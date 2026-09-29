@@ -655,8 +655,8 @@
                                 Text="连接状态" />
                             <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
                                 <Ellipse
-                                    Width="8"
-                                    Height="8"
+                                    Width="12"
+                                    Height="12"
                                     VerticalAlignment="Center"
                                     Fill="{Binding ConnectionStateColor, FallbackValue={StaticResource TerminalDimBrush}}" />
                                 <TextBlock
