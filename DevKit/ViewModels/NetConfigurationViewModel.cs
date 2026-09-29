@@ -2,11 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using DevKit.DataService;
 using DevKit.Utils;
 using HandyControl.Tools;
 using Prism.Commands;
@@ -104,30 +103,30 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
+        public DelegateCommand RefreshIpAddressCommand { set; get; }
         public DelegateCommand<string> ItemSelectedCommand { set; get; }
         public DelegateCommand TestNetCommand { set; get; }
 
         #endregion
 
-        public NetConfigurationViewModel()
+        public NetConfigurationViewModel(IAppDataService appDataService)
         {
-            // 获取本机 IP
-            foreach (var information in NetworkInterface
-                         .GetAllNetworkInterfaces()
-                         .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up)
-                         .SelectMany(networkInterface => networkInterface.GetIPProperties().UnicastAddresses))
-            {
-                var address = information.Address;
-                if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(address))
-                {
-                    AddressItems.Add(address.ToString());
-                }
-            }
+            AddressItems.AddRange(appDataService.GetIPv4Address());
 
             CommandItems = new ObservableCollection<string>
             {
                 "ipconfig", "ping"
             };
+            
+            RefreshIpAddressCommand = new DelegateCommand(() =>
+            {
+                if (_addressItems.Any())
+                {
+                    AddressItems.Clear();
+                }
+                AddressItems.AddRange(appDataService.GetIPv4Address());
+            });
+            
             ItemSelectedCommand = new DelegateCommand<string>(ItemSelected);
             TestNetCommand = new DelegateCommand(TestNet);
         }

@@ -569,7 +569,7 @@
             <Button
                 Grid.Column="2"
                 Margin="8,0"
-                Command="{Binding RefreshNetAdapterCommand}"
+                Command="{Binding RefreshIpAddressCommand}"
                 Style="{StaticResource ToolButtonStyle}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
