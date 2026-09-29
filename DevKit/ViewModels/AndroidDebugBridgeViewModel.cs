@@ -395,7 +395,22 @@ namespace DevKit.ViewModels
             RefreshDeviceCommand = new DelegateCommand(LoadConnectedDevice);
             AndroidIdLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
-            OutputImageCommand = new DelegateCommand(ExportScreenshot);
+            
+            OutputImageCommand = new DelegateCommand(() =>
+            {
+                if (_currentDevice == "未连接任何设备")
+                {
+                    ShowToast("请先刷新并连接设备");
+                    return;
+                }
+
+                var dialogParameters = new DialogParameters
+                {
+                    { "device", _currentDevice }
+                };
+
+                _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
+            });
 
             ScreenshotCommand = new DelegateCommand(() =>
             {
@@ -408,7 +423,7 @@ namespace DevKit.ViewModels
                     .Append($"/sdcard/{fileName}")
                     .ToCommandLine();
                 new CommandExecutor(cmdStr).Execute("adb");
-                ExportScreenshot();
+                ShowToast("屏幕截取成功");
             });
 
             ShowLogcatCommand = new DelegateCommand(() =>
@@ -669,22 +684,6 @@ namespace DevKit.ViewModels
             Clipboard.SetDataObject(dataObject);
 
             ShowToast("参数已复制");
-        }
-
-        private void ExportScreenshot()
-        {
-            if (CurrentDevice == "未连接任何设备")
-            {
-                ShowToast("请先刷新并连接设备");
-                return;
-            }
-
-            var dialogParameters = new DialogParameters
-            {
-                { "device", _currentDevice }
-            };
-
-            _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
         }
 
         private async Task InstallApplicationAsync()
