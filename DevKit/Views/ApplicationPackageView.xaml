@@ -382,8 +382,7 @@
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}"
-                                                 Value="True">
+                                    <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
                                         <Setter Property="BorderBrush" Value="#2E7CF6" />
                                         <Setter Property="Effect">
                                             <Setter.Value>
@@ -435,8 +434,7 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}"
-                                                             Value="">
+                                                <DataTrigger Binding="{Binding Text, ElementName=ApkSearchTextBox}" Value="">
                                                     <Setter Property="Visibility" Value="Visible" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -539,9 +537,7 @@
                     <ListBox.Template>
                         <ControlTemplate TargetType="ListBox">
                             <Grid>
-                                <ScrollViewer
-                                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                                     <ItemsPresenter />
                                 </ScrollViewer>
 

@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="600"
+    Width="960"
     Height="700"
     d:DataContext="{d:DesignInstance Type=vm:JNIReverseViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -338,10 +338,8 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsKeyboardFocused" Value="True">
-                                                        <Setter TargetName="FieldBorder" Property="BorderBrush"
-                                                                Value="#2E7CF6" />
-                                                        <Setter TargetName="FieldBorder" Property="Background"
-                                                                Value="White" />
+                                                        <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                                        <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -462,13 +460,20 @@
 
                             <Border Grid.Row="1" Background="#1fe7ebf1" />
 
-                            <TextBlock
+                            <TextBox
                                 Grid.Row="2"
-                                Padding="12,8"
-                                FontFamily="Consolas"
+                                Margin="4,8"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                FontFamily="微软雅黑"
                                 FontSize="14"
-                                Foreground="#7ee2a0"
-                                Text="{Binding OutputResult}" />
+                                Foreground="#4ADE80"
+                                HorizontalScrollBarVisibility="Auto"
+                                IsReadOnly="True"
+                                Text="{Binding OutputResult}"
+                                TextWrapping="NoWrap"
+                                VerticalScrollBarVisibility="Auto" />
                         </Grid>
                     </Border>
                 </Grid>

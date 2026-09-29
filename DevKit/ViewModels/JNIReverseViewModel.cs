@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -155,53 +154,54 @@ namespace DevKit.ViewModels
                     return;
                 }
 
+                var addr2linePath = Path.Combine(
+                    _ndkPath, "toolchains", "llvm", "prebuilt", "windows-x86_64", "bin",
+                    "aarch64-linux-android-addr2line.exe");
+                if (!File.Exists(addr2linePath))
+                {
+                    MessageBox.Show("请检查 NDK 是否完整。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
                 if (!string.IsNullOrEmpty(_outputResult))
                 {
                     OutputResult = string.Empty;
                 }
 
-                var list = new List<string>();
-                await Task.Run(() => ExecuteCommand(list));
-                var builder = new StringBuilder();
-                foreach (var str in list)
+                var argument = new ArgumentCreator();
+                argument.Append("-e")
+                    .Append(_sharedLibPath)
+                    .Append("-f")
+                    .Append("-C")
+                    .Append(_stackAddress);
+                
+                var result = await ExecuteAsync(addr2linePath, argument.ToCommandLine());
+                if (result.ExitCode != 0)
                 {
-                    builder.Append(str).Append(Environment.NewLine);
-                }
-
-                if (builder.ToString().Contains("Exception"))
-                {
-                    MessageBox.Show(builder.ToString(), "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(result.Output, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                OutputResult = builder.ToString();
+                OutputResult = result.Output;
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-        private void ExecuteCommand(List<string> list)
+        
+        private Task<(int ExitCode, string Output)> ExecuteAsync(string toolPath, string arguments)
         {
-            // D:\Dev\Android\Sdk\ndk\21.4.7075529
-            var toolPath = $"{_ndkPath}/toolchains/llvm/prebuilt/windows-x86_64/bin";
-            var keytoolPath = Path.Combine(toolPath, "aarch64-linux-android-addr2line.exe");
-            if (!File.Exists(keytoolPath))
+            return Task.Run(() =>
             {
-                MessageBox.Show("请检查 NDK 是否完整。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                var lines = new List<string>();
+                var executor = new CommandExecutor(arguments);
+                executor.OnStandardOutput += lines.Add;
+                executor.OnStandardError += lines.Add;
 
-            var argument = new ArgumentCreator();
-            argument.Append("-e")
-                .Append(_sharedLibPath)
-                .Append("-f")
-                .Append("-C")
-                .Append(_stackAddress);
-            var executor = new CommandExecutor(argument.ToCommandLine());
-            executor.OnStandardOutput += list.Add;
-            executor.Execute(keytoolPath);
+                var exitCode = executor.Execute(toolPath);
+                return (exitCode, string.Join(Environment.NewLine, lines));
+            });
         }
     }
 }
