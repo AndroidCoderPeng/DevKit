@@ -888,8 +888,9 @@
                                     Background="Transparent"
                                     BorderThickness="0"
                                     ItemsSource="{Binding ExCommandCollection}"
+                                    ScrollViewer.CanContentScroll="False"
                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
