@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="960"
+    Width="1080"
     Height="660"
     d:DataContext="{d:DesignInstance Type=vm:NetConfigurationViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -884,7 +884,10 @@
                                 Foreground="{StaticResource SecondaryTextBrush}"
                                 Text="参数" />
 
-                            <TextBox IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}" Style="{StaticResource FieldTextBoxStyle}" />
+                            <TextBox
+                                IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}"
+                                Style="{StaticResource FieldTextBoxStyle}"
+                                Text="{Binding CommandParam}" />
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -1060,15 +1063,13 @@
                             AcceptsReturn="True"
                             Background="{StaticResource TerminalBodyBrush}"
                             BorderThickness="0"
-                            CaretBrush="#3DDC84"
                             FontFamily="Consolas"
                             FontSize="14"
                             Foreground="#C9D1D9"
-                            HorizontalScrollBarVisibility="Disabled"
+                            HorizontalScrollBarVisibility="Auto"
                             IsReadOnly="True"
                             Text="{Binding OutputResult}"
-                            TextWrapping="Wrap"
-                            VerticalScrollBarVisibility="Auto" />
+                            TextWrapping="NoWrap" />
                     </Grid>
                 </Border>
             </Grid>

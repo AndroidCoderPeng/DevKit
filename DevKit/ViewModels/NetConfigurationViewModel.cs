@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -197,8 +198,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        /////////////////////////////////////////////////////
-
         private ObservableCollection<CommandCmdModel> _commandItems =
             new ObservableCollection<CommandCmdModel>();
 
@@ -212,18 +211,18 @@ namespace DevKit.ViewModels
             }
         }
 
-        private bool _isLoopBoxChecked = true;
+        private string _commandParam = string.Empty;
 
-        public bool IsLoopBoxChecked
+        public string CommandParam
         {
+            get => _commandParam;
             set
             {
-                _isLoopBoxChecked = value;
+                _commandParam = value;
                 RaisePropertyChanged();
             }
-            get => _isLoopBoxChecked;
         }
-
+        
         private string _outputResult = string.Empty;
 
         public string OutputResult
@@ -234,6 +233,20 @@ namespace DevKit.ViewModels
                 _outputResult = value;
                 RaisePropertyChanged();
             }
+        }
+
+        /////////////////////////////////////////////////////
+
+        private bool _isLoopBoxChecked = true;
+
+        public bool IsLoopBoxChecked
+        {
+            set
+            {
+                _isLoopBoxChecked = value;
+                RaisePropertyChanged();
+            }
+            get => _isLoopBoxChecked;
         }
 
         #endregion
@@ -306,68 +319,89 @@ namespace DevKit.ViewModels
                 ShowToast("参数已复制");
             });
 
+            CommandCmdModel selectedCommand = null;
             CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
+                if (item == null) return;
+                
+                // 记录选中项，「执行」按钮要用它拼命令行
+                selectedCommand = item;
+                
                 if (item.NeedParams)
                 {
-                    // 拼接参数，然后点击才执行
+                    // 需要参数的命令：这里只提示，参数填好后点「执行」才真正运行
+                    ShowToast($"{item.Command} 需要参数，请在下方「参数」框中填写后点击「执行」。");
                 }
                 else
                 {
-                    // 直接执行
+                    // 不需要参数的命令，选中即执行
                     ExecuteCommand(item.Command);
                 }
             });
 
-            TestNetCommand = new DelegateCommand(TestNet);
-        }
+            TestNetCommand = new DelegateCommand(() =>
+            {
+                var item = selectedCommand;
+                if (item == null)
+                {
+                    ShowToast("请先选择命令");
+                    return;
+                }
+                
+                if (!item.NeedParams)
+                {
+                    // 不需要参数的命令，选中时已经跑过了，这里再点就再跑一次
+                    ExecuteCommand(item.Command);
+                    return;
+                }
+                
+                var param = (CommandParam ?? string.Empty).Trim();
+                if (string.IsNullOrEmpty(param))
+                {
+                    ShowToast("请先输入参数");
+                    return;
+                }
+                
+                var command = $"{item.Command} {param}";
 
-        private void TestNet()
-        {
-            // if (_targetAddress.IsIp())
-            // {
-            //     Task.Run(() =>
-            //     {
-            //         var argument = new ArgumentCreator();
-            //         argument.Append("ping").Append(_targetAddress);
-            //         if (_isLoopBoxChecked)
-            //         {
-            //             argument.Append("-t");
-            //         }
-            //
-            //         ExecuteCommand(argument.ToCommandLine());
-            //     });
-            // }
-            // else
-            // {
-            //     Task.Run(async () =>
-            //     {
-            //         var addresses = await Dns.GetHostAddressesAsync(_targetAddress);
-            //         var ip = addresses.FirstOrDefault()?.ToString() ?? string.Empty;
-            //         if (string.IsNullOrEmpty(ip))
-            //         {
-            //             MessageBox.Show("请输入正确的目标地址", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-            //         }
-            //         else
-            //         {
-            //             var argument = new ArgumentCreator();
-            //             argument.Append("ping").Append(ip);
-            //             ExecuteCommand(argument.ToCommandLine());
-            //         }
-            //     });
-            // }
+                // 只有 ping 有 -t 循环开关，其它命令不接受该参数
+                if (string.Equals(item.Command, "ping", StringComparison.OrdinalIgnoreCase) && IsLoopBoxChecked)
+                {
+                    command += " -t";
+                }
+
+                ExecuteCommand(command);
+            });
         }
 
         private void ExecuteCommand(string command)
         {
-            var executor = new CommandExecutor($"/c {command}");
-            var result = new StringBuilder();
-            executor.OnStandardOutput += delegate(string value)
+            if (string.IsNullOrWhiteSpace(command))
             {
-                result.AppendLine(value);
-                OutputResult = result.ToString();
-            };
-            executor.Execute("cmd");
+                return;
+            }
+            
+            // 每次执行前清屏，避免新旧输出混在一起
+            OutputResult = string.Empty;
+            
+            var arguments = $"/c {command}";
+            Task.Run(() =>
+            {
+                var executor = new CommandExecutor(arguments);
+                var buffer = new StringBuilder();
+
+                Action<string> append = line =>
+                {
+                    buffer.AppendLine(line);
+                    var snapshot = buffer.ToString();
+                    Application.Current?.Dispatcher.InvokeAsync(() => OutputResult = snapshot);
+                };
+
+                executor.OnStandardOutput += append;
+                executor.OnStandardError += append;
+
+                executor.Execute("cmd");
+            });
         }
 
         // ---- 私有辅助函数 -----
@@ -464,7 +498,7 @@ namespace DevKit.ViewModels
                 : "未启用";
         }
 
-        private (string, SolidColorBrush ) GetConnectionState(string ip)
+        private (string, SolidColorBrush) GetConnectionState(string ip)
         {
             var network = FindNetworkInterface(ip);
 
