@@ -353,6 +353,35 @@
             </Setter>
         </Style>
 
+        <!--  Color 卡片按钮：点击打开所在文件夹  -->
+        <Style x:Key="ColorCardButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="CardBorder"
+                            Padding="14,8"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="18">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
@@ -850,6 +879,7 @@
 
                         <ListBox
                             Grid.Row="1"
+                            Margin="0,12,0,0"
                             Background="Transparent"
                             BorderThickness="0"
                             ItemsSource="{Binding RecentlyColors}"
@@ -893,7 +923,7 @@
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Columns="4" />
+                                    <WrapPanel />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
 
@@ -910,6 +940,30 @@
                                     </Setter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        Command="{Binding DataContext.RecentlyColorSelectedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource ColorCardButtonStyle}">
+                                        <Button.Content>
+                                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                                <Ellipse
+                                                    Width="16"
+                                                    Height="16"
+                                                    Fill="{Binding}" />
+
+                                                <TextBlock
+                                                    Margin="12,0,0,0"
+                                                    FontFamily="Consolas"
+                                                    FontSize="16"
+                                                    Text="{Binding}" />
+                                            </StackPanel>
+                                        </Button.Content>
+                                    </Button>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
                 </Grid>

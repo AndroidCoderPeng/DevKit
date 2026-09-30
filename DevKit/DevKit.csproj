@@ -209,7 +209,6 @@
     <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\NetConfigurationViewModel.cs" />
-    <Compile Include="ViewModels\RecentlyColorModel.cs" />
     <Compile Include="ViewModels\ScreenshotExportDialogViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />

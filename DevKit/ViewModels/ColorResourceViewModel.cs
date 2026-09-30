@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -29,6 +30,10 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.RecentlyColor, new RecentlyColorConfig
+            {
+                Colors = _recentlyColors.Take(10).ToList()
+            });
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -133,10 +138,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<RecentlyColorModel> _recentlyColors =
-            new ObservableCollection<RecentlyColorModel>();
+        private ObservableCollection<string> _recentlyColors = new ObservableCollection<string>();
 
-        public ObservableCollection<RecentlyColorModel> RecentlyColors
+        public ObservableCollection<string> RecentlyColors
         {
             get => _recentlyColors;
             set
@@ -182,7 +186,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> RedColorTextChangedCommand { set; get; }
         public DelegateCommand<string> GreenColorTextChangedCommand { set; get; }
         public DelegateCommand<string> BlueColorTextChangedCommand { set; get; }
-        public DelegateCommand<RecentlyColorModel> RecentlyColorSelectedCommand { set; get; }
+        public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
         //////////////////////////////////////
         // public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
@@ -195,6 +199,9 @@ namespace DevKit.ViewModels
 
         public ColorResourceViewModel()
         {
+            var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.RecentlyColor);
+            RecentlyColors = new ObservableCollection<string>(config.Colors);
+            
             Task.Run(async () => await LoadColorResourcesAsync());
 
             var color = Color.FromRgb(0, 0, 0);
