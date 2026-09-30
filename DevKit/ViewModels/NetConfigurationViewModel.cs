@@ -198,9 +198,9 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         /////////////////////////////////////////////////////
-        
+
         private ObservableCollection<CommandCmdModel> _commandItems =
             new ObservableCollection<CommandCmdModel>();
 
@@ -263,21 +263,21 @@ namespace DevKit.ViewModels
         #endregion
 
         private DispatcherTimer _toastTimer;
-        
+
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
             AddressItems.AddRange(appDataService.GetIPv4Address());
             CommandItems = new ObservableCollection<CommandCmdModel>
             {
-                new CommandCmdModel { Command = "ipconfig /all", Description = "查看完整网卡信息" },
-                new CommandCmdModel { Command = "ping", Description = "测试网络连通性" },
-                new CommandCmdModel { Command = "tracert", Description = "查看网络路由路径" },
-                new CommandCmdModel { Command = "nslookup", Description = "查询 DNS 解析" },
-                new CommandCmdModel { Command = "arp -a", Description = "查看 ARP 缓存" },
-                new CommandCmdModel { Command = "route print", Description = "查看本机路由表" },
-                new CommandCmdModel { Command = "netstat -ano", Description = "查看端口和进程 PID" },
-                new CommandCmdModel { Command = "hostname", Description = "查看计算机名" },
-                new CommandCmdModel { Command = "getmac", Description = "查看网卡 MAC 地址" }
+                new CommandCmdModel { Command = "ipconfig /all", Description = "查看完整网卡信息", NeedParams = false },
+                new CommandCmdModel { Command = "ping", Description = "测试网络连通性", NeedParams = true },
+                new CommandCmdModel { Command = "tracert", Description = "查看网络路由路径", NeedParams = true },
+                new CommandCmdModel { Command = "nslookup", Description = "查询 DNS 解析", NeedParams = true },
+                new CommandCmdModel { Command = "arp -a", Description = "查看 ARP 缓存", NeedParams = false },
+                new CommandCmdModel { Command = "route print", Description = "查看本机路由表", NeedParams = false },
+                new CommandCmdModel { Command = "netstat -ano", Description = "查看端口和进程 PID", NeedParams = false },
+                new CommandCmdModel { Command = "hostname", Description = "查看计算机名", NeedParams = false },
+                new CommandCmdModel { Command = "getmac", Description = "查看网卡 MAC 地址", NeedParams = false }
             };
 
             AddressItemSelectedCommand = new DelegateCommand<string>(ip =>
@@ -319,7 +319,7 @@ namespace DevKit.ViewModels
 
                 ShowToast("参数已复制");
             });
-            
+
             CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
                 // if (commandValue.Equals("ping"))
@@ -491,7 +491,7 @@ namespace DevKit.ViewModels
 
             return ("未连接", new SolidColorBrush(Colors.LightGray));
         }
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;

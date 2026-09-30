@@ -793,8 +793,9 @@
                             BorderThickness="0"
                             ItemContainerStyle="{StaticResource CommandItemStyle}"
                             ItemsSource="{Binding CommandItems}"
+                            ScrollViewer.CanContentScroll="False"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -803,19 +804,38 @@
                                             <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock
-                                            x:Name="CommandText"
-                                            Grid.Column="0"
-                                            FontFamily="Consolas"
-                                            FontSize="14"
-                                            Foreground="{StaticResource DevKitTextBrush}"
-                                            Text="{Binding Command}"
-                                            TextTrimming="CharacterEllipsis" />
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock
+                                                x:Name="CommandText"
+                                                FontFamily="Consolas"
+                                                FontSize="15"
+                                                Foreground="{StaticResource DevKitTextBrush}"
+                                                Text="{Binding Command}"
+                                                TextTrimming="CharacterEllipsis" />
+
+                                            <TextBlock
+                                                x:Name="ParamFlagTextBlock"
+                                                Margin="4,0,0,0"
+                                                FontSize="15"
+                                                FontWeight="Bold"
+                                                Foreground="{StaticResource AccentBrush}"
+                                                Text="@">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding NeedParams}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
 
                                         <TextBlock
                                             Grid.Column="1"
                                             HorizontalAlignment="Right"
-                                            FontSize="14"
                                             Foreground="{StaticResource TertiaryTextBrush}"
                                             Text="{Binding Description}"
                                             TextTrimming="CharacterEllipsis" />
@@ -837,18 +857,28 @@
                             </b:Interaction.Triggers>
                         </ListBox>
 
-                        <StackPanel Grid.Row="2" Margin="0,12,0,0">
-                            <Border Height="1" Background="{StaticResource BorderStrongBrush}" />
+                        <StackPanel Grid.Row="2">
+                            <Grid Margin="0,0,0,8">
+                                <Line
+                                    SnapsToDevicePixels="True"
+                                    Stroke="{DynamicResource DevKitBorderBrush}"
+                                    StrokeDashArray="2,2"
+                                    StrokeThickness="1.5"
+                                    X1="0"
+                                    X2="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                                    Y1="0.5"
+                                    Y2="0.5" />
+                            </Grid>
 
                             <TextBlock
-                                Margin="0,12,0,6"
+                                Margin="0,0,0,6"
                                 FontSize="13"
                                 Foreground="{StaticResource SecondaryTextBrush}"
-                                Text="目标地址" />
+                                Text="参数" />
 
                             <TextBox Style="{StaticResource FieldTextBoxStyle}" Text="{Binding TargetAddress}" />
 
-                            <Grid Margin="0,12,0,0">
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
@@ -895,7 +925,7 @@
                     Grid.Column="1"
                     Margin="14,0,0,0"
                     Background="#0C0C0C"
-                    CornerRadius="8">
+                    CornerRadius="16">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
