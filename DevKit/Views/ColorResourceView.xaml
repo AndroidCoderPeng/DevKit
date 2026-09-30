@@ -537,8 +537,21 @@
                                 <TextBlock
                                     FontFamily="Consolas"
                                     FontSize="14"
-                                    Foreground="{StaticResource DevKitTextBrush}"
-                                    Text="{Binding AlphaValue, StringFormat={}Alpha {0}, FallbackValue=Alpha 255}" />
+                                    Foreground="{StaticResource DevKitTextBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="True">
+                                                    <Setter Property="Text" Value="{Binding AlphaValue, StringFormat={}Alpha {0}, FallbackValue=Alpha 255}" />
+                                                </DataTrigger>
+
+                                                <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="False">
+                                                    <Setter Property="Text" Value="不透明" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Border>
 
                             <!--  悬停提示  -->
