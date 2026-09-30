@@ -22,10 +22,9 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-
         <LinearGradientBrush x:Key="ExportProgressForegroundBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Offset="0.0" Color="#2e7cf6" />
-            <GradientStop Offset="1.0" Color="#6aa9ff" />
+            <GradientStop Offset="0.0" Color="{StaticResource DevKitAccentColor}" />
+            <GradientStop Offset="1.0" Color="{StaticResource DevKitAccentLightColor}" />
         </LinearGradientBrush>
 
         <!--  普通按钮：白底灰框，hover 蓝（对应设计稿 .btn）  -->
@@ -502,7 +501,7 @@
                                                 BlurRadius="6"
                                                 Opacity="0.18"
                                                 ShadowDepth="0"
-                                                Color="#2E7CF6" />
+                                                Color="{StaticResource DevKitAccentColor}" />
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>

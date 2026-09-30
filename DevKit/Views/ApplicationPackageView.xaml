@@ -22,16 +22,14 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-
-        <!--  APK 图标渐变（绿色）  -->
         <LinearGradientBrush x:Key="ApkIconBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Offset="0.0" Color="#6fe0a5" />
-            <GradientStop Offset="1.0" Color="#17a95c" />
+            <GradientStop Offset="0.0" Color="{StaticResource DevKitGreenLightColor}" />
+            <GradientStop Offset="1.0" Color="{StaticResource DevKitSuccessColor}" />
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="ScanProgressForegroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Offset="0.0" Color="#6fe0a5" />
-            <GradientStop Offset="1.0" Color="#17a95c" />
+            <GradientStop Offset="0.0" Color="{StaticResource DevKitGreenLightColor}" />
+            <GradientStop Offset="1.0" Color="{StaticResource DevKitSuccessColor}" />
         </LinearGradientBrush>
 
         <!--  普通按钮：白底灰框，hover 蓝  -->
@@ -388,7 +386,7 @@
                                                     BlurRadius="6"
                                                     Opacity="0.18"
                                                     ShadowDepth="0"
-                                                    Color="#2E7CF6" />
+                                                    Color="{StaticResource DevKitAccentColor}" />
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>

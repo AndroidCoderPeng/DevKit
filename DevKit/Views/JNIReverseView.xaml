@@ -21,7 +21,6 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="34" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
