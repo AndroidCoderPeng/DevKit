@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -222,7 +222,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private string _outputResult = string.Empty;
 
         public string OutputResult
@@ -235,6 +235,36 @@ namespace DevKit.ViewModels
             }
         }
 
+        private bool _isRunning;
+
+        public bool IsRunning
+        {
+            get => _isRunning;
+            set
+            {
+                _isRunning = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(CanRunOrStop));
+            }
+        }
+
+        /// <summary>
+        /// 「执行 / 停止」按钮是否可用：运行中必须能停下来
+        /// </summary>
+        public bool CanRunOrStop => IsRunning || (_selectedCommand != null && _selectedCommand.NeedParams);
+
+        private bool _isAutoScrollBoxChecked = true;
+
+        public bool IsAutoScrollBoxChecked
+        {
+            get => _isAutoScrollBoxChecked;
+            set
+            {
+                _isAutoScrollBoxChecked = value;
+                RaisePropertyChanged();
+            }
+        }
+        
         /////////////////////////////////////////////////////
 
         private bool _isLoopBoxChecked = true;
@@ -257,11 +287,16 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> AddressItemSelectedCommand { set; get; }
         public DelegateCommand<string> InfoItemCopyCommand { set; get; }
         public DelegateCommand<CommandCmdModel> CommandItemSelectedCommand { set; get; }
-        public DelegateCommand TestNetCommand { set; get; }
+        public DelegateCommand ExecuteOrStopCommand { set; get; }
+        public DelegateCommand ClearTerminalCommand { set; get; }
+        public DelegateCommand CopyTerminalCommand { set; get; }
 
         #endregion
 
         private DispatcherTimer _toastTimer;
+        private CommandCmdModel _selectedCommand;
+        private Process _runningProcess;
+        private int _runToken;
 
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
@@ -319,18 +354,17 @@ namespace DevKit.ViewModels
                 ShowToast("参数已复制");
             });
 
-            CommandCmdModel selectedCommand = null;
             CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
                 if (item == null) return;
-                
-                // 记录选中项，「执行」按钮要用它拼命令行
-                selectedCommand = item;
-                
+
+                _selectedCommand = item;
+                RaisePropertyChanged(nameof(CanRunOrStop));
+
                 if (item.NeedParams)
                 {
                     // 需要参数的命令：这里只提示，参数填好后点「执行」才真正运行
-                    ShowToast($"{item.Command} 需要参数，请在下方「参数」框中填写后点击「执行」。");
+                    CommandParam = string.Empty;
                 }
                 else
                 {
@@ -339,29 +373,36 @@ namespace DevKit.ViewModels
                 }
             });
 
-            TestNetCommand = new DelegateCommand(() =>
+            ExecuteOrStopCommand = new DelegateCommand(() =>
             {
-                var item = selectedCommand;
+                if (IsRunning)
+                {
+                    StopRunningCommand();
+                    ShowToast("[已停止当前命令]");
+                    return;
+                }
+
+                var item = _selectedCommand;
                 if (item == null)
                 {
                     ShowToast("请先选择命令");
                     return;
                 }
-                
+
                 if (!item.NeedParams)
                 {
                     // 不需要参数的命令，选中时已经跑过了，这里再点就再跑一次
                     ExecuteCommand(item.Command);
                     return;
                 }
-                
+
                 var param = (CommandParam ?? string.Empty).Trim();
                 if (string.IsNullOrEmpty(param))
                 {
                     ShowToast("请先输入参数");
                     return;
                 }
-                
+
                 var command = $"{item.Command} {param}";
 
                 // 只有 ping 有 -t 循环开关，其它命令不接受该参数
@@ -372,36 +413,124 @@ namespace DevKit.ViewModels
 
                 ExecuteCommand(command);
             });
+
+            ClearTerminalCommand = new DelegateCommand(() => OutputResult = string.Empty);
+
+            CopyTerminalCommand = new DelegateCommand(() =>
+            {
+                if (string.IsNullOrEmpty(OutputResult))
+                {
+                    ShowToast("暂无可复制的输出");
+                    return;
+                }
+
+                Clipboard.SetDataObject(new DataObject(DataFormats.UnicodeText, OutputResult));
+                ShowToast("输出已复制");
+            });
         }
 
         private void ExecuteCommand(string command)
         {
-            if (string.IsNullOrWhiteSpace(command))
+            if (string.IsNullOrWhiteSpace(command)) return;
+
+            if (_isRunning)
             {
-                return;
+                StopRunningCommand();
             }
-            
+
             // 每次执行前清屏，避免新旧输出混在一起
             OutputResult = string.Empty;
-            
-            var arguments = $"/c {command}";
-            Task.Run(() =>
+
+            // 本轮代次，用来丢掉旧命令残留的输出回调
+            var token = ++_runToken;
+            var executor = new CommandExecutor($"/c {command}");
+
+            Action<string> append = line =>
             {
-                var executor = new CommandExecutor(arguments);
-                var buffer = new StringBuilder();
-
-                Action<string> append = line =>
+                if (token != _runToken)return;
+                Application.Current?.Dispatcher.InvokeAsync(() =>
                 {
-                    buffer.AppendLine(line);
-                    var snapshot = buffer.ToString();
-                    Application.Current?.Dispatcher.InvokeAsync(() => OutputResult = snapshot);
-                };
+                    if (token != _runToken)return;
+                    OutputResult += line + Environment.NewLine;
+                });
+            };
 
-                executor.OnStandardOutput += append;
-                executor.OnStandardError += append;
+            executor.OnStandardOutput += append;
+            executor.OnStandardError += append;
 
-                executor.Execute("cmd");
-            });
+            try
+            {
+                var process = executor.StartNonBlocking("cmd");
+                _runningProcess = process;
+                IsRunning = true;
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        process.WaitForExit();
+                        process.WaitForExit();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                    Application.Current?.Dispatcher.InvokeAsync(() =>
+                    {
+                        if (token != _runToken)return;
+
+                        _runningProcess = null;
+                        IsRunning = false;
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _runningProcess = null;
+                IsRunning = false;
+                OutputResult += ex.Message + Environment.NewLine;
+            }
+        }
+
+        private void StopRunningCommand()
+        {
+            var process = _runningProcess;
+            _runningProcess = null;
+
+            // 让旧命令还没送达的输出回调全部作废
+            _runToken++;
+
+            if (process == null)
+            {
+                IsRunning = false;
+                return;
+            }
+
+            try
+            {
+                if (!process.HasExited)
+                {
+                    KillProcessTree(process.Id);
+                    process.WaitForExit(2000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    process.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+                IsRunning = false;
+            }
         }
 
         // ---- 私有辅助函数 -----
@@ -532,6 +661,31 @@ namespace DevKit.ViewModels
 
             _toastTimer.Stop();
             _toastTimer.Start();
+        }
+
+        /// <summary>
+        /// 结束整棵进程树：cmd /c 会派生子进程，只杀 cmd 的话 ping 会变成孤儿进程继续跑。
+        /// </summary>
+        private static void KillProcessTree(int processId)
+        {
+            try
+            {
+                using (var killer = Process.Start(new ProcessStartInfo
+                       {
+                           FileName = "taskkill",
+                           Arguments = $"/T /F /PID {processId}",
+                           UseShellExecute = false,
+                           CreateNoWindow = true
+                       }))
+                {
+                    killer?.WaitForExit(2000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($@"taskkill 失败，退化为 Kill 当前进程：{ex.Message}");
+                Process.GetProcessById(processId).Kill();
+            }
         }
     }
 }

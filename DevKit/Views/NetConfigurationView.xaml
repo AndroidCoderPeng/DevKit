@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="1080"
+    Width="960"
     Height="660"
     d:DataContext="{d:DesignInstance Type=vm:NetConfigurationViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
@@ -391,8 +391,8 @@
             <Setter Property="CornerRadius" Value="15" />
         </Style>
 
-        <!--  ========== 主按钮（执行） ==========  -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <!--  执行 / 停止 双态按钮：运行中变红，hover / 按下红蓝不串色  -->
+        <Style x:Key="RunOrStopButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="16,0" />
             <Setter Property="FontSize" Value="13" />
@@ -405,7 +405,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border
-                            x:Name="PrimaryButtonBorder"
+                            x:Name="RunButtonBorder"
                             Padding="{TemplateBinding Padding}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
@@ -414,13 +414,38 @@
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
+                            <!--  空闲态：蓝色系  -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="PrimaryButtonBorder" Property="Background" Value="#1F6EE8" />
-                                <Setter TargetName="PrimaryButtonBorder" Property="BorderBrush" Value="#1F6EE8" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#1F6EE8" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#1F6EE8" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="PrimaryButtonBorder" Property="Background" Value="#1A5FCC" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#1A5FCC" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#1A5FCC" />
                             </Trigger>
+
+                            <!--  运行态：红色系（Tag 由 Style 里的 DataTrigger 切换）  -->
+                            <Trigger Property="Tag" Value="Danger">
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#E5484D" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#E5484D" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True" />
+                                    <Condition Property="Tag" Value="Danger" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#D13C41" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#D13C41" />
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsPressed" Value="True" />
+                                    <Condition Property="Tag" Value="Danger" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#B83237" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#B83237" />
+                            </MultiTrigger>
+
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
                             </Trigger>
@@ -428,6 +453,11 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                    <Setter Property="Tag" Value="Danger" />
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <!--  ========== 终端标题栏按钮（深色） ==========  -->
@@ -887,7 +917,7 @@
                             <TextBox
                                 IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding CommandParam}" />
+                                Text="{Binding CommandParam, UpdateSourceTrigger=PropertyChanged}" />
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -910,20 +940,63 @@
                                 <Button
                                     Grid.Column="1"
                                     Margin="14,0,0,0"
-                                    Command="{Binding TestNetCommand}"
+                                    Command="{Binding ExecuteOrStopCommand}"
                                     IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}"
-                                    Style="{StaticResource PrimaryButtonStyle}">
+                                    Style="{StaticResource RunOrStopButtonStyle}">
                                     <Button.Content>
                                         <StackPanel Margin="12,0" Orientation="Horizontal">
+                                            <!--  执行：play 三角  -->
                                             <TextBlock
                                                 VerticalAlignment="Center"
                                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                                 FontSize="16"
-                                                Text="&#xe877;" />
+                                                Text="&#xe877;">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+
+
+                                            <!--  停止：方块  -->
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="16"
+                                                Text="&#xe8c8;">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+
                                             <TextBlock
                                                 Margin="8,0,0,0"
-                                                FontSize="13"
-                                                Text="执行" />
+                                                VerticalAlignment="Center"
+                                                FontSize="13">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="执行" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                                <Setter Property="Text" Value="停止" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
                                         </StackPanel>
                                     </Button.Content>
                                 </Button>
@@ -1047,7 +1120,7 @@
                                             FontSize="11.5"
                                             Foreground="{StaticResource TerminalDimBrush}"
                                             Text="自动滚动" />
-                                        <CheckBox IsChecked="{Binding IsAutoScrolBoxChecked}" Style="{StaticResource TerminalSwitchStyle}" />
+                                        <CheckBox IsChecked="{Binding IsAutoScrollBoxChecked}" Style="{StaticResource TerminalSwitchStyle}" />
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -1057,6 +1130,7 @@
 
                         <!--  命令输出  -->
                         <TextBox
+                            x:Name="OutputTextBox"
                             Grid.Row="2"
                             Padding="12,-8,12,0"
                             VerticalAlignment="Top"
