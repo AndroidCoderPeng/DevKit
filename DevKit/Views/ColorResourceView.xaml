@@ -271,6 +271,36 @@
             </Button>
         </Grid>
 
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1.5*" />
+            </Grid.ColumnDefinitions>
+
+            <Border
+                Grid.Column="0"
+                Background="White"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="228" />
+                    </Grid.RowDefinitions>
+                </Grid>
+            </Border>
+
+            <Border
+                Grid.Column="1"
+                Margin="16,0,0,0"
+                Background="White"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16">
+                <Grid />
+            </Border>
+        </Grid>
+
         <Grid Grid.Row="2" Background="White">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
