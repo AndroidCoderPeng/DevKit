@@ -695,6 +695,17 @@
 
                         <!--  A  -->
                         <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="False">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -702,6 +713,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border
+                                Grid.Column="0"
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
@@ -746,6 +758,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border
+                                Grid.Column="0"
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
