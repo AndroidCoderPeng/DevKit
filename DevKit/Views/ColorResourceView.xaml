@@ -1212,9 +1212,23 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock
+                Grid.Column="0"
                 Margin="16"
-                Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                Text="{Binding ColorMode, FallbackValue=RGB → HEX 模式 · 拖动颜色通道实时同步}" />
+                Foreground="{StaticResource DevKitTextSecondaryBrush}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsToHexSelected}" Value="True">
+                                <Setter Property="Text" Value="RGB → HEX 模式 · 拖动通道实时同步" />
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding IsToHexSelected}" Value="False">
+                                <Setter Property="Text" Value="HEX → RGB 模式 · 输入色值反解通道" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <TextBlock
                 Grid.Column="1"

@@ -176,18 +176,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _colorMode = string.Empty;
-
-        public string ColorMode
-        {
-            get => _colorMode;
-            set
-            {
-                _colorMode = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private string _currentColorHex = string.Empty;
 
         public string CurrentColorHex
