@@ -150,8 +150,9 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
-        private ObservableCollection<ColorResourceCache> _colorResources = new ObservableCollection<ColorResourceCache>();
+
+        private ObservableCollection<ColorResourceCache> _colorResources =
+            new ObservableCollection<ColorResourceCache>();
 
         public ObservableCollection<ColorResourceCache> ColorResources
         {
@@ -174,7 +175,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private string _colorMode = string.Empty;
 
         public string ColorMode
@@ -186,7 +187,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private string _currentColorHex = string.Empty;
 
         public string CurrentColorHex
@@ -198,7 +199,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         #endregion
 
         #region DelegateCommand
@@ -225,21 +226,37 @@ namespace DevKit.ViewModels
         {
             var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.RecentlyColor);
             RecentlyColors = new ObservableCollection<string>(config.Colors);
-            
-            Task.Run(async () => await LoadColorResourcesAsync());
+
+            // 加载颜色资源缓存
+            _ = LoadColorResourcesAsync();
         }
 
         private async Task LoadColorResourcesAsync()
         {
             try
             {
-                using (var dataBase = new DataBaseConnection())
+                var colorResCaches = await Task.Run(() =>
                 {
-                    var colorResCaches = await Task.Run(() => dataBase.Table<ColorResourceCache>().ToList());
+                    using (var dataBase = new DataBaseConnection())
+                    {
+                        return dataBase.Table<ColorResourceCache>().ToList();
+                    }
+                });
+
+                const int batchSize = 32;
+                for (var index = 0; index < colorResCaches.Count; index += batchSize)
+                {
+                    var batch = colorResCaches.Skip(index).Take(batchSize).ToList();
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        ColorResources = colorResCaches.ToObservableCollection();
+                        foreach (var color in batch)
+                        {
+                            ColorResources.Add(color);
+                        }
                     });
+
+                    // 让 ListBox 有机会逐批渲染
+                    await Task.Delay(10);
                 }
             }
             catch (Exception ex)
