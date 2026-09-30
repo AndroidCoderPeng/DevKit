@@ -465,6 +465,7 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                FontSize="14"
                 Text="设备上还没有截屏，点「截取屏幕」试试"
                 Visibility="{Binding EmptyVisibility}" />
         </Grid>
