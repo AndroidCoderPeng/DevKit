@@ -1,8 +1,63 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:o="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
-    <SolidColorBrush o:Freeze="True" x:Key="DevKitBackgroundBrush" Color="{DynamicResource DevKitBackgroundColor}" />
-    <SolidColorBrush o:Freeze="True" x:Key="DevKitBorderBrush" Color="{DynamicResource DevKitBorderColor}" />
-    <SolidColorBrush o:Freeze="True" x:Key="DevKitMouseOverBrush" Color="{DynamicResource DevKitMouseOverColor}" />
-    <SolidColorBrush o:Freeze="True" x:Key="DevKitTextBrush" Color="{DynamicResource DevKitTextColor}" />
+    <!-- ===== 背景 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitBackgroundBrush" Color="#F7F9FC" />
+
+    <!-- ===== 品牌主色（蓝） ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentBrush" Color="#2E7CF6" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentHoverBrush" Color="#1C6AE0" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentPressedBrush" Color="#1556C0" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentLightBrush" Color="#6AA9FF" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentSoftBrush" Color="#EAF1FE" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccentPressedSoftBrush" Color="#D9E7FD" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccent12Brush" Color="#1F2E7CF6" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAccent35Brush" Color="#592E7CF6" />
+
+    <!-- ===== 文本 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTextBrush" Color="#1B1B1B" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTextSecondaryBrush" Color="#5F6B7A" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTextMutedBrush" Color="#93A0AE" />
+
+    <!-- ===== 成功 / 绿 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitSuccessBrush" Color="#17A95C" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitSuccess12Brush" Color="#1F17A95C" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitSuccess35Brush" Color="#5917A95C" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitGreenLightBrush" Color="#6FE0A5" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAndroidGreenBrush" Color="#3DDC84" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAndroidGreen12Brush" Color="#1F3DDC84" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAndroidGreen18Brush" Color="#2E3DDC84" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitAndroidGreen35Brush" Color="#593DDC84" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitGreenHoverBrush" Color="#E9F7F0" />
+
+    <!-- ===== 危险 / 红 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDangerBrush" Color="#E5484D" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDangerHoverBrush" Color="#D13C41" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDangerPressedBrush" Color="#C93A3F" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDangerSoftBrush" Color="#FDEBEC" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDangerBorderBrush" Color="#F0C4C6" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitDanger40Brush" Color="#66E5484D" />
+
+    <!-- ===== 警告 / 紫 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitWarningBrush" Color="#F2994A" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitPurpleBrush" Color="#7C5CFF" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitPurple12Brush" Color="#1F7C5CFF" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitPurple35Brush" Color="#597C5CFF" />
+
+    <!-- ===== 表面 / 边框 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitSurfaceBrush" Color="#F7F9FC" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitBorderBrush" Color="#EEEFF0" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitBorderStrongBrush" Color="#DFE3EA" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitIconMutedBrush" Color="#C6CDD6" />
+
+    <!-- ===== 终端 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTerminalBackgroundBrush" Color="#0C0C0C" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTerminalDividerBrush" Color="#1FE7EBF1" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTrafficRedBrush" Color="#FF5F57" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTrafficYellowBrush" Color="#FEBC2E" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitTrafficGreenBrush" Color="#28C840" />
+
+    <!-- ===== 阴影 / 遮罩 ===== -->
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitShadowBrush" Color="#13223D" />
+    <SolidColorBrush o:Freeze="True" x:Key="DevKitToastBrush" Color="#CC2B2B2B" />
 </ResourceDictionary>

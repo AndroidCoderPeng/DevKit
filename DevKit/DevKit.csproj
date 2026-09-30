@@ -275,8 +275,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Colors\ColorBrushes.xaml" />
-    <Page Include="Colors\DarkColor.xaml" />
-    <Page Include="Colors\LightColor.xaml" />
     <Page Include="Dialogs\AndroidLogcatDialog.xaml" />
     <Page Include="Dialogs\CommandScriptDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
