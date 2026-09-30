@@ -69,27 +69,6 @@ body {
     overflow: hidden;
 }
 
-/* ================= 格式提示 ================= */
-.status-badge {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    font-size: 11.5px;
-    color: var(--text-2);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    white-space: nowrap;
-}
-
-.status-badge b {
-    font-family: var(--mono);
-    font-weight: 600;
-    color: var(--text);
-}
-
 /* ================= 工具栏 ================= */
 .toolbar {
     display: flex;
@@ -792,9 +771,5 @@ body {
 
     .palette-scroll {
         max-height: 260px;
-    }
-
-    .status-badge {
-        display: none;
     }
 }

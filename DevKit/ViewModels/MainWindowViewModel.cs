@@ -71,8 +71,8 @@ namespace DevKit.ViewModels
 
         private readonly Dictionary<string, string> _otherToolMap = new Dictionary<string, string>
         {
-            { "颜色值转换", "ColorResourceView" },
-            { "网络信息", "NetConfigurationView" }
+            { "颜色处理", "ColorResourceView" },
+            { "网络配置", "NetConfigurationView" }
         };
         
         private void OnOtherToolClicked(MainMenuModel model)

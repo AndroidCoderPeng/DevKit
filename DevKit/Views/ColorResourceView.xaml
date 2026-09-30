@@ -10,8 +10,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="800"
-    Height="470"
+    Width="1080"
+    Height="800"
     d:DataContext="{d:DesignInstance Type=vm:ColorResourceViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -25,284 +25,545 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <Style TargetType="TextBlock">
+        <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#F7F9FC" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#93A0AE" />
+        <SolidColorBrush x:Key="BorderStrongBrush" Color="#DFE3EA" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#2E7CF6" />
+
+        <!--  分段控件内的单选按钮  -->
+        <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="16,0" />
             <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="SegmentBorder"
+                            Background="Transparent"
+                            CornerRadius="16"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SegmentBorder" Property="Background" Value="White" />
+                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <cvt:AlphaValueConverter x:Key="AlphaValueConverterKey" />
+        <!--  ========== 开关外壳（胶囊） ==========  -->
+        <Style x:Key="SwitchPillStyle" TargetType="Border">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="12,0,10,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="19" />
+        </Style>
+
+        <!--  ========== 开关 ==========  -->
+        <Style x:Key="SwitchStyle" TargetType="CheckBox">
+            <Setter Property="Background" Value="{StaticResource BorderStrongBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border
+                            x:Name="SwitchTrack"
+                            Width="44"
+                            Height="24"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="12">
+                            <Ellipse
+                                x:Name="SwitchThumb"
+                                Width="18"
+                                Height="18"
+                                Margin="3,0,0,0"
+                                HorizontalAlignment="Left"
+                                Fill="White">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect
+                                        BlurRadius="3"
+                                        Direction="270"
+                                        Opacity="0.25"
+                                        ShadowDepth="1"
+                                        Color="#13223D" />
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="SwitchThumb" Property="Margin" Value="0,0,3,0" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  普通按钮：白底灰框，hover 蓝  -->
+        <Style x:Key="CompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
-    <DockPanel Margin="12" LastChildFill="True">
-        <Grid Width="245">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <UniformGrid Grid.Row="0" Rows="1">
-                    <Border Padding="10,5" Style="{StaticResource BorderTipInfo}">
-                        <TextBlock Text="透明度（A）" />
-                    </Border>
+        <Grid Grid.Row="0" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-                    <TextBox
-                        x:Name="AlphaColorTextBox"
-                        HorizontalContentAlignment="Center"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        MaxLength="3"
-                        Text="{Binding AlphaValue}">
-                        <i:Interaction.Behaviors>
-                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
-                        </i:Interaction.Behaviors>
-
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding AlphaColorTextChangedCommand}" CommandParameter="{Binding ElementName=AlphaColorTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                </UniformGrid>
-
-                <UniformGrid
-                    Grid.Row="1"
-                    Margin="0,10"
-                    Rows="1">
-                    <Border Padding="10,5" Style="{StaticResource BorderTipDanger}">
-                        <TextBlock Text="红色值（R）" />
-                    </Border>
-
-                    <TextBox
-                        x:Name="RedColorTextBox"
-                        HorizontalContentAlignment="Center"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        MaxLength="3"
-                        Text="{Binding RedColor}">
-                        <i:Interaction.Behaviors>
-                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
-                        </i:Interaction.Behaviors>
-
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding RedColorTextChangedCommand}" CommandParameter="{Binding ElementName=RedColorTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                </UniformGrid>
-
-                <UniformGrid Grid.Row="2" Rows="1">
-                    <Border Padding="10,5" Style="{StaticResource BorderTipSuccess}">
-                        <TextBlock Text="绿色值（G）" />
-                    </Border>
-
-                    <TextBox
-                        x:Name="GreenColorTextBox"
-                        HorizontalContentAlignment="Center"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        MaxLength="3"
-                        Text="{Binding GreenColor}">
-                        <i:Interaction.Behaviors>
-                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
-                        </i:Interaction.Behaviors>
-
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding GreenColorTextChangedCommand}" CommandParameter="{Binding ElementName=GreenColorTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                </UniformGrid>
-
-                <UniformGrid
-                    Grid.Row="3"
-                    Margin="0,10"
-                    Rows="1">
-                    <Border Padding="10,5" Style="{StaticResource BorderTipPrimary}">
-                        <TextBlock Text="蓝色值（B）" />
-                    </Border>
-
-                    <TextBox
-                        x:Name="BlueColorTextBox"
-                        HorizontalContentAlignment="Center"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        MaxLength="3"
-                        Text="{Binding BlueColor}">
-                        <i:Interaction.Behaviors>
-                            <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
-                        </i:Interaction.Behaviors>
-
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding BlueColorTextChangedCommand}" CommandParameter="{Binding ElementName=BlueColorTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                </UniformGrid>
-
-                <Grid Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox
-                        x:Name="ColorHexTextBox"
-                        Grid.Column="0"
-                        HorizontalAlignment="Stretch"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding IsHexInputEnabled}"
-                        MaxLength="9"
-                        Text="{Binding ColorHexValue}">
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="TextChanged">
-                                <b:InvokeCommandAction Command="{Binding ColorHexTextChangedCommand}" CommandParameter="{Binding ElementName=ColorHexTextBox, Path=Text}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-
-                    <Button
-                        Grid.Column="1"
-                        Margin="10,0,0,0"
-                        BorderThickness="0"
-                        Command="{Binding CopyColorHexValueCommand}"
-                        Content="复制"
-                        IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
-                        Style="{StaticResource ButtonSuccess}" />
-                </Grid>
-
-                <Grid Grid.Row="5" Margin="0,10,0,0">
-                    <CheckBox
-                        x:Name="ConvertHexCheckBox"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Content="RGB转HEX"
-                        IsChecked="True">
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding HexCheckBoxCheckedCommand}" />
-                            </b:EventTrigger>
-
-                            <b:EventTrigger EventName="Unchecked">
-                                <b:InvokeCommandAction Command="{Binding HexCheckBoxUncheckedCommand}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </CheckBox>
-
-                    <CheckBox
-                        x:Name="AlphaCheckBox"
-                        HorizontalAlignment="Right"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        Content="透明度"
-                        IsChecked="True">
-                        <i:Interaction.Triggers>
-                            <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding AlphaCheckBoxCheckedCommand}" />
-                            </b:EventTrigger>
-
-                            <b:EventTrigger EventName="Unchecked">
-                                <b:InvokeCommandAction Command="{Binding AlphaCheckBoxUncheckedCommand}" />
-                            </b:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </CheckBox>
-                </Grid>
-            </Grid>
-
-            <Grid Grid.Row="1" Margin="0,10,0,0">
-                <Border Background="{Binding ColorViewBrush}" CornerRadius="5" />
+            <StackPanel
+                Grid.Column="0"
+                Margin="16,12"
+                VerticalAlignment="Center"
+                Orientation="Horizontal">
 
                 <TextBlock
-                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    FontFamily="宋体"
-                    FontSize="48"
-                    Text="{Binding ElementName=AlphaColorTextBox, Path=Text, Converter={StaticResource AlphaValueConverterKey}}" />
-            </Grid>
+                    FontSize="16"
+                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                    Text="转换模式" />
+
+                <Border
+                    Margin="8,0,0,0"
+                    Padding="3"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="18">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            Content="RGB → HEX"
+                            GroupName="ColorMode"
+                            IsChecked="{Binding IsHexSelected, Mode=TwoWay}"
+                            Style="{StaticResource SegmentRadioStyle}" />
+
+                        <RadioButton
+                            Content="HEX → RGB"
+                            GroupName="ColorMode"
+                            Style="{StaticResource SegmentRadioStyle}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border
+                Grid.Column="1"
+                Margin="16,0"
+                HorizontalAlignment="Right"
+                Style="{StaticResource SwitchPillStyle}">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        FontSize="16"
+                        Foreground="{StaticResource SecondaryTextBrush}"
+                        Text="透明通道" />
+                    <CheckBox IsChecked="{Binding IsAlphaBoxChecked}" Style="{StaticResource SwitchStyle}" />
+                </StackPanel>
+            </Border>
+
+            <Button
+                Grid.Column="2"
+                Command="{Binding RandomColorCommand}"
+                Style="{StaticResource CompactButtonStyle}">
+                <Button.Content>
+                    <StackPanel Margin="16,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe750;" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            FontSize="13"
+                            Text="随机" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button
+                Grid.Column="3"
+                Margin="16,0"
+                Command="{Binding ResetCommand}"
+                Style="{StaticResource CompactButtonStyle}">
+                <Button.Content>
+                    <StackPanel Margin="16,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe602;" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            FontSize="13"
+                            Text="重置" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </Grid>
 
-        <ListBox
-            Margin="10,0,0,0"
-            Padding="0"
-            HorizontalAlignment="Center"
-            Background="Transparent"
-            BorderThickness="0"
-            ItemsSource="{Binding ColorResources}"
-            ScrollViewer.CanContentScroll="False">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border
-                        Width="170"
-                        Height="60"
-                        Background="{Binding Hex}"
-                        CornerRadius="5">
-                        <Grid VerticalAlignment="Center">
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
+        <Grid Grid.Row="2" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-                            <TextBlock
-                                Grid.Row="0"
-                                HorizontalAlignment="Center"
-                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
-                                Text="{Binding Name}" />
+            <TextBlock
+                Margin="16"
+                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Text="{Binding ColorMode, FallbackValue=RGB → HEX 模式 · 拖动颜色通道实时同步}" />
 
-                            <TextBlock
-                                Grid.Row="1"
-                                Margin="0,5,0,0"
-                                HorizontalAlignment="Center"
-                                Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
-                                Text="{Binding Hex}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+            <TextBlock
+                Grid.Column="1"
+                Margin="16"
+                HorizontalAlignment="Right"
+                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Text="{Binding CurrentColor, StringFormat={}当前颜色 {0}}" />
+        </Grid>
 
-            <!--  ListBox横排  -->
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
+        <DockPanel
+            Margin="12"
+            LastChildFill="True"
+            Visibility="Collapsed">
+            <Grid Width="245">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="bhv:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border x:Name="ItemContainerBorder">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <UniformGrid Grid.Row="0" Rows="1">
+                        <Border Padding="10,5" Style="{StaticResource BorderTipInfo}">
+                            <TextBlock Text="透明度（A）" />
+                        </Border>
 
-                    <EventSetter Event="PreviewMouseDown" Handler="ColorListBox_ListBoxItem_PreviewMouseDown" />
+                        <TextBox
+                            x:Name="AlphaColorTextBox"
+                            HorizontalContentAlignment="Center"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            FontSize="14"
+                            IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                            MaxLength="3"
+                            Text="{Binding AlphaValue}">
+                            <i:Interaction.Behaviors>
+                                <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
+                            </i:Interaction.Behaviors>
 
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Opacity" Value="0.8" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
-    </DockPanel>
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="TextChanged">
+                                    <b:InvokeCommandAction Command="{Binding AlphaColorTextChangedCommand}" CommandParameter="{Binding ElementName=AlphaColorTextBox, Path=Text}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                    </UniformGrid>
+
+                    <UniformGrid
+                        Grid.Row="1"
+                        Margin="0,10"
+                        Rows="1">
+                        <Border Padding="10,5" Style="{StaticResource BorderTipDanger}">
+                            <TextBlock Text="红色值（R）" />
+                        </Border>
+
+                        <TextBox
+                            x:Name="RedColorTextBox"
+                            HorizontalContentAlignment="Center"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            FontSize="14"
+                            IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                            MaxLength="3"
+                            Text="{Binding RedColor}">
+                            <i:Interaction.Behaviors>
+                                <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
+                            </i:Interaction.Behaviors>
+
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="TextChanged">
+                                    <b:InvokeCommandAction Command="{Binding RedColorTextChangedCommand}" CommandParameter="{Binding ElementName=RedColorTextBox, Path=Text}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                    </UniformGrid>
+
+                    <UniformGrid Grid.Row="2" Rows="1">
+                        <Border Padding="10,5" Style="{StaticResource BorderTipSuccess}">
+                            <TextBlock Text="绿色值（G）" />
+                        </Border>
+
+                        <TextBox
+                            x:Name="GreenColorTextBox"
+                            HorizontalContentAlignment="Center"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            FontSize="14"
+                            IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                            MaxLength="3"
+                            Text="{Binding GreenColor}">
+                            <i:Interaction.Behaviors>
+                                <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
+                            </i:Interaction.Behaviors>
+
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="TextChanged">
+                                    <b:InvokeCommandAction Command="{Binding GreenColorTextChangedCommand}" CommandParameter="{Binding ElementName=GreenColorTextBox, Path=Text}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                    </UniformGrid>
+
+                    <UniformGrid
+                        Grid.Row="3"
+                        Margin="0,10"
+                        Rows="1">
+                        <Border Padding="10,5" Style="{StaticResource BorderTipPrimary}">
+                            <TextBlock Text="蓝色值（B）" />
+                        </Border>
+
+                        <TextBox
+                            x:Name="BlueColorTextBox"
+                            HorizontalContentAlignment="Center"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            FontSize="14"
+                            IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                            MaxLength="3"
+                            Text="{Binding BlueColor}">
+                            <i:Interaction.Behaviors>
+                                <bhv:NumericRangeBehavior MaxValue="255" MinValue="0" />
+                            </i:Interaction.Behaviors>
+
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="TextChanged">
+                                    <b:InvokeCommandAction Command="{Binding BlueColorTextChangedCommand}" CommandParameter="{Binding ElementName=BlueColorTextBox, Path=Text}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                    </UniformGrid>
+
+                    <Grid Grid.Row="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox
+                            x:Name="ColorHexTextBox"
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            FontSize="14"
+                            IsEnabled="{Binding IsHexInputEnabled}"
+                            MaxLength="9"
+                            Text="{Binding ColorHexValue}">
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="TextChanged">
+                                    <b:InvokeCommandAction Command="{Binding ColorHexTextChangedCommand}" CommandParameter="{Binding ElementName=ColorHexTextBox, Path=Text}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+
+                        <Button
+                            Grid.Column="1"
+                            Margin="10,0,0,0"
+                            BorderThickness="0"
+                            Command="{Binding CopyColorHexValueCommand}"
+                            Content="复制"
+                            IsEnabled="{Binding ElementName=ConvertHexCheckBox, Path=IsChecked}"
+                            Style="{StaticResource ButtonSuccess}" />
+                    </Grid>
+
+                    <Grid Grid.Row="5" Margin="0,10,0,0">
+                        <CheckBox
+                            x:Name="ConvertHexCheckBox"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            Content="RGB转HEX"
+                            IsChecked="True">
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="Checked">
+                                    <b:InvokeCommandAction Command="{Binding HexCheckBoxCheckedCommand}" />
+                                </b:EventTrigger>
+
+                                <b:EventTrigger EventName="Unchecked">
+                                    <b:InvokeCommandAction Command="{Binding HexCheckBoxUncheckedCommand}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </CheckBox>
+
+                        <CheckBox
+                            x:Name="AlphaCheckBox"
+                            HorizontalAlignment="Right"
+                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            Content="透明度"
+                            IsChecked="True">
+                            <i:Interaction.Triggers>
+                                <b:EventTrigger EventName="Checked">
+                                    <b:InvokeCommandAction Command="{Binding AlphaCheckBoxCheckedCommand}" />
+                                </b:EventTrigger>
+
+                                <b:EventTrigger EventName="Unchecked">
+                                    <b:InvokeCommandAction Command="{Binding AlphaCheckBoxUncheckedCommand}" />
+                                </b:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </CheckBox>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <Border Background="{Binding ColorViewBrush}" CornerRadius="5" />
+
+                    <TextBlock
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontFamily="宋体"
+                        FontSize="48"
+                        Text="{Binding ElementName=AlphaColorTextBox, Path=Text}" />
+                </Grid>
+            </Grid>
+
+            <ListBox
+                Margin="10,0,0,0"
+                Padding="0"
+                HorizontalAlignment="Center"
+                Background="Transparent"
+                BorderThickness="0"
+                ItemsSource="{Binding ColorResources}"
+                ScrollViewer.CanContentScroll="False">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Width="170"
+                            Height="60"
+                            Background="{Binding Hex}"
+                            CornerRadius="5">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock
+                                    Grid.Row="0"
+                                    HorizontalAlignment="Center"
+                                    Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
+                                    Text="{Binding Name}" />
+
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Margin="0,5,0,0"
+                                    HorizontalAlignment="Center"
+                                    Foreground="{Binding Hex, Converter={StaticResource ColorTagForegroundConverterKey}}"
+                                    Text="{Binding Hex}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+
+                <!--  ListBox横排  -->
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel HorizontalAlignment="Stretch" Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="bhv:ListBoxItemMarginBehavior.ApplyCustomMargin" Value="True" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <Border x:Name="ItemContainerBorder">
+                                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <EventSetter Event="PreviewMouseDown" Handler="ColorListBox_ListBoxItem_PreviewMouseDown" />
+
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.8" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </DockPanel>
+    </Grid>
 </UserControl>
