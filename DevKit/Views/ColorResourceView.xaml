@@ -257,25 +257,28 @@
             </Setter>
         </Style>
 
-        <!--  TODO 有问题 颜色通道 Slider  -->
+        <!--  颜色通道 Slider  -->
         <Style x:Key="ChannelSliderStyle" TargetType="Slider">
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Maximum" Value="255" />
+            <Setter Property="Minimum" Value="0" />
+            <Setter Property="LargeChange" Value="16" />
+            <Setter Property="SmallChange" Value="1" />
+            <Setter Property="TickFrequency" Value="1" />
             <Setter Property="Orientation" Value="Horizontal" />
             <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="IsSnapToTickEnabled" Value="True" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
-                        <Grid
-                            Height="16"
-                            Background="Transparent"
-                            SnapsToDevicePixels="True">
-
+                        <Grid Background="Transparent" SnapsToDevicePixels="True">
                             <!--  轨道底色：未选段  -->
                             <Border
                                 Height="6"
                                 VerticalAlignment="Center"
                                 Background="{StaticResource BorderStrongBrush}"
-                                CornerRadius="2" />
+                                CornerRadius="3" />
 
                             <Track x:Name="PART_Track">
                                 <!--  已选段：通道色  -->
@@ -290,7 +293,7 @@
                                                     Height="6"
                                                     VerticalAlignment="Center"
                                                     Background="{TemplateBinding Background}"
-                                                    CornerRadius="2" />
+                                                    CornerRadius="3" />
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                     </RepeatButton>
@@ -334,7 +337,7 @@
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter TargetName="ThumbCircle" Property="RenderTransform">
                                                             <Setter.Value>
-                                                                <ScaleTransform CenterX="8" CenterY="8" ScaleX="1.12" ScaleY="1.12" />
+                                                                <ScaleTransform CenterX="8" CenterY="8" ScaleX="1.25" ScaleY="1.25" />
                                                             </Setter.Value>
                                                         </Setter>
                                                     </Trigger>
@@ -412,7 +415,7 @@
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
                         FontSize="16"
-                        Foreground="{StaticResource SecondaryTextBrush}"
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
                         Text="透明通道" />
                     <CheckBox IsChecked="{Binding IsAlphaBoxChecked}" Style="{StaticResource SwitchStyle}" />
                 </StackPanel>
@@ -670,13 +673,7 @@
                                 Grid.Column="1"
                                 Margin="12,0"
                                 Foreground="{StaticResource ChannelABrush}"
-                                IsSnapToTickEnabled="True"
-                                LargeChange="16"
-                                Maximum="255"
-                                Minimum="0"
-                                SmallChange="1"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                TickFrequency="1"
                                 Value="{Binding AlphaValue, Mode=TwoWay}" />
 
                             <TextBox
@@ -720,13 +717,7 @@
                                 Grid.Column="1"
                                 Margin="12,0"
                                 Foreground="{StaticResource ChannelRBrush}"
-                                IsSnapToTickEnabled="True"
-                                LargeChange="16"
-                                Maximum="255"
-                                Minimum="0"
-                                SmallChange="1"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                TickFrequency="1"
                                 Value="{Binding RedColor, Mode=TwoWay}" />
 
                             <TextBox
@@ -770,13 +761,7 @@
                                 Grid.Column="1"
                                 Margin="12,0"
                                 Foreground="{StaticResource ChannelGBrush}"
-                                IsSnapToTickEnabled="True"
-                                LargeChange="16"
-                                Maximum="255"
-                                Minimum="0"
-                                SmallChange="1"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                TickFrequency="1"
                                 Value="{Binding GreenColor, Mode=TwoWay}" />
 
                             <TextBox
@@ -820,13 +805,7 @@
                                 Grid.Column="1"
                                 Margin="12,0"
                                 Foreground="{StaticResource ChannelBBrush}"
-                                IsSnapToTickEnabled="True"
-                                LargeChange="16"
-                                Maximum="255"
-                                Minimum="0"
-                                SmallChange="1"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                TickFrequency="1"
                                 Value="{Binding BlueColor, Mode=TwoWay}" />
 
                             <TextBox
