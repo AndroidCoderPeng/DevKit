@@ -67,7 +67,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private SolidColorBrush _colorViewBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6));
+        private SolidColorBrush _colorViewBrush = new SolidColorBrush(Color.FromArgb(0x80, 0x2E, 0x7C, 0xF6));
 
         public SolidColorBrush ColorViewBrush
         {
@@ -79,7 +79,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private int _alphaValue = 255;
+        private int _alphaValue = 128;
 
         public int AlphaValue
         {
@@ -205,13 +205,18 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private byte _alpha = 255;
-        private byte _red;
-        private byte _green;
-        private byte _blue;
-
         public ColorResourceViewModel()
         {
+            // 根据默认颜色设置 Slider 的值
+            if (_isAlphaBoxChecked)
+            {
+                AlphaValue = _colorViewBrush.Color.A;
+            }
+            RedColor = _colorViewBrush.Color.R;
+            GreenColor = _colorViewBrush.Color.G;
+            BlueColor = _colorViewBrush.Color.B;
+
+            // 加载最近使用的颜色
             var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.RecentlyColor);
             RecentlyColors = new ObservableCollection<string>(config.Colors);
 
