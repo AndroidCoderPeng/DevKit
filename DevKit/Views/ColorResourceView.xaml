@@ -976,7 +976,128 @@
                 BorderBrush="{StaticResource DevKitBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="16">
-                <Grid />
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition Height="1" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontFamily="微软雅黑"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Foreground="Black"
+                            Text="预设色板" />
+
+                        <Border
+                            Grid.Column="1"
+                            Margin="8,0"
+                            VerticalAlignment="Center"
+                            Background="#1A2E7CF6"
+                            CornerRadius="12">
+                            <TextBlock
+                                Margin="8,2"
+                                FontFamily="微软雅黑"
+                                Foreground="{StaticResource AccentBrush}"
+                                Text="{Binding ColorResources.Count, FallbackValue=0}" />
+                        </Border>
+
+                        <Border
+                            Grid.Column="2"
+                            Width="256"
+                            Height="34"
+                            HorizontalAlignment="Right"
+                            Background="#F7F9FC"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ColorSearchTextBox}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                            <Setter Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect
+                                                        BlurRadius="6"
+                                                        Opacity="0.18"
+                                                        ShadowDepth="0"
+                                                        Color="#2E7CF6" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Grid Margin="12,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  搜索图标  -->
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="18"
+                                    Foreground="#93A0AE"
+                                    Text="&#xe6cc;" />
+
+                                <!--  输入框 + placeholder  -->
+                                <Grid Grid.Column="1">
+                                    <TextBox
+                                        x:Name="ColorSearchTextBox"
+                                        Margin="4,0,0,0"
+                                        VerticalAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Foreground="#93A0AE"
+                                        IsHitTestVisible="False"
+                                        Text="搜索名称或色值，如 主色 / F2E7CF">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=ColorSearchTextBox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Border Grid.Row="2" Background="{StaticResource DevKitBorderBrush}" />
+
+                    <TextBlock
+                        Grid.Row="3"
+                        Margin="16"
+                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Text="单击色板 → 复制 HEX 并回填到左侧通道； RGB → HEX 模式下左侧色值由通道自动计算。" />
+                </Grid>
             </Border>
         </Grid>
 
