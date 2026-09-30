@@ -21,14 +21,13 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
 
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="34" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Background" Value="#F7F9FC" />
-            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -43,7 +42,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -56,7 +55,7 @@
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="34" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -73,12 +72,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -92,8 +91,8 @@
         <!--  主按钮：蓝底白字  -->
         <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="32" />
-            <Setter Property="Background" Value="#2E7CF6" />
-            <Setter Property="BorderBrush" Value="#2E7CF6" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Cursor" Value="Hand" />
@@ -110,11 +109,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#1C6AE0" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#1C6AE0" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#1556C0" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.45" />
@@ -161,13 +160,13 @@
                         Grid.Row="0"
                         Margin="16"
                         Orientation="Horizontal">
-                        <Border Background="#1F2E7CF6" CornerRadius="8">
+                        <Border Background="{StaticResource DevKitAccent12Brush}" CornerRadius="8">
                             <TextBlock
                                 Margin="4"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="14"
-                                Foreground="#2E7CF6"
+                                Foreground="{StaticResource DevKitAccentBrush}"
                                 Text="&#xe837;" />
                         </Border>
 
@@ -182,7 +181,7 @@
                     <TextBlock
                         Grid.Row="1"
                         Margin="16,0"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="NDK目录" />
 
                     <Grid Grid.Row="2" Margin="0,4">
@@ -209,7 +208,7 @@
                     <TextBlock
                         Grid.Row="3"
                         Margin="16,8,16,0"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="动态库路径" />
 
                     <Grid Grid.Row="4" Margin="0,4">
@@ -265,14 +264,14 @@
 
                         <Border
                             Grid.Column="0"
-                            Background="#1F2E7CF6"
+                            Background="{StaticResource DevKitAccent12Brush}"
                             CornerRadius="8">
                             <TextBlock
                                 Margin="4"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="14"
-                                Foreground="#2E7CF6"
+                                Foreground="{StaticResource DevKitAccentBrush}"
                                 Text="&#xe7de;" />
                         </Border>
 
@@ -302,8 +301,8 @@
                                     <Setter Property="Height" Value="34" />
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                     <Setter Property="FontSize" Value="13" />
-                                    <Setter Property="Background" Value="#F7F9FC" />
-                                    <Setter Property="BorderBrush" Value="#DFE3EA" />
+                                    <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
                                     <Setter Property="BorderThickness" Value="1" />
                                     <Setter Property="Template">
                                         <Setter.Value>
@@ -326,7 +325,7 @@
                                                             FontFamily="Consolas"
                                                             FontSize="13"
                                                             FontWeight="SemiBold"
-                                                            Foreground="#2E7CF6"
+                                                            Foreground="{StaticResource DevKitAccentBrush}"
                                                             Text="0x" />
 
                                                         <ScrollViewer
@@ -338,7 +337,7 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsKeyboardFocused" Value="True">
-                                                        <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                                        <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                                         <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
@@ -401,14 +400,14 @@
 
                         <Border
                             Grid.Column="0"
-                            Background="#1F16A34A"
+                            Background="{StaticResource DevKitSuccess12Brush}"
                             CornerRadius="8">
                             <TextBlock
                                 Margin="4"
                                 VerticalAlignment="Center"
                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                 FontSize="14"
-                                Foreground="#16A34A"
+                                Foreground="{StaticResource DevKitSuccessBrush}"
                                 Text="&#xe824;" />
                         </Border>
 
@@ -424,7 +423,7 @@
                     <Border
                         Grid.Row="1"
                         Margin="16,0,16,16"
-                        Background="#0C0C0C"
+                        Background="{StaticResource DevKitTerminalBackgroundBrush}"
                         CornerRadius="8">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -441,24 +440,24 @@
                                 <Ellipse
                                     Width="12"
                                     Height="12"
-                                    Fill="#ff5f57" />
+                                    Fill="{StaticResource DevKitTrafficRedBrush}" />
                                 <Ellipse
                                     Width="12"
                                     Height="12"
                                     Margin="8,0"
-                                    Fill="#febc2e" />
+                                    Fill="{StaticResource DevKitTrafficYellowBrush}" />
                                 <Ellipse
                                     Width="12"
                                     Height="12"
-                                    Fill="#28c840" />
+                                    Fill="{StaticResource DevKitTrafficGreenBrush}" />
 
                                 <TextBlock
                                     Margin="16,0,0,0"
-                                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="aarch64-linux-android-addr2line -e libnative.so -f -C" />
                             </StackPanel>
 
-                            <Border Grid.Row="1" Background="#1fe7ebf1" />
+                            <Border Grid.Row="1" Background="{StaticResource DevKitTerminalDividerBrush}" />
 
                             <TextBox
                                 Grid.Row="2"
@@ -468,7 +467,7 @@
                                 BorderThickness="0"
                                 FontFamily="微软雅黑"
                                 FontSize="14"
-                                Foreground="#4ADE80"
+                                Foreground="{StaticResource DevKitAndroidGreenBrush}"
                                 HorizontalScrollBarVisibility="Auto"
                                 IsReadOnly="True"
                                 Text="{Binding OutputResult}"
@@ -528,14 +527,14 @@
                 Width="13"
                 Height="13"
                 VerticalAlignment="Center"
-                Background="#2E3DDC84"
+                Background="{StaticResource DevKitAndroidGreen18Brush}"
                 CornerRadius="7">
                 <Border
                     Width="7"
                     Height="7"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="#FF16A34A"
+                    Background="{StaticResource DevKitSuccessBrush}"
                     CornerRadius="4" />
             </Border>
 
@@ -543,14 +542,14 @@
                 Grid.Column="1"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="JNI 逆向 · 已就绪" />
 
             <TextBlock
                 Grid.Column="2"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Center"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="{Binding NdkVersion}" />
         </Grid>
     </Grid>

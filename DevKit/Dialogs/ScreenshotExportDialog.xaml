@@ -22,7 +22,6 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
 
         <LinearGradientBrush x:Key="ExportProgressForegroundBrush" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Offset="0.0" Color="#2e7cf6" />
@@ -33,7 +32,7 @@
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="32" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -50,12 +49,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -69,8 +68,8 @@
         <!--  主按钮：蓝底白字，hover 深蓝  -->
         <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="32" />
-            <Setter Property="Background" Value="#2E7CF6" />
-            <Setter Property="BorderBrush" Value="#2E7CF6" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Cursor" Value="Hand" />
@@ -87,11 +86,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#1C6AE0" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#1C6AE0" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#1556C0" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.45" />
@@ -106,9 +105,9 @@
         <Style x:Key="DangerCompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="32" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#F0C4C6" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitDangerBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="#E5484D" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -123,12 +122,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#E5484D" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#E5484D" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
                                 <Setter Property="TextElement.Foreground" Value="White" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#C93A3F" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitDangerPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.45" />
@@ -189,10 +188,10 @@
                                 <Setter TargetName="CheckDot" Property="Opacity" Value="1" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                <Setter TargetName="CardBorder" Property="Background" Value="#EAF2FE" />
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
                                 <Setter TargetName="CheckDot" Property="Opacity" Value="1" />
-                                <Setter TargetName="CheckDot" Property="Background" Value="#2E7CF6" />
+                                <Setter TargetName="CheckDot" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="CheckDot" Property="BorderBrush" Value="White" />
                                 <Setter TargetName="CheckMark" Property="Opacity" Value="1" />
                             </Trigger>
@@ -233,8 +232,8 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="Tag" Value="Danger" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="HoverButtonBorder" Property="Background" Value="#E5484D" />
-                                <Setter TargetName="HoverButtonBorder" Property="BorderBrush" Value="#E5484D" />
+                                <Setter TargetName="HoverButtonBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter TargetName="HoverButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -437,7 +436,7 @@
 
                                     <TextBlock
                                         FontSize="11"
-                                        Foreground="{DynamicResource TextBlockForegroundBrush}"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                         Text="{Binding SizeText}" />
                                 </StackPanel>
                             </ToggleButton>
@@ -481,22 +480,22 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock
                     VerticalAlignment="Center"
-                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                     Text="保存到" />
 
                 <Border
                     Width="320"
                     Height="32"
                     Margin="8,0"
-                    Background="#F7F9FC"
+                    Background="{StaticResource DevKitSurfaceBrush}"
                     BorderThickness="1"
                     CornerRadius="8">
                     <Border.Style>
                         <Style TargetType="Border">
-                            <Setter Property="BorderBrush" Value="#DFE3EA" />
+                            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=SaveDirectoryTextBox}" Value="True">
-                                    <Setter Property="BorderBrush" Value="#2E7CF6" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                     <Setter Property="Effect">
                                         <Setter.Value>
                                             <DropShadowEffect
@@ -543,7 +542,7 @@
                         <Style TargetType="ProgressBar">
                             <Setter Property="Height" Value="6" />
                             <Setter Property="Width" Value="92" />
-                            <Setter Property="Background" Value="#F7F9FC" />
+                            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                             <Setter Property="Foreground" Value="{StaticResource ExportProgressForegroundBrush}" />
                             <Setter Property="BorderThickness" Value="1" />
@@ -572,7 +571,7 @@
                 </ProgressBar>
                 <TextBlock
                     VerticalAlignment="Center"
-                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                     Text="{Binding SelectedCount, StringFormat=已选 {0} 张}" />
             </StackPanel>
 

@@ -15,7 +15,6 @@
     mc:Ignorable="d">
 
     <Window.Resources>
-        <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
 
         <Style x:Key="TopmostSwitchStyle" TargetType="ToggleButton">
             <Setter Property="Width" Value="36" />
@@ -27,7 +26,7 @@
                     <ControlTemplate TargetType="ToggleButton">
                         <Border
                             x:Name="Track"
-                            Background="#DFE3EA"
+                            Background="{StaticResource DevKitBorderStrongBrush}"
                             CornerRadius="12">
                             <Ellipse
                                 x:Name="Thumb"
@@ -53,7 +52,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Track" Property="Background" Value="#2E7CF6" />
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
@@ -135,14 +134,14 @@
                         VerticalAlignment="Center"
                         FontFamily="/DevKit;component/Fonts/#iconfont"
                         FontSize="16"
-                        Foreground="{DynamicResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="&#xe6c2;" />
 
                     <TextBlock
                         Grid.Column="1"
                         Margin="8,0,0,0"
                         VerticalAlignment="Center"
-                        Foreground="{DynamicResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="置顶显示" />
 
                     <ToggleButton
@@ -171,12 +170,12 @@
                 <Border
                     Grid.Column="1"
                     Margin="8,0"
-                    Background="#1A2E7CF6"
+                    Background="{StaticResource DevKitAccent12Brush}"
                     CornerRadius="12">
                     <TextBlock
                         Margin="8,2"
                         FontFamily="微软雅黑"
-                        Foreground="#FF2E7CF6"
+                        Foreground="{StaticResource DevKitAccentBrush}"
                         Text="{Binding AndroidTools.Count}" />
                 </Border>
 
@@ -199,7 +198,7 @@
                             Height="104"
                             Margin="4"
                             Background="White"
-                            BorderBrush="#EEEFF0"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
@@ -207,14 +206,14 @@
                                     Width="48"
                                     Height="48"
                                     HorizontalAlignment="Center"
-                                    Background="#1F17A95C"
+                                    Background="{StaticResource DevKitSuccess12Brush}"
                                     CornerRadius="12">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
                                         FontSize="24"
-                                        Foreground="#17A95C"
+                                        Foreground="{StaticResource DevKitSuccessBrush}"
                                         Text="{Binding MenuIcon}" />
                                 </Border>
 
@@ -223,16 +222,16 @@
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="#5F6B7A"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="{Binding MenuName}" />
                             </StackPanel>
                         </Border>
 
                         <DataTemplate.Triggers>
                             <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#1F17A95C" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#5917A95C" />
-                                <Setter TargetName="Name" Property="Foreground" Value="#17A95C" />
+                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitSuccess12Brush}" />
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitSuccess35Brush}" />
+                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitSuccessBrush}" />
                                 <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </DataTemplate.Triggers>
@@ -270,12 +269,12 @@
                 <Border
                     Grid.Column="1"
                     Margin="8,0"
-                    Background="#1A2E7CF6"
+                    Background="{StaticResource DevKitAccent12Brush}"
                     CornerRadius="12">
                     <TextBlock
                         Margin="8,2"
                         FontFamily="微软雅黑"
-                        Foreground="#FF2E7CF6"
+                        Foreground="{StaticResource DevKitAccentBrush}"
                         Text="{Binding SocketTools.Count}" />
                 </Border>
 
@@ -301,7 +300,7 @@
                             Height="104"
                             Margin="4"
                             Background="White"
-                            BorderBrush="#EEEFF0"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
@@ -309,14 +308,14 @@
                                     Width="48"
                                     Height="48"
                                     HorizontalAlignment="Center"
-                                    Background="#1F2E7CF6"
+                                    Background="{StaticResource DevKitAccent12Brush}"
                                     CornerRadius="12">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
                                         FontSize="24"
-                                        Foreground="#2E7CF6"
+                                        Foreground="{StaticResource DevKitAccentBrush}"
                                         Text="{Binding MenuIcon}" />
                                 </Border>
 
@@ -325,16 +324,16 @@
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="#5F6B7A"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="{Binding MenuName}" />
                             </StackPanel>
                         </Border>
 
                         <DataTemplate.Triggers>
                             <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#1F2E7CF6" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#592E7CF6" />
-                                <Setter TargetName="Name" Property="Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </DataTemplate.Triggers>
@@ -372,12 +371,12 @@
                 <Border
                     Grid.Column="1"
                     Margin="8,0"
-                    Background="#1A2E7CF6"
+                    Background="{StaticResource DevKitAccent12Brush}"
                     CornerRadius="12">
                     <TextBlock
                         Margin="8,2"
                         FontFamily="微软雅黑"
-                        Foreground="#FF2E7CF6"
+                        Foreground="{StaticResource DevKitAccentBrush}"
                         Text="{Binding OtherTools.Count}" />
                 </Border>
 
@@ -400,7 +399,7 @@
                             Height="104"
                             Margin="4"
                             Background="White"
-                            BorderBrush="#EEEFF0"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <StackPanel VerticalAlignment="Center">
@@ -408,14 +407,14 @@
                                     Width="48"
                                     Height="48"
                                     HorizontalAlignment="Center"
-                                    Background="#1F7C5CFF"
+                                    Background="{StaticResource DevKitPurple12Brush}"
                                     CornerRadius="12">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
                                         FontSize="24"
-                                        Foreground="#7C5CFF"
+                                        Foreground="{StaticResource DevKitPurpleBrush}"
                                         Text="{Binding MenuIcon}" />
                                 </Border>
 
@@ -424,16 +423,16 @@
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
-                                    Foreground="#5F6B7A"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="{Binding MenuName}" />
                             </StackPanel>
                         </Border>
 
                         <DataTemplate.Triggers>
                             <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#1F7C5CFF" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#597C5CFF" />
-                                <Setter TargetName="Name" Property="Foreground" Value="#7C5CFF" />
+                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitPurple12Brush}" />
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitPurple35Brush}" />
+                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitPurpleBrush}" />
                                 <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </DataTemplate.Triggers>
@@ -460,13 +459,13 @@
             LastChildFill="True">
             <TextBlock
                 Margin="16"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="DevKit · 已就绪" />
 
             <TextBlock
                 Margin="16"
                 HorizontalAlignment="Right"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="点击工具卡片即可打开" />
         </DockPanel>
     </Grid>

@@ -23,12 +23,6 @@
 
     <UserControl.Resources>
         <!--  ========== 颜色 ==========  -->
-        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#5F6B7A" />
-        <SolidColorBrush x:Key="TertiaryTextBrush" Color="#93A0AE" />
-        <SolidColorBrush x:Key="BorderStrongBrush" Color="#DFE3EA" />
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#F7F9FC" />
-        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#EAF1FE" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#2E7CF6" />
         <SolidColorBrush x:Key="TerminalBodyBrush" Color="#0C1016" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#39434F" />
         <SolidColorBrush x:Key="TerminalDimBrush" Color="#9EAAB8" />
@@ -52,11 +46,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,8 +64,8 @@
             <Setter Property="FontSize" Value="14" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="ItemContainerStyle" Value="{StaticResource FieldComboBoxItemStyle}" />
             <Setter Property="Template">
@@ -105,7 +99,7 @@
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
                                     Data="M 0,0 L 5,5 L 10,0"
-                                    Stroke="{StaticResource SecondaryTextBrush}"
+                                    Stroke="{StaticResource DevKitTextSecondaryBrush}"
                                     StrokeEndLineCap="Round"
                                     StrokeStartLineCap="Round"
                                     StrokeThickness="1" />
@@ -151,7 +145,7 @@
                                     Margin="0,4,0,0"
                                     Padding="4"
                                     Background="White"
-                                    BorderBrush="{StaticResource BorderStrongBrush}"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8">
                                     <ScrollViewer
@@ -169,11 +163,11 @@
                                 <Setter TargetName="DropDownBorder" Property="MinHeight" Value="40" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsDropDownOpen" Value="True">
                                 <Setter TargetName="ComboBorder" Property="Background" Value="White" />
-                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="Arrow" Property="Data" Value="M 0,5 L 5,0 L 10,5" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -197,7 +191,7 @@
             <Setter Property="Padding" Value="14,0" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -215,12 +209,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -248,7 +242,7 @@
                         <Border
                             x:Name="InfoItemBorder"
                             Padding="12"
-                            Background="{StaticResource SurfaceBrush}"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="10">
@@ -269,7 +263,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock
                                         FontSize="11"
-                                        Foreground="{StaticResource TertiaryTextBrush}"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="{TemplateBinding Tag}"
                                         TextTrimming="CharacterEllipsis" />
                                     <TextBlock
@@ -288,15 +282,15 @@
                                     VerticalAlignment="Center"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="16"
-                                    Foreground="{StaticResource AccentBrush}"
+                                    Foreground="{StaticResource DevKitAccentBrush}"
                                     Opacity="0"
                                     Text="&#xe66c;" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InfoItemBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
-                                <Setter TargetName="InfoItemBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="InfoItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="InfoItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="InfoItemCopyIcon" Property="Opacity" Value="1" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -315,7 +309,7 @@
                         <Border
                             x:Name="CommandItemBorder"
                             Padding="12,10"
-                            Background="{StaticResource SurfaceBrush}"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderBrush="{DynamicResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
@@ -323,12 +317,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CommandItemBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
-                                <Setter TargetName="CommandItemBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="CommandItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="CommandItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="CommandItemBorder" Property="Background" Value="{StaticResource SurfaceHoverBrush}" />
-                                <Setter TargetName="CommandItemBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="CommandItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="CommandItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -338,7 +332,7 @@
 
         <!--  ========== 开关 ==========  -->
         <Style x:Key="SwitchStyle" TargetType="CheckBox">
-            <Setter Property="Background" Value="{StaticResource BorderStrongBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -368,7 +362,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right" />
                                 <Setter TargetName="SwitchThumb" Property="Margin" Value="0,0,2,0" />
                             </Trigger>
@@ -386,7 +380,7 @@
             <Setter Property="Height" Value="30" />
             <Setter Property="Padding" Value="12,0,10,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="15" />
@@ -397,8 +391,8 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="16,0" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Cursor" Value="Hand" />
@@ -417,34 +411,34 @@
                         <ControlTemplate.Triggers>
                             <!--  空闲态：蓝色系  -->
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#1F6EE8" />
-                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#1F6EE8" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#1A5FCC" />
-                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#1A5FCC" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentPressedBrush}" />
                             </Trigger>
 
                             <!--  运行态：红色系（Tag 由 Style 里的 DataTrigger 切换）  -->
                             <Trigger Property="Tag" Value="Danger">
-                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#E5484D" />
-                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#E5484D" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="Tag" Value="Danger" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#D13C41" />
-                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#D13C41" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="{StaticResource DevKitDangerHoverBrush}" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerHoverBrush}" />
                             </MultiTrigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsPressed" Value="True" />
                                     <Condition Property="Tag" Value="Danger" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="RunButtonBorder" Property="Background" Value="#B83237" />
-                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="#B83237" />
+                                <Setter TargetName="RunButtonBorder" Property="Background" Value="{StaticResource DevKitDangerPressedBrush}" />
+                                <Setter TargetName="RunButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerPressedBrush}" />
                             </MultiTrigger>
 
                             <Trigger Property="IsEnabled" Value="False">
@@ -523,9 +517,9 @@
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderStrongBrush}" />
-            <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="CaretBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -542,7 +536,7 @@
                                     Margin="4,0"
                                     VerticalAlignment="Center"
                                     FontSize="13"
-                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     IsHitTestVisible="False"
                                     Text="IP或域名，如 8.8.8.8 / www.baidu.com"
                                     Visibility="Collapsed" />
@@ -560,7 +554,7 @@
 
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="FieldBorder" Property="Background" Value="White" />
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.6" />
@@ -592,7 +586,7 @@
                 Grid.Column="0"
                 VerticalAlignment="Center"
                 FontSize="13"
-                Foreground="{StaticResource SecondaryTextBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="网络适配器" />
 
             <ComboBox
@@ -681,14 +675,14 @@
                         <Border
                             Margin="0,0,10,10"
                             Padding="12"
-                            Background="{StaticResource SurfaceBrush}"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="10">
                             <StackPanel Orientation="Vertical">
                                 <TextBlock
                                     FontSize="11"
-                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="适配器类型" />
 
                                 <TextBlock
@@ -706,14 +700,14 @@
                         <Border
                             Margin="0,0,10,10"
                             Padding="12"
-                            Background="{StaticResource SurfaceBrush}"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="10">
                             <StackPanel Orientation="Vertical">
                                 <TextBlock
                                     FontSize="11"
-                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="DHCP" />
 
                                 <TextBlock
@@ -728,14 +722,14 @@
                         <Border
                             Margin="0,0,10,10"
                             Padding="12"
-                            Background="{StaticResource SurfaceBrush}"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="10">
                             <StackPanel>
                                 <TextBlock
                                     FontSize="11"
-                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="连接状态" />
                                 <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
                                     <Ellipse
@@ -759,7 +753,7 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Bottom"
                         Panel.ZIndex="999"
-                        Background="#CC2B2B2B"
+                        Background="{StaticResource DevKitToastBrush}"
                         CornerRadius="16">
                         <Border.Style>
                             <Style TargetType="Border">
@@ -811,14 +805,14 @@
                                 Width="24"
                                 Height="18"
                                 Margin="8,0,0,0"
-                                Background="{StaticResource SurfaceHoverBrush}"
+                                Background="{StaticResource DevKitAccentSoftBrush}"
                                 CornerRadius="10">
                                 <TextBlock
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     FontSize="12"
                                     FontWeight="SemiBold"
-                                    Foreground="{StaticResource AccentBrush}"
+                                    Foreground="{StaticResource DevKitAccentBrush}"
                                     Text="{Binding CommandItems.Count}" />
                             </Border>
                         </StackPanel>
@@ -857,7 +851,7 @@
                                                 Margin="4,0,0,0"
                                                 FontSize="15"
                                                 FontWeight="Bold"
-                                                Foreground="{StaticResource AccentBrush}"
+                                                Foreground="{StaticResource DevKitAccentBrush}"
                                                 Text="@">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
@@ -875,14 +869,14 @@
                                         <TextBlock
                                             Grid.Column="1"
                                             HorizontalAlignment="Right"
-                                            Foreground="{StaticResource TertiaryTextBrush}"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
                                             Text="{Binding Description}"
                                             TextTrimming="CharacterEllipsis" />
                                     </Grid>
 
                                     <DataTemplate.Triggers>
                                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                                            <Setter TargetName="CommandText" Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                            <Setter TargetName="CommandText" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                                             <Setter TargetName="CommandText" Property="FontWeight" Value="SemiBold" />
                                         </DataTrigger>
                                     </DataTemplate.Triggers>
@@ -912,7 +906,7 @@
                             <TextBlock
                                 Margin="0,0,0,6"
                                 FontSize="13"
-                                Foreground="{StaticResource SecondaryTextBrush}"
+                                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                 Text="参数" />
 
                             <TextBox
@@ -932,7 +926,7 @@
                                             Margin="0,0,7,0"
                                             VerticalAlignment="Center"
                                             FontSize="13"
-                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                             Text="循环" />
                                         <CheckBox IsChecked="{Binding IsLoopBoxChecked}" Style="{StaticResource SwitchStyle}" />
                                     </StackPanel>
@@ -1010,7 +1004,7 @@
                 <Border
                     Grid.Column="1"
                     Margin="14,0,0,0"
-                    Background="#0C0C0C"
+                    Background="{StaticResource DevKitTerminalBackgroundBrush}"
                     CornerRadius="16">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -1035,16 +1029,16 @@
                                 <Ellipse
                                     Width="12"
                                     Height="12"
-                                    Fill="#ff5f57" />
+                                    Fill="{StaticResource DevKitTrafficRedBrush}" />
                                 <Ellipse
                                     Width="12"
                                     Height="12"
                                     Margin="8,0"
-                                    Fill="#febc2e" />
+                                    Fill="{StaticResource DevKitTrafficYellowBrush}" />
                                 <Ellipse
                                     Width="12"
                                     Height="12"
-                                    Fill="#28c840" />
+                                    Fill="{StaticResource DevKitTrafficGreenBrush}" />
                             </StackPanel>
 
                             <StackPanel
@@ -1127,7 +1121,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <Border Grid.Row="1" Background="#1fe7ebf1" />
+                        <Border Grid.Row="1" Background="{StaticResource DevKitTerminalDividerBrush}" />
 
                         <!--  命令输出  -->
                         <TextBox

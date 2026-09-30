@@ -23,24 +23,16 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="TextBlockForegroundBrush" Color="#5f6b7a" />
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#F7F9FC" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#93A0AE" />
-        <SolidColorBrush x:Key="BorderStrongBrush" Color="#DFE3EA" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#2E7CF6" />
 
         <!--  通道标识色  -->
         <SolidColorBrush x:Key="ChannelABrush" Color="#7C8B9D" />
-        <SolidColorBrush x:Key="ChannelRBrush" Color="#E5484D" />
-        <SolidColorBrush x:Key="ChannelGBrush" Color="#16A34A" />
-        <SolidColorBrush x:Key="ChannelBBrush" Color="#2E7CF6" />
 
         <!--  分段控件内的单选按钮  -->
         <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
             <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="16,0" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -57,11 +49,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="SegmentBorder" Property="Background" Value="White" />
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -79,7 +71,7 @@
             <Setter Property="Padding" Value="12,0,10,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Center" />
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="19" />
@@ -87,7 +79,7 @@
 
         <!--  ========== 开关 ==========  -->
         <Style x:Key="SwitchStyle" TargetType="CheckBox">
-            <Setter Property="Background" Value="{StaticResource BorderStrongBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -117,7 +109,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right" />
                                 <Setter TargetName="SwitchThumb" Property="Margin" Value="0,0,3,0" />
                             </Trigger>
@@ -134,7 +126,7 @@
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -151,12 +143,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#EAF1FE" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="#2E7CF6" />
-                                <Setter Property="TextElement.Foreground" Value="#2E7CF6" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="#D9E7FD" />
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -188,8 +180,8 @@
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="8,0" />
-            <Setter Property="Background" Value="{StaticResource AccentBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Cursor" Value="Hand" />
@@ -209,11 +201,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="PrimaryBorder" Property="Background" Value="#1F6EE8" />
-                                <Setter TargetName="PrimaryBorder" Property="BorderBrush" Value="#1F6EE8" />
+                                <Setter TargetName="PrimaryBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="PrimaryBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="PrimaryBorder" Property="Background" Value="#1A5CC4" />
+                                <Setter TargetName="PrimaryBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -232,8 +224,8 @@
             <Setter Property="HorizontalContentAlignment" Value="Center" />
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontFamily" Value="Consolas" />
-            <Setter Property="Background" Value="#F7F9FC" />
-            <Setter Property="BorderBrush" Value="#DFE3EA" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -248,7 +240,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="#2E7CF6" />
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -277,7 +269,7 @@
                             <Border
                                 Height="6"
                                 VerticalAlignment="Center"
-                                Background="{StaticResource BorderStrongBrush}"
+                                Background="{StaticResource DevKitBorderStrongBrush}"
                                 CornerRadius="3" />
 
                             <Track x:Name="PART_Track">
@@ -355,7 +347,7 @@
 
         <!--  Color 卡片按钮：点击打开所在文件夹  -->
         <Style x:Key="ColorCardButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Cursor" Value="Hand" />
@@ -373,8 +365,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -409,13 +401,13 @@
                 <TextBlock
                     VerticalAlignment="Center"
                     FontSize="16"
-                    Foreground="{StaticResource TextBlockForegroundBrush}"
+                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                     Text="转换模式" />
 
                 <Border
                     Margin="8,0,0,0"
                     Padding="3"
-                    Background="{StaticResource SurfaceBrush}"
+                    Background="{StaticResource DevKitSurfaceBrush}"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="18">
@@ -444,7 +436,7 @@
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
                         FontSize="16"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="透明通道" />
                     <CheckBox IsChecked="{Binding IsAlphaBoxChecked}" Style="{StaticResource SwitchStyle}" />
                 </StackPanel>
@@ -547,7 +539,7 @@
                                 <TextBlock
                                     FontFamily="Consolas"
                                     FontSize="14"
-                                    Foreground="#1B1B1B"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="{Binding AlphaValue, StringFormat={}Alpha {0}, FallbackValue=Alpha 255}" />
                             </Border>
 
@@ -572,7 +564,7 @@
                                 </Border.Style>
                                 <TextBlock
                                     FontSize="12"
-                                    Foreground="#5F6B7A"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="点击复制" />
                             </Border>
                         </Grid>
@@ -588,7 +580,7 @@
                         <Border
                             Grid.Column="0"
                             Height="36"
-                            Background="#F7F9FC"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <Border.Style>
@@ -596,7 +588,7 @@
                                     <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ColorHexTextBox}" Value="True">
-                                            <Setter Property="BorderBrush" Value="#2E7CF6" />
+                                            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                             <Setter Property="Effect">
                                                 <Setter.Value>
                                                     <DropShadowEffect
@@ -623,7 +615,7 @@
                                     FontFamily="Consolas"
                                     FontSize="18"
                                     FontWeight="SemiBold"
-                                    Foreground="#93A0AE"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="#" />
 
                                 <TextBox
@@ -730,7 +722,7 @@
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
-                                Background="{StaticResource ChannelRBrush}"
+                                Background="{StaticResource DevKitDangerBrush}"
                                 CornerRadius="8">
                                 <TextBlock
                                     HorizontalAlignment="Center"
@@ -745,7 +737,7 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                Foreground="{StaticResource ChannelRBrush}"
+                                Foreground="{StaticResource DevKitDangerBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
                                 Value="{Binding RedColor, Mode=TwoWay}" />
 
@@ -775,7 +767,7 @@
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
-                                Background="{StaticResource ChannelGBrush}"
+                                Background="{StaticResource DevKitSuccessBrush}"
                                 CornerRadius="8">
                                 <TextBlock
                                     HorizontalAlignment="Center"
@@ -790,7 +782,7 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                Foreground="{StaticResource ChannelGBrush}"
+                                Foreground="{StaticResource DevKitSuccessBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
                                 Value="{Binding GreenColor, Mode=TwoWay}" />
 
@@ -820,7 +812,7 @@
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
-                                Background="{StaticResource ChannelBBrush}"
+                                Background="{StaticResource DevKitAccentBrush}"
                                 CornerRadius="8">
                                 <TextBlock
                                     HorizontalAlignment="Center"
@@ -835,7 +827,7 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                Foreground="{StaticResource ChannelBBrush}"
+                                Foreground="{StaticResource DevKitAccentBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
                                 Value="{Binding BlueColor, Mode=TwoWay}" />
 
@@ -874,7 +866,7 @@
 
                         <TextBlock
                             Grid.Row="0"
-                            Foreground="{StaticResource MutedTextBrush}"
+                            Foreground="{StaticResource DevKitTextMutedBrush}"
                             Text="最近使用" />
 
                         <ListBox
@@ -903,13 +895,13 @@
                                                 HorizontalAlignment="Center"
                                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                                 FontSize="40"
-                                                Foreground="#C6CDD6"
+                                                Foreground="{StaticResource DevKitIconMutedBrush}"
                                                 Text="&#xe660;" />
                                             <TextBlock
                                                 Margin="0,10,0,0"
                                                 HorizontalAlignment="Center"
                                                 FontSize="13"
-                                                Foreground="#93A0AE"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
                                                 Text="暂无颜色处理记录" />
                                         </StackPanel>
                                     </Grid>
@@ -1004,12 +996,12 @@
                             Grid.Column="1"
                             Margin="8,0"
                             VerticalAlignment="Center"
-                            Background="#1A2E7CF6"
+                            Background="{StaticResource DevKitAccent12Brush}"
                             CornerRadius="12">
                             <TextBlock
                                 Margin="8,2"
                                 FontFamily="微软雅黑"
-                                Foreground="{StaticResource AccentBrush}"
+                                Foreground="{StaticResource DevKitAccentBrush}"
                                 Text="{Binding ColorResources.Count, FallbackValue=0}" />
                         </Border>
 
@@ -1018,7 +1010,7 @@
                             Width="256"
                             Height="34"
                             HorizontalAlignment="Right"
-                            Background="#F7F9FC"
+                            Background="{StaticResource DevKitSurfaceBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <Border.Style>
@@ -1026,7 +1018,7 @@
                                     <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ColorSearchTextBox}" Value="True">
-                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                             <Setter Property="Effect">
                                                 <Setter.Value>
                                                     <DropShadowEffect
@@ -1053,7 +1045,7 @@
                                     VerticalAlignment="Center"
                                     FontFamily="/DevKit;component/Fonts/#iconfont"
                                     FontSize="18"
-                                    Foreground="#93A0AE"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="&#xe6cc;" />
 
                                 <!--  输入框 + placeholder  -->
@@ -1071,7 +1063,7 @@
                                     <TextBlock
                                         Margin="8,0,0,0"
                                         VerticalAlignment="Center"
-                                        Foreground="#93A0AE"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
                                         IsHitTestVisible="False"
                                         Text="搜索名称或色值，如 主色 / F2E7CF">
                                         <TextBlock.Style>
@@ -1193,7 +1185,7 @@
                     <TextBlock
                         Grid.Row="3"
                         Margin="16"
-                        Foreground="{StaticResource TextBlockForegroundBrush}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="单击色板 → 复制 HEX 并回填到左侧通道； RGB → HEX 模式下左侧色值由通道自动计算。" />
                 </Grid>
             </Border>
@@ -1207,14 +1199,14 @@
 
             <TextBlock
                 Margin="16"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="{Binding ColorMode, FallbackValue=RGB → HEX 模式 · 拖动颜色通道实时同步}" />
 
             <TextBlock
                 Grid.Column="1"
                 Margin="16"
                 HorizontalAlignment="Right"
-                Foreground="{StaticResource TextBlockForegroundBrush}"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="{Binding CurrentColorHex, StringFormat={}当前颜色 {0}}" />
         </Grid>
     </Grid>

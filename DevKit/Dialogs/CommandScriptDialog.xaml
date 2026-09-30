@@ -97,7 +97,7 @@
                                     Height="16"
                                     Margin="5,0,0,0"
                                     VerticalAlignment="Center"
-                                    Background="{DynamicResource AccentBrush}"
+                                    Background="{StaticResource DevKitAccentBrush}"
                                     BorderThickness="0"
                                     Command="{Binding DataContext.DeleteSelectedItemCommand, ElementName=SelectedCommandListBox}"
                                     CommandParameter="{Binding Path=Tag, ElementName=DeleteSelectedCommandButton}"
