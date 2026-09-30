@@ -17,7 +17,7 @@ namespace DevKit.Views
             if (sender is ListBoxItem item && item.Content is ColorResourceCache cache)
             {
                 var vm = DataContext as ColorResourceViewModel;
-                vm?.ColorItemClickedCommand.Execute(cache);
+                // vm?.ColorItemClickedCommand.Execute(cache);
             }
         }
     }

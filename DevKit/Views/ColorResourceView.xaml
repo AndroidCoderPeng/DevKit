@@ -480,7 +480,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
 
                     <!--  ========== 预览色块 ==========  -->
@@ -837,22 +837,81 @@
                     </Grid>
 
                     <!--  ========== 最近使用 ==========  -->
-                    <StackPanel Grid.Row="4">
-                        <TextBlock Foreground="{StaticResource MutedTextBrush}" Text="最近使用" />
+                    <Grid Grid.Row="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Foreground="{StaticResource MutedTextBrush}"
+                            Text="最近使用" />
 
                         <ListBox
-                            x:Name="RecentlyColorListBox"
+                            Grid.Row="1"
                             Background="Transparent"
                             BorderThickness="0"
                             ItemsSource="{Binding RecentlyColors}"
-                            ScrollViewer.CanContentScroll="False">
-                            <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding RecentlyColorSelectedCommand}" CommandParameter="{Binding ElementName=RecentlyColorListBox, Path=SelectedItem}" />
-                                </b:EventTrigger>
-                            </b:Interaction.Triggers>
+                            ScrollViewer.CanContentScroll="False"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <!--  空状态模板  -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="ListBox">
+                                    <Grid>
+                                        <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+
+                                        <StackPanel
+                                            x:Name="EmptyHint"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Visibility="Collapsed">
+                                            <TextBlock
+                                                HorizontalAlignment="Center"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="40"
+                                                Foreground="#C6CDD6"
+                                                Text="&#xe660;" />
+                                            <TextBlock
+                                                Margin="0,10,0,0"
+                                                HorizontalAlignment="Center"
+                                                FontSize="13"
+                                                Foreground="#93A0AE"
+                                                Text="暂无颜色处理记录" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="HasItems" Value="False">
+                                            <Setter TargetName="EmptyHint" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ListBox.Template>
+
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="4" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,0,8,8" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <ContentPresenter />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                         </ListBox>
-                    </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 
