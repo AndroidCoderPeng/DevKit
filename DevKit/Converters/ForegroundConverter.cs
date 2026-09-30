@@ -6,7 +6,7 @@ using System.Windows.Data;
 
 namespace DevKit.Converters
 {
-    public class ColorTagForegroundConverter : IValueConverter
+    public class ForegroundConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -25,7 +25,7 @@ namespace DevKit.Converters
 
             var luminance = 0.2126f * r + 0.7152f * g + 0.0722f * b;
             //如果相对亮度大于0.5，则认为是浅色
-            return luminance > 0.5f ? "Black" : "White";
+            return luminance > 0.5f ? "DimGray" : "White";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

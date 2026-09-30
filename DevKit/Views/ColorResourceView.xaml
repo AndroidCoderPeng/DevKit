@@ -382,7 +382,7 @@
             </Setter>
         </Style>
 
-        <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
+        <cvt:ForegroundConverter x:Key="ForegroundConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -1089,6 +1089,104 @@
                             </Grid>
                         </Border>
                     </Grid>
+
+                    <ListBox
+                        Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ItemsSource="{Binding ColorResources}"
+                        ScrollViewer.CanContentScroll="False"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Margin" Value="0,0,8,8" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.ColorItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Width" Value="136" />
+                                            <Setter Property="Background" Value="{Binding Hex}" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border
+                                                            x:Name="CardBorder"
+                                                            Padding="16,12"
+                                                            Background="{TemplateBinding Background}"
+                                                            CornerRadius="8">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+
+                                    <Button.Content>
+                                        <Grid>
+                                            <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                                                <TextBlock
+                                                    FontSize="14"
+                                                    Foreground="{Binding Hex, Converter={StaticResource ForegroundConverterKey}}"
+                                                    Text="{Binding Name}" />
+
+                                                <TextBlock
+                                                    x:Name="HexTextBlock"
+                                                    Margin="0,4,0,0"
+                                                    FontFamily="Consolas"
+                                                    FontSize="14"
+                                                    Foreground="{Binding Hex, Converter={StaticResource ForegroundConverterKey}}"
+                                                    Text="{Binding Hex}" />
+                                            </StackPanel>
+
+                                            <TextBlock
+                                                x:Name="CopyIconTextBlock"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="16"
+                                                Foreground="{Binding Hex, Converter={StaticResource ForegroundConverterKey}}"
+                                                Text="&#xe66c;">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button.Content>
+                                </Button>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
 
                     <Border Grid.Row="2" Background="{StaticResource DevKitBorderBrush}" />
 

@@ -150,7 +150,31 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
+        
+        private ObservableCollection<ColorResourceCache> _colorResources = new ObservableCollection<ColorResourceCache>();
 
+        public ObservableCollection<ColorResourceCache> ColorResources
+        {
+            get => _colorResources;
+            set
+            {
+                _colorResources = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _keyword = string.Empty;
+
+        public string Keyword
+        {
+            get => _keyword;
+            set
+            {
+                _keyword = value;
+                RaisePropertyChanged();
+            }
+        }
+        
         private string _colorMode = string.Empty;
 
         public string ColorMode
@@ -188,8 +212,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> GreenColorTextChangedCommand { set; get; }
         public DelegateCommand<string> BlueColorTextChangedCommand { set; get; }
         public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
-        //////////////////////////////////////
-        // public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
+        public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
         #endregion
 
@@ -204,9 +227,6 @@ namespace DevKit.ViewModels
             RecentlyColors = new ObservableCollection<string>(config.Colors);
             
             Task.Run(async () => await LoadColorResourcesAsync());
-
-            var color = Color.FromRgb(0, 0, 0);
-            // ColorViewBrush = new SolidColorBrush(color);
         }
 
         private async Task LoadColorResourcesAsync()
@@ -218,7 +238,7 @@ namespace DevKit.ViewModels
                     var colorResCaches = await Task.Run(() => dataBase.Table<ColorResourceCache>().ToList());
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        // ColorResources = colorResCaches.ToObservableCollection();
+                        ColorResources = colorResCaches.ToObservableCollection();
                     });
                 }
             }
