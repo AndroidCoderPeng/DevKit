@@ -5,7 +5,9 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
@@ -173,6 +175,32 @@ namespace DevKit.ViewModels
             }
         }
 
+        private string _toastMessage;
+
+        public string ToastMessage
+        {
+            get => _toastMessage;
+            set
+            {
+                _toastMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _isToastVisible;
+
+        public bool IsToastVisible
+        {
+            get => _isToastVisible;
+            set
+            {
+                _isToastVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        
+        /////////////////////////////////////////////////////
+        
         private ObservableCollection<CommandCmdModel> _commandItems =
             new ObservableCollection<CommandCmdModel>();
 
@@ -185,8 +213,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        /////////////////////////////////////////////////////
 
         private string _targetAddress = string.Empty;
 
@@ -230,11 +256,14 @@ namespace DevKit.ViewModels
 
         public DelegateCommand RefreshIpAddressCommand { set; get; }
         public DelegateCommand<string> AddressItemSelectedCommand { set; get; }
+        public DelegateCommand<string> InfoItemCopyCommand { set; get; }
         public DelegateCommand<CommandCmdModel> CommandItemSelectedCommand { set; get; }
         public DelegateCommand TestNetCommand { set; get; }
 
         #endregion
 
+        private DispatcherTimer _toastTimer;
+        
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
             AddressItems.AddRange(appDataService.GetIPv4Address());
@@ -283,6 +312,14 @@ namespace DevKit.ViewModels
                 AddressItems.AddRange(appDataService.GetIPv4Address());
             });
 
+            InfoItemCopyCommand = new DelegateCommand<string>(item =>
+            {
+                var dataObject = new DataObject(DataFormats.UnicodeText, item);
+                Clipboard.SetDataObject(dataObject);
+
+                ShowToast("参数已复制");
+            });
+            
             CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
                 // if (commandValue.Equals("ping"))
@@ -453,6 +490,25 @@ namespace DevKit.ViewModels
             }
 
             return ("未连接", new SolidColorBrush(Colors.LightGray));
+        }
+        
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
         }
     }
 }

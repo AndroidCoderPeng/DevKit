@@ -255,7 +255,7 @@
                             <!--  单一入口：所有信息卡共享的点击行为  -->
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseLeftButtonUp">
-                                    <b:InvokeCommandAction Command="{Binding CopyCommand}" CommandParameter="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
+                                    <b:InvokeCommandAction Command="{Binding InfoItemCopyCommand}" CommandParameter="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
 
@@ -608,110 +608,137 @@
                 Grid.Row="0"
                 Padding="16"
                 Style="{StaticResource CardStyle}">
-                <UniformGrid
-                    Margin="0,0,-10,-10"
-                    Columns="4"
-                    Rows="2">
-                    <ContentControl
-                        Content="{Binding Ip4, FallbackValue=127.0.0.1}"
-                        Style="{StaticResource InfoItemStyle}"
-                        Tag="IPv4 地址" />
+                <Grid>
+                    <UniformGrid
+                        Grid.Row="0"
+                        Margin="0,0,-10,-10"
+                        Columns="4"
+                        Rows="2">
+                        <ContentControl
+                            Content="{Binding Ip4, FallbackValue=127.0.0.1}"
+                            Style="{StaticResource InfoItemStyle}"
+                            Tag="IPv4 地址" />
 
-                    <ContentControl
-                        Content="{Binding SubnetMask, FallbackValue=255.255.255.0}"
-                        Style="{StaticResource InfoItemStyle}"
-                        Tag="子网掩码" />
+                        <ContentControl
+                            Content="{Binding SubnetMask, FallbackValue=255.255.255.0}"
+                            Style="{StaticResource InfoItemStyle}"
+                            Tag="子网掩码" />
 
-                    <ContentControl
-                        Content="{Binding Gateway, FallbackValue=192.168.3.1}"
-                        Style="{StaticResource InfoItemStyle}"
-                        Tag="默认网关" />
+                        <ContentControl
+                            Content="{Binding Gateway, FallbackValue=192.168.3.1}"
+                            Style="{StaticResource InfoItemStyle}"
+                            Tag="默认网关" />
 
-                    <ContentControl
-                        Content="{Binding DeviceMac}"
-                        Style="{StaticResource InfoItemStyle}"
-                        Tag="物理地址（MAC）" />
+                        <ContentControl
+                            Content="{Binding DeviceMac}"
+                            Style="{StaticResource InfoItemStyle}"
+                            Tag="物理地址（MAC）" />
 
-                    <ContentControl
-                        Content="{Binding Dns}"
-                        Style="{StaticResource InfoItemStyle}"
-                        Tag="DNS 服务器" />
+                        <ContentControl
+                            Content="{Binding Dns}"
+                            Style="{StaticResource InfoItemStyle}"
+                            Tag="DNS 服务器" />
 
-                    <Border
-                        Margin="0,0,10,10"
-                        Padding="12"
-                        Background="{StaticResource SurfaceBrush}"
-                        BorderBrush="Transparent"
-                        BorderThickness="1"
-                        CornerRadius="10">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{StaticResource TertiaryTextBrush}"
-                                Text="适配器类型" />
-
-                            <TextBlock
-                                Margin="0,8,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="13"
-                                Foreground="{DynamicResource DevKitTextBrush}">
-                                <Run Text="{Binding AdapterType}" />
-                                <Run Text=" · " />
-                                <Run FontWeight="SemiBold" Text="{Binding NetSpeed, StringFormat={}{0} Mbps}" />
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <Border
-                        Margin="0,0,10,10"
-                        Padding="12"
-                        Background="{StaticResource SurfaceBrush}"
-                        BorderBrush="Transparent"
-                        BorderThickness="1"
-                        CornerRadius="10">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{StaticResource TertiaryTextBrush}"
-                                Text="DHCP" />
-
-                            <TextBlock
-                                Margin="0,8,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="13"
-                                Foreground="{DynamicResource DevKitTextBrush}"
-                                Text="{Binding Dhcp}" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border
-                        Margin="0,0,10,10"
-                        Padding="12"
-                        Background="{StaticResource SurfaceBrush}"
-                        BorderBrush="Transparent"
-                        BorderThickness="1"
-                        CornerRadius="10">
-                        <StackPanel>
-                            <TextBlock
-                                FontSize="11"
-                                Foreground="{StaticResource TertiaryTextBrush}"
-                                Text="连接状态" />
-                            <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
-                                <Ellipse
-                                    Width="12"
-                                    Height="12"
-                                    VerticalAlignment="Center"
-                                    Fill="{Binding ConnectionStateColor, FallbackValue={StaticResource TerminalDimBrush}}" />
+                        <Border
+                            Margin="0,0,10,10"
+                            Padding="12"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="10">
+                            <StackPanel Orientation="Vertical">
                                 <TextBlock
-                                    Margin="8,0,0,0"
+                                    FontSize="11"
+                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Text="适配器类型" />
+
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource DevKitTextBrush}">
+                                    <Run Text="{Binding AdapterType}" />
+                                    <Run Text=" · " />
+                                    <Run FontWeight="SemiBold" Text="{Binding NetSpeed, StringFormat={}{0} Mbps}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="0,0,10,10"
+                            Padding="12"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="10">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock
+                                    FontSize="11"
+                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Text="DHCP" />
+
+                                <TextBlock
+                                    Margin="0,8,0,0"
                                     VerticalAlignment="Center"
                                     FontSize="13"
                                     Foreground="{DynamicResource DevKitTextBrush}"
-                                    Text="{Binding ConnectionState, FallbackValue=未连接}" />
+                                    Text="{Binding Dhcp}" />
                             </StackPanel>
-                        </StackPanel>
+                        </Border>
+
+                        <Border
+                            Margin="0,0,10,10"
+                            Padding="12"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="10">
+                            <StackPanel>
+                                <TextBlock
+                                    FontSize="11"
+                                    Foreground="{StaticResource TertiaryTextBrush}"
+                                    Text="连接状态" />
+                                <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                                    <Ellipse
+                                        Width="12"
+                                        Height="12"
+                                        VerticalAlignment="Center"
+                                        Fill="{Binding ConnectionStateColor, FallbackValue={StaticResource TerminalDimBrush}}" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        Text="{Binding ConnectionState, FallbackValue=未连接}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <Border
+                        Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Panel.ZIndex="999"
+                        Background="#CC2B2B2B"
+                        CornerRadius="16">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock
+                            Margin="18,9"
+                            FontSize="13"
+                            Foreground="White"
+                            Text="{Binding ToastMessage}" />
                     </Border>
-                </UniformGrid>
+                </Grid>
             </Border>
 
             <!--  命令列表 + 命令输出终端  -->
