@@ -253,7 +253,7 @@ namespace DevKit.ViewModels
         /// </summary>
         public bool CanRunOrStop => IsRunning || (_selectedCommand != null && _selectedCommand.NeedParams);
 
-        private bool _isAutoScrollBoxChecked = true;
+        private bool _isAutoScrollBoxChecked;
 
         public bool IsAutoScrollBoxChecked
         {
@@ -265,9 +265,7 @@ namespace DevKit.ViewModels
             }
         }
         
-        /////////////////////////////////////////////////////
-
-        private bool _isLoopBoxChecked = true;
+        private bool _isLoopBoxChecked;
 
         public bool IsLoopBoxChecked
         {
