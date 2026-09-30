@@ -287,9 +287,12 @@
 
             <ListBox
                 Grid.Row="4"
+                HorizontalContentAlignment="Stretch"
                 Background="Transparent"
                 BorderThickness="0"
-                ItemsSource="{Binding SocketTools}">
+                ItemsSource="{Binding SocketTools}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
