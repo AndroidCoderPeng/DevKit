@@ -125,6 +125,18 @@ namespace DevKit.ViewModels
             }
         }
 
+        private long _netSpeed;
+
+        public long NetSpeed
+        {
+            get => _netSpeed;
+            set
+            {
+                _netSpeed = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private string _dhcp = string.Empty;
 
         public string Dhcp
@@ -247,7 +259,12 @@ namespace DevKit.ViewModels
                 Gateway = GetGateway(ip);
                 DeviceMac = GetDeviceMac(ip);
                 Dns = GetDns(ip);
-                AdapterType = GetAdapterType(ip);
+
+                // 网络适配器类型以及带宽
+                var adapterType = GetAdapterType(ip);
+                AdapterType = adapterType.Item1;
+                NetSpeed = adapterType.Item2;
+
                 Dhcp = GetDhcp(ip);
 
                 // 连接状态
@@ -275,7 +292,7 @@ namespace DevKit.ViewModels
                 //
                 // Task.Run(() => { ExecuteCommand(commandValue); });
             });
-            
+
             TestNetCommand = new DelegateCommand(TestNet);
         }
 
@@ -374,22 +391,37 @@ namespace DevKit.ViewModels
                         .Where(address => address.AddressFamily == AddressFamily.InterNetwork));
         }
 
-        private string GetAdapterType(string ip)
+        private (string, long) GetAdapterType(string ip)
         {
             var network = FindNetworkInterface(ip);
-            switch (network?.NetworkInterfaceType)
+            if (network == null)
+            {
+                return ("未知", 0);
+            }
+
+            string type;
+            switch (network.NetworkInterfaceType)
             {
                 case NetworkInterfaceType.Ethernet:
-                    return "以太网";
+                    type = "以太网";
+                    break;
                 case NetworkInterfaceType.Wireless80211:
-                    return "Wi-Fi";
+                    type = "Wi-Fi";
+                    break;
                 case NetworkInterfaceType.Loopback:
-                    return "回环网卡";
+                    type = "回环网卡";
+                    break;
                 case NetworkInterfaceType.Tunnel:
-                    return "隧道网卡";
+                    type = "隧道网卡";
+                    break;
                 default:
-                    return network?.NetworkInterfaceType.ToString() ?? string.Empty;
+                    type = "未知";
+                    break;
             }
+
+            // NetworkInterface.Speed 单位是 bit/s，除以 1000000 得到 Mbps
+            var speedMbps = Math.Max(0L, network.Speed / 1000000L);
+            return (type, speedMbps);
         }
 
         private string GetDhcp(string ip)
