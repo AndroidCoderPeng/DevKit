@@ -637,7 +637,7 @@
                                 <TextBox
                                     x:Name="ColorHexTextBox"
                                     Grid.Column="1"
-                                    Margin="4,0,0,0"
+                                    Margin="6,0,0,0"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Background="Transparent"
@@ -1027,7 +1027,7 @@
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             FontFamily="微软雅黑"
-                            FontSize="14"
+                            FontSize="16"
                             FontWeight="Bold"
                             Foreground="Black"
                             Text="预设色板" />
@@ -1181,13 +1181,13 @@
                                         <Grid>
                                             <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                                 <TextBlock
-                                                    FontSize="14"
+                                                    FontSize="16"
                                                     Foreground="{Binding Hex, Converter={StaticResource ForegroundConverterKey}}"
                                                     Text="{Binding Name}" />
 
                                                 <TextBlock
                                                     x:Name="HexTextBlock"
-                                                    Margin="0,4,0,0"
+                                                    Margin="0,8,0,0"
                                                     FontFamily="Consolas"
                                                     FontSize="14"
                                                     Foreground="{Binding Hex, Converter={StaticResource ForegroundConverterKey}}"
@@ -1224,7 +1224,7 @@
 
                     <TextBlock
                         Grid.Row="3"
-                        Margin="16"
+                        Margin="16,18"
                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
                         Text="单击色板 → 复制 HEX 并回填到左侧通道； RGB → HEX 模式下左侧色值由通道自动计算。" />
                 </Grid>
