@@ -6,7 +6,6 @@
     xmlns:bhv="clr-namespace:DevKit.Behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
@@ -78,11 +77,9 @@
                     VerticalAlignment="Center"
                     Text="监听端口" />
 
-                <hc:TextBox
+                <TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="9000"
-                    hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     MaxLength="5"
                     Text="{Binding ListenPort}"

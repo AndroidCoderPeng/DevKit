@@ -7,7 +7,6 @@
     xmlns:cache="clr-namespace:DevKit.Cache"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
@@ -51,11 +50,9 @@
                     VerticalAlignment="Center"
                     Text="服务端" />
 
-                <hc:TextBox
+                <TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="ws://127.0.0.1:5000/user"
-                    hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     Text="{Binding WebSocketPath}"
                     TextWrapping="NoWrap" />

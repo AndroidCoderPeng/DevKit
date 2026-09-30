@@ -6,7 +6,6 @@
     xmlns:bhv="clr-namespace:DevKit.Behaviors"
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
@@ -80,11 +79,9 @@
                     VerticalAlignment="Center"
                     Text="监听端口" />
 
-                <hc:TextBox
+                <TextBox
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    hc:InfoElement.Placeholder="9000"
-                    hc:InfoElement.ShowClearButton="True"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     MaxLength="5"
                     Text="{Binding ListenPort}"
@@ -103,10 +100,9 @@
                     VerticalAlignment="Center"
                     Text="地址" />
 
-                <hc:TextBox
+                <TextBox
                     Grid.Column="1"
                     Margin="10,0,0,0"
-                    hc:InfoElement.Placeholder="监听后自动生成"
                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                     IsReadOnly="True"
                     Text="{Binding WebSocketPath}"
