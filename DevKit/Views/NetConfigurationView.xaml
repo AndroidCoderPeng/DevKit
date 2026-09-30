@@ -36,6 +36,7 @@
         <!--  ========== 下拉项 ==========  -->
         <Style x:Key="FieldComboBoxItemStyle" TargetType="ComboBoxItem">
             <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="0,2" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />

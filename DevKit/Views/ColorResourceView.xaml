@@ -257,6 +257,99 @@
             </Setter>
         </Style>
 
+        <!--  TODO 有问题 颜色通道 Slider  -->
+        <Style x:Key="ChannelSliderStyle" TargetType="Slider">
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid
+                            Height="16"
+                            Background="Transparent"
+                            SnapsToDevicePixels="True">
+
+                            <!--  轨道底色：未选段  -->
+                            <Border
+                                Height="6"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource BorderStrongBrush}"
+                                CornerRadius="2" />
+
+                            <Track x:Name="PART_Track">
+                                <!--  已选段：通道色  -->
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton
+                                        Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}"
+                                        Command="{x:Static Slider.DecreaseLarge}"
+                                        Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border
+                                                    Height="6"
+                                                    VerticalAlignment="Center"
+                                                    Background="{TemplateBinding Background}"
+                                                    CornerRadius="2" />
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+
+                                <!--  未选段：保持透明  -->
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="Transparent" />
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+
+                                <!--  滑块  -->
+                                <Track.Thumb>
+                                    <Thumb
+                                        Width="16"
+                                        Height="16"
+                                        Focusable="False"
+                                        Foreground="{TemplateBinding Foreground}">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse
+                                                    x:Name="ThumbCircle"
+                                                    Fill="White"
+                                                    Stroke="{TemplateBinding Foreground}"
+                                                    StrokeThickness="2">
+                                                    <Ellipse.Effect>
+                                                        <DropShadowEffect
+                                                            BlurRadius="4"
+                                                            Direction="270"
+                                                            Opacity="0.25"
+                                                            ShadowDepth="1"
+                                                            Color="#13223D" />
+                                                    </Ellipse.Effect>
+                                                </Ellipse>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbCircle" Property="RenderTransform">
+                                                            <Setter.Value>
+                                                                <ScaleTransform CenterX="8" CenterY="8" ScaleX="1.12" ScaleY="1.12" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <cvt:ColorTagForegroundConverter x:Key="ColorTagForegroundConverterKey" />
     </UserControl.Resources>
 
@@ -380,6 +473,7 @@
                 CornerRadius="16">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -575,12 +669,13 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                VerticalAlignment="Center"
+                                Foreground="{StaticResource ChannelABrush}"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="16"
                                 Maximum="255"
                                 Minimum="0"
                                 SmallChange="1"
+                                Style="{StaticResource ChannelSliderStyle}"
                                 TickFrequency="1"
                                 Value="{Binding AlphaValue, Mode=TwoWay}" />
 
@@ -624,12 +719,13 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                VerticalAlignment="Center"
+                                Foreground="{StaticResource ChannelRBrush}"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="16"
                                 Maximum="255"
                                 Minimum="0"
                                 SmallChange="1"
+                                Style="{StaticResource ChannelSliderStyle}"
                                 TickFrequency="1"
                                 Value="{Binding RedColor, Mode=TwoWay}" />
 
@@ -673,12 +769,13 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                VerticalAlignment="Center"
+                                Foreground="{StaticResource ChannelGBrush}"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="16"
                                 Maximum="255"
                                 Minimum="0"
                                 SmallChange="1"
+                                Style="{StaticResource ChannelSliderStyle}"
                                 TickFrequency="1"
                                 Value="{Binding GreenColor, Mode=TwoWay}" />
 
@@ -722,12 +819,13 @@
                             <Slider
                                 Grid.Column="1"
                                 Margin="12,0"
-                                VerticalAlignment="Center"
+                                Foreground="{StaticResource ChannelBBrush}"
                                 IsSnapToTickEnabled="True"
                                 LargeChange="16"
                                 Maximum="255"
                                 Minimum="0"
                                 SmallChange="1"
+                                Style="{StaticResource ChannelSliderStyle}"
                                 TickFrequency="1"
                                 Value="{Binding BlueColor, Mode=TwoWay}" />
 
@@ -745,128 +843,34 @@
                         </Grid>
                     </StackPanel>
 
+                    <Grid Grid.Row="3" Margin="0,16">
+                        <Line
+                            SnapsToDevicePixels="True"
+                            Stroke="{DynamicResource DevKitBorderBrush}"
+                            StrokeDashArray="4,3"
+                            StrokeThickness="1"
+                            X1="0"
+                            X2="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                            Y1="0.5"
+                            Y2="0.5" />
+                    </Grid>
+
                     <!--  ========== 最近使用 ==========  -->
-                    <StackPanel Grid.Row="3" Margin="0,16,0,0">
-                        <TextBlock
-                            FontSize="11.5"
-                            Foreground="{StaticResource MutedTextBrush}"
-                            Text="最近使用" />
+                    <StackPanel Grid.Row="4">
+                        <TextBlock Foreground="{StaticResource MutedTextBrush}" Text="最近使用" />
 
-                        <WrapPanel Margin="0,8,0,0">
-                            <Border
-                                Height="24"
-                                Margin="0,0,6,0"
-                                Padding="5,0,9,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource DevKitBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Ellipse
-                                        Width="14"
-                                        Height="14"
-                                        Margin="0,0,6,0"
-                                        Fill="#16A34A" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontFamily="Consolas"
-                                        FontSize="11"
-                                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                                        Text="#16A34A" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border
-                                Height="24"
-                                Margin="0,0,6,0"
-                                Padding="5,0,9,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource DevKitBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Ellipse
-                                        Width="14"
-                                        Height="14"
-                                        Margin="0,0,6,0"
-                                        Fill="#F2994A" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontFamily="Consolas"
-                                        FontSize="11"
-                                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                                        Text="#F2994A" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border
-                                Height="24"
-                                Margin="0,0,6,0"
-                                Padding="5,0,9,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource DevKitBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Ellipse
-                                        Width="14"
-                                        Height="14"
-                                        Margin="0,0,6,0"
-                                        Fill="#7C5CFF" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontFamily="Consolas"
-                                        FontSize="11"
-                                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                                        Text="#7C5CFF" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border
-                                Height="24"
-                                Margin="0,0,6,0"
-                                Padding="5,0,9,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource DevKitBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Ellipse
-                                        Width="14"
-                                        Height="14"
-                                        Margin="0,0,6,0"
-                                        Fill="#E5484D" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontFamily="Consolas"
-                                        FontSize="11"
-                                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                                        Text="#E5484D" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border
-                                Height="24"
-                                Padding="5,0,9,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource DevKitBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Ellipse
-                                        Width="14"
-                                        Height="14"
-                                        Margin="0,0,6,0"
-                                        Fill="#22B8CF" />
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontFamily="Consolas"
-                                        FontSize="11"
-                                        Foreground="{StaticResource TextBlockForegroundBrush}"
-                                        Text="#22B8CF" />
-                                </StackPanel>
-                            </Border>
-                        </WrapPanel>
+                        <ListBox
+                            x:Name="RecentlyColorListBox"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ItemsSource="{Binding RecentlyColors}"
+                            ScrollViewer.CanContentScroll="False">
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="SelectionChanged">
+                                    <b:InvokeCommandAction Command="{Binding RecentlyColorSelectedCommand}" CommandParameter="{Binding ElementName=RecentlyColorListBox, Path=SelectedItem}" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                        </ListBox>
                     </StackPanel>
                 </Grid>
             </Border>
