@@ -585,6 +585,11 @@
                                 <Style TargetType="Border">
                                     <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                     <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsToHexSelected}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </DataTrigger>
+
                                         <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ColorHexTextBox}" Value="True">
                                             <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                             <Setter Property="Effect">
@@ -619,6 +624,7 @@
                                 <TextBox
                                     x:Name="ColorHexTextBox"
                                     Grid.Column="1"
+                                    Margin="4,0,0,0"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Background="Transparent"
@@ -663,6 +669,16 @@
 
                     <!--  ========== 通道滑块 ==========  -->
                     <StackPanel Grid.Row="2" Margin="0,16,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsToHexSelected}" Value="False">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                        <Setter Property="Opacity" Value="0.6" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
 
                         <!--  A  -->
                         <Grid>
