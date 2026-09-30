@@ -32,7 +32,8 @@ namespace DevKit.ViewModels
         {
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.RecentlyColor, new RecentlyColorConfig
             {
-                Colors = _recentlyColors.Take(10).ToList()
+                // 只保存最近的9个颜色
+                Colors = _recentlyColors.Take(9).ToList()
             });
         }
 
