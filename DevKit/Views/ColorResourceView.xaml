@@ -394,7 +394,7 @@
                         <RadioButton
                             Content="RGB → HEX"
                             GroupName="ColorMode"
-                            IsChecked="{Binding IsHexSelected, Mode=TwoWay}"
+                            IsChecked="{Binding IsToHexSelected, Mode=TwoWay}"
                             Style="{StaticResource SegmentRadioStyle}" />
 
                         <RadioButton
@@ -519,7 +519,7 @@
                                     FontFamily="Consolas"
                                     FontSize="14"
                                     Foreground="#1B1B1B"
-                                    Text="{Binding AlphaValue, StringFormat={}A {0}}" />
+                                    Text="{Binding AlphaValue, StringFormat={}A {0}, FallbackValue=A 255}" />
                             </Border>
 
                             <!--  悬停提示  -->
@@ -612,7 +612,7 @@
                                     Text="{Binding ColorHexValue, UpdateSourceTrigger=PropertyChanged}">
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="TextChanged">
-                                            <b:InvokeCommandAction Command="{Binding ColorHexTextChangedCommand}" CommandParameter="{Binding ElementName=HexInputTextBox, Path=Text}" />
+                                            <b:InvokeCommandAction Command="{Binding ColorHexTextChangedCommand}" CommandParameter="{Binding ElementName=ColorHexTextBox, Path=Text}" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
                                 </TextBox>
@@ -742,6 +742,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border
+                                Grid.Column="0"
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
@@ -786,6 +787,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Border
+                                Grid.Column="0"
                                 Width="28"
                                 Height="28"
                                 VerticalAlignment="Center"
