@@ -320,7 +320,7 @@ body {
 /* ================= HEX 输入 ================= */
 .hex-row {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
     margin-top: 14px;
 }
@@ -329,6 +329,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
     height: 38px;
     padding: 0 12px;
     background: var(--surface-2);
@@ -368,22 +369,6 @@ body {
 
 .hex-field.readonly input {
     color: var(--text-2);
-}
-
-.auto-tag {
-    flex: none;
-    padding: 2px 7px;
-    font-size: 10.5px;
-    color: var(--text-3);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-}
-
-.hex-field:not(.readonly) .auto-tag {
-    color: var(--accent);
-    border-color: rgba(46, 124, 246, .35);
-    background: var(--accent-soft);
 }
 
 /* ================= 通道滑块 ================= */

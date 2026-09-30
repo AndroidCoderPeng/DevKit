@@ -246,7 +246,6 @@
             hexInput.value = currentHex().slice(1);
         }
         $('hexField').classList.toggle('readonly', state.mode === 'rgb2hex');
-        $('autoTag').textContent = state.mode === 'rgb2hex' ? '自动' : '输入';
 
         // 通道
         var channelEditable = state.mode === 'rgb2hex';
