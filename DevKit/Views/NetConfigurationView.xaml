@@ -487,7 +487,7 @@
             <Setter Property="CornerRadius" Value="13" />
         </Style>
 
-        <!--  ========== 输入框（带占位符） ==========  -->
+        <!--  ========== 输入框（带水印） ==========  -->
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="34" />
             <Setter Property="FontSize" Value="13" />
@@ -513,12 +513,20 @@
                                     FontSize="13"
                                     Foreground="{StaticResource TertiaryTextBrush}"
                                     IsHitTestVisible="False"
-                                    Text="IP 或域名，如 8.8.8.8 / www.baidu.com"
+                                    Text="IP或域名，如 8.8.8.8 / www.baidu.com"
                                     Visibility="Collapsed" />
                                 <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <!--  空文本 -> 显示水印；同时覆盖 null，绑定为 null 时 Value="" 是不匹配的  -->
+                            <Trigger Property="Text" Value="">
+                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="Text" Value="{x:Null}">
+                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                            </Trigger>
+
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                                 <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
@@ -876,7 +884,7 @@
                                 Foreground="{StaticResource SecondaryTextBrush}"
                                 Text="参数" />
 
-                            <TextBox Style="{StaticResource FieldTextBoxStyle}" Text="{Binding TargetAddress}" />
+                            <TextBox IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}" Style="{StaticResource FieldTextBoxStyle}" />
 
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
@@ -900,6 +908,7 @@
                                     Grid.Column="1"
                                     Margin="14,0,0,0"
                                     Command="{Binding TestNetCommand}"
+                                    IsEnabled="{Binding SelectedItem.NeedParams, ElementName=CommandListBox}"
                                     Style="{StaticResource PrimaryButtonStyle}">
                                     <Button.Content>
                                         <StackPanel Margin="12,0" Orientation="Horizontal">

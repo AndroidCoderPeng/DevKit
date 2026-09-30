@@ -4,14 +4,12 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using HandyControl.Tools;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -214,18 +212,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _targetAddress = string.Empty;
-
-        public string TargetAddress
-        {
-            get => _targetAddress;
-            set
-            {
-                _targetAddress = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private bool _isLoopBoxChecked = true;
 
         public bool IsLoopBoxChecked
@@ -322,12 +308,15 @@ namespace DevKit.ViewModels
 
             CommandItemSelectedCommand = new DelegateCommand<CommandCmdModel>(item =>
             {
-                // if (commandValue.Equals("ping"))
-                // {
-                //     return;
-                // }
-                //
-                // Task.Run(() => { ExecuteCommand(commandValue); });
+                if (item.NeedParams)
+                {
+                    // 拼接参数，然后点击才执行
+                }
+                else
+                {
+                    // 直接执行
+                    ExecuteCommand(item.Command);
+                }
             });
 
             TestNetCommand = new DelegateCommand(TestNet);
@@ -335,38 +324,38 @@ namespace DevKit.ViewModels
 
         private void TestNet()
         {
-            if (_targetAddress.IsIp())
-            {
-                Task.Run(() =>
-                {
-                    var argument = new ArgumentCreator();
-                    argument.Append("ping").Append(_targetAddress);
-                    if (_isLoopBoxChecked)
-                    {
-                        argument.Append("-t");
-                    }
-
-                    ExecuteCommand(argument.ToCommandLine());
-                });
-            }
-            else
-            {
-                // Task.Run(async () =>
-                // {
-                //     var addresses = await Dns.GetHostAddressesAsync(_targetAddress);
-                //     var ip = addresses.FirstOrDefault()?.ToString() ?? string.Empty;
-                //     if (string.IsNullOrEmpty(ip))
-                //     {
-                //         MessageBox.Show("请输入正确的目标地址", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                //     }
-                //     else
-                //     {
-                //         var argument = new ArgumentCreator();
-                //         argument.Append("ping").Append(ip);
-                //         ExecuteCommand(argument.ToCommandLine());
-                //     }
-                // });
-            }
+            // if (_targetAddress.IsIp())
+            // {
+            //     Task.Run(() =>
+            //     {
+            //         var argument = new ArgumentCreator();
+            //         argument.Append("ping").Append(_targetAddress);
+            //         if (_isLoopBoxChecked)
+            //         {
+            //             argument.Append("-t");
+            //         }
+            //
+            //         ExecuteCommand(argument.ToCommandLine());
+            //     });
+            // }
+            // else
+            // {
+            //     Task.Run(async () =>
+            //     {
+            //         var addresses = await Dns.GetHostAddressesAsync(_targetAddress);
+            //         var ip = addresses.FirstOrDefault()?.ToString() ?? string.Empty;
+            //         if (string.IsNullOrEmpty(ip))
+            //         {
+            //             MessageBox.Show("请输入正确的目标地址", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+            //         }
+            //         else
+            //         {
+            //             var argument = new ArgumentCreator();
+            //             argument.Append("ping").Append(ip);
+            //             ExecuteCommand(argument.ToCommandLine());
+            //         }
+            //     });
+            // }
         }
 
         private void ExecuteCommand(string command)
