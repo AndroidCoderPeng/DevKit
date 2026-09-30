@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -314,20 +313,27 @@ namespace DevKit.ViewModels
         /// </summary>
         private void StartScan()
         {
-            ApkFileCollection?.Clear();
+            ApkFileCollection = new ObservableCollection<ApkFileModel>();
 
             ScanProgress = 0;
             ScanVisibility = Visibility.Visible;
 
-            Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 try
                 {
-                    var totalFiles = await GetApkFilesAsync();
-                    Application.Current.Dispatcher.Invoke(() =>
+                    TraverseFolder(_apkRootFolderPath, (apk, processed, total) =>
                     {
-                        ApkFileCollection = totalFiles.ToObservableCollection();
-                        ApplyFilter();
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            if (apk != null)
+                            {
+                                ApkFileCollection.Add(apk);
+                                ApplyFilter();
+                            }
+
+                            ScanProgress = total == 0 ? 100 : Math.Round(processed * 100.0 / total);
+                        });
                     });
                 }
                 catch (Exception e)
@@ -340,37 +346,23 @@ namespace DevKit.ViewModels
                 finally
                 {
                     // 无论成败，进度条一定收起
-                    Application.Current.Dispatcher.Invoke(() => { ScanVisibility = Visibility.Collapsed; });
-                }
-            });
-        }
-
-        private Task<List<ApkFileModel>> GetApkFilesAsync()
-        {
-            var list = new List<ApkFileModel>();
-            return Task.Run(() =>
-            {
-                TraverseFolder(_apkRootFolderPath, list, (processed, total) =>
-                {
-                    var progress = total == 0 ? 100 : processed * 100.0 / total;
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        ScanProgress = Math.Round(progress);
-                    }));
-                });
-                return list;
+                        ScanProgress = 100;
+                        ScanVisibility = Visibility.Collapsed;
+                    });
+                }
             });
         }
 
         /// <summary>
         /// 遍历文件夹并生成相应的数据类型集合
         /// </summary>
-        private void TraverseFolder(string folderPath, List<ApkFileModel> apkFiles, Action<int, int> onProgress = null)
+        private void TraverseFolder(string folderPath, Action<ApkFileModel, int, int> onFileScanned)
         {
             var files = new DirectoryInfo(folderPath)
                 .GetFiles("*.apk", SearchOption.AllDirectories)
-                .OrderBy(file => file.LastWriteTime)
-                .Reverse()
+                .OrderByDescending(file => file.LastWriteTime)
                 .ToArray();
 
             var total = files.Length;
@@ -378,36 +370,37 @@ namespace DevKit.ViewModels
 
             foreach (var file in files)
             {
-                // 进度按「已处理的文件数」上报（含被过滤的 debug 文件），放在 continue 之前
                 processed++;
-                onProgress?.Invoke(processed, total);
 
+                ApkFileModel apk = null;
                 var fullName = file.FullName;
-                if (fullName.Contains("debug") || file.Name.StartsWith(".")) continue;
 
-                var nameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
-                var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
-                var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension.Substring(0, index - 1);
-
-                var apk = new ApkFileModel
+                if (fullName.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0 && !file.Name.StartsWith("."))
                 {
-                    FileName = fileName,
-                    FullName = fullName,
-                    FileSize = file.Length.ToFileSize(),
-                    ModifyTime = file.LastWriteTime.ToString("yyyy-MM-dd")
-                };
+                    var nameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
+                    var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
+                    var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension.Substring(0, index - 1);
 
-                // 匹配日期和版本号的正则表达式模式，支持 YYYYMMDD_版本号 或 _XX_YYYYMMDD_版本号 或 YYYYMMDD_版本号_附加信息
-                const string pattern = @"^(.+?)(?:_[A-Za-z0-9]+)?_(\d{8})_((?:\d+\.)*\d+)(?:_(.+))?$";
-                var match = Regex.Match(nameWithoutExtension, pattern);
-                if (match.Success)
-                {
-                    apk.BuildTime = match.Groups[2].Value; // 提取日期 20260101
-                    apk.Version = match.Groups[3].Value; // 提取版本号 1.0.1.0
-                    apk.ExtraInfo = match.Groups[4].Success ? match.Groups[4].Value : string.Empty; // 提取附加信息
+                    apk = new ApkFileModel
+                    {
+                        FileName = fileName,
+                        FullName = fullName,
+                        FileSize = file.Length.ToFileSize(),
+                        ModifyTime = file.LastWriteTime.ToString("yyyy-MM-dd")
+                    };
+
+                    // 匹配日期和版本号的正则表达式模式，支持 YYYYMMDD_版本号 或 _XX_YYYYMMDD_版本号 或 YYYYMMDD_版本号_附加信息
+                    const string pattern = @"^(.+?)(?:_[A-Za-z0-9]+)?_(\d{8})_((?:\d+\.)*\d+)(?:_(.+))?$";
+                    var match = Regex.Match(nameWithoutExtension, pattern);
+                    if (match.Success)
+                    {
+                        apk.BuildTime = match.Groups[2].Value;
+                        apk.Version = match.Groups[3].Value;
+                        apk.ExtraInfo = match.Groups[4].Success ? match.Groups[4].Value : string.Empty;
+                    }
                 }
 
-                apkFiles.Add(apk);
+                onFileScanned?.Invoke(apk, processed, total);
             }
         }
 

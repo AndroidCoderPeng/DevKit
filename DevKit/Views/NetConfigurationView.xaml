@@ -22,7 +22,6 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <!--  ========== 颜色 ==========  -->
         <SolidColorBrush x:Key="TerminalBodyBrush" Color="#0C1016" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#39434F" />
         <SolidColorBrush x:Key="TerminalDimBrush" Color="#9EAAB8" />
