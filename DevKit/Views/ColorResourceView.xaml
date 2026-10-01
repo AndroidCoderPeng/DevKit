@@ -419,6 +419,7 @@
                         <RadioButton
                             Content="HEX → RGB"
                             GroupName="ColorMode"
+                            IsChecked="{Binding IsHexToRgbSelected, Mode=TwoWay}"
                             Style="{StaticResource SegmentRadioStyle}" />
                     </StackPanel>
                 </Border>
