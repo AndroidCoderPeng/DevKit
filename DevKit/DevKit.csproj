@@ -214,6 +214,7 @@
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
     <Compile Include="ViewModels\UdpServerViewModel.cs" />
+    <Compile Include="ViewModels\VideoCutViewModel.cs" />
     <Compile Include="ViewModels\WebSocketClientViewModel.cs" />
     <Compile Include="ViewModels\WebSocketServerViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
@@ -246,6 +247,9 @@
     </Compile>
     <Compile Include="Views\UdpServerView.xaml.cs">
       <DependentUpon>UdpServerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoCutView.xaml.cs">
+      <DependentUpon>VideoCutView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WebSocketClientView.xaml.cs">
       <DependentUpon>WebSocketClientView.xaml</DependentUpon>
@@ -293,6 +297,7 @@
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />
     <Page Include="Views\UdpServerView.xaml" />
+    <Page Include="Views\VideoCutView.xaml" />
     <Page Include="Views\WebSocketClientView.xaml" />
     <Page Include="Views\WebSocketServerView.xaml" />
   </ItemGroup>

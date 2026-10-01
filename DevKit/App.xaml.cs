@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,47 +54,33 @@ namespace DevKit
             }
         }
 
-        private void SwitchTheme(string themeName)
-        {
-            var resourceDict = new ResourceDictionary();
-            switch (themeName)
-            {
-                case "Dark":
-                    resourceDict.Source = new Uri("Colors/DarkColor.xaml", UriKind.Relative);
-                    break;
-                default:
-                    resourceDict.Source = new Uri("Colors/LightColor.xaml", UriKind.Relative);
-                    break;
-            }
-
-            Current.Resources.MergedDictionaries[1] = resourceDict;
-        }
-
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             //Data
             containerRegistry.RegisterSingleton<IAppDataService, AppDataServiceImpl>();
 
-            //Window
-            containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
-            containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
-            containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
-            containerRegistry.RegisterDialog<JNIReverseView, JNIReverseViewModel>();
-            containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
-            containerRegistry.RegisterForNavigation<UdpClientView, UdpClientViewModel>();
-            containerRegistry.RegisterForNavigation<WebSocketClientView, WebSocketClientViewModel>();
-            containerRegistry.RegisterForNavigation<TcpServerView, TcpServerViewModel>();
-            containerRegistry.RegisterForNavigation<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterForNavigation<WebSocketServerView, WebSocketServerViewModel>();
-            containerRegistry.RegisterForNavigation<ColorResourceView, ColorResourceViewModel>();
-            containerRegistry.RegisterForNavigation<NetConfigurationView, NetConfigurationViewModel>();
-
             //Dialog
+            containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             containerRegistry.RegisterDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
+            
+            containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
             containerRegistry.RegisterDialog<AndroidLogcatDialog, AndroidLogcatDialogViewModel>();
-            containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
+            containerRegistry.RegisterDialog<JNIReverseView, JNIReverseViewModel>();
+            
+            containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
+            containerRegistry.RegisterDialog<TcpServerView, TcpServerViewModel>();
+            containerRegistry.RegisterDialog<UdpClientView, UdpClientViewModel>();
+            containerRegistry.RegisterDialog<UdpServerView, UdpServerViewModel>();
+            containerRegistry.RegisterDialog<WebSocketClientView, WebSocketClientViewModel>();
+            containerRegistry.RegisterDialog<WebSocketServerView, WebSocketServerViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
             containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
+            
+            containerRegistry.RegisterDialog<ColorResourceView, ColorResourceViewModel>();
+            containerRegistry.RegisterDialog<NetConfigurationView, NetConfigurationViewModel>();
+            containerRegistry.RegisterDialog<VideoCutView, VideoCutViewModel>();
+
+            containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
         }
     }
 }
