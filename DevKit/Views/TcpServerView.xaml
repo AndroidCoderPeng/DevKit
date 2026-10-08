@@ -25,10 +25,6 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
-        </Style>
-
         <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
         <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
         <cvt:ConnectStateConverter x:Key="ConnectStateConverterKey" />
