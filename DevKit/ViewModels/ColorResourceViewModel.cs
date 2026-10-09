@@ -195,6 +195,17 @@ namespace DevKit.ViewModels
 
             // 加载颜色资源缓存
             _ = LoadColorResourcesAsync();
+            
+            RandomColorCommand = new DelegateCommand(() =>
+            {
+                var random = new Random();
+                _currentColor = Color.FromArgb(
+                    (byte)random.Next(0, 256),
+                    (byte)random.Next(0, 256),
+                    (byte)random.Next(0, 256),
+                    (byte)random.Next(0, 256));
+                NotifyColorChanged();
+            });
         }
 
         private async Task LoadColorResourcesAsync()
