@@ -983,14 +983,14 @@
                                         <Button.Content>
                                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                                 <Ellipse
-                                                    Width="16"
-                                                    Height="16"
+                                                    Width="12"
+                                                    Height="12"
                                                     Fill="{Binding}" />
 
                                                 <TextBlock
                                                     Margin="10,0,0,0"
                                                     FontFamily="Consolas"
-                                                    FontSize="16"
+                                                    FontSize="14"
                                                     Text="{Binding}" />
                                             </StackPanel>
                                         </Button.Content>
