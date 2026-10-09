@@ -197,88 +197,6 @@
         </Grid>
 
         <Grid Grid.Row="1" Margin="0,16,0,0">
-            <Border
-                Background="{DynamicResource DevKitBackgroundBrush}"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8">
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Videos.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-
-                    <Border
-                        Grid.Row="0"
-                        HorizontalAlignment="Center"
-                        Background="{StaticResource DevKitAccentSoftBrush}"
-                        CornerRadius="16">
-                        <TextBlock
-                            Margin="16"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="32"
-                            Foreground="{StaticResource DevKitAccentBrush}"
-                            Text="&#xe715;" />
-                    </Border>
-
-                    <TextBlock
-                        Grid.Row="1"
-                        Margin="0,16"
-                        HorizontalAlignment="Center"
-                        FontSize="16"
-                        FontWeight="SemiBold"
-                        Foreground="Black"
-                        Text="还没有选择视频" />
-
-                    <TextBlock
-                        Grid.Row="2"
-                        HorizontalAlignment="Center"
-                        Text="选择一个 MP4 文件，即可预览视频并设置开始和结束时间。" />
-
-                    <Button
-                        Grid.Row="3"
-                        Margin="0,16"
-                        Style="{StaticResource PrimaryCompactButtonStyle}">
-                        <Button.Content>
-                            <StackPanel Margin="12,0" Orientation="Horizontal">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="16"
-                                    Text="&#xe6aa;" />
-                                <TextBlock
-                                    Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="13"
-                                    FontWeight="SemiBold"
-                                    Text="选择 MP4 文件" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-
-                    <TextBlock
-                        Grid.Row="4"
-                        HorizontalAlignment="Center"
-                        FontSize="11"
-                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                        Text="也可以将 MP4 文件拖放到此区域" />
-                </Grid>
-            </Border>
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -736,6 +654,93 @@
                     </Grid>
                 </Border>
             </Grid>
+            
+            <!-- 空白状态占位 -->
+            <Border
+                Background="{DynamicResource DevKitBackgroundBrush}"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedVideoPath}" Value="">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding SelectedVideoPath}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Border
+                        Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource DevKitAccentSoftBrush}"
+                        CornerRadius="16">
+                        <TextBlock
+                            Margin="16"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="32"
+                            Foreground="{StaticResource DevKitAccentBrush}"
+                            Text="&#xe715;" />
+                    </Border>
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Margin="0,16"
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="Black"
+                        Text="还没有选择视频" />
+
+                    <TextBlock
+                        Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        Text="选择一个 MP4 文件，即可预览视频并设置开始和结束时间。" />
+
+                    <Button
+                        Grid.Row="3"
+                        Margin="0,16"
+                        Command="{Binding SelectVideoCommand}"
+                        Style="{StaticResource PrimaryCompactButtonStyle}">
+                        <Button.Content>
+                            <StackPanel Margin="12,0" Orientation="Horizontal">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="16"
+                                    Text="&#xe6aa;" />
+                                <TextBlock
+                                    Margin="6,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Text="选择 MP4 文件" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                    <TextBlock
+                        Grid.Row="4"
+                        HorizontalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        Text="也可以将 MP4 文件拖放到此区域" />
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
