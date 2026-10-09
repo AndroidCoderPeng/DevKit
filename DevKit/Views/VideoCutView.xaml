@@ -1,9 +1,480 @@
-﻿<UserControl x:Class="DevKit.Views.VideoCutView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid />
+﻿<UserControl
+    x:Class="DevKit.Views.VideoCutView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Width="900"
+    Height="720"
+    d:DataContext="{d:DesignInstance Type=vm:VideoCutViewModel}"
+    Background="{DynamicResource DevKitBackgroundBrush}"
+    mc:Ignorable="d">
+
+    <prism:Dialog.WindowStyle>
+        <Style TargetType="Window">
+            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
+            <Setter Property="SizeToContent" Value="WidthAndHeight" />
+            <Setter Property="ResizeMode" Value="NoResize" />
+        </Style>
+    </prism:Dialog.WindowStyle>
+
+    <UserControl.Resources>
+        <!--  主按钮：蓝底白字  -->
+        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  普通按钮：白底灰框，hover 蓝  -->
+        <Style x:Key="CompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                FontFamily="Consolas"
+                FontWeight="SemiBold"
+                Foreground="{StaticResource DevKitAccentBrush}"
+                Text="VIDEO EDITOR" />
+
+            <TextBlock
+                Grid.Row="1"
+                Margin="0,2"
+                FontSize="18"
+                FontWeight="SemiBold"
+                Foreground="Black"
+                Text="视频裁剪" />
+
+            <TextBlock
+                Grid.Row="2"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="选择一个 MP4 文件，开始预览和设置裁剪范围" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Border
+                Background="{DynamicResource DevKitBackgroundBrush}"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Videos.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Border
+                        Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        Background="{StaticResource DevKitAccentSoftBrush}"
+                        CornerRadius="16">
+                        <TextBlock
+                            Margin="16"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="32"
+                            Foreground="{StaticResource DevKitAccentBrush}"
+                            Text="&#xe715;" />
+                    </Border>
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Margin="0,16"
+                        HorizontalAlignment="Center"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="Black"
+                        Text="还没有选择视频" />
+
+                    <TextBlock
+                        Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        Text="选择一个 MP4 文件，即可预览视频并设置开始和结束时间。" />
+
+                    <Button
+                        Grid.Row="3"
+                        Margin="0,16"
+                        Style="{StaticResource PrimaryCompactButtonStyle}">
+                        <Button.Content>
+                            <StackPanel Margin="12,0" Orientation="Horizontal">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="16"
+                                    Text="&#xe6aa;" />
+                                <TextBlock
+                                    Margin="6,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="13"
+                                    FontWeight="SemiBold"
+                                    Text="选择 MP4 文件" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                    <TextBlock
+                        Grid.Row="4"
+                        HorizontalAlignment="Center"
+                        FontSize="11"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        Text="也可以将 MP4 文件拖放到此区域" />
+                </Grid>
+            </Border>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border
+                        Grid.Column="0"
+                        Margin="16,16,16,0"
+                        Background="White"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8" />
+
+                    <Grid Grid.Column="1" Margin="0,16,16,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border
+                            Grid.Row="0"
+                            Background="White"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                            <StackPanel Margin="16" Orientation="Vertical">
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
+                                        Text="源视频" />
+
+                                    <Button
+                                        Height="32"
+                                        HorizontalAlignment="Right"
+                                        Style="{StaticResource CompactButtonStyle}">
+                                        <Button.Content>
+                                            <TextBlock Margin="16,0" Text="更改视频" />
+                                        </Button.Content>
+                                    </Button>
+                                </DockPanel>
+
+                                <Border
+                                    Margin="0,16,0,0"
+                                    Background="{DynamicResource DevKitBackgroundBrush}"
+                                    BorderBrush="{StaticResource DevKitBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border
+                                            Grid.Column="0"
+                                            Margin="12"
+                                            Background="{StaticResource DevKitAccentSoftBrush}"
+                                            CornerRadius="8">
+                                            <TextBlock
+                                                Margin="8"
+                                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                FontSize="18"
+                                                Foreground="{StaticResource DevKitAccentBrush}"
+                                                Text="&#xe715;" />
+                                        </Border>
+
+                                        <StackPanel
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Orientation="Vertical">
+                                            <TextBlock
+                                                FontWeight="SemiBold"
+                                                Foreground="Black"
+                                                Text="{Binding OutputFileName, FallbackValue=无}" />
+
+                                            <TextBlock
+                                                Margin="0,4,0,0"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                                Text="{Binding EditedVideoPath, FallbackValue=无}" />
+                                        </StackPanel>
+
+                                        <Border
+                                            Grid.Column="2"
+                                            Margin="12,0"
+                                            VerticalAlignment="Center"
+                                            Background="{StaticResource DevKitAccentSoftBrush}"
+                                            CornerRadius="4">
+                                            <TextBlock
+                                                Margin="8,4"
+                                                Foreground="{StaticResource DevKitAccentBrush}"
+                                                Text="MP4" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,16,0,0"
+                            Background="White"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                            <StackPanel Margin="16" Orientation="Vertical">
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
+                                        Text="裁剪设置" />
+
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        Text="时间范围" />
+                                </DockPanel>
+
+                                <DockPanel Margin="0,16,0,8" LastChildFill="True">
+                                    <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="开始时间" />
+
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        Text="时:分:秒.毫秒" />
+                                </DockPanel>
+
+                                <TextBox />
+
+                                <DockPanel Margin="0,16,0,8" LastChildFill="True">
+                                    <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="结束时间" />
+
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        Text="时:分:秒.毫秒" />
+                                </DockPanel>
+
+                                <TextBox />
+
+                                <Border
+                                    Margin="0,16"
+                                    Background="{DynamicResource DevKitBackgroundBrush}"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <DockPanel Margin="12" LastChildFill="True">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="裁剪后时长" />
+
+                                        <TextBlock
+                                            HorizontalAlignment="Right"
+                                            FontFamily="Consolas"
+                                            FontSize="16"
+                                            FontWeight="SemiBold"
+                                            Foreground="{StaticResource DevKitAccentBrush}"
+                                            Text="{Binding VideoDuration, FallbackValue=00:00:00.000}" />
+                                    </DockPanel>
+                                </Border>
+
+                                <DockPanel LastChildFill="True">
+                                    <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="输出格式" />
+
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        FontWeight="SemiBold"
+                                        Foreground="Black"
+                                        Text="MP4 · 保持原始分辨率" />
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <Border
+                    Grid.Row="1"
+                    Margin="16"
+                    Background="White"
+                    BorderBrush="{StaticResource DevKitBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border
+                            Grid.Column="0"
+                            Margin="16"
+                            Background="{StaticResource DevKitAccentSoftBrush}"
+                            CornerRadius="8">
+                            <TextBlock
+                                Margin="8"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="18"
+                                Foreground="{StaticResource DevKitAccentBrush}"
+                                Text="&#xe680;" />
+                        </Border>
+
+                        <StackPanel
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Orientation="Vertical">
+                            <TextBlock Foreground="{StaticResource DevKitTextMutedBrush}" Text="输出文件" />
+
+                            <TextBlock
+                                Margin="0,4,0,0"
+                                Foreground="Black"
+                                Text="{Binding EditedVideoPath, FallbackValue=无}" />
+                        </StackPanel>
+
+                        <Button
+                            Grid.Column="2"
+                            Margin="16,0,8,0"
+                            Command="{Binding SelectSaveFolderCommand}"
+                            Style="{StaticResource CompactButtonStyle}">
+                            <Button.Content>
+                                <TextBlock
+                                    Margin="16,0"
+                                    FontSize="13"
+                                    Text="更改位置" />
+                            </Button.Content>
+                        </Button>
+
+                        <Button
+                            Grid.Column="3"
+                            Margin="0,0,16,0"
+                            Command="{Binding StartCutVideoCommand}"
+                            Style="{StaticResource PrimaryCompactButtonStyle}">
+                            <Button.Content>
+                                <StackPanel Margin="12,0" Orientation="Horizontal">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontFamily="/DevKit;component/Fonts/#iconfont"
+                                        FontSize="16"
+                                        Text="&#xe60c;" />
+                                    <TextBlock
+                                        Margin="6,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Text="开始裁剪" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
 </UserControl>
