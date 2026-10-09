@@ -246,7 +246,30 @@ namespace DevKit.ViewModels
                 ShowToast($"{CurrentColorHex} 已复制到剪贴板");
             });
             
-            ColorHexTextChangedCommand = new DelegateCommand<string>(ApplyHex);
+            ColorHexTextChangedCommand = new DelegateCommand<string>(value =>
+            {
+                
+            });
+            
+            AlphaColorTextChangedCommand = new DelegateCommand<string>(value =>
+            {
+                
+            });
+            
+            RedColorTextChangedCommand = new DelegateCommand<string>(value =>
+            {
+                
+            });
+            
+            GreenColorTextChangedCommand = new DelegateCommand<string>(value =>
+            {
+                
+            });
+            
+            BlueColorTextChangedCommand = new DelegateCommand<string>(value =>
+            {
+                
+            });
         }
 
         private async Task LoadColorResourcesAsync()
