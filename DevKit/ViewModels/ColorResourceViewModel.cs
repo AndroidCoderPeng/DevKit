@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using DevKit.Cache;
@@ -172,6 +173,24 @@ namespace DevKit.ViewModels
             {
                 _colorResources = value;
                 RaisePropertyChanged();
+                ApplyColorResourceFilter();
+            }
+        }
+
+        private int _displayColors;
+
+        public int DisplayColors
+        {
+            get => _displayColors;
+            private set
+            {
+                if (_displayColors == value)
+                {
+                    return;
+                }
+
+                _displayColors = value;
+                RaisePropertyChanged();
             }
         }
 
@@ -182,8 +201,14 @@ namespace DevKit.ViewModels
             get => _keyword;
             set
             {
+                if (_keyword == value)
+                {
+                    return;
+                }
+
                 _keyword = value;
                 RaisePropertyChanged();
+                ApplyColorResourceFilter();
             }
         }
 
@@ -215,6 +240,9 @@ namespace DevKit.ViewModels
             // 加载颜色资源缓存
             _ = LoadColorResourcesAsync();
 
+            // 实现 Keyword 颜色筛选
+            ApplyColorResourceFilter();
+
             RandomColorCommand = new DelegateCommand(() =>
             {
                 var random = new Random();
@@ -237,38 +265,23 @@ namespace DevKit.ViewModels
                 Clipboard.SetText(CurrentColorHex);
                 ShowToast($"{CurrentColorHex} 已复制到剪贴板");
             });
-            
-            ColorHexTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                
-            });
-            
-            AlphaColorTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                
-            });
-            
-            RedColorTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                
-            });
-            
-            GreenColorTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                
-            });
-            
-            BlueColorTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                
-            });
-            
+
+            ColorHexTextChangedCommand = new DelegateCommand<string>(value => { });
+
+            AlphaColorTextChangedCommand = new DelegateCommand<string>(value => { });
+
+            RedColorTextChangedCommand = new DelegateCommand<string>(value => { });
+
+            GreenColorTextChangedCommand = new DelegateCommand<string>(value => { });
+
+            BlueColorTextChangedCommand = new DelegateCommand<string>(value => { });
+
             RecentlyColorSelectedCommand = new DelegateCommand<string>(ApplyHex);
-            
+
             ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(item =>
             {
                 if (item == null) return;
-                
+
                 ApplyHex(item.Hex);
                 AddRecentlyColor(item.Hex);
             });
@@ -296,6 +309,8 @@ namespace DevKit.ViewModels
                         {
                             ColorResources.Add(color);
                         }
+
+                        DisplayColors = ColorResources.Count();
                     });
 
                     // 让 ListBox 有机会逐批渲染
@@ -306,6 +321,34 @@ namespace DevKit.ViewModels
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private void ApplyColorResourceFilter()
+        {
+            var view = CollectionViewSource.GetDefaultView(ColorResources);
+            var keyword = (_keyword ?? string.Empty).Trim();
+
+            if (keyword.Length == 0)
+            {
+                view.Filter = null;
+                view.Refresh();
+                DisplayColors = view.Cast<object>().Count();
+                return;
+            }
+
+            view.Filter = item =>
+            {
+                if (!(item is ColorResourceCache color))
+                {
+                    return false;
+                }
+
+                return (color.Name?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                       || (color.Hex?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0;
+            };
+
+            view.Refresh();
+            DisplayColors = view.Cast<object>().Count();
         }
 
         private static int Clamp(int value)

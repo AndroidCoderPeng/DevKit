@@ -1018,7 +1018,7 @@
                                 Margin="8,2"
                                 FontFamily="微软雅黑"
                                 Foreground="{StaticResource DevKitAccentBrush}"
-                                Text="{Binding ColorResources.Count, FallbackValue=0}" />
+                                Text="{Binding DisplayColors, FallbackValue=0}" />
                         </Border>
 
                         <Border
@@ -1100,13 +1100,13 @@
 
                     <ListBox
                         Grid.Row="1"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Left"
                         Background="Transparent"
                         BorderThickness="0"
                         ItemsSource="{Binding ColorResources}"
                         ScrollViewer.CanContentScroll="False"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        ScrollViewer.VerticalScrollBarVisibility="Hidden">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel />
@@ -1115,7 +1115,7 @@
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Margin" Value="0,0,8,8" />
+                                <Setter Property="Margin" Value="8,0,0,8" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template">
                                     <Setter.Value>
@@ -1132,7 +1132,7 @@
                                 <Button Command="{Binding DataContext.ColorItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}">
                                     <Button.Style>
                                         <Style TargetType="Button">
-                                            <Setter Property="Width" Value="136" />
+                                            <Setter Property="Width" Value="142" />
                                             <Setter Property="Background" Value="{Binding Hex}" />
                                             <Setter Property="BorderBrush" Value="Transparent" />
                                             <Setter Property="BorderThickness" Value="0" />
