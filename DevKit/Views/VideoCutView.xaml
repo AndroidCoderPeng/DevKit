@@ -211,7 +211,7 @@
 
                     <Border
                         Grid.Column="0"
-                        Margin="16,16,16,0"
+                        Margin="0,0,16,0"
                         Background="White"
                         BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
@@ -411,7 +411,7 @@
                         </Grid>
                     </Border>
 
-                    <Grid Grid.Column="1" Margin="0,16,16,0">
+                    <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -580,7 +580,7 @@
 
                 <Border
                     Grid.Row="1"
-                    Margin="16"
+                    Margin="0,16,0,0"
                     Background="White"
                     BorderBrush="{StaticResource DevKitBorderBrush}"
                     BorderThickness="1"
@@ -654,28 +654,28 @@
                     </Grid>
                 </Border>
             </Grid>
-            
-            <!-- 空白状态占位 -->
+
+            <!--  空白状态占位  -->
             <Border
                 Background="{DynamicResource DevKitBackgroundBrush}"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedVideoPath}" Value="">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding SelectedVideoPath}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedVideoPath}" Value="">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding SelectedVideoPath}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
 
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
