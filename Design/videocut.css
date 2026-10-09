@@ -172,6 +172,76 @@ h2 {
     font-size: 12px;
 }
 
+.empty-state[hidden], .editor-workspace[hidden] {
+    display: none;
+}
+
+.empty-state {
+    min-height: 370px;
+    padding: 34px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #cbd8e8;
+    background: rgba(255, 255, 255, .78);
+    text-align: center;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.empty-state.drag-over {
+    border-color: var(--blue);
+    background: rgba(46, 124, 246, .06);
+    box-shadow: 0 0 0 3px rgba(46, 124, 246, .08);
+}
+
+.empty-icon {
+    width: 68px;
+    height: 68px;
+    margin-bottom: 15px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    background: rgba(46, 124, 246, .09);
+    color: var(--blue);
+}
+
+.empty-icon svg {
+    width: 38px;
+    height: 38px;
+}
+
+.empty-state h3 {
+    margin: 0;
+    color: #1e2430;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.empty-desc {
+    max-width: 390px;
+    margin: 7px 0 18px;
+    color: #5f6b7a;
+    font-size: 12px;
+}
+
+.empty-state .button {
+    min-height: 38px;
+    padding: 0 16px;
+}
+
+.empty-hint {
+    margin-top: 12px;
+    color: #8d97a5;
+    font-size: 11px;
+}
+
+.empty-error {
+    margin: 10px 0 0;
+    color: #d14343;
+    font-size: 12px;
+}
+
 .button {
     min-height: 36px;
     padding: 0 13px;

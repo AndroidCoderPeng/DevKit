@@ -7,6 +7,10 @@
 
     const $ = (selector) => document.querySelector(selector);
     const fileInput = $('#videoFileInput');
+    const emptyState = $('#emptyState');
+    const editorWorkspace = $('#editorWorkspace');
+    const emptyError = $('#emptyError');
+    const pageDescription = $('#pageDescription');
     const video = $('#previewVideo');
     const stage = $('.video-stage');
     const filmstrip = $('#filmstrip');
@@ -183,30 +187,66 @@
         fileInput.click();
     }
 
-    $('#changeVideo').addEventListener('click', chooseVideo);
-    fileInput.addEventListener('change', function () {
-        const file = fileInput.files && fileInput.files[0];
+    function showFileError(message) {
+        emptyError.textContent = message;
+        emptyError.hidden = false;
+    }
+
+    function loadVideoFile(file) {
         if (!file) return;
+        if (!file.name.toLowerCase().endsWith('.mp4')) {
+            showFileError('暂不支持该格式，请选择 MP4 文件。');
+            return;
+        }
+
+        emptyError.hidden = true;
+        emptyState.hidden = true;
+        editorWorkspace.hidden = false;
+        pageDescription.textContent = '拖动时间轴两端的手柄，选择需要保留的片段。';
+
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         objectUrl = URL.createObjectURL(file);
         video.src = objectUrl;
         stage.classList.add('has-video');
         $('.file-name').textContent = file.name;
-        $('.file-meta').textContent = (file.type || '视频文件') + ' · 正在读取媒体信息';
+        $('.file-meta').textContent = (file.type || 'MP4 视频') + ' · 正在读取媒体信息';
         $('#outputPath').textContent = file.name.replace(/\.[^.]+$/, '') + '_裁剪.mp4';
+
         video.addEventListener('loadedmetadata', function onMetadata() {
             video.removeEventListener('loadedmetadata', onMetadata);
             duration = Number.isFinite(video.duration) ? video.duration : duration;
             endTime = Math.min(endTime, duration);
             startTime = Math.min(startTime, Math.max(0, endTime - frameStep));
             currentTime = startTime;
-            $('.file-meta').textContent = (file.type || '视频文件') + ' · ' + Math.round(video.videoWidth) + ' × ' + Math.round(video.videoHeight) + ' · ' + formatTime(duration, false);
+            $('.file-meta').textContent = 'MP4 · ' + Math.round(video.videoWidth) + ' × ' + Math.round(video.videoHeight) + ' · ' + formatTime(duration, false);
             render();
         });
         video.addEventListener('error', function onError() {
             video.removeEventListener('error', onError);
-            $('.file-meta').textContent = '无法读取此视频，请尝试其他文件';
+            editorWorkspace.hidden = true;
+            emptyState.hidden = false;
+            stage.classList.remove('has-video');
+            showFileError('无法读取此视频，请确认文件未损坏后重试。');
         });
+    }
+
+    $('#chooseVideoButton').addEventListener('click', chooseVideo);
+    $('#changeVideo').addEventListener('click', chooseVideo);
+    fileInput.addEventListener('change', function () {
+        loadVideoFile(fileInput.files && fileInput.files[0]);
+    });
+
+    emptyState.addEventListener('dragover', function (event) {
+        event.preventDefault();
+        emptyState.classList.add('drag-over');
+    });
+    emptyState.addEventListener('dragleave', function (event) {
+        if (!emptyState.contains(event.relatedTarget)) emptyState.classList.remove('drag-over');
+    });
+    emptyState.addEventListener('drop', function (event) {
+        event.preventDefault();
+        emptyState.classList.remove('drag-over');
+        loadVideoFile(event.dataTransfer.files && event.dataTransfer.files[0]);
     });
 
     $('#stagePlayButton').addEventListener('click', togglePlayback);

@@ -13,12 +13,27 @@
                 <div class="section-heading">
                     <div>
                         <div class="eyebrow">VIDEO EDITOR</div>
-                        <h2>裁剪视频片段</h2>
-                        <p class="subheading">拖动时间轴两端的手柄，选择需要保留的片段。</p>
+                        <h2>视频裁剪</h2>
+                        <p class="subheading" id="pageDescription">选择一个 MP4 视频文件，开始预览和设置裁剪范围。</p>
                     </div>
-                    <input id="videoFileInput" type="file" accept="video/*" hidden />
                 </div>
 
+                <section class="panel empty-state" id="emptyState" aria-label="选择待裁剪视频">
+                    <div class="empty-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none"><rect x="5" y="9" width="27" height="30" rx="5" stroke="currentColor" stroke-width="2"/><path d="M32 19l11-6v22l-11-6V19z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M18.5 18v12l9-6-9-6z" fill="currentColor"/></svg>
+                    </div>
+                    <h3>还没有选择视频</h3>
+                    <p class="empty-desc">选择一个 MP4 文件，即可预览视频并设置开始和结束时间。</p>
+                    <button class="button button-primary" id="chooseVideoButton" type="button">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        选择 MP4 文件
+                    </button>
+                    <span class="empty-hint">也可以将 MP4 文件拖放到此区域</span>
+                    <p class="empty-error" id="emptyError" role="alert" hidden></p>
+                </section>
+                <input id="videoFileInput" type="file" accept="video/mp4,.mp4" hidden />
+
+                <div class="editor-workspace" id="editorWorkspace" hidden>
                 <div class="workspace">
                     <section class="panel preview-panel" aria-label="视频预览和时间轴">
                         <div class="panel-top">
@@ -102,6 +117,7 @@
                         </button>
                     </div>
                 </section>
+                </div>
             </main>
 
         </div>
