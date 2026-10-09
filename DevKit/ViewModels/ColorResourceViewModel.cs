@@ -42,14 +42,6 @@ namespace DevKit.ViewModels
         {
         }
 
-        private enum ChannelType
-        {
-            Alpha,
-            Red,
-            Green,
-            Blue
-        }
-
         // 单一状态源
         private Color _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
 
@@ -59,7 +51,7 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private bool _isRgbToHexSelected = true;
+        private bool _isRgbToHexSelected;
 
         public bool IsRgbToHexSelected
         {
@@ -81,7 +73,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private bool _isAlphaBoxChecked = true;
+        private bool _isAlphaBoxChecked;
 
         public bool IsAlphaBoxChecked
         {
@@ -270,6 +262,16 @@ namespace DevKit.ViewModels
             {
                 
             });
+            
+            RecentlyColorSelectedCommand = new DelegateCommand<string>(ApplyHex);
+            
+            ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(item =>
+            {
+                if (item == null) return;
+                
+                ApplyHex(item.Hex);
+                AddRecentlyColor(item.Hex);
+            });
         }
 
         private async Task LoadColorResourcesAsync()
@@ -397,9 +399,6 @@ namespace DevKit.ViewModels
             _toastTimer.Start();
         }
 
-        /// <summary>
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
         private void AddRecentlyColor(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
