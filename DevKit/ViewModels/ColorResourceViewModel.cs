@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Utils;
 using Prism.Commands;
@@ -133,6 +134,30 @@ namespace DevKit.ViewModels
             set => UpdateColor(color => Color.FromArgb(color.A, color.R, color.G, (byte)Clamp((int)value)));
         }
 
+        private string _toastMessage;
+
+        public string ToastMessage
+        {
+            get => _toastMessage;
+            set
+            {
+                _toastMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _isToastVisible;
+
+        public bool IsToastVisible
+        {
+            get => _isToastVisible;
+            set
+            {
+                _isToastVisible = value;
+                RaisePropertyChanged();
+            }
+        }
+        
         private ObservableCollection<string> _recentlyColors = new ObservableCollection<string>();
 
         public ObservableCollection<string> RecentlyColors
@@ -187,6 +212,8 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private DispatcherTimer _toastTimer;
+        
         public ColorResourceViewModel()
         {
             // 加载最近使用的颜色
@@ -195,7 +222,7 @@ namespace DevKit.ViewModels
 
             // 加载颜色资源缓存
             _ = LoadColorResourcesAsync();
-            
+
             RandomColorCommand = new DelegateCommand(() =>
             {
                 var random = new Random();
@@ -205,6 +232,17 @@ namespace DevKit.ViewModels
                     (byte)random.Next(0, 256),
                     (byte)random.Next(0, 256));
                 NotifyColorChanged();
+            });
+
+            ResetCommand = new DelegateCommand(() =>
+            {
+                _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
+                NotifyColorChanged();
+            });
+
+            CopyColorHexValueCommand = new DelegateCommand(() =>
+            {
+                ShowToast($"{CurrentColorHex} 已复制到剪贴板");
             });
         }
 
@@ -276,7 +314,7 @@ namespace DevKit.ViewModels
             var rgb = $"{color.R:X2}{color.G:X2}{color.B:X2}";
             return includeAlpha ? $"{color.A:X2}{rgb}" : rgb;
         }
-        
+
         private void ApplyHex(string value)
         {
             var hex = NormalizeHex(value);
@@ -303,7 +341,7 @@ namespace DevKit.ViewModels
                 NotifyColorChanged();
             }
         }
-        
+
         private static string NormalizeHex(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -312,6 +350,25 @@ namespace DevKit.ViewModels
             }
 
             return new string(value.Trim().TrimStart('#').Where(Uri.IsHexDigit).ToArray()).ToUpperInvariant();
+        }
+
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
         }
         
         /// <summary>
