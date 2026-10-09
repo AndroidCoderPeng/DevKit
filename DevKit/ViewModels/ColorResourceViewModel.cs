@@ -220,10 +220,6 @@ namespace DevKit.ViewModels
         public DelegateCommand ResetCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> ColorHexTextChangedCommand { set; get; }
-        public DelegateCommand<string> AlphaColorTextChangedCommand { set; get; }
-        public DelegateCommand<string> RedColorTextChangedCommand { set; get; }
-        public DelegateCommand<string> GreenColorTextChangedCommand { set; get; }
-        public DelegateCommand<string> BlueColorTextChangedCommand { set; get; }
         public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
@@ -265,16 +261,6 @@ namespace DevKit.ViewModels
                 Clipboard.SetText(CurrentColorHex);
                 ShowToast($"{CurrentColorHex} 已复制到剪贴板");
             });
-
-            ColorHexTextChangedCommand = new DelegateCommand<string>(value => { });
-
-            AlphaColorTextChangedCommand = new DelegateCommand<string>(value => { });
-
-            RedColorTextChangedCommand = new DelegateCommand<string>(value => { });
-
-            GreenColorTextChangedCommand = new DelegateCommand<string>(value => { });
-
-            BlueColorTextChangedCommand = new DelegateCommand<string>(value => { });
 
             RecentlyColorSelectedCommand = new DelegateCommand<string>(ApplyHex);
 

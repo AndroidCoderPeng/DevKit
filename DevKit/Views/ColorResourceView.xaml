@@ -713,16 +713,9 @@
                                 Value="{Binding AlphaValue, Mode=TwoWay}" />
 
                             <TextBox
-                                x:Name="AlphaInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding AlphaValue, UpdateSourceTrigger=PropertyChanged}">
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="TextChanged">
-                                        <b:InvokeCommandAction Command="{Binding AlphaColorTextChangedCommand}" CommandParameter="{Binding ElementName=AlphaInputTextBox, Path=Text}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
-                            </TextBox>
+                                Text="{Binding AlphaValue, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
 
                         <!--  R  -->
@@ -758,16 +751,9 @@
                                 Value="{Binding RedColorValue, Mode=TwoWay}" />
 
                             <TextBox
-                                x:Name="RedInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding RedColorValue, UpdateSourceTrigger=PropertyChanged}">
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="TextChanged">
-                                        <b:InvokeCommandAction Command="{Binding RedColorTextChangedCommand}" CommandParameter="{Binding ElementName=RedInputTextBox, Path=Text}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
-                            </TextBox>
+                                Text="{Binding RedColorValue, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
 
                         <!--  G  -->
@@ -803,16 +789,9 @@
                                 Value="{Binding GreenColorValue, Mode=TwoWay}" />
 
                             <TextBox
-                                x:Name="GreenInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding GreenColorValue, UpdateSourceTrigger=PropertyChanged}">
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="TextChanged">
-                                        <b:InvokeCommandAction Command="{Binding GreenColorTextChangedCommand}" CommandParameter="{Binding ElementName=GreenInputTextBox, Path=Text}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
-                            </TextBox>
+                                Text="{Binding GreenColorValue, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
 
                         <!--  B  -->
@@ -848,16 +827,9 @@
                                 Value="{Binding BlueColorValue, Mode=TwoWay}" />
 
                             <TextBox
-                                x:Name="BlueInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding BlueColorValue, UpdateSourceTrigger=PropertyChanged}">
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="TextChanged">
-                                        <b:InvokeCommandAction Command="{Binding BlueColorTextChangedCommand}" CommandParameter="{Binding ElementName=BlueInputTextBox, Path=Text}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
-                            </TextBox>
+                                Text="{Binding BlueColorValue, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
                     </StackPanel>
 
