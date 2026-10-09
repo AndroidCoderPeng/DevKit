@@ -353,7 +353,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border
                             x:Name="CardBorder"
-                            Padding="12,8"
+                            Padding="10,8"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
@@ -621,8 +621,8 @@
                                     FontSize="18"
                                     FontWeight="SemiBold"
                                     Foreground="{DynamicResource DevKitTextBrush}"
-                                    MaxLength="8"
-                                    Text="{Binding ColorHexValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                                    MaxLength="9"
+                                    Text="{Binding ColorHexValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </Grid>
                         </Border>
 
@@ -708,7 +708,7 @@
                             <TextBox
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding AlphaValue, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{Binding AlphaValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
                         </Grid>
 
                         <!--  R  -->
@@ -746,7 +746,7 @@
                             <TextBox
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding RedColorValue, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{Binding RedColorValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
                         </Grid>
 
                         <!--  G  -->
@@ -784,7 +784,7 @@
                             <TextBox
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding GreenColorValue, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{Binding GreenColorValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
                         </Grid>
 
                         <!--  B  -->
@@ -822,7 +822,7 @@
                             <TextBox
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding BlueColorValue, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{Binding BlueColorValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
                         </Grid>
                     </StackPanel>
 
@@ -853,8 +853,8 @@
                         <ListBox
                             Grid.Row="1"
                             Margin="0,8,0,0"
+                            HorizontalAlignment="Center"
                             Background="Transparent"
-                            BorderThickness="0"
                             ItemsSource="{Binding RecentlyColors}"
                             ScrollViewer.CanContentScroll="False"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -928,7 +928,7 @@
                                                     Fill="{Binding}" />
 
                                                 <TextBlock
-                                                    Margin="10,0,0,0"
+                                                    Margin="8,0,0,0"
                                                     FontFamily="Consolas"
                                                     FontSize="14"
                                                     Text="{Binding}" />
@@ -1065,13 +1065,14 @@
 
                     <ListBox
                         Grid.Row="1"
+                        Padding="8,0,0,0"
                         HorizontalAlignment="Left"
                         Background="Transparent"
                         BorderThickness="0"
                         ItemsSource="{Binding ColorResources}"
                         ScrollViewer.CanContentScroll="False"
                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel />
@@ -1080,7 +1081,7 @@
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Margin" Value="8,0,0,8" />
+                                <Setter Property="Margin" Value="0,0,8,8" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template">
                                     <Setter.Value>
@@ -1097,7 +1098,7 @@
                                 <Button Command="{Binding DataContext.ColorItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}">
                                     <Button.Style>
                                         <Style TargetType="Button">
-                                            <Setter Property="Width" Value="142" />
+                                            <Setter Property="Width" Value="136" />
                                             <Setter Property="Background" Value="{Binding Hex}" />
                                             <Setter Property="BorderBrush" Value="Transparent" />
                                             <Setter Property="BorderThickness" Value="0" />
