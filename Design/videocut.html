@@ -53,12 +53,18 @@
                             <span class="stage-time" id="stageTime">00:00:18.420</span>
                         </div>
                         <div class="transport" aria-label="播放控制">
-                            <button class="transport-button" id="previousFrame" type="button" title="上一帧" aria-label="上一帧">|◀</button>
-                            <button class="play-small" id="transportPlayButton" type="button" aria-label="播放">
-                                <svg viewBox="0 0 24 24"><path d="M8 5.8v12.4L18 12 8 5.8z" fill="currentColor"/></svg>
-                            </button>
-                            <button class="transport-button" id="nextFrame" type="button" title="下一帧" aria-label="下一帧">▶|</button>
-                            <span class="time-readout"><span id="currentTime">00:00:18.420</span> <span>/ <span id="totalTime">00:01:24.600</span></span></span>
+                            <div class="transport-controls">
+                                <button class="transport-button" id="previousFrame" type="button" title="上一帧" aria-label="上一帧">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M18 6l-9 6 9 6V6z" fill="currentColor"/></svg>
+                                </button>
+                                <button class="play-small" id="transportPlayButton" type="button" aria-label="播放">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5.8v12.4L18 12 8 5.8z" fill="currentColor"/></svg>
+                                </button>
+                                <button class="transport-button" id="nextFrame" type="button" title="下一帧" aria-label="下一帧">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M6 6l9 6-9 6V6z" fill="currentColor"/></svg>
+                                </button>
+                            </div>
+                            <span class="time-readout"><strong id="currentTime">00:00:18.420</strong><i></i><span id="totalTime">00:01:24.600</span></span>
                         </div>
                         <div class="timeline">
                             <div class="timeline-heading">

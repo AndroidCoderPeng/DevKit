@@ -6,8 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="900"
-    Height="720"
+    Width="960"
+    Height="800"
     d:DataContext="{d:DesignInstance Type=vm:VideoCutViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -84,6 +84,73 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  圆角输入框  -->
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="VideoControllerButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontFamily" Value="/DevKit;component/Fonts/#iconfont" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Padding="8"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -220,7 +287,7 @@
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.5*" />
+                        <ColumnDefinition Width="1.75*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
@@ -230,7 +297,201 @@
                         Background="White"
                         BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="8" />
+                        CornerRadius="8">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0" Margin="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="18"
+                                    Foreground="{StaticResource DevKitAccentBrush}"
+                                    Text="&#xe715;" />
+
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="8,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Text="视频预览" />
+
+                                <TextBlock
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                    Text="{Binding PreviewSize, FallbackValue=预览 · 0 x 0}" />
+                            </Grid>
+
+                            <Border
+                                Grid.Row="1"
+                                Margin="16,0"
+                                Background="Black"
+                                CornerRadius="8">
+                                <Grid>
+                                    <Border
+                                        Margin="12"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"
+                                        Background="{StaticResource DevKitBackgroundBrush}"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            Margin="10,6"
+                                            FontFamily="Consolas"
+                                            FontSize="11"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="PREVIEW" />
+                                    </Border>
+
+                                    <Border
+                                        Margin="12"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Background="{StaticResource DevKitBackgroundBrush}"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            Margin="10,6"
+                                            FontFamily="Consolas"
+                                            FontSize="11"
+                                            Foreground="Black"
+                                            Text="{Binding VideoDuration, FallbackValue=00:00:00.000}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <Border
+                                Grid.Row="2"
+                                Margin="16"
+                                BorderBrush="{StaticResource DevKitBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Column="0" Margin="12,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Button
+                                            Grid.Column="0"
+                                            Content="&#xe7df;"
+                                            Style="{StaticResource VideoControllerButtonStyle}" />
+
+                                        <Button
+                                            Grid.Column="1"
+                                            Margin="8"
+                                            Content="&#xe877;"
+                                            Style="{StaticResource VideoControllerButtonStyle}" />
+
+                                        <Button
+                                            Grid.Column="2"
+                                            Content="&#xe82b;"
+                                            Style="{StaticResource VideoControllerButtonStyle}" />
+                                    </Grid>
+
+                                    <Grid
+                                        Grid.Column="1"
+                                        Margin="12,16"
+                                        HorizontalAlignment="Right">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            FontFamily="Consolas"
+                                            FontSize="13"
+                                            Foreground="Black"
+                                            Text="{Binding CurrentPosition, FallbackValue=00:00:00.000}" />
+
+                                        <Border
+                                            Grid.Column="1"
+                                            Width="1"
+                                            Margin="8,0"
+                                            Background="{StaticResource DevKitBorderStrongBrush}" />
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            FontFamily="Consolas"
+                                            FontSize="13"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="{Binding VideoDuration, FallbackValue=00:00:00.000}" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <Border
+                                Grid.Row="3"
+                                Margin="16,0,16,16"
+                                BorderBrush="{StaticResource DevKitBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock
+                                        Margin="16"
+                                        VerticalAlignment="Center"
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
+                                        Text="裁剪时间轴" />
+
+                                    <!--  TODO 时间轴自定义控件  -->
+                                    <Grid Grid.Row="1" />
+
+                                    <Grid Grid.Row="2" Margin="16,0,16,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="{Binding StartPosition, StringFormat={}开始 {0}, FallbackValue=开始 00:00:00.000}" />
+
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="{Binding EndPosition, StringFormat={}结束 {0}, FallbackValue=结束 00:00:00.000}" />
+
+                                        <TextBlock
+                                            Grid.Column="2"
+                                            HorizontalAlignment="Right"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="{Binding SelectedDuration, StringFormat={}选中时长 {0}, FallbackValue=选中时长 00:00:00.000}" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
 
                     <Grid Grid.Column="1" Margin="0,16,16,0">
                         <Grid.RowDefinitions>
@@ -350,7 +611,7 @@
                                         Text="时:分:秒.毫秒" />
                                 </DockPanel>
 
-                                <TextBox />
+                                <TextBox Style="{StaticResource FieldTextBoxStyle}" />
 
                                 <DockPanel Margin="0,16,0,8" LastChildFill="True">
                                     <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="结束时间" />
@@ -361,7 +622,7 @@
                                         Text="时:分:秒.毫秒" />
                                 </DockPanel>
 
-                                <TextBox />
+                                <TextBox Style="{StaticResource FieldTextBoxStyle}" />
 
                                 <Border
                                     Margin="0,16"
@@ -381,7 +642,7 @@
                                             FontSize="16"
                                             FontWeight="SemiBold"
                                             Foreground="{StaticResource DevKitAccentBrush}"
-                                            Text="{Binding VideoDuration, FallbackValue=00:00:00.000}" />
+                                            Text="{Binding EditedDuration, FallbackValue=00:00:00.000}" />
                                     </DockPanel>
                                 </Border>
 
