@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>视频裁剪 · DevKit</title>
+    <link rel="stylesheet" href="videocut.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <div class="window">
+            <main class="content">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">VIDEO EDITOR</div>
+                        <h2>裁剪视频片段</h2>
+                        <p class="subheading">拖动时间轴两端的手柄，选择需要保留的片段。</p>
+                    </div>
+                    <input id="videoFileInput" type="file" accept="video/*" hidden />
+                </div>
+
+                <div class="workspace">
+                    <section class="panel preview-panel" aria-label="视频预览和时间轴">
+                        <div class="panel-top">
+                            <div class="panel-label">
+                                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="13" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 10l5-3v10l-5-3v-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                                视频预览
+                            </div>
+                            <span class="subtle">预览画面 · 1280 × 720</span>
+                        </div>
+                        <div class="video-stage" aria-label="视频预览">
+                            <span class="stage-badge">PREVIEW</span>
+                            <div class="scene" aria-hidden="true"><span class="sun"></span><span class="hill"></span><span class="hill hill-two"></span></div>
+                            <video class="preview-video" id="previewVideo" preload="metadata" playsinline></video>
+                            <button class="play-button" id="stagePlayButton" type="button" aria-label="播放预览">
+                                <svg viewBox="0 0 24 24"><path d="M8 5.8v12.4L18 12 8 5.8z" fill="currentColor"/></svg>
+                            </button>
+                            <span class="stage-time" id="stageTime">00:00:18.420</span>
+                        </div>
+                        <div class="transport" aria-label="播放控制">
+                            <button class="transport-button" id="previousFrame" type="button" title="上一帧" aria-label="上一帧">|◀</button>
+                            <button class="play-small" id="transportPlayButton" type="button" aria-label="播放">
+                                <svg viewBox="0 0 24 24"><path d="M8 5.8v12.4L18 12 8 5.8z" fill="currentColor"/></svg>
+                            </button>
+                            <button class="transport-button" id="nextFrame" type="button" title="下一帧" aria-label="下一帧">▶|</button>
+                            <span class="time-readout"><span id="currentTime">00:00:18.420</span> <span>/ <span id="totalTime">00:01:24.600</span></span></span>
+                        </div>
+                        <div class="timeline">
+                            <div class="timeline-heading">
+                                <strong>裁剪时间轴</strong>
+                            </div>
+                            <div class="ruler"><span>00:00</span><span>00:15</span><span>00:30</span><span>00:45</span><span>01:00</span><span>01:24</span></div>
+                            <div class="filmstrip" id="filmstrip" aria-label="视频缩略帧与选中区间">
+                                <i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i><i class="frame"></i>
+                                <div class="selection"><span class="handle handle-left"></span><span class="handle handle-right"></span></div>
+                                <span class="playhead"></span>
+                            </div>
+                            <div class="trim-range"><span>开始 <b id="rangeStart">00:00:08.000</b></span><span>结束 <b id="rangeEnd">00:00:52.500</b></span><span>选中时长 <b id="rangeDuration">00:00:44.500</b></span></div>
+                        </div>
+                    </section>
+
+                    <aside class="details-column">
+                        <section class="panel source-panel">
+                            <div class="panel-top">
+                                <div class="panel-label">源视频</div>
+                                <button class="button button-secondary button-compact" id="changeVideo" type="button">更换视频</button>
+                            </div>
+                            <div class="file-card">
+                                <span class="file-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="13" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 10l5-3v10l-5-3v-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+                                <div class="file-info"><div class="file-name">旅行记录_海边日落.mp4</div><div class="file-meta">MP4 · 1920 × 1080 · 01:24</div></div>
+                                <span class="file-type">MP4</span>
+                            </div>
+                        </section>
+
+                        <section class="panel settings-panel">
+                            <div class="panel-top">
+                                <div class="panel-label">裁剪设置</div>
+                                <span class="subtle">时间范围</span>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="start-time">开始时间 <span>时:分:秒.毫秒</span></label>
+                                <div class="input-row"><input class="text-input" id="start-time" type="text" value="00:00:08.000" /><span class="unit">↤</span></div>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="end-time">结束时间 <span>时:分:秒.毫秒</span></label>
+                                <div class="input-row"><input class="text-input" id="end-time" type="text" value="00:00:52.500" /><span class="unit">↦</span></div>
+                            </div>
+                            <div class="duration-card"><span>裁剪后时长</span><strong id="settingsDuration">00:00:44.500</strong></div>
+                            <div class="format-row"><span>输出格式</span><b>MP4 · 保持原始分辨率</b></div>
+                        </section>
+                    </aside>
+                </div>
+
+                <section class="panel output-panel" aria-label="输出位置">
+                    <span class="folder-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+                    <div class="output-copy"><div class="output-title">输出文件</div><div class="output-path" id="outputPath">D:\视频\旅行记录_海边日落_裁剪.mp4</div></div>
+                    <div class="output-actions">
+                        <button class="button button-secondary" id="changeOutput" type="button">更改位置</button>
+                        <button class="button button-primary" id="startTrim" type="button">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span id="trimButtonText">开始裁剪</span>
+                        </button>
+                    </div>
+                </section>
+            </main>
+
+        </div>
+    </div>
+    <script src="videocut.js"></script>
+</body>
+</html>
