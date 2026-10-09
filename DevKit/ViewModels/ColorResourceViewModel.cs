@@ -49,34 +49,30 @@ namespace DevKit.ViewModels
             Blue
         }
 
+        // 单一状态源
+        private Color _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
+
         #region VM
 
-        private bool _isToHexSelected = true;
+        private bool _isRgbToHexSelected = true;
 
-        public bool IsToHexSelected
+        public bool IsRgbToHexSelected
         {
-            get => _isToHexSelected;
+            get => _isRgbToHexSelected;
             set
             {
-                if (_isToHexSelected == value)
-                    return;
-
-                _isToHexSelected = value;
+                _isRgbToHexSelected = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
         public bool IsHexToRgbSelected
         {
-            get => !IsToHexSelected;
+            get => !IsRgbToHexSelected;
             set
             {
-                if (value)
-                {
-                    IsToHexSelected = false;
-                }
+                if (value == IsHexToRgbSelected) return;
+                IsRgbToHexSelected = !value;
             }
         }
 
@@ -87,19 +83,13 @@ namespace DevKit.ViewModels
             get => _isAlphaBoxChecked;
             set
             {
-                if (_isAlphaBoxChecked == value)
-                {
-                    return;
-                }
-
                 _isAlphaBoxChecked = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
-        private SolidColorBrush _colorViewBrush = new SolidColorBrush(Color.FromArgb(0x80, 0x2E, 0x7C, 0xF6));
+        // 纯黑不透明
+        private SolidColorBrush _colorViewBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x0E, 0x0C, 0x06));
 
         public SolidColorBrush ColorViewBrush
         {
@@ -111,7 +101,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _colorHexValue = "#802E7CF6";
+        private string _colorHexValue;
 
         public string ColorHexValue
         {
@@ -123,87 +113,53 @@ namespace DevKit.ViewModels
             }
         }
 
-        private int _alphaValue = 128;
+        private int _alphaValue = 255;
 
         public int AlphaValue
         {
             get => _alphaValue;
             set
             {
-                var newValue = Clamp(value);
-
-                if (_alphaValue == newValue)
-                {
-                    return;
-                }
-
-                _alphaValue = newValue;
+                _alphaValue = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
-        private double _redColor;
+        public int AlphaRatioValue => (int)Math.Round(AlphaValue * 100.0 / 255);
 
-        public double RedColor
+        private double _redColorValue;
+
+        public double RedColorValue
         {
-            get => _redColor;
+            get => _redColorValue;
             set
             {
-                var newValue = Clamp((int)value);
-
-                if (Math.Abs(_redColor - newValue) < 0.001)
-                {
-                    return;
-                }
-
-                _redColor = newValue;
+                _redColorValue = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
-        private double _greenColor;
+        private double _greenColorValue;
 
-        public double GreenColor
+        public double GreenColorValue
         {
-            get => _greenColor;
+            get => _greenColorValue;
             set
             {
-                var newValue = Clamp((int)value);
-
-                if (Math.Abs(_greenColor - newValue) < 0.001)
-                {
-                    return;
-                }
-
-                _greenColor = newValue;
+                _greenColorValue = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
-        private double _blueColor;
+        private double _blueColorValue;
 
-        public double BlueColor
+        public double BlueColorValue
         {
-            get => _blueColor;
+            get => _blueColorValue;
             set
             {
-                var newValue = Clamp((int)value);
-
-                if (Math.Abs(_blueColor - newValue) < 0.001)
-                {
-                    return;
-                }
-
-                _blueColor = newValue;
+                _blueColorValue = value;
                 RaisePropertyChanged();
-
-                RefreshColor();
             }
         }
 
@@ -244,18 +200,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _currentColorHex = string.Empty;
-
-        public string CurrentColorHex
-        {
-            get => _currentColorHex;
-            set
-            {
-                _currentColorHex = value;
-                RaisePropertyChanged();
-            }
-        }
-
         #endregion
 
         #region DelegateCommand
@@ -283,9 +227,9 @@ namespace DevKit.ViewModels
                 AlphaValue = _colorViewBrush.Color.A;
             }
 
-            RedColor = _colorViewBrush.Color.R;
-            GreenColor = _colorViewBrush.Color.G;
-            BlueColor = _colorViewBrush.Color.B;
+            RedColorValue = _colorViewBrush.Color.R;
+            GreenColorValue = _colorViewBrush.Color.G;
+            BlueColorValue = _colorViewBrush.Color.B;
 
             // 加载最近使用的颜色
             var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.RecentlyColor);
@@ -293,79 +237,6 @@ namespace DevKit.ViewModels
 
             // 加载颜色资源缓存
             _ = LoadColorResourcesAsync();
-
-            RandomColorCommand = new DelegateCommand(() =>
-            {
-                var random = new Random();
-
-                AlphaValue = IsAlphaBoxChecked ? random.Next(0, 256) : 255;
-                RedColor = random.Next(0, 256);
-                GreenColor = random.Next(0, 256);
-                BlueColor = random.Next(0, 256);
-
-                RefreshColor();
-            });
-
-            ResetCommand = new DelegateCommand(() =>
-            {
-                AlphaValue = 128;
-                RedColor = 46;
-                GreenColor = 124;
-                BlueColor = 246;
-
-                RefreshColor();
-            });
-
-            CopyColorHexValueCommand = new DelegateCommand(() =>
-            {
-                if (string.IsNullOrWhiteSpace(CurrentColorHex))
-                {
-                    return;
-                }
-
-                Clipboard.SetText(CurrentColorHex);
-
-                // 更新最近使用的颜色
-                AddRecentlyColor(CurrentColorHex);
-            });
-
-            ColorHexTextChangedCommand = new DelegateCommand<string>(value =>
-            {
-                if (_isUpdatingColor || IsToHexSelected)
-                {
-                    return;
-                }
-
-                var hex = NormalizeHex(value);
-
-                if (hex.Length == 8)
-                {
-                    AlphaValue = Convert.ToInt32(hex.Substring(0, 2), 16);
-                    hex = hex.Substring(2);
-                }
-
-                if (hex.Length != 6)
-                {
-                    return;
-                }
-
-                RedColor = Convert.ToInt32(hex.Substring(0, 2), 16);
-                GreenColor = Convert.ToInt32(hex.Substring(2, 2), 16);
-                BlueColor = Convert.ToInt32(hex.Substring(4, 2), 16);
-
-                RefreshColor();
-            });
-
-            AlphaColorTextChangedCommand =
-                new DelegateCommand<string>(value => UpdateChannel(value, ChannelType.Alpha));
-            RedColorTextChangedCommand = new DelegateCommand<string>(value => UpdateChannel(value, ChannelType.Red));
-            GreenColorTextChangedCommand =
-                new DelegateCommand<string>(value => UpdateChannel(value, ChannelType.Green));
-            BlueColorTextChangedCommand = new DelegateCommand<string>(value => UpdateChannel(value, ChannelType.Blue));
-
-            RecentlyColorSelectedCommand = new DelegateCommand<string>(ApplyColor);
-
-            ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(item => ApplyColor(item?.Hex));
         }
 
         private async Task LoadColorResourcesAsync()
@@ -402,6 +273,10 @@ namespace DevKit.ViewModels
             }
         }
 
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        
         private void RefreshColor()
         {
             if (_isUpdatingColor)
@@ -414,23 +289,21 @@ namespace DevKit.ViewModels
             try
             {
                 var alpha = IsAlphaBoxChecked ? (byte)AlphaValue : byte.MaxValue;
-                var red = (byte)Clamp((int)RedColor);
-                var green = (byte)Clamp((int)GreenColor);
-                var blue = (byte)Clamp((int)BlueColor);
+                var red = (byte)Clamp((int)RedColorValue);
+                var green = (byte)Clamp((int)GreenColorValue);
+                var blue = (byte)Clamp((int)BlueColorValue);
 
                 ColorViewBrush = new SolidColorBrush(Color.FromArgb(alpha, red, green, blue));
 
                 var rgbHex = $"{red:X2}{green:X2}{blue:X2}";
                 ColorHexValue = IsAlphaBoxChecked ? $"{(byte)AlphaValue:X2}{rgbHex}" : rgbHex;
-
-                CurrentColorHex = $"#{ColorHexValue}";
             }
             finally
             {
                 _isUpdatingColor = false;
             }
         }
-        
+
         private static int Clamp(int value)
         {
             return Math.Max(0, Math.Min(255, value));
@@ -460,15 +333,15 @@ namespace DevKit.ViewModels
                     break;
 
                 case ChannelType.Red:
-                    RedColor = result;
+                    RedColorValue = result;
                     break;
 
                 case ChannelType.Green:
-                    GreenColor = result;
+                    GreenColorValue = result;
                     break;
 
                 case ChannelType.Blue:
-                    BlueColor = result;
+                    BlueColorValue = result;
                     break;
             }
         }
@@ -484,7 +357,7 @@ namespace DevKit.ViewModels
             result = Clamp(result);
             return true;
         }
-        
+
         private void ApplyColor(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -505,12 +378,12 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            RedColor = Convert.ToInt32(hex.Substring(0, 2), 16);
-            GreenColor = Convert.ToInt32(hex.Substring(2, 2), 16);
-            BlueColor = Convert.ToInt32(hex.Substring(4, 2), 16);
+            RedColorValue = Convert.ToInt32(hex.Substring(0, 2), 16);
+            GreenColorValue = Convert.ToInt32(hex.Substring(2, 2), 16);
+            BlueColorValue = Convert.ToInt32(hex.Substring(4, 2), 16);
 
             RefreshColor();
-            AddRecentlyColor(CurrentColorHex);
+            AddRecentlyColor(_colorHexValue);
         }
 
         private void AddRecentlyColor(string value)
@@ -521,8 +394,8 @@ namespace DevKit.ViewModels
             }
 
             var color = value.ToUpperInvariant();
-            var oldColor = RecentlyColors.FirstOrDefault(
-                item => string.Equals(item, color, StringComparison.OrdinalIgnoreCase));
+            var oldColor =
+                RecentlyColors.FirstOrDefault(item => string.Equals(item, color, StringComparison.OrdinalIgnoreCase));
 
             if (oldColor != null)
             {

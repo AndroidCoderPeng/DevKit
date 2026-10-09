@@ -413,7 +413,7 @@
                         <RadioButton
                             Content="RGB → HEX"
                             GroupName="ColorMode"
-                            IsChecked="{Binding IsToHexSelected, Mode=TwoWay}"
+                            IsChecked="{Binding IsRgbToHexSelected, Mode=TwoWay}"
                             Style="{StaticResource SegmentRadioStyle}" />
 
                         <RadioButton
@@ -543,41 +543,16 @@
                                         <Style TargetType="TextBlock">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="True">
-                                                    <Setter Property="Text" Value="{Binding AlphaValue, StringFormat={}Alpha {0}, FallbackValue=Alpha 255}" />
+                                                    <Setter Property="Text" Value="{Binding AlphaValue, StringFormat={}透明度 {0}%}" />
                                                 </DataTrigger>
 
                                                 <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="False">
-                                                    <Setter Property="Text" Value="不透明" />
+                                                    <Setter Property="Text" Value="透明度 0%" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                            </Border>
-
-                            <!--  悬停提示  -->
-                            <Border
-                                Margin="12"
-                                Padding="12,4"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Background="#BDFFFFFF"
-                                CornerRadius="12"
-                                IsHitTestVisible="False">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Opacity" Value="0" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Border}}}" Value="True">
-                                                <Setter Property="Opacity" Value="1" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock
-                                    FontSize="12"
-                                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                                    Text="点击复制" />
                             </Border>
                         </Grid>
                     </Border>
@@ -599,7 +574,7 @@
                                 <Style TargetType="Border">
                                     <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsToHexSelected}" Value="True">
+                                        <DataTrigger Binding="{Binding IsRgbToHexSelected}" Value="True">
                                             <Setter Property="IsEnabled" Value="False" />
                                             <Setter Property="Opacity" Value="0.6" />
                                         </DataTrigger>
@@ -686,7 +661,7 @@
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsToHexSelected}" Value="False">
+                                    <DataTrigger Binding="{Binding IsRgbToHexSelected}" Value="False">
                                         <Setter Property="IsEnabled" Value="False" />
                                         <Setter Property="Opacity" Value="0.6" />
                                     </DataTrigger>
@@ -780,13 +755,13 @@
                                 Margin="12,0"
                                 Foreground="{StaticResource DevKitDangerBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                Value="{Binding RedColor, Mode=TwoWay}" />
+                                Value="{Binding RedColorValue, Mode=TwoWay}" />
 
                             <TextBox
                                 x:Name="RedInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding RedColor, UpdateSourceTrigger=PropertyChanged}">
+                                Text="{Binding RedColorValue, UpdateSourceTrigger=PropertyChanged}">
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="TextChanged">
                                         <b:InvokeCommandAction Command="{Binding RedColorTextChangedCommand}" CommandParameter="{Binding ElementName=RedInputTextBox, Path=Text}" />
@@ -825,13 +800,13 @@
                                 Margin="12,0"
                                 Foreground="{StaticResource DevKitSuccessBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                Value="{Binding GreenColor, Mode=TwoWay}" />
+                                Value="{Binding GreenColorValue, Mode=TwoWay}" />
 
                             <TextBox
                                 x:Name="GreenInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding GreenColor, UpdateSourceTrigger=PropertyChanged}">
+                                Text="{Binding GreenColorValue, UpdateSourceTrigger=PropertyChanged}">
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="TextChanged">
                                         <b:InvokeCommandAction Command="{Binding GreenColorTextChangedCommand}" CommandParameter="{Binding ElementName=GreenInputTextBox, Path=Text}" />
@@ -870,13 +845,13 @@
                                 Margin="12,0"
                                 Foreground="{StaticResource DevKitAccentBrush}"
                                 Style="{StaticResource ChannelSliderStyle}"
-                                Value="{Binding BlueColor, Mode=TwoWay}" />
+                                Value="{Binding BlueColorValue, Mode=TwoWay}" />
 
                             <TextBox
                                 x:Name="BlueInputTextBox"
                                 Grid.Column="2"
                                 Style="{StaticResource FieldTextBoxStyle}"
-                                Text="{Binding BlueColor, UpdateSourceTrigger=PropertyChanged}">
+                                Text="{Binding BlueColorValue, UpdateSourceTrigger=PropertyChanged}">
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="TextChanged">
                                         <b:InvokeCommandAction Command="{Binding BlueColorTextChangedCommand}" CommandParameter="{Binding ElementName=BlueInputTextBox, Path=Text}" />
@@ -1245,11 +1220,11 @@
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsToHexSelected}" Value="True">
+                            <DataTrigger Binding="{Binding IsRgbToHexSelected}" Value="True">
                                 <Setter Property="Text" Value="RGB → HEX 模式 · 拖动通道实时同步" />
                             </DataTrigger>
 
-                            <DataTrigger Binding="{Binding IsToHexSelected}" Value="False">
+                            <DataTrigger Binding="{Binding IsRgbToHexSelected}" Value="False">
                                 <Setter Property="Text" Value="HEX → RGB 模式 · 输入色值反解通道" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -1262,7 +1237,7 @@
                 Margin="16"
                 HorizontalAlignment="Right"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                Text="{Binding CurrentColorHex, StringFormat={}当前颜色 {0}}" />
+                Text="{Binding ColorHexValue, StringFormat={}当前颜色 {0}}" />
         </Grid>
     </Grid>
 </UserControl>
