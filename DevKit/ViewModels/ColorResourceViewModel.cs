@@ -114,7 +114,7 @@ namespace DevKit.ViewModels
             set => UpdateColor(color => Color.FromArgb((byte)Clamp(value), color.R, color.G, color.B));
         }
 
-        public int AlphaRatioValue => (int)Math.Round(AlphaValue * 100.0 / 255);
+        public int AlphaRatioValue => (100 - (int)Math.Round(AlphaValue * 100.0 / 255));
 
         public double RedColorValue
         {
@@ -157,7 +157,7 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
         }
-        
+
         private ObservableCollection<string> _recentlyColors = new ObservableCollection<string>();
 
         public ObservableCollection<string> RecentlyColors
@@ -213,7 +213,7 @@ namespace DevKit.ViewModels
         #endregion
 
         private DispatcherTimer _toastTimer;
-        
+
         public ColorResourceViewModel()
         {
             // 加载最近使用的颜色
@@ -240,10 +240,7 @@ namespace DevKit.ViewModels
                 NotifyColorChanged();
             });
 
-            CopyColorHexValueCommand = new DelegateCommand(() =>
-            {
-                ShowToast($"{CurrentColorHex} 已复制到剪贴板");
-            });
+            CopyColorHexValueCommand = new DelegateCommand(() => { ShowToast($"{CurrentColorHex} 已复制到剪贴板"); });
         }
 
         private async Task LoadColorResourcesAsync()
@@ -370,7 +367,7 @@ namespace DevKit.ViewModels
             _toastTimer.Stop();
             _toastTimer.Start();
         }
-        
+
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>

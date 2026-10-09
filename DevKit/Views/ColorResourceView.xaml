@@ -543,7 +543,7 @@
                                         <Style TargetType="TextBlock">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="True">
-                                                    <Setter Property="Text" Value="{Binding AlphaValue, StringFormat={}透明度 {0}%}" />
+                                                    <Setter Property="Text" Value="{Binding AlphaRatioValue, StringFormat={}透明度 {0}%}" />
                                                 </DataTrigger>
 
                                                 <DataTrigger Binding="{Binding IsAlphaBoxChecked}" Value="False">
