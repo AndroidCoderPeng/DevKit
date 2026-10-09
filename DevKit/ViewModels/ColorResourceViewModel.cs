@@ -219,7 +219,6 @@ namespace DevKit.ViewModels
         public DelegateCommand RandomColorCommand { set; get; }
         public DelegateCommand ResetCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
-        public DelegateCommand<string> ColorHexTextChangedCommand { set; get; }
         public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
         public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
 
