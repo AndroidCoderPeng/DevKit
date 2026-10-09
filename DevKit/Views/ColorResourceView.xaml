@@ -623,7 +623,7 @@
                                     FontWeight="SemiBold"
                                     Foreground="{DynamicResource DevKitTextBrush}"
                                     MaxLength="8"
-                                    Text="{Binding ColorHexValue, UpdateSourceTrigger=PropertyChanged}">
+                                    Text="{Binding ColorHexValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="TextChanged">
                                             <b:InvokeCommandAction Command="{Binding ColorHexTextChangedCommand}" CommandParameter="{Binding ElementName=ColorHexTextBox, Path=Text}" />

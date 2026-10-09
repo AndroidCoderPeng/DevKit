@@ -240,7 +240,13 @@ namespace DevKit.ViewModels
                 NotifyColorChanged();
             });
 
-            CopyColorHexValueCommand = new DelegateCommand(() => { ShowToast($"{CurrentColorHex} 已复制到剪贴板"); });
+            CopyColorHexValueCommand = new DelegateCommand(() =>
+            {
+                Clipboard.SetText(CurrentColorHex);
+                ShowToast($"{CurrentColorHex} 已复制到剪贴板");
+            });
+            
+            ColorHexTextChangedCommand = new DelegateCommand<string>(ApplyHex);
         }
 
         private async Task LoadColorResourcesAsync()
