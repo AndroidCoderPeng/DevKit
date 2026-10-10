@@ -140,9 +140,9 @@ namespace DevKit.ViewModels
             get => _clientAddress;
         }
 
-        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
-        public ObservableCollection<LogModel> Logs
+        public ObservableCollection<SocketMessage> Logs
         {
             set
             {
@@ -245,7 +245,7 @@ namespace DevKit.ViewModels
                     };
                 }
 
-                var log = new LogModel
+                var log = new SocketMessage
                 {
                     Content = e.ByteBlock.ToArray().ByBytesToHexString(" "),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
@@ -395,7 +395,7 @@ namespace DevKit.ViewModels
             }
 
             _udpServer.Send(_selectedClient.TargetEndPoint, bytes);
-            var log = new LogModel
+            var log = new SocketMessage
             {
                 Content = command,
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),

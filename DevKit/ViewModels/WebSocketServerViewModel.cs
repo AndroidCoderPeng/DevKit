@@ -152,9 +152,9 @@ namespace DevKit.ViewModels
             get => _clientAddress;
         }
 
-        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
-        public ObservableCollection<LogModel> Logs
+        public ObservableCollection<SocketMessage> Logs
         {
             set
             {
@@ -290,7 +290,7 @@ namespace DevKit.ViewModels
                 if (webSocketClient != null)
                 {
                     //默认显示为UTF8编码
-                    var log = new LogModel
+                    var log = new SocketMessage
                     {
                         Content = e.DataFrame.ToText(),
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
@@ -405,7 +405,7 @@ namespace DevKit.ViewModels
             }
 
             _selectedClient.WebSocket.SendAsync(command);
-            var log = new LogModel
+            var log = new SocketMessage
             {
                 Content = command,
                 Time = DateTime.Now.ToString("HH:mm:ss.fff"),

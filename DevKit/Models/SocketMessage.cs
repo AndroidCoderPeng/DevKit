@@ -2,7 +2,7 @@
 
 namespace DevKit.Models
 {
-    public class LogModel : INotifyPropertyChanged
+    public class SocketMessage : INotifyPropertyChanged
     {
         private string _content;
 

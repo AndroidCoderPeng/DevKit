@@ -104,9 +104,9 @@ namespace DevKit.ViewModels
             get => _exCommandCollection;
         }
 
-        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
-        public ObservableCollection<LogModel> Logs
+        public ObservableCollection<SocketMessage> Logs
         {
             set
             {
@@ -506,7 +506,7 @@ namespace DevKit.ViewModels
             if (command.Equals(""))
             {
                 //默认显示为UTF8编码
-                var log = new LogModel
+                var log = new SocketMessage
                 {
                     Content = bytes.ByBytesToHexString(" "),
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
@@ -516,7 +516,7 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var log = new LogModel
+                var log = new SocketMessage
                 {
                     Content = command,
                     Time = DateTime.Now.ToString("HH:mm:ss.fff"),

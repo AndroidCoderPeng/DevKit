@@ -10,9 +10,9 @@ namespace DevKit.Models
         public int Port { get; set; }
         public EndPoint TargetEndPoint { get; set; }
 
-        private ObservableCollection<LogModel> _logs = new ObservableCollection<LogModel>();
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
-        public ObservableCollection<LogModel> Logs
+        public ObservableCollection<SocketMessage> Logs
         {
             get => _logs;
             set
