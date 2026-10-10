@@ -4,7 +4,7 @@ using Prism.Mvvm;
 
 namespace DevKit.Models
 {
-    public class ScreenshotModel : BindableBase
+    public class ScreenshotFile : BindableBase
     {
         public string FilePath { get; set; }
 

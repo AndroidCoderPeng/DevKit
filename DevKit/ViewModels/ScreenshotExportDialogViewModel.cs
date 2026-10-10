@@ -52,9 +52,9 @@ namespace DevKit.ViewModels
         public DelegateCommand SelectAllCommand { set; get; }
         public DelegateCommand DeleteSelectedCommand { set; get; }
         public DelegateCommand CaptureCommand { set; get; }
-        public DelegateCommand<ScreenshotModel> ItemClickedCommand { set; get; }
-        public DelegateCommand<ScreenshotModel> ItemDoubleClickedCommand { set; get; }
-        public DelegateCommand<ScreenshotModel> DeleteSingleCommand { set; get; }
+        public DelegateCommand<ScreenshotFile> ItemClickedCommand { set; get; }
+        public DelegateCommand<ScreenshotFile> ItemDoubleClickedCommand { set; get; }
+        public DelegateCommand<ScreenshotFile> DeleteSingleCommand { set; get; }
         public DelegateCommand BrowseCommand { set; get; }
         public DelegateCommand ExportCommand { set; get; }
 
@@ -75,9 +75,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ScreenshotModel> _screenshots = new ObservableCollection<ScreenshotModel>();
+        private ObservableCollection<ScreenshotFile> _screenshots = new ObservableCollection<ScreenshotFile>();
 
-        public ObservableCollection<ScreenshotModel> Screenshots
+        public ObservableCollection<ScreenshotFile> Screenshots
         {
             get => _screenshots;
             set
@@ -203,9 +203,9 @@ namespace DevKit.ViewModels
                 LoadScreenshots();
             });
 
-            ItemClickedCommand = new DelegateCommand<ScreenshotModel>(_ => RecalcSelectedCount());
+            ItemClickedCommand = new DelegateCommand<ScreenshotFile>(_ => RecalcSelectedCount());
 
-            ItemDoubleClickedCommand = new DelegateCommand<ScreenshotModel>(item =>
+            ItemDoubleClickedCommand = new DelegateCommand<ScreenshotFile>(item =>
             {
                 if (item == null) return;
                 Task.Run(() =>
@@ -218,7 +218,7 @@ namespace DevKit.ViewModels
                 });
             });
 
-            DeleteSingleCommand = new DelegateCommand<ScreenshotModel>(item =>
+            DeleteSingleCommand = new DelegateCommand<ScreenshotFile>(item =>
             {
                 var result = MessageBox.Show($"确定从设备上删除这张截屏吗？此操作不可撤销。", "删除截屏",
                     MessageBoxButton.OKCancel, MessageBoxImage.Question);
@@ -294,7 +294,7 @@ namespace DevKit.ViewModels
 
                 // 后台扫描
                 var remote = ScanRemoteScreenshots();
-                var added = new List<ScreenshotModel>();
+                var added = new List<ScreenshotFile>();
 
                 // UI 线程做 diff：新增的加进来，已消失的移除
                 Application.Current.Dispatcher.Invoke(() =>
@@ -320,9 +320,9 @@ namespace DevKit.ViewModels
             });
         }
 
-        private List<ScreenshotModel> ScanRemoteScreenshots()
+        private List<ScreenshotFile> ScanRemoteScreenshots()
         {
-            var result = new List<ScreenshotModel>();
+            var result = new List<ScreenshotFile>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var dir in ScanDirectories)
@@ -354,9 +354,9 @@ namespace DevKit.ViewModels
         /// </summary>
         private void RecalcSelectedCount() => SelectedCount = _screenshots.Count(s => s.IsSelected);
 
-        private static ScreenshotModel ParseScreenshot(string path)
+        private static ScreenshotFile ParseScreenshot(string path)
         {
-            return new ScreenshotModel
+            return new ScreenshotFile
             {
                 FilePath = path,
                 Time = ParseTimeFromName(path)
@@ -382,9 +382,9 @@ namespace DevKit.ViewModels
             return DateTime.MinValue;
         }
 
-        private void LoadThumbnails(List<ScreenshotModel> models)
+        private void LoadThumbnails(List<ScreenshotFile> files)
         {
-            foreach (var item in models)
+            foreach (var item in files)
             {
                 try
                 {
@@ -413,7 +413,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string EnsureCached(ScreenshotModel item)
+        private string EnsureCached(ScreenshotFile item)
         {
             if (!string.IsNullOrEmpty(item.CachePath) && File.Exists(item.CachePath))
             {
