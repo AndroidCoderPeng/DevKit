@@ -161,7 +161,7 @@
         <!--  日志级别徽标：按 Level 着底色  -->
         <Style x:Key="LevelBadgeStyle" TargetType="Border">
             <d:Style.DataContext>
-                <x:Type Type="model:LogcatModel" />
+                <x:Type Type="model:AndroidLog" />
             </d:Style.DataContext>
 
             <Setter Property="MinWidth" Value="18" />
@@ -445,7 +445,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <d:Style.DataContext>
-                                    <x:Type Type="model:LogcatModel" />
+                                    <x:Type Type="model:AndroidLog" />
                                 </d:Style.DataContext>
 
                                 <!--  时间  -->
