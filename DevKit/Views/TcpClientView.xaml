@@ -1284,7 +1284,7 @@
                                         <ContextMenu Style="{StaticResource CmdContextMenuStyle}">
                                             <MenuItem
                                                 Command="{Binding CopyLogCommand}"
-                                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:LogModel.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:SocketMessage.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                 Header="复制"
                                                 Style="{StaticResource CmdMenuItemStyle}">
                                                 <MenuItem.Icon>
