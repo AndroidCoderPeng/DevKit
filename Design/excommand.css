@@ -1,0 +1,377 @@
+/* ============================================================
+   扩展指令对话框 · 界面重设计稿（静态页面）
+   配色沿用 DevKit 浅色主题，与 tcp.css / main.css 保持同源
+
+   说明：本窗口是 Prism 对话框，窗口标题（编辑扩展指令）由系统默认
+   标题栏提供，因此窗口内容顶部不再放置标题，直接是表单主体。
+   ============================================================ */
+
+:root {
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+    --font: "Segoe UI", "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, sans-serif;
+    --mono: "Cascadia Mono", Consolas, "JetBrains Mono", monospace;
+    --duration: .18s;
+
+    color-scheme: light;
+    --page-bg: #eef2f7;
+    --window-bg: #f3f9fe;
+    --surface: #ffffff;
+    --surface-2: #f7f9fc;
+    --border: #eeeef0;
+    --border-strong: #dfe3ea;
+    --text: #1b1b1b;
+    --text-2: #5f6b7a;
+    --text-3: #93a0ae;
+    --accent: #2e7cf6;
+    --accent-soft: rgba(46, 124, 246, .10);
+    --success: #16a34a;
+    --danger: #e5484d;
+    --warning: #f2994a;
+    --shadow: 0 10px 30px rgba(19, 34, 61, .10);
+    --shadow-sm: 0 2px 6px rgba(19, 34, 61, .06);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    font-family: var(--font);
+    background: var(--page-bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ================= 演示状态切换器（仅设计稿） ================= */
+.demo-switch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    padding: 6px 8px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+}
+
+.demo-title {
+    padding: 0 4px;
+    font-size: 11px;
+    color: var(--text-3);
+}
+
+.demo-btn {
+    height: 26px;
+    padding: 0 12px;
+    font-family: var(--font);
+    font-size: 12px;
+    color: var(--text-2);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all var(--duration) ease;
+}
+
+.demo-btn:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.demo-btn.active {
+    color: #fff;
+    background: var(--accent);
+}
+
+/* ================= 窗口（对话框） ================= */
+.app {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.window {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 470px;
+    background: var(--window-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+/* 演示用：模拟系统标题栏文字，仅示意标题随模式变化，非窗口内容 */
+.demo-titlebar {
+    flex: none;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.demo-titlebar::before {
+    content: "窗口标题（系统标题栏）：";
+    color: var(--text-3);
+}
+
+/* ================= 表单区 ================= */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 18px 4px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+}
+
+.form-label .req {
+    color: var(--danger);
+    font-weight: 400;
+}
+
+.form-label .tip {
+    flex: 1;
+    min-width: 0;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 标签行右侧：字节数徽标 + 格式化按钮（不额外占行） */
+.form-label .icon-btn {
+    width: 22px;
+    height: 22px;
+}
+
+/* ================= 输入框 ================= */
+.input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    min-height: 36px;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    transition: all var(--duration) ease;
+}
+
+.input-wrap:focus-within {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input-wrap input,
+.input-wrap textarea {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.input-wrap input::placeholder,
+.input-wrap textarea::placeholder {
+    color: var(--text-3);
+    font-family: var(--font);
+}
+
+.input-wrap textarea {
+    resize: none;
+    min-height: 60px;
+}
+
+/* 备注用普通字体 */
+.input-wrap.plain input,
+.input-wrap.plain textarea {
+    font-family: var(--font);
+}
+
+.input-wrap.invalid {
+    border-color: var(--danger);
+    background: rgba(229, 72, 77, .06);
+    box-shadow: 0 0 0 3px rgba(229, 72, 77, .10);
+}
+
+/* 多行输入（指令值，对应原 XAML 的多行 TextBox） */
+.input-wrap.area {
+    align-items: stretch;
+    padding: 0 10px;
+}
+
+.input-wrap.area textarea {
+    padding: 8px 0;
+    min-height: 68px;
+    max-height: 160px;
+    resize: vertical;
+}
+
+/* 输入框内的小徽标：字节数 */
+.byte-chip {
+    flex: none;
+    padding: 1px 7px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* 输入框内的小图标按钮：格式化 */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    color: var(--text-2);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all var(--duration) ease;
+}
+
+.icon-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+/* ================= 校验提示条 ================= */
+.toolbar-hint {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    margin: 0 18px;
+    padding: 7px 11px;
+    font-size: 11.5px;
+    color: var(--danger);
+    background: rgba(229, 72, 77, .07);
+    border: 1px solid rgba(229, 72, 77, .18);
+    border-radius: var(--radius-md);
+}
+
+.toolbar-hint.show {
+    display: flex;
+}
+
+/* ================= 底部按钮区 ================= */
+.footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    padding: 13px 18px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+.footer .hint {
+    flex: 1;
+    min-width: 0;
+    font-size: 11px;
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ================= 按钮 ================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 18px;
+    font-family: var(--font);
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--duration) ease;
+}
+
+.btn:hover:not(:disabled) {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(46, 124, 246, .22);
+}
+
+.btn-primary:hover:not(:disabled) {
+    color: #fff;
+    background: #1c6ae0;
+    border-color: #1c6ae0;
+}
+
+.btn-primary kbd {
+    padding: 1px 5px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: rgba(255, 255, 255, .82);
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 5px;
+}

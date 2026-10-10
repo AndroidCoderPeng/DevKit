@@ -87,15 +87,13 @@
                 Margin="0,0,10,0"
                 HorizontalAlignment="Stretch"
                 Command="{Binding CommandSaveCommand}"
-                Content="保存"
-                Style="{StaticResource ButtonPrimary}" />
+                Content="保存" />
 
             <Button
                 Margin="10,0,0,0"
                 HorizontalAlignment="Stretch"
                 Command="{Binding CancelDialogCommand}"
-                Content="取消"
-                Style="{StaticResource ButtonWarning}" />
+                Content="取消" />
         </UniformGrid>
     </Grid>
 </UserControl>

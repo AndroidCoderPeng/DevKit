@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>扩展指令 · 界面重设计稿</title>
+    <link rel="stylesheet" href="excommand.css" />
+</head>
+
+<body>
+
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-status="edit">编辑</button>
+        <button class="demo-btn" data-status="add">新增</button>
+        <button class="demo-btn" data-status="invalid">校验错误</button>
+    </div>
+
+    <div class="app">
+        <!--
+      注意：本窗口为 Prism 对话框，窗口标题由系统默认标题栏提供（添加扩展指令 / 编辑扩展指令），
+      因此窗口内容顶部不再放置标题栏，直接是表单主体。
+
+      与原 XAML 的对应关系：
+      - 指令值：保留（原为多行 TextBox，这里同为多行输入），标记为必填；
+        输入框下方新增「格式化」按钮（补零 + 大写 + 规范空格分隔）与实时字节数，下方提供 HEX 实时预览。
+      - 备注：保留，作为可选字段。
+    -->
+        <div class="window">
+
+            <!-- 演示用：模拟系统标题栏文字，仅示意标题随模式变化，非窗口内容 -->
+            <div class="demo-titlebar" id="demoTitlebar">添加扩展指令</div>
+
+            <!-- ============ 表单主体 ============ -->
+            <div class="form">
+
+                <!-- 指令值 -->
+                <div class="form-row">
+                    <span class="form-label">
+                        指令值 <span class="req">*</span>
+                        <span class="tip">HEX 字节，空格分隔</span>
+                        <span class="byte-chip" id="byteChip">5 B</span>
+                        <button class="icon-btn" id="btnFormat" title="格式化：转大写、补零并规范空格分隔">
+                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" d="M4 7h13M4 12h9M4 17h13" />
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" d="M19 9l2 2-2 2" />
+                            </svg>
+                        </button>
+                    </span>
+
+                    <label class="input-wrap area" id="cmdWrap">
+                        <textarea id="cmdValue" rows="3" placeholder="例如：AA 55 01 01" title="指令值"
+                            spellcheck="false">AA 55 03 01 FF</textarea>
+                    </label>
+                </div>
+
+                <!-- 备注 -->
+                <div class="form-row">
+                    <span class="form-label">
+                        备注
+                        <span class="tip">可选，便于在指令列表中识别</span>
+                    </span>
+
+                    <label class="input-wrap plain" id="annoWrap">
+                        <input id="annoValue" type="text" value="开启采集" placeholder="例如：握手请求" title="备注"
+                            maxlength="50" spellcheck="false" />
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- 输入校验提示（有错误时才出现，不占用固定高度） -->
+            <div class="toolbar-hint" id="hint" style="margin-top:14px">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 8v5" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 16.5h.01" />
+                </svg>
+                <span id="hintText">指令值格式不正确：仅支持十六进制字节（00 - FF），以空格分隔</span>
+            </div>
+
+            <!-- ============ 底部：提示 + 操作按钮 ============ -->
+            <footer class="footer">
+                <span class="hint" id="footerHint">Ctrl + Enter 快速保存 · Esc 取消</span>
+
+                <button class="btn" id="btnCancel">
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                    取消
+                </button>
+
+                <button class="btn btn-primary" id="btnSave">
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    保存
+                    <kbd>Ctrl + Enter</kbd>
+                </button>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="excommand.js"></script>
+</body>
+
+</html>
