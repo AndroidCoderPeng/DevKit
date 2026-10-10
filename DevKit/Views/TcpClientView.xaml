@@ -1542,10 +1542,15 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <TextBlock
-                Margin="16"
-                Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                Text="{Binding ConnectionState, FallbackValue=未连接}" />
+            <TextBlock Margin="16" Foreground="{Binding StateTextColor}">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} {1}:{2}">
+                        <Binding Path="ConnectionState" />
+                        <Binding Path="RemoteAddress" />
+                        <Binding Path="RemotePort" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
 
             <TextBlock
                 Grid.Column="1"
