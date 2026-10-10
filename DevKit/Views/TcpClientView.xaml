@@ -667,7 +667,7 @@
                             Margin="6,0,0,0"
                             VerticalAlignment="Center"
                             FontSize="13"
-                            Text="连接" />
+                            Text="{Binding ButtonStateText}" />
                     </StackPanel>
                 </Button.Content>
             </Button>

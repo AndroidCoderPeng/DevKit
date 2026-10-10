@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.Cache;
@@ -13,9 +15,6 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TouchSocket.Core;
-using TouchSocket.Sockets;
-using TcpClient = TouchSocket.Sockets.TcpClient;
 
 namespace DevKit.ViewModels
 {
@@ -107,7 +106,7 @@ namespace DevKit.ViewModels
             get => _remoteAddress;
             set => SetProperty(ref _remoteAddress, value);
         }
-        
+
         private string _remotePort = "9000";
 
         public string RemotePort
@@ -116,34 +115,17 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _remotePort, value);
         }
 
+        private string _buttonStateText = "连接";
+
+        public string ButtonStateText
+        {
+            get => _buttonStateText;
+            set => SetProperty(ref _buttonStateText, value);
+        }
+
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        
-        private string _buttonState = "连接";
-
-        public string ButtonState
-        {
-            set
-            {
-                _buttonState = value;
-                RaisePropertyChanged();
-            }
-            get => _buttonState;
-        }
-
-        private string _connectionStateColor = "red";
-
-        public string ConnectionStateColor
-        {
-            set
-            {
-                _connectionStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _connectionStateColor;
-        }
-
         private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
 
         public ObservableCollection<ExCommandCache> ExCommandCollection
@@ -208,8 +190,13 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand ConnectRemoteCommand { set; get; }
+        public DelegateCommand ConnectServerCommand { set; get; }
+
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
         public DelegateCommand SaveCommunicationCommand { set; get; }
+
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
@@ -227,9 +214,13 @@ namespace DevKit.ViewModels
 
         private const string ClientType = "TCP";
         private readonly IDialogService _dialogService;
-        private readonly TcpClient _tcpClient = new TcpClient();
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+
+        private TcpClient _tcpClient;
+        private CancellationTokenSource _receiveCts;
+        private bool _isConnecting;
+
         private IEnumerator<string> _commandEnumerator;
 
         public TcpClientViewModel(IDialogService dialogService)
@@ -241,6 +232,10 @@ namespace DevKit.ViewModels
             RemoteAddress = config.Servers.Ip;
             RemotePort = config.Servers.Port;
 
+            ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
+
+            /////////////////////////////////////////////////////////////////////////////////
+
             using (var dataBase = new DataBaseConnection())
             {
                 //加载扩展指令缓存
@@ -250,9 +245,6 @@ namespace DevKit.ViewModels
                 ExCommandCollection = commandCache.ToObservableCollection();
             }
 
-            InitConnectStateEvent();
-
-            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             AddExtensionCommand = new DelegateCommand(AddExtension);
@@ -268,110 +260,163 @@ namespace DevKit.ViewModels
             ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
-        /// <summary>
-        /// 连接状态监听
-        /// </summary>
-        private void InitConnectStateEvent()
+        private async Task ConnectServerAsync()
         {
-            _tcpClient.Connected = (client, e) =>
+            if (_isConnecting)
             {
-                ConnectionStateColor = "Lime";
-                ButtonState = "断开";
-                //更新连接配置缓存
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var queryResult = dataBase.Table<ClientConfigCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .OrderByDescending(x => x.Id)
-                        .FirstOrDefault();
-                    if (queryResult != null)
-                    {
-                        queryResult.RemoteAddress = _remoteAddress;
-                        queryResult.RemotePort = Convert.ToInt32(_remotePort);
-                        dataBase.Update(queryResult);
-                    }
-                    else
-                    {
-                        var config = new ClientConfigCache
-                        {
-                            ClientType = ClientType,
-                            RemoteAddress = _remoteAddress,
-                            RemotePort = Convert.ToInt32(_remotePort)
-                        };
-                        dataBase.Insert(config);
-                    }
-                }
+                return;
+            }
 
-                return EasyTask.CompletedTask;
-            };
-
-            _tcpClient.Closed = (client, e) =>
+            if (_tcpClient != null)
             {
-                ConnectionStateColor = "LightGray";
-                ButtonState = "连接";
-                return EasyTask.CompletedTask;
-            };
+                DisconnectServer();
+                return;
+            }
 
-            _tcpClient.Received = (client, e) =>
+            if (string.IsNullOrWhiteSpace(_remoteAddress) || !_remoteAddress.IsIpAddress())
             {
-                UpdateCommunicationLog("", e.ByteBlock.ToArray());
-                return EasyTask.CompletedTask;
-            };
+                MessageBox.Show("IP格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_remotePort) || !_remotePort.IsPort())
+            {
+                MessageBox.Show("端口格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _isConnecting = true;
+            SetConnectionState("连接中");
+
+            var client = new TcpClient();
+
+            try
+            {
+                await client.ConnectAsync(_remoteAddress, Convert.ToInt32(_remotePort));
+
+                var receiveCts = new CancellationTokenSource();
+                _tcpClient = client;
+                _receiveCts = receiveCts;
+
+                SetConnectionState("已连接");
+                _ = ReceiveLoopAsync(client, receiveCts);
+            }
+            catch (Exception e)
+            {
+                client.Dispose();
+                SetConnectionState("未连接");
+                MessageBox.Show(e.Message, "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isConnecting = false;
+            }
         }
 
-        private void ConnectRemote()
+        private void DisconnectServer()
         {
-            if (string.IsNullOrWhiteSpace(_remoteAddress) || string.IsNullOrWhiteSpace(_remotePort))
+            var client = _tcpClient;
+            var receiveCts = _receiveCts;
+
+            _tcpClient = null;
+            _receiveCts = null;
+
+            receiveCts?.Cancel();
+            client?.Close();
+
+            SetConnectionState("未连接");
+        }
+
+        private async Task ReceiveLoopAsync(TcpClient client, CancellationTokenSource receiveCts)
+        {
+            var token = receiveCts.Token;
+
+            try
             {
-                MessageBox.Show("IP或者端口未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                var stream = client.GetStream();
+                var buffer = new byte[8192];
+
+                while (!token.IsCancellationRequested)
+                {
+                    var count = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
+                    if (count == 0)
+                    {
+                        break;
+                    }
+
+                    var bytes = new byte[count];
+                    Buffer.BlockCopy(buffer, 0, bytes, 0, count);
+
+                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        UpdateCommunicationLog("", bytes);
+                    }));
+                }
             }
-
-            //判断是否是IP和端口合理性
-            // if (!_remoteAddress.IsIp())
-            // {
-            //     MessageBox.Show("IP格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
-
-            if (!_remotePort.IsNumber())
+            catch (OperationCanceledException)
             {
-                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                // 主动断开
             }
-
-            if (_tcpClient.Online)
+            catch (Exception e)
             {
-                _tcpClient.Close();
+                if (!token.IsCancellationRequested)
+                {
+                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        MessageBox.Show(e.Message, "接收失败", MessageBoxButton.OK, MessageBoxImage.Error))
+                    );
+                }
+            }
+            finally
+            {
+                client.Dispose();
+                receiveCts.Dispose();
+
+                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (ReferenceEquals(_tcpClient, client))
+                    {
+                        _tcpClient = null;
+                        _receiveCts = null;
+                        SetConnectionState("未连接");
+                    }
+                }));
+            }
+        }
+
+        private void SetConnectionState(string state)
+        {
+            ConnectionState = state;
+            ButtonStateText = state == "已连接" ? "断开" : "连接";
+
+            if (state == "连接中")
+            {
+                StateOuterBackgroundColor = "#66F2994A";
+                StateOuterBorderColor = "#1FF2994A";
+                StateInnerBackgroundColor = "#FBE1C9";
+                StateInnerBorderColor = "#F2994A";
+                StateTextColor = "#F2994A";
+            }
+            else if (state == "已连接")
+            {
+                StateOuterBackgroundColor = "#5917A95C";
+                StateOuterBorderColor = "#1F17A95C";
+                StateInnerBackgroundColor = "#BEE7D1";
+                StateInnerBorderColor = "#16A34A";
+                StateTextColor = "#16A34A";
             }
             else
             {
-                _tcpClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_remoteAddress}:{_remotePort}"));
-                try
-                {
-                    _tcpClient.Connect();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-
-            using (var dataBase = new DataBaseConnection())
-            {
-                var queryResult = dataBase.Table<ClientConfigCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .OrderByDescending(x => x.Id)
-                    .FirstOrDefault();
-                if (queryResult != null)
-                {
-                    queryResult.RemoteAddress = _remoteAddress;
-                    queryResult.RemotePort = Convert.ToInt32(_remotePort);
-                    dataBase.Update(queryResult);
-                }
+                StateOuterBackgroundColor = "#FFF7F9FC";
+                StateOuterBorderColor = "#FFEEEEF0";
+                StateInnerBackgroundColor = "#E7EBF0";
+                StateInnerBorderColor = "#93A0AE";
+                StateTextColor = "#5F6B7A";
             }
         }
 
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
         private async void SaveCommunicationLog()
         {
             if (!_logs.Any())
@@ -515,61 +560,31 @@ namespace DevKit.ViewModels
 
         private void SendMessage(string command)
         {
-            if (!_tcpClient.Online)
-            {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(command))
-            {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            byte[] bytes;
-            if (_isHexSelected)
-            {
-                if (!command.IsHex())
-                {
-                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                bytes = command.Replace(" ", "").ByHexStringToBytes();
-            }
-            else
-            {
-                bytes = command.ToUtf8Bytes();
-            }
-
-            _tcpClient.Send(bytes);
-            UpdateCommunicationLog(command, bytes);
         }
 
         private void UpdateCommunicationLog(string command, byte[] bytes)
         {
-            if (command.Equals(""))
-            {
-                //默认显示为UTF8编码
-                var log = new SocketMessage
-                {
-                    Content = bytes.ByBytesToHexString(" "),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 0
-                };
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-            }
-            else
-            {
-                var log = new SocketMessage
-                {
-                    Content = command,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 1
-                };
-                Logs.Add(log);
-            }
+            // if (command.Equals(""))
+            // {
+            //     //默认显示为UTF8编码
+            //     var log = new SocketMessage
+            //     {
+            //         Content = bytes.ByBytesToHexString(" "),
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = 0
+            //     };
+            //     Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
+            // }
+            // else
+            // {
+            //     var log = new SocketMessage
+            //     {
+            //         Content = command,
+            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+            //         IsSend = 1
+            //     };
+            //     Logs.Add(log);
+            // }
         }
 
         private void OpenScriptDialog()
@@ -634,7 +649,7 @@ namespace DevKit.ViewModels
 
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
-            if (!_tcpClient.Online)
+            if (!_tcpClient.Connected)
             {
                 MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -653,20 +668,20 @@ namespace DevKit.ViewModels
             if (index.ToString().Equals("0"))
             {
                 //转为16进制显示
-                foreach (var log in _logs)
-                {
-                    var bytes = log.Content.ToUtf8Bytes();
-                    log.Content = bytes.ByBytesToHexString(" ");
-                }
+                // foreach (var log in _logs)
+                // {
+                //     var bytes = log.Content.ToUtf8Bytes();
+                //     log.Content = bytes.ByBytesToHexString(" ");
+                // }
             }
             else if (index.ToString().Equals("1"))
             {
                 //转为ASCII显示
-                foreach (var log in _logs)
-                {
-                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                    log.Content = Encoding.UTF8.GetString(bytes);
-                }
+                // foreach (var log in _logs)
+                // {
+                //     var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
+                //     log.Content = Encoding.UTF8.GetString(bytes);
+                // }
             }
         }
     }

@@ -7,22 +7,6 @@ namespace DevKit.Utils
     public static class MethodExtensions
     {
         /// <summary>
-        /// List 转 ObservableCollection
-        /// </summary>
-        /// <param name="list"></param>
-        /// <returns></returns>
-        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> list)
-        {
-            var collection = new ObservableCollection<T>();
-            foreach (var t in list)
-            {
-                collection.Add(t);
-            }
-
-            return collection;
-        }
-
-        /// <summary>
         /// 文件大小转换
         /// </summary>
         /// <param name="length"></param>
@@ -45,6 +29,34 @@ namespace DevKit.Utils
             }
 
             return $"{(double)length / (1024 * 1024 * 1024):F2}GB";
+        }
+        
+        public static bool IsIpAddress(this string ip)
+        {
+            return new Regex(@"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+                .IsMatch(ip);
+        }
+
+        public static bool IsPort(this string port)
+        {
+            return new Regex(@"^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")
+                .IsMatch(port);
+        }
+        
+        /// <summary>
+        /// List 转 ObservableCollection
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static ObservableCollection<T> ToObservableCollection<T>(this List<T> list)
+        {
+            var collection = new ObservableCollection<T>();
+            foreach (var t in list)
+            {
+                collection.Add(t);
+            }
+
+            return collection;
         }
 
         /// <summary>
