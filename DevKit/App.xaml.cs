@@ -78,7 +78,6 @@ namespace DevKit
             
             containerRegistry.RegisterDialog<ColorResourceView, ColorResourceViewModel>();
             containerRegistry.RegisterDialog<NetConfigurationView, NetConfigurationViewModel>();
-            containerRegistry.RegisterDialog<VideoCutView, VideoCutViewModel>();
 
             containerRegistry.RegisterDialog<LoadingDialog, LoadingDialogViewModel>();
         }

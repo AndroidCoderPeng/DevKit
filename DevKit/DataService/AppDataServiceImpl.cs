@@ -35,8 +35,7 @@ namespace DevKit.DataService
             return new List<MainMenu>
             {
                 new MainMenu { MenuIcon = "\ue660", MenuName = "颜色处理" },
-                new MainMenu { MenuIcon = "\ue6b4", MenuName = "网络配置" },
-                new MainMenu { MenuIcon = "\ue70f", MenuName = "视频裁剪" }
+                new MainMenu { MenuIcon = "\ue6b4", MenuName = "网络配置" }
             };
         }
 
