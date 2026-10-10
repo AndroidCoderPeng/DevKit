@@ -163,9 +163,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ApkFileModel> _apkFileCollection;
+        private ObservableCollection<ApkFile> _apkFileCollection;
 
-        public ObservableCollection<ApkFileModel> ApkFileCollection
+        public ObservableCollection<ApkFile> ApkFileCollection
         {
             get => _apkFileCollection;
             set
@@ -313,7 +313,7 @@ namespace DevKit.ViewModels
         /// </summary>
         private void StartScan()
         {
-            ApkFileCollection = new ObservableCollection<ApkFileModel>();
+            ApkFileCollection = new ObservableCollection<ApkFile>();
 
             ScanProgress = 0;
             ScanVisibility = Visibility.Visible;
@@ -358,7 +358,7 @@ namespace DevKit.ViewModels
         /// <summary>
         /// 遍历文件夹并生成相应的数据类型集合
         /// </summary>
-        private void TraverseFolder(string folderPath, Action<ApkFileModel, int, int> onFileScanned)
+        private void TraverseFolder(string folderPath, Action<ApkFile, int, int> onFileScanned)
         {
             var files = new DirectoryInfo(folderPath)
                 .GetFiles("*.apk", SearchOption.AllDirectories)
@@ -372,7 +372,7 @@ namespace DevKit.ViewModels
             {
                 processed++;
 
-                ApkFileModel apk = null;
+                ApkFile apk = null;
                 var fullName = file.FullName;
 
                 if (fullName.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0 && !file.Name.StartsWith("."))
@@ -381,7 +381,7 @@ namespace DevKit.ViewModels
                     var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
                     var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension.Substring(0, index - 1);
 
-                    apk = new ApkFileModel
+                    apk = new ApkFile
                     {
                         FileName = fileName,
                         FullName = fullName,
@@ -460,7 +460,7 @@ namespace DevKit.ViewModels
 
             view.Filter = o =>
             {
-                if (!(o is ApkFileModel apk)) return false;
+                if (!(o is ApkFile apk)) return false;
 
                 var matchName = apk.FileName?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
                 var matchVersion = apk.Version?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;

@@ -14,10 +14,10 @@ namespace DevKit.Views
 
         private void ListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is ApkFileModel model)
+            if (sender is ListBoxItem item && item.Content is ApkFile file)
             {
                 var vm = DataContext as ApplicationPackageViewModel;
-                vm?.OpenFileFolderCommand.Execute(model.FullName);
+                vm?.OpenFileFolderCommand.Execute(file.FullName);
             }
         }
     }
