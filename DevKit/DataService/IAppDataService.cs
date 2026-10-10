@@ -5,11 +5,11 @@ namespace DevKit.DataService
 {
     public interface IAppDataService
     {
-        List<MainMenuModel> GetAndroidTools();
+        List<MainMenu> GetAndroidTools();
 
-        List<MainMenuModel> GetSocketTools();
+        List<MainMenu> GetSocketTools();
 
-        List<MainMenuModel> GetOtherTools();
+        List<MainMenu> GetOtherTools();
 
         List<string> GetIPv4Address();
     }

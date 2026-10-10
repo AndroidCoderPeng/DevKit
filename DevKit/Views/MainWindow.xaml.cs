@@ -37,28 +37,28 @@ namespace DevKit.Views
 
         private void AndroidToolsListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is MainMenuModel model)
+            if (sender is ListBoxItem item && item.Content is MainMenu menu)
             {
                 var vm = DataContext as MainWindowViewModel;
-                vm?.AndroidToolClickedCommand.Execute(model);
+                vm?.AndroidToolClickedCommand.Execute(menu);
             }
         }
         
         private void SocketToolsListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is MainMenuModel model)
+            if (sender is ListBoxItem item && item.Content is MainMenu menu)
             {
                 var vm = DataContext as MainWindowViewModel;
-                vm?.SocketToolClickedCommand.Execute(model);
+                vm?.SocketToolClickedCommand.Execute(menu);
             }
         }
         
         private void OtherToolsListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is ListBoxItem item && item.Content is MainMenuModel model)
+            if (sender is ListBoxItem item && item.Content is MainMenu menu)
             {
                 var vm = DataContext as MainWindowViewModel;
-                vm?.OtherToolClickedCommand.Execute(model);
+                vm?.OtherToolClickedCommand.Execute(menu);
             }
         }
     }

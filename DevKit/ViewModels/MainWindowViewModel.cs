@@ -11,17 +11,17 @@ namespace DevKit.ViewModels
     {
         #region VM
 
-        public List<MainMenuModel> AndroidTools { get; }
-        public List<MainMenuModel> SocketTools { get; }
-        public List<MainMenuModel> OtherTools { get; }
+        public List<MainMenu> AndroidTools { get; }
+        public List<MainMenu> SocketTools { get; }
+        public List<MainMenu> OtherTools { get; }
 
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand<MainMenuModel> AndroidToolClickedCommand { get; }
-        public DelegateCommand<MainMenuModel> SocketToolClickedCommand { get; }
-        public DelegateCommand<MainMenuModel> OtherToolClickedCommand { get; }
+        public DelegateCommand<MainMenu> AndroidToolClickedCommand { get; }
+        public DelegateCommand<MainMenu> SocketToolClickedCommand { get; }
+        public DelegateCommand<MainMenu> OtherToolClickedCommand { get; }
 
         #endregion
 
@@ -35,9 +35,9 @@ namespace DevKit.ViewModels
             SocketTools = dataService.GetSocketTools();
             OtherTools = dataService.GetOtherTools();
 
-            AndroidToolClickedCommand = new DelegateCommand<MainMenuModel>(OnAndroidToolClicked);
-            SocketToolClickedCommand = new DelegateCommand<MainMenuModel>(OnSocketToolClicked);
-            OtherToolClickedCommand = new DelegateCommand<MainMenuModel>(OnOtherToolClicked);
+            AndroidToolClickedCommand = new DelegateCommand<MainMenu>(OnAndroidToolClicked);
+            SocketToolClickedCommand = new DelegateCommand<MainMenu>(OnSocketToolClicked);
+            OtherToolClickedCommand = new DelegateCommand<MainMenu>(OnOtherToolClicked);
         }
 
         private readonly Dictionary<string, string> _androidToolMap = new Dictionary<string, string>
@@ -47,9 +47,9 @@ namespace DevKit.ViewModels
             { "JNI逆向", "JNIReverseView" }
         };
 
-        private void OnAndroidToolClicked(MainMenuModel model)
+        private void OnAndroidToolClicked(MainMenu menu)
         {
-            if (model == null || !_androidToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            if (menu == null || !_androidToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
             _dialogService.Show(viewName);
         }
 
@@ -63,9 +63,9 @@ namespace DevKit.ViewModels
             { "WS服务端", "WebSocketServerView" }
         };
         
-        private void OnSocketToolClicked(MainMenuModel model)
+        private void OnSocketToolClicked(MainMenu menu)
         {
-            if (model == null || !_socketToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            if (menu == null || !_socketToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
             _dialogService.Show(viewName);
         }
 
@@ -76,9 +76,9 @@ namespace DevKit.ViewModels
             { "视频裁剪", "VideoCutView" }
         };
         
-        private void OnOtherToolClicked(MainMenuModel model)
+        private void OnOtherToolClicked(MainMenu menu)
         {
-            if (model == null || !_otherToolMap.TryGetValue(model.MenuName, out var viewName)) return;
+            if (menu == null || !_otherToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
             _dialogService.Show(viewName);
         }
     }

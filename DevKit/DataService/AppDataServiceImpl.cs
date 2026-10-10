@@ -7,36 +7,36 @@ namespace DevKit.DataService
 {
     public class AppDataServiceImpl : IAppDataService
     {
-        public List<MainMenuModel> GetAndroidTools()
+        public List<MainMenu> GetAndroidTools()
         {
-            return new List<MainMenuModel>
+            return new List<MainMenu>
             {
-                new MainMenuModel { MenuIcon = "\ue71c", MenuName = "ADB" },
-                new MainMenuModel { MenuIcon = "\ue700", MenuName = "APK" },
-                new MainMenuModel { MenuIcon = "\ue673", MenuName = "JNI逆向" }
+                new MainMenu { MenuIcon = "\ue71c", MenuName = "ADB" },
+                new MainMenu { MenuIcon = "\ue700", MenuName = "APK" },
+                new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向" }
             };
         }
 
-        public List<MainMenuModel> GetSocketTools()
+        public List<MainMenu> GetSocketTools()
         {
-            return new List<MainMenuModel>
+            return new List<MainMenu>
             {
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP客户端" },
-                new MainMenuModel { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
-                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
-                new MainMenuModel { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
-                new MainMenuModel { MenuIcon = "\ue8b2", MenuName = "WS服务端" }
+                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP客户端" },
+                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
+                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
+                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
+                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
+                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端" }
             };
         }
 
-        public List<MainMenuModel> GetOtherTools()
+        public List<MainMenu> GetOtherTools()
         {
-            return new List<MainMenuModel>
+            return new List<MainMenu>
             {
-                new MainMenuModel { MenuIcon = "\ue660", MenuName = "颜色处理" },
-                new MainMenuModel { MenuIcon = "\ue6b4", MenuName = "网络配置" },
-                new MainMenuModel { MenuIcon = "\ue70f", MenuName = "视频裁剪" }
+                new MainMenu { MenuIcon = "\ue660", MenuName = "颜色处理" },
+                new MainMenu { MenuIcon = "\ue6b4", MenuName = "网络配置" },
+                new MainMenu { MenuIcon = "\ue70f", MenuName = "视频裁剪" }
             };
         }
 

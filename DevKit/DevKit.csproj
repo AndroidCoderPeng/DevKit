@@ -195,7 +195,7 @@
     <Compile Include="Models\CmdCommand.cs" />
     <Compile Include="Models\LogcatModel.cs" />
     <Compile Include="Models\LogModel.cs" />
-    <Compile Include="Models\MainMenuModel.cs" />
+    <Compile Include="Models\MainMenu.cs" />
     <Compile Include="Models\SocketClientModel.cs" />
     <Compile Include="Models\ScreenshotModel.cs" />
     <Compile Include="Models\UdpClientModel.cs" />
