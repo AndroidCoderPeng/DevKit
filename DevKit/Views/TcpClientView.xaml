@@ -518,8 +518,8 @@
             <Border
                 Grid.Column="0"
                 Margin="14"
-                Background="{StaticResource DevKitSurfaceBrush}"
-                BorderBrush="{StaticResource DevKitBorderBrush}"
+                Background="{Binding StateOuterBackgroundColor}"
+                BorderBrush="{Binding StateOuterBorderColor}"
                 BorderThickness="1"
                 CornerRadius="16">
                 <StackPanel Margin="10,6" Orientation="Horizontal">
@@ -531,14 +531,14 @@
                         Width="20"
                         Height="20"
                         VerticalAlignment="Center"
-                        Background="#E7EBF0"
+                        Background="{Binding StateInnerBackgroundColor}"
                         CornerRadius="10">
                         <Border
                             Width="10"
                             Height="10"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Background="{StaticResource DevKitTextMutedBrush}"
+                            Background="{Binding StateInnerBorderColor}"
                             CornerRadius="5" />
                     </Border>
 
@@ -549,8 +549,8 @@
                         Margin="8,0,4,0"
                         VerticalAlignment="Center"
                         FontSize="15"
-                        FontWeight="Bold"
-                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        FontWeight="SemiBold"
+                        Foreground="{Binding StateTextColor}"
                         Text="{Binding ConnectionState, FallbackValue=未连接}" />
                 </StackPanel>
             </Border>
@@ -604,6 +604,7 @@
                     <Grid Grid.Column="1">
                         <TextBox
                             x:Name="IpTextBox"
+                            Margin="4,0,0,0"
                             VerticalAlignment="Center"
                             VerticalContentAlignment="Center"
                             Background="Transparent"

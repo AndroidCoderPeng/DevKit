@@ -44,6 +44,70 @@ namespace DevKit.ViewModels
 
         #region VM
 
+        private string _stateOuterBackgroundColor = "#FFF7F9FC";
+
+        public string StateOuterBackgroundColor
+        {
+            get => _stateOuterBackgroundColor;
+            set
+            {
+                _stateOuterBackgroundColor = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _stateOuterBorderColor = "#FFEEEEF0";
+
+        public string StateOuterBorderColor
+        {
+            get => _stateOuterBorderColor;
+            set
+            {
+                _stateOuterBorderColor = value;
+                RaisePropertyChanged();
+            }
+        }
+        
+        private string _stateInnerBackgroundColor = "#E7EBF0";
+
+        public string StateInnerBackgroundColor
+        {
+            get => _stateInnerBackgroundColor;
+            set
+            {
+                _stateInnerBackgroundColor = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _stateInnerBorderColor = "#93A0AE";
+
+        public string StateInnerBorderColor
+        {
+            get => _stateInnerBorderColor;
+            set
+            {
+                _stateInnerBorderColor = value;
+                RaisePropertyChanged();
+            }
+        }
+        
+        private string _stateTextColor = "#5F6B7A";
+
+        public string StateTextColor
+        {
+            get => _stateTextColor;
+            set
+            {
+                _stateTextColor = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        
         private string _remoteAddress = string.Empty;
 
         public string RemoteAddress
