@@ -58,8 +58,7 @@
         <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
             <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -263,7 +262,7 @@
 
         <!--  紧凑按钮：白底灰框、悬浮蓝  -->
         <Style x:Key="CompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="30" />
+            <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="12,0" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
@@ -287,7 +286,6 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CompactBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
                                 <Setter TargetName="CompactBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
@@ -305,7 +303,7 @@
 
         <!--  危险操作按钮：默认红字红框、悬浮红底白字  -->
         <Style x:Key="DangerOutlineButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="30" />
+            <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="12,0" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitDanger40Brush}" />
@@ -347,7 +345,7 @@
 
         <!--  分段控件内的单选按钮  -->
         <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
-            <Setter Property="Height" Value="24" />
+            <Setter Property="Height" Value="28" />
             <Setter Property="Padding" Value="16,0" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
@@ -358,7 +356,7 @@
                         <Border
                             x:Name="SegmentBorder"
                             Background="Transparent"
-                            CornerRadius="12"
+                            CornerRadius="14"
                             TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter
                                 Margin="{TemplateBinding Padding}"
@@ -1107,9 +1105,9 @@
                                     Padding="2"
                                     VerticalAlignment="Center"
                                     Background="{StaticResource DevKitSurfaceBrush}"
-                                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                    BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="12">
+                                    CornerRadius="16">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton
                                             Command="{Binding ComboBoxItemSelectedCommand}"
@@ -1418,9 +1416,9 @@
                                         Margin="8,0,0,0"
                                         Padding="2"
                                         Background="{StaticResource DevKitSurfaceBrush}"
-                                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                        BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="12">
+                                        CornerRadius="16">
                                         <StackPanel Orientation="Horizontal">
                                             <RadioButton
                                                 Content="HEX"
