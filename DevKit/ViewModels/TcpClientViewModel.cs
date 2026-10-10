@@ -36,6 +36,14 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, new TcpConfig
+            {
+                Servers = new TcpEndpointConfig
+                {
+                    Ip = _remoteAddress,
+                    Port = _remotePort
+                }
+            });
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -49,11 +57,7 @@ namespace DevKit.ViewModels
         public string StateOuterBackgroundColor
         {
             get => _stateOuterBackgroundColor;
-            set
-            {
-                _stateOuterBackgroundColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _stateOuterBackgroundColor, value);
         }
 
         private string _stateOuterBorderColor = "#FFEEEEF0";
@@ -61,23 +65,15 @@ namespace DevKit.ViewModels
         public string StateOuterBorderColor
         {
             get => _stateOuterBorderColor;
-            set
-            {
-                _stateOuterBorderColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _stateOuterBorderColor, value);
         }
-        
+
         private string _stateInnerBackgroundColor = "#E7EBF0";
 
         public string StateInnerBackgroundColor
         {
             get => _stateInnerBackgroundColor;
-            set
-            {
-                _stateInnerBackgroundColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _stateInnerBackgroundColor, value);
         }
 
         private string _stateInnerBorderColor = "#93A0AE";
@@ -85,53 +81,45 @@ namespace DevKit.ViewModels
         public string StateInnerBorderColor
         {
             get => _stateInnerBorderColor;
-            set
-            {
-                _stateInnerBorderColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _stateInnerBorderColor, value);
         }
-        
+
         private string _stateTextColor = "#5F6B7A";
 
         public string StateTextColor
         {
             get => _stateTextColor;
-            set
-            {
-                _stateTextColor = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _stateTextColor, value);
+        }
+
+        private string _connectionState = "未连接";
+
+        public string ConnectionState
+        {
+            get => _connectionState;
+            set => SetProperty(ref _connectionState, value);
+        }
+
+        private string _remoteAddress = string.Empty;
+
+        public string RemoteAddress
+        {
+            get => _remoteAddress;
+            set => SetProperty(ref _remoteAddress, value);
+        }
+        
+        private string _remotePort = "9000";
+
+        public string RemotePort
+        {
+            get => _remotePort;
+            set => SetProperty(ref _remotePort, value);
         }
 
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
         
-        private string _remoteAddress = string.Empty;
-
-        public string RemoteAddress
-        {
-            set
-            {
-                _remoteAddress = value;
-                RaisePropertyChanged();
-            }
-            get => _remoteAddress;
-        }
-
-        private string _remotePort = "9000";
-
-        public string RemotePort
-        {
-            set
-            {
-                _remotePort = value;
-                RaisePropertyChanged();
-            }
-            get => _remotePort;
-        }
-
         private string _buttonState = "连接";
 
         public string ButtonState
@@ -248,19 +236,13 @@ namespace DevKit.ViewModels
         {
             _dialogService = dialogService;
 
+            //加载连接配置缓存
+            var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
+            RemoteAddress = config.Servers.Ip;
+            RemotePort = config.Servers.Port;
+
             using (var dataBase = new DataBaseConnection())
             {
-                //加载连接配置缓存
-                var queryResult = dataBase.Table<ClientConfigCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .OrderByDescending(x => x.Id)
-                    .FirstOrDefault();
-                if (queryResult != null)
-                {
-                    RemoteAddress = queryResult.RemoteAddress;
-                    RemotePort = queryResult.RemotePort.ToString();
-                }
-
                 //加载扩展指令缓存
                 var commandCache = dataBase.Table<ExCommandCache>()
                     .Where(x => x.ClientType == ClientType)

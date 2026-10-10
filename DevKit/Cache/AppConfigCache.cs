@@ -6,9 +6,10 @@ namespace DevKit.Cache
     public static class ConfigSections
     {
         public const string FileName = "app-config.json";
-        public const string Jni = "jni";
-        public const string Apk = "apk";
-        public const string RecentlyColor = "color";
+        public const string Jni = "Jni";
+        public const string Apk = "Apk";
+        public const string Tcp = "Tcp";
+        public const string History = "History";
     }
 
     // 安装包归档分组
@@ -26,6 +27,21 @@ namespace DevKit.Cache
     {
         public string NdkPath { get; set; }
         public string SharedLibPath { get; set; }
+    }
+
+    // TCP分组
+    public class TcpConfig
+    {
+        public TcpEndpointConfig Servers { get; set; } = new TcpEndpointConfig();
+
+        public List<TcpEndpointConfig> Clients { get; set; } = new List<TcpEndpointConfig>();
+    }
+
+    // TCP端点
+    public class TcpEndpointConfig
+    {
+        public string Ip { get; set; }
+        public string Port { get; set; }
     }
 
     // 最近处理颜色分组

@@ -33,7 +33,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.RecentlyColor, new RecentlyColorConfig
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.History, new RecentlyColorConfig
             {
                 // 只保存最近的9个颜色
                 Colors = _recentlyColors.Take(9).ToList()
@@ -258,7 +258,7 @@ namespace DevKit.ViewModels
         public ColorResourceViewModel()
         {
             // 加载最近使用的颜色
-            var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.RecentlyColor);
+            var config = SettingsStore.Load<RecentlyColorConfig>(ConfigSections.FileName, ConfigSections.History);
             RecentlyColors = new ObservableCollection<string>(config.Colors);
 
             // 加载颜色资源缓存

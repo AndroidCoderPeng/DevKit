@@ -611,7 +611,7 @@
                             BorderThickness="0"
                             FontSize="13"
                             Foreground="{DynamicResource DevKitTextBrush}"
-                            Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
+                            Text="{Binding RemoteAddress, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock
                             Margin="8,0,0,0"
                             VerticalAlignment="Center"
@@ -648,7 +648,8 @@
                 Margin="14,0"
                 HorizontalContentAlignment="Center"
                 MaxLength="6"
-                Style="{StaticResource FieldTextBoxStyle}" />
+                Style="{StaticResource FieldTextBoxStyle}"
+                Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}" />
 
             <Button
                 Grid.Column="5"
