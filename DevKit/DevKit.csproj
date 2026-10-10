@@ -193,7 +193,7 @@
     <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFile.cs" />
     <Compile Include="Models\CmdCommand.cs" />
-    <Compile Include="Models\LogcatModel.cs" />
+    <Compile Include="Models\AndroidLog.cs" />
     <Compile Include="Models\LogModel.cs" />
     <Compile Include="Models\MainMenu.cs" />
     <Compile Include="Models\SocketClientModel.cs" />

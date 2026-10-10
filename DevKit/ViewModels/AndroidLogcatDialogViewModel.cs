@@ -34,9 +34,9 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private ObservableCollection<LogcatModel> _logs = new ObservableCollection<LogcatModel>();
+        private ObservableCollection<AndroidLog> _logs = new ObservableCollection<AndroidLog>();
 
-        public ObservableCollection<LogcatModel> Logs
+        public ObservableCollection<AndroidLog> Logs
         {
             get => _logs;
             set
@@ -90,11 +90,11 @@ namespace DevKit.ViewModels
         public AndroidLogcatDialogViewModel()
         {
             _logsView = CollectionViewSource.GetDefaultView(Logs);
-            _logsView.Filter = o => o is LogcatModel m
-                                    && _enabledLevels.Contains(m.Level)
+            _logsView.Filter = o => o is AndroidLog log
+                                    && _enabledLevels.Contains(log.Level)
                                     && (string.IsNullOrEmpty(_keyword)
-                                        || m.Tag.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                                        || m.Message.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+                                        || log.Tag.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0
+                                        || log.Message.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0);
 
             ClearCommand = new DelegateCommand(() => { Logs.Clear(); });
 
@@ -156,7 +156,7 @@ namespace DevKit.ViewModels
             var match = LogcatLineRegex.Match(line);
             if (!match.Success) return;
 
-            var model = new LogcatModel
+            var log = new AndroidLog
             {
                 Time = match.Groups[1].Value,
                 Pid = $"{match.Groups[2].Value}-{match.Groups[3].Value}",
@@ -167,7 +167,7 @@ namespace DevKit.ViewModels
 
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                Logs.Add(model);
+                Logs.Add(log);
                 while (Logs.Count > MaxLogCount)
                 {
                     Logs.RemoveAt(0);

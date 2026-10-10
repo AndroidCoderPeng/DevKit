@@ -3,7 +3,7 @@ namespace DevKit.Models
     /// <summary>
     /// 单条 Android logcat 日志（仅界面绑定所需字段，逻辑后续补充）
     /// </summary>
-    public class LogcatModel
+    public class AndroidLog
     {
         /// <summary>时间，如 14:21:08.123</summary>
         public string Time { get; set; }
