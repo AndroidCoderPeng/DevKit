@@ -123,6 +123,14 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _buttonStateText, value);
         }
 
+        private string _sessionDuration = "00:00:00";
+
+        public string SessionDuration
+        {
+            get => _sessionDuration;
+            set => SetProperty(ref _sessionDuration, value);
+        }
+
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -216,12 +224,17 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private IEnumerator<string> _commandEnumerator;
 
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
         private ITransport _transport;
+
         private CancellationTokenSource _transportCts;
         private bool _isConnecting;
-
-        private IEnumerator<string> _commandEnumerator;
+        private DateTime _sessionStartedAt;
+        private DispatcherTimer _sessionTimer;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -290,10 +303,16 @@ namespace DevKit.ViewModels
                     else if (state == TransportState.Connected)
                     {
                         SetConnectionState("已连接");
+
+                        // 开始计时
+                        StartSessionTimer();
                     }
                     else if (state == TransportState.Disconnected)
                     {
                         SetConnectionState("未连接");
+
+                        // 停止计时
+                        StopSessionTimer();
                     }
                 }));
             };
@@ -378,6 +397,46 @@ namespace DevKit.ViewModels
                 StateInnerBorderColor = "#93A0AE";
                 StateTextColor = "#5F6B7A";
             }
+        }
+
+        private void StartSessionTimer()
+        {
+            StopSessionTimer();
+
+            SessionDuration = "00:00:00";
+            _sessionStartedAt = DateTime.Now;
+
+            _sessionTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _sessionTimer.Tick += SessionTickEvent;
+            _sessionTimer.Start();
+        }
+
+        private void StopSessionTimer()
+        {
+            if (_sessionTimer == null)
+            {
+                return;
+            }
+
+            _sessionTimer.Stop();
+            _sessionTimer.Tick -= SessionTickEvent;
+            _sessionTimer = null;
+
+            UpdateSessionDuration();
+        }
+
+        private void SessionTickEvent(object sender, EventArgs e)
+        {
+            UpdateSessionDuration();
+        }
+
+        private void UpdateSessionDuration()
+        {
+            var elapsed = DateTime.Now - _sessionStartedAt;
+            SessionDuration = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
 
         /// <summary>

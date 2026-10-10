@@ -742,7 +742,7 @@
                                         FontSize="13"
                                         FontWeight="SemiBold"
                                         Foreground="{DynamicResource DevKitTextBrush}"
-                                        Text="{Binding SessionDuration, FallbackValue=--:--}" />
+                                        Text="{Binding SessionDuration, FallbackValue=--:--:--}" />
                                 </Grid>
                             </Border>
 
@@ -1542,7 +1542,10 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Margin="16" Foreground="{Binding StateTextColor}">
+            <TextBlock
+                Grid.Column="0"
+                Margin="16"
+                Foreground="{Binding StateTextColor}">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0} {1}:{2}">
                         <Binding Path="ConnectionState" />
