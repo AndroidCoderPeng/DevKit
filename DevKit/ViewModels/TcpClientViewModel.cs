@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Models;
+using DevKit.Transports;
 using DevKit.Utils;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -217,8 +217,8 @@ namespace DevKit.ViewModels
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
 
-        private TcpClient _tcpClient;
-        private CancellationTokenSource _receiveCts;
+        private ITransport _transport;
+        private CancellationTokenSource _transportCts;
         private bool _isConnecting;
 
         private IEnumerator<string> _commandEnumerator;
@@ -267,43 +267,54 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_tcpClient != null)
+            if (_transport != null)
             {
-                DisconnectServer();
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_remoteAddress) || !_remoteAddress.IsIpAddress())
-            {
-                MessageBox.Show("IP格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_remotePort) || !_remotePort.IsPort())
-            {
-                MessageBox.Show("端口格式错误", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                await _transport.DisconnectAsync();
+                _transport.Dispose();
+                _transport = null;
                 return;
             }
 
             _isConnecting = true;
-            SetConnectionState("连接中");
+            _transportCts = new CancellationTokenSource();
 
-            var client = new TcpClient();
+            var transport = new TcpClientTransport(_remoteAddress, Convert.ToInt32(_remotePort));
+            transport.StateChanged += delegate(TransportState state)
+            {
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (state == TransportState.Connecting)
+                    {
+                        SetConnectionState("连接中");
+                    }
+                    else if (state == TransportState.Connected)
+                    {
+                        SetConnectionState("已连接");
+                    }
+                    else if (state == TransportState.Disconnected)
+                    {
+                        SetConnectionState("未连接");
+                    }
+                }));
+            };
+            transport.DataReceived += delegate(byte[] bytes)
+            {
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    UpdateTransportMessage("", bytes);
+                }));
+            };
+
+            _transport = transport;
 
             try
             {
-                await client.ConnectAsync(_remoteAddress, Convert.ToInt32(_remotePort));
-
-                var receiveCts = new CancellationTokenSource();
-                _tcpClient = client;
-                _receiveCts = receiveCts;
-
-                SetConnectionState("已连接");
-                _ = ReceiveLoopAsync(client, receiveCts);
+                await transport.ConnectAsync(_transportCts.Token);
             }
             catch (Exception e)
             {
-                client.Dispose();
+                transport.Dispose();
+                _transport = null;
                 SetConnectionState("未连接");
                 MessageBox.Show(e.Message, "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -313,73 +324,28 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void DisconnectServer()
+        private void UpdateTransportMessage(string command, byte[] bytes)
         {
-            var client = _tcpClient;
-            var receiveCts = _receiveCts;
-
-            _tcpClient = null;
-            _receiveCts = null;
-
-            receiveCts?.Cancel();
-            client?.Close();
-
-            SetConnectionState("未连接");
-        }
-
-        private async Task ReceiveLoopAsync(TcpClient client, CancellationTokenSource receiveCts)
-        {
-            var token = receiveCts.Token;
-
-            try
+            if (command.Equals(""))
             {
-                var stream = client.GetStream();
-                var buffer = new byte[8192];
-
-                while (!token.IsCancellationRequested)
-                {
-                    var count = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
-                    if (count == 0)
-                    {
-                        break;
-                    }
-
-                    var bytes = new byte[count];
-                    Buffer.BlockCopy(buffer, 0, bytes, 0, count);
-
-                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        UpdateCommunicationLog("", bytes);
-                    }));
-                }
+                //默认显示为UTF8编码
+                // var log = new SocketMessage
+                // {
+                //     Content = bytes.ByBytesToHexString(" "),
+                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                //     IsSend = 0
+                // };
+                // Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
             }
-            catch (OperationCanceledException)
+            else
             {
-                // 主动断开
-            }
-            catch (Exception e)
-            {
-                if (!token.IsCancellationRequested)
+                var log = new SocketMessage
                 {
-                    await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                        MessageBox.Show(e.Message, "接收失败", MessageBoxButton.OK, MessageBoxImage.Error))
-                    );
-                }
-            }
-            finally
-            {
-                client.Dispose();
-                receiveCts.Dispose();
-
-                await Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (ReferenceEquals(_tcpClient, client))
-                    {
-                        _tcpClient = null;
-                        _receiveCts = null;
-                        SetConnectionState("未连接");
-                    }
-                }));
+                    Content = command,
+                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                    IsSend = 1
+                };
+                Logs.Add(log);
             }
         }
 
@@ -562,31 +528,6 @@ namespace DevKit.ViewModels
         {
         }
 
-        private void UpdateCommunicationLog(string command, byte[] bytes)
-        {
-            // if (command.Equals(""))
-            // {
-            //     //默认显示为UTF8编码
-            //     var log = new SocketMessage
-            //     {
-            //         Content = bytes.ByBytesToHexString(" "),
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = 0
-            //     };
-            //     Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-            // }
-            // else
-            // {
-            //     var log = new SocketMessage
-            //     {
-            //         Content = command,
-            //         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-            //         IsSend = 1
-            //     };
-            //     Logs.Add(log);
-            // }
-        }
-
         private void OpenScriptDialog()
         {
             var dialogParameters = new DialogParameters();
@@ -649,13 +590,13 @@ namespace DevKit.ViewModels
 
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
-            if (!_tcpClient.Connected)
-            {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            SendMessage(_userInputText);
+            // if (!_tcpClient.Connected)
+            // {
+            //     MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            //     return;
+            // }
+            //
+            // SendMessage(_userInputText);
         }
 
         private void OnComboBoxItemSelected(object index)

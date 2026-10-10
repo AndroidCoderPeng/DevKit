@@ -1545,7 +1545,7 @@
             <TextBlock
                 Margin="16"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                Text="{Binding ConnectStateInfo, FallbackValue=未连接}" />
+                Text="{Binding ConnectionState, FallbackValue=未连接}" />
 
             <TextBlock
                 Grid.Column="1"
