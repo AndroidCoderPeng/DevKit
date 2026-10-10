@@ -11,8 +11,8 @@
     xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="1000"
-    Height="730"
+    Width="1024"
+    Height="760"
     d:DataContext="{d:DesignInstance Type=vm:TcpClientViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -133,8 +133,7 @@
             <Setter Property="FontFamily" Value="/DevKit;component/Fonts/#iconfont" />
             <Setter Property="FontSize" Value="12" />
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -145,7 +144,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="7"
+                            CornerRadius="6"
                             TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
@@ -159,6 +158,20 @@
             </Setter>
         </Style>
 
+        <!--  立即发送：悬浮蓝底白字  -->
+        <Style
+            x:Key="CmdSendButtonStyle"
+            BasedOn="{StaticResource CmdMiniButtonStyle}"
+            TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!--  编辑：悬浮蓝色描边  -->
         <Style
             x:Key="CmdEditButtonStyle"
@@ -168,20 +181,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                     <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!--  立即发送：悬浮蓝底白字  -->
-        <Style
-            x:Key="CmdSendButtonStyle"
-            BasedOn="{StaticResource CmdMiniButtonStyle}"
-            TargetType="Button">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="BorderThickness" Value="1" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -194,7 +194,7 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource DevKitDangerBrush}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
                     <Setter Property="Foreground" Value="White" />
                 </Trigger>
             </Style.Triggers>
@@ -203,9 +203,9 @@
         <Style x:Key="CmdContextMenuStyle" TargetType="ContextMenu">
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="4" />
-            <Setter Property="MinWidth" Value="126" />
+            <Setter Property="MinWidth" Value="96" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
@@ -740,7 +740,7 @@
                                         FontSize="13"
                                         FontWeight="SemiBold"
                                         Foreground="{DynamicResource DevKitTextBrush}"
-                                        Text="{Binding SessionDuration, FallbackValue=—}" />
+                                        Text="{Binding SessionDuration, FallbackValue=--:--}" />
                                 </Grid>
                             </Border>
 
