@@ -776,7 +776,7 @@
                                                 VerticalAlignment="Bottom"
                                                 FontSize="11"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                Text="{Binding SendByteSize, StringFormat={}{0} B}" />
+                                                Text="{Binding SendByteSize, StringFormat={}共 {0} B}" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -805,7 +805,7 @@
                                                 VerticalAlignment="Bottom"
                                                 FontSize="11"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                Text="{Binding ReceiveByteSize, StringFormat={}{0} B}" />
+                                                Text="{Binding ReceiveByteSize, StringFormat={}共 {0} B}" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>

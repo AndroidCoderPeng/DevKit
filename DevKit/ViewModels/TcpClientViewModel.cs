@@ -199,6 +199,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ConnectServerCommand { set; get; }
+        public DelegateCommand AddExtensionCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +207,6 @@ namespace DevKit.ViewModels
         public DelegateCommand SaveCommunicationCommand { set; get; }
 
         public DelegateCommand ClearCommunicationCommand { set; get; }
-        public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
@@ -221,7 +221,6 @@ namespace DevKit.ViewModels
         #endregion
 
         private const string ClientType = "TCP";
-        private readonly IDialogService _dialogService;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
         private IEnumerator<string> _commandEnumerator;
@@ -229,6 +228,8 @@ namespace DevKit.ViewModels
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
+        private readonly IDialogService _dialogService;
+
         private ITransport _transport;
 
         private CancellationTokenSource _transportCts;
@@ -247,6 +248,35 @@ namespace DevKit.ViewModels
 
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
+            AddExtensionCommand = new DelegateCommand(() =>
+            {
+                _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
+                {
+                    if (result.Result != ButtonResult.OK)
+                    {
+                        return;
+                    }
+
+                    // var commandValue = result.Parameters.GetValue<string>("CommandValue");
+                    // var annotation = result.Parameters.GetValue<string>("Annotation");
+                    // using (var dataBase = new DataBaseConnection())
+                    // {
+                    //     var exCommand = new ExCommandCache
+                    //     {
+                    //         ClientType = ClientType,
+                    //         CommandValue = commandValue,
+                    //         Annotation = annotation
+                    //     };
+                    //     dataBase.Insert(exCommand);
+                    //     
+                    //     ExCommandCollection.Clear();
+                    //     var commandCache = dataBase.Table<ExCommandCache>()
+                    //         .Where(x => x.ClientType == ClientType)
+                    //         .ToList();
+                    //     ExCommandCollection = commandCache.ToObservableCollection();
+                    // }
+                });
+            });
             /////////////////////////////////////////////////////////////////////////////////
 
             using (var dataBase = new DataBaseConnection())
@@ -260,7 +290,6 @@ namespace DevKit.ViewModels
 
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
-            AddExtensionCommand = new DelegateCommand(AddExtension);
             DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
             SendCommand = new DelegateCommand(OnMessageSend);
@@ -343,6 +372,7 @@ namespace DevKit.ViewModels
             }
         }
 
+        // TODO: 处理接收数据的逻辑
         private void UpdateTransportMessage(string command, byte[] bytes)
         {
             if (command.Equals(""))
@@ -482,36 +512,6 @@ namespace DevKit.ViewModels
         private void ClearCommunicationLog()
         {
             Logs.Clear();
-        }
-
-        private void AddExtension()
-        {
-            _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
-            {
-                if (result.Result != ButtonResult.OK)
-                {
-                    return;
-                }
-
-                var commandValue = result.Parameters.GetValue<string>("CommandValue");
-                var annotation = result.Parameters.GetValue<string>("Annotation");
-                using (var dataBase = new DataBaseConnection())
-                {
-                    var exCommand = new ExCommandCache
-                    {
-                        ClientType = ClientType,
-                        CommandValue = commandValue,
-                        Annotation = annotation
-                    };
-                    dataBase.Insert(exCommand);
-                    //刷新列表
-                    ExCommandCollection.Clear();
-                    var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .ToList();
-                    ExCommandCollection = commandCache.ToObservableCollection();
-                }
-            });
         }
 
         private void OnDataGridItemSelected(string command)
