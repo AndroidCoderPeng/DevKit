@@ -211,6 +211,46 @@ body {
     height: 22px;
 }
 
+/* ================= 分段控件（HEX / ASCII 编码切换） ================= */
+.segmented {
+    display: inline-flex;
+    gap: 2px;
+    flex: none;
+    padding: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+}
+
+.segmented button {
+    height: 18px;
+    padding: 0 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-3);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all var(--duration) ease;
+}
+
+.segmented button:hover {
+    color: var(--accent);
+}
+
+.segmented button.active {
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 1px 4px rgba(46, 124, 246, .30);
+}
+
+/* [hidden] 属性兜底（格式化按钮在 ASCII 模式下隐藏） */
+.icon-btn[hidden] {
+    display: none;
+}
+
 /* ================= 输入框 ================= */
 .input-wrap {
     display: flex;
@@ -345,6 +385,12 @@ body {
 .byte-cell.bad {
     color: var(--danger);
     background: rgba(229, 72, 77, .12);
+}
+
+/* ASCII 模式下的空格字符 */
+.byte-cell.sp {
+    color: var(--text-3);
+    background: var(--surface-2);
 }
 
 @keyframes cell-in {

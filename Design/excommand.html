@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>扩展指令 · 界面重设计稿</title>
-    <link rel="stylesheet" href="excommand.css" />
+    <link rel="stylesheet" href="excommand.css?v=2" />
 </head>
 
 <body>
@@ -13,8 +13,8 @@
     <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
     <div class="demo-switch">
         <span class="demo-title">演示状态</span>
-        <button class="demo-btn active" data-status="edit">编辑</button>
-        <button class="demo-btn" data-status="add">新增</button>
+        <button class="demo-btn active" data-status="add">新增</button>
+        <button class="demo-btn" data-status="edit">编辑</button>
         <button class="demo-btn" data-status="invalid">校验错误</button>
     </div>
 
@@ -25,7 +25,8 @@
 
       与原 XAML 的对应关系：
       - 指令值：保留（原为多行 TextBox，这里同为多行输入），标记为必填；
-        输入框下方新增「格式化」按钮（补零 + 大写 + 规范空格分隔）与实时字节数，下方提供 HEX 实时预览。
+        新增 HEX/ASCII 编码切换（决定校验规则与保存格式）；HEX 模式下提供
+        「格式化」按钮（补零 + 大写 + 规范空格分隔）；两种模式均有实时字节数与字节可视化条。
       - 备注：保留，作为可选字段。
     -->
         <div class="window">
@@ -63,7 +64,14 @@
                             </svg>
                         </span>
                         指令值 <span class="req">*</span>
-                        <span class="tip">HEX 字节，空格分隔</span>
+
+                        <!-- 发送编码：决定校验规则、格式化按钮与字节条的解析方式 -->
+                        <span class="segmented" id="encSeg">
+                            <button class="active" data-enc="hex">HEX</button>
+                            <button data-enc="ascii">ASCII</button>
+                        </span>
+
+                        <span class="tip" id="cmdTip">HEX 字节，空格分隔</span>
                         <span class="byte-chip" id="byteChip">5 B</span>
                         <button class="icon-btn" id="btnFormat" title="格式化：转大写、补零并规范空格分隔">
                             <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
@@ -139,7 +147,7 @@
         </div>
     </div>
 
-    <script src="excommand.js"></script>
+    <script src="excommand.js?v=2"></script>
 </body>
 
 </html>
