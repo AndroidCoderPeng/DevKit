@@ -71,13 +71,12 @@ namespace DevKit.ViewModels
 
         public DelegateCommand<ExCommandConfig> ExCommandDoubleClickCommand { set; get; }
         public DelegateCommand ClearSelectedCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> DeleteSelectedCommand { set; get; }
 
         /// <summary>
         /// //////////////////////////////////////////////////////////////
         /// </summary>
         public DelegateCommand<object> ListBoxItemSelectedCommand { set; get; }
-
-        public DelegateCommand<string> DeleteSelectedItemCommand { set; get; }
         public DelegateCommand SaveScriptCommand { set; get; }
         public DelegateCommand CancelDialogCommand { set; get; }
 
@@ -97,9 +96,18 @@ namespace DevKit.ViewModels
 
             ClearSelectedCommand = new DelegateCommand(() => { SelectedCommands.Clear(); });
 
+            DeleteSelectedCommand = new DelegateCommand<ExCommandConfig>(item =>
+            {
+                if (item == null)
+                {
+                    return;
+                }
+
+                SelectedCommands.Remove(item);
+            });
+            
             //////////////////////////////////////////////////////////////////////////////////////
             ListBoxItemSelectedCommand = new DelegateCommand<object>(OnListBoxItemSelected);
-            DeleteSelectedItemCommand = new DelegateCommand<string>(OnSelectedItemDeleted);
             SaveScriptCommand = new DelegateCommand(SaveScript);
             CancelDialogCommand = new DelegateCommand(CancelDialog);
         }
