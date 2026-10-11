@@ -318,6 +318,7 @@ namespace DevKit.ViewModels
         private readonly TcpConfig _config;
         private DispatcherTimer _toastTimer;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private bool _isLoopSendInProgress;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -785,7 +786,7 @@ namespace DevKit.ViewModels
                 IsLoopSendEnabled = false;
                 return;
             }
-            
+
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
             _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(intervalMs);
@@ -799,21 +800,34 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
         }
 
-        private async void TimerTickEvent_Handler(object sender, EventArgs e)
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
-            if (!_isLoopSendEnabled) return;
+            if (_isLoopSendInProgress)
+                return;
 
-            if (_transport == null || ConnectionState != "已连接")
+            _isLoopSendInProgress = true;
+            _ = SendLoopInputAsync();
+        }
+
+        private async Task SendLoopInputAsync()
+        {
+            try
+            {
+                await SendInputAsync();
+            }
+            catch (Exception ex)
             {
                 StopLoopSending();
                 IsLoopSendEnabled = false;
-                ShowToast("TCP 连接已断开，循环发送已停止");
-                return;
-            }
 
-            await SendInputAsync();
+                MessageBox.Show($"循环发送失败：{ex.Message}", "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isLoopSendInProgress = false;
+            }
         }
-        
+
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
