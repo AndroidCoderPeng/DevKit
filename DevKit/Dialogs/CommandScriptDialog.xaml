@@ -237,7 +237,7 @@
                             Text="双击加入队列" />
                     </Grid>
 
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="1" Margin="8,0">
                         <ListBox
                             x:Name="ExCommandListBox"
                             Background="Transparent"
@@ -407,7 +407,7 @@
                             Style="{StaticResource DangerOutlineButtonStyle}" />
                     </Grid>
 
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="1" Margin="8,0">
                         <ListBox
                             x:Name="SelectedCommandListBox"
                             AllowDrop="True"

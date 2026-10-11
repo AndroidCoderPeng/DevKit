@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using DevKit.Cache;
 using Prism.Commands;
@@ -30,26 +29,17 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            // _commands = parameters.GetValue<List<ExCommandConfig>>("ExCommands");
-            // foreach (var exCmd in _commands)
-            // {
-            //     var command = $"【{exCmd.Annotation}】{exCmd.CommandValue}";
-            //     ExCommandCaches.Add(command);
-            // }
+            ExCommandCollection = parameters.GetValue<ObservableCollection<ExCommandConfig>>("ExCommands");
         }
         
         #region VM
 
-        private ObservableCollection<string> _exCommandCaches = new ObservableCollection<string>();
+        private ObservableCollection<ExCommandConfig> _exCommandCollection = new ObservableCollection<ExCommandConfig>();
 
-        public ObservableCollection<string> ExCommandCaches
+        public ObservableCollection<ExCommandConfig> ExCommandCollection
         {
-            set
-            {
-                _exCommandCaches = value;
-                RaisePropertyChanged();
-            }
-            get => _exCommandCaches;
+            get => _exCommandCollection;
+            set => SetProperty(ref _exCommandCollection, value);
         }
 
         private ObservableCollection<string> _selectedCommands = new ObservableCollection<string>();
@@ -86,8 +76,6 @@ namespace DevKit.ViewModels
         public DelegateCommand CancelDialogCommand { set; get; }
 
         #endregion
-
-        private List<ExCommandConfig> _commands;
 
         public CommandScriptDialogViewModel()
         {

@@ -2,6 +2,6 @@
 {
     public enum TransportState
     {
-        Disconnected, Connecting, Connected, Reconnecting, Error
+        Disconnected, Connecting, Connected, Error
     }
 }
