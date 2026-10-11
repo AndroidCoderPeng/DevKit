@@ -1177,9 +1177,16 @@
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
 
-                                                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                                <Grid x:Name="MessageHeader" Grid.Row="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
                                                     <Border
                                                         x:Name="TagBorder"
+                                                        Grid.Column="0"
                                                         Padding="8,2"
                                                         Background="{StaticResource DevKitSuccess12Brush}"
                                                         CornerRadius="8">
@@ -1203,6 +1210,8 @@
                                                     </Border>
 
                                                     <TextBlock
+                                                        x:Name="MessageTime"
+                                                        Grid.Column="1"
                                                         Margin="8,0"
                                                         VerticalAlignment="Center"
                                                         FontFamily="Consolas"
@@ -1211,6 +1220,7 @@
 
                                                     <Button
                                                         x:Name="CopyMessageButton"
+                                                        Grid.Column="2"
                                                         Command="{Binding DataContext.CopyLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding Content}"
                                                         Style="{StaticResource CopyMiniButtonStyle}"
@@ -1225,7 +1235,7 @@
                                                             </StackPanel>
                                                         </Button.Content>
                                                     </Button>
-                                                </StackPanel>
+                                                </Grid>
 
                                                 <Border
                                                     x:Name="MessageBubble"
@@ -1248,6 +1258,10 @@
                                             <DataTemplate.Triggers>
                                                 <!--  发送：右对齐、蓝底气泡  -->
                                                 <DataTrigger Binding="{Binding IsSend}" Value="1">
+                                                    <Setter TargetName="MessageHeader" Property="HorizontalAlignment" Value="Right" />
+                                                    <Setter TargetName="CopyMessageButton" Property="Grid.Column" Value="0" />
+                                                    <Setter TargetName="MessageTime" Property="Grid.Column" Value="1" />
+                                                    <Setter TargetName="TagBorder" Property="Grid.Column" Value="2" />
                                                     <Setter TargetName="MessageRow" Property="HorizontalAlignment" Value="Right" />
                                                     <Setter TargetName="TagBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
                                                     <Setter TargetName="TagText" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />

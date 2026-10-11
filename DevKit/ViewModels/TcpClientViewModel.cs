@@ -346,7 +346,7 @@ namespace DevKit.ViewModels
                 {
                     log = new SocketMessage
                     {
-                        Content = "TCP客户端日志",
+                        Content = "AA BB CC DD EE FF AA BB CC DD EE FF",
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                         IsSend = 0
                     };
@@ -355,7 +355,7 @@ namespace DevKit.ViewModels
                 {
                     log = new SocketMessage
                     {
-                        Content = "TCP客户端日志",
+                        Content = "AA BB CC DD EE FF AA BB CC DD EE FF AA BB CC DD EE FF AA BB CC DD EE FF",
                         Time = DateTime.Now.ToString("HH:mm:ss.fff"),
                         IsSend = 1
                     };
