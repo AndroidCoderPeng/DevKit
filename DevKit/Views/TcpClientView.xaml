@@ -1099,7 +1099,7 @@
                                     CornerRadius="16">
                                     <StackPanel Orientation="Horizontal">
                                         <RadioButton
-                                            Command="{Binding ComboBoxItemSelectedCommand}"
+                                            Command="{Binding DisplayRadioChangedCommand}"
                                             CommandParameter="0"
                                             Content="HEX"
                                             GroupName="LogDisplayEncoding"
@@ -1108,7 +1108,7 @@
                                             ToolTip="把消息内容转为 16 进制显示" />
 
                                         <RadioButton
-                                            Command="{Binding ComboBoxItemSelectedCommand}"
+                                            Command="{Binding DisplayRadioChangedCommand}"
                                             CommandParameter="1"
                                             Content="ASCII"
                                             GroupName="LogDisplayEncoding"

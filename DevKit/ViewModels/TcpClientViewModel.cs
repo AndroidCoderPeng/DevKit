@@ -202,6 +202,13 @@ namespace DevKit.ViewModels
                 if (SetProperty(ref _isLogHexSelected, value))
                 {
                     RaisePropertyChanged(nameof(IsLogAsciiSelected));
+                    foreach (var log in Logs)
+                    {
+                        if (log.RawData != null)
+                        {
+                            log.Content = FormatLogContent(log.RawData);
+                        }
+                    }
                 }
             }
         }
@@ -268,6 +275,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SaveLogCommand { set; get; }
         public DelegateCommand ClearLogCommand { set; get; }
+        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +284,6 @@ namespace DevKit.ViewModels
 
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
-        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
 
         #endregion
 
@@ -414,11 +421,22 @@ namespace DevKit.ViewModels
 
             ClearLogCommand = new DelegateCommand(() => { Logs.Clear(); });
 
+            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsLogHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsLogHexSelected = false;
+                }
+            });
+            
             /////////////////////////////////////////////////////////////////////////////////
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -762,33 +780,6 @@ namespace DevKit.ViewModels
             // }
             //
             // SendMessage(_userInputText);
-        }
-
-        private void OnComboBoxItemSelected(object index)
-        {
-            if (index == null)
-            {
-                return;
-            }
-
-            if (index.ToString().Equals("0"))
-            {
-                //转为16进制显示
-                // foreach (var log in _logs)
-                // {
-                //     var bytes = log.Content.ToUtf8Bytes();
-                //     log.Content = bytes.ByBytesToHexString(" ");
-                // }
-            }
-            else if (index.ToString().Equals("1"))
-            {
-                //转为ASCII显示
-                // foreach (var log in _logs)
-                // {
-                //     var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                //     log.Content = Encoding.UTF8.GetString(bytes);
-                // }
-            }
         }
     }
 }
