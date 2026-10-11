@@ -233,6 +233,14 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _lastDataTime, value);
         }
 
+        private bool _isSendHexSelected = true;
+
+        public bool IsSendHexSelected
+        {
+            get => _isSendHexSelected;
+            set => SetProperty(ref _isSendHexSelected, value);
+        }
+        
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -246,18 +254,6 @@ namespace DevKit.ViewModels
                 RaisePropertyChanged();
             }
             get => _commandInterval;
-        }
-
-        private bool _isHexSelected = true;
-
-        public bool IsHexSelected
-        {
-            set
-            {
-                _isHexSelected = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexSelected;
         }
 
         #endregion
@@ -715,7 +711,7 @@ namespace DevKit.ViewModels
 
             await QuickSendAsync(new ExCommandConfig
             {
-                Type = _isHexSelected ? "HEX" : "ASCII",
+                Type = _isSendHexSelected ? "HEX" : "ASCII",
                 Value = value,
                 Memo = "用户输入"
             });

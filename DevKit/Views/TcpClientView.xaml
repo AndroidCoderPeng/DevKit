@@ -1425,7 +1425,7 @@
                                             <RadioButton
                                                 Content="HEX"
                                                 GroupName="SendEncoding"
-                                                IsChecked="{Binding IsHexSelected, Mode=TwoWay}"
+                                                IsChecked="{Binding IsSendHexSelected}"
                                                 Style="{StaticResource SegmentRadioStyle}"
                                                 ToolTip="按 16 进制解析发送内容" />
 
