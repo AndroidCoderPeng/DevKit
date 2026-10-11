@@ -92,6 +92,53 @@
             </Setter>
         </Style>
 
+        <!--  扩展指令行的迷你操作按钮：默认透明，行悬浮时出现  -->
+        <Style x:Key="CmdMiniButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Margin" Value="4,0,0,0" />
+            <Setter Property="FontFamily" Value="/DevKit;component/Fonts/#iconfont" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="CmdMiniBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="CmdMiniBorder" Property="Opacity" Value="0.7" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  删除：悬浮红底白字  -->
+        <Style
+            x:Key="CmdDeleteButtonStyle"
+            BasedOn="{StaticResource CmdMiniButtonStyle}"
+            TargetType="Button">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!--  普通按钮：白底灰框，hover 蓝  -->
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
@@ -409,7 +456,6 @@
 
                     <Grid Grid.Row="1" Margin="8,0">
                         <ListBox
-                            x:Name="SelectedCommandListBox"
                             AllowDrop="True"
                             Background="Transparent"
                             BorderThickness="0"
@@ -419,63 +465,92 @@
                             PreviewMouseLeftButtonDown="SelectedCommandListBox_PreviewMouseLeftButtonDown"
                             PreviewMouseMove="SelectedCommandListBox_PreviewMouseMove"
                             ScrollViewer.CanContentScroll="False"
-                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                             ScrollViewer.VerticalScrollBarVisibility="Hidden">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Label
-                                        x:Name="DeleteSelectedCommandButton"
-                                        HorizontalAlignment="Stretch"
-                                        BorderThickness="0"
-                                        Tag="{Binding}">
-                                        <Label.Content>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                                                <TextBlock
-                                                    Grid.Column="0"
-                                                    Margin="5,0"
-                                                    FontFamily="微软雅黑"
-                                                    Text="{Binding}" />
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="&#xe614;" />
 
-                                                <Button
-                                                    Grid.Column="1"
-                                                    Width="16"
-                                                    Height="16"
-                                                    Margin="5,0,0,0"
-                                                    VerticalAlignment="Center"
-                                                    Background="{StaticResource DevKitAccentBrush}"
-                                                    BorderThickness="0"
-                                                    Command="{Binding DataContext.DeleteSelectedItemCommand, ElementName=SelectedCommandListBox}"
-                                                    CommandParameter="{Binding Path=Tag, ElementName=DeleteSelectedCommandButton}"
-                                                    Content="&#xe692;"
-                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                    FontSize="8"
-                                                    Foreground="White" />
-                                            </Grid>
-                                        </Label.Content>
-                                    </Label>
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="8,0"
+                                            Padding="8,4"
+                                            VerticalAlignment="Center"
+                                            Background="{StaticResource DevKitAccent12Brush}"
+                                            CornerRadius="4">
+                                            <TextBlock Foreground="{StaticResource DevKitAccentBrush}" Text="{Binding Index, FallbackValue=0}" />
+                                        </Border>
+
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock
+                                                x:Name="ValueTextBlock"
+                                                FontSize="13"
+                                                Foreground="{DynamicResource DevKitTextBrush}"
+                                                Text="{Binding Value}" />
+
+                                            <TextBlock
+                                                x:Name="MemoTextBlock"
+                                                Margin="0,4,0,0"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="{Binding Memo}" />
+                                        </StackPanel>
+
+                                        <Button
+                                            x:Name="DeleteButton"
+                                            Grid.Column="3"
+                                            VerticalAlignment="Center"
+                                            Command="{Binding DataContext.DeleteSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="&#xe668;"
+                                            Style="{StaticResource CmdDeleteButtonStyle}"
+                                            ToolTip="删除"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                            <Setter TargetName="DeleteButton" Property="Visibility" Value="Visible" />
+                                            <Setter TargetName="ValueTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter TargetName="MemoTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
 
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
-                                    <Setter Property="Margin" Value="5" />
                                     <Setter Property="Template">
                                         <Setter.Value>
-                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                                <Border x:Name="ListBoxItemBorder">
-                                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border
+                                                    x:Name="CmdItemBorder"
+                                                    Margin="0,0,0,4"
+                                                    Padding="8"
+                                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                                    BorderThickness="2"
+                                                    CornerRadius="8">
+                                                    <ContentPresenter />
                                                 </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="CmdItemBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                        <Setter TargetName="CmdItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
                                             </ControlTemplate>
                                         </Setter.Value>
                                     </Setter>

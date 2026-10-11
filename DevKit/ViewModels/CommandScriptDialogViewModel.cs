@@ -15,7 +15,6 @@ namespace DevKit.ViewModels
 
         private void CancelDialog()
         {
-            RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
         }
 
         public bool CanCloseDialog()
@@ -31,10 +30,11 @@ namespace DevKit.ViewModels
         {
             ExCommandCollection = parameters.GetValue<ObservableCollection<ExCommandConfig>>("ExCommands");
         }
-        
+
         #region VM
 
-        private ObservableCollection<ExCommandConfig> _exCommandCollection = new ObservableCollection<ExCommandConfig>();
+        private ObservableCollection<ExCommandConfig>
+            _exCommandCollection = new ObservableCollection<ExCommandConfig>();
 
         public ObservableCollection<ExCommandConfig> ExCommandCollection
         {
@@ -42,18 +42,17 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _exCommandCollection, value);
         }
 
-        private ObservableCollection<string> _selectedCommands = new ObservableCollection<string>();
+        private ObservableCollection<ExCommandConfig> _selectedCommands = new ObservableCollection<ExCommandConfig>();
 
-        public ObservableCollection<string> SelectedCommands
+        public ObservableCollection<ExCommandConfig> SelectedCommands
         {
-            set
-            {
-                _selectedCommands = value;
-                RaisePropertyChanged();
-            }
             get => _selectedCommands;
+            set => SetProperty(ref _selectedCommands, value);
         }
 
+        /// <summary>
+        /// //////////////////////////////////////////////////////////////
+        /// </summary>
         private string _interval = "1000";
 
         public string Interval
@@ -65,12 +64,19 @@ namespace DevKit.ViewModels
             }
             get => _interval;
         }
-        
+
         #endregion
 
         #region DelegateCommand
 
+        public DelegateCommand<ExCommandConfig> ExCommandDoubleClickCommand { set; get; }
+        public DelegateCommand ClearSelectedCommand { set; get; }
+
+        /// <summary>
+        /// //////////////////////////////////////////////////////////////
+        /// </summary>
         public DelegateCommand<object> ListBoxItemSelectedCommand { set; get; }
+
         public DelegateCommand<string> DeleteSelectedItemCommand { set; get; }
         public DelegateCommand SaveScriptCommand { set; get; }
         public DelegateCommand CancelDialogCommand { set; get; }
@@ -79,6 +85,19 @@ namespace DevKit.ViewModels
 
         public CommandScriptDialogViewModel()
         {
+            ExCommandDoubleClickCommand = new DelegateCommand<ExCommandConfig>(item =>
+            {
+                if (item == null || SelectedCommands.Contains(item))
+                {
+                    return;
+                }
+
+                SelectedCommands.Add(item);
+            });
+
+            ClearSelectedCommand = new DelegateCommand(() => { SelectedCommands.Clear(); });
+
+            //////////////////////////////////////////////////////////////////////////////////////
             ListBoxItemSelectedCommand = new DelegateCommand<object>(OnListBoxItemSelected);
             DeleteSelectedItemCommand = new DelegateCommand<string>(OnSelectedItemDeleted);
             SaveScriptCommand = new DelegateCommand(SaveScript);
@@ -112,7 +131,7 @@ namespace DevKit.ViewModels
             // var find = _commands.Find(x => x.Annotation == annotation);
             // SelectedCommands.Remove(find.Annotation);
         }
-        
+
         private void SaveScript()
         {
             // var result = new List<string>();
