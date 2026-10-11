@@ -148,7 +148,7 @@ namespace DevKit.ViewModels
             get => _isToastVisible;
             set => SetProperty(ref _isToastVisible, value);
         }
-        
+
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -208,14 +208,15 @@ namespace DevKit.ViewModels
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
         public DelegateCommand<string> QuickSendCommand { set; get; }
-        public DelegateCommand<string> EditExCommand { set; get; }
-        public DelegateCommand<string> DeleteExCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> EditExCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
         public DelegateCommand<string> CopyExCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
         public DelegateCommand SaveCommunicationCommand { set; get; }
+
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
@@ -226,7 +227,6 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private const string ClientType = "TCP";
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
         private IEnumerator<string> _commandEnumerator;
@@ -234,9 +234,8 @@ namespace DevKit.ViewModels
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        private readonly IDialogService _dialogService;
-
         private ITransport _transport;
+
         private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
@@ -247,12 +246,11 @@ namespace DevKit.ViewModels
         /// 每次持久化都整体写回，杜绝快照互相覆盖
         /// </summary>
         private readonly TcpConfig _config;
+
         private DispatcherTimer _toastTimer;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
-            _dialogService = dialogService;
-
             _config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
             RemoteAddress = _config.Server.Ip;
             RemotePort = _config.Server.Port;
@@ -262,7 +260,7 @@ namespace DevKit.ViewModels
 
             AddExtensionCommand = new DelegateCommand(() =>
             {
-                _dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
+                dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
                 {
                     if (result.Result != ButtonResult.OK)
                     {
@@ -283,33 +281,59 @@ namespace DevKit.ViewModels
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
                 });
             });
-            
-            ExCommandItemSelectedCommand = new DelegateCommand<string>(commandValue =>
-            {
-                UserInputText = commandValue;
-            });
+
+            ExCommandItemSelectedCommand =
+                new DelegateCommand<string>(commandValue => { UserInputText = commandValue; });
 
             QuickSendCommand = new DelegateCommand<string>(commandValue =>
             {
                 // TODO : 发送消息逻辑
             });
-            
-            EditExCommand = new DelegateCommand<string>(commandValue =>
+
+            EditExCommand = new DelegateCommand<ExCommandConfig>(command =>
             {
-                // TODO : 编辑扩展指令逻辑
+                var dialogParameters = new DialogParameters
+                {
+                    { "ExCommand", command }
+                };
+                dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+                {
+                    if (result.Result != ButtonResult.OK)
+                    {
+                        return;
+                    }
+
+                    var commandType = result.Parameters.GetValue<string>("Type");
+                    var commandValue = result.Parameters.GetValue<string>("Value");
+                    var commandMemo = result.Parameters.GetValue<string>("Memo");
+                    
+                    command.Type = commandType;
+                    command.Value = commandValue;
+                    command.Memo = commandMemo;
+                    PersistConfig();
+                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
+                });
             });
-            
-            DeleteExCommand = new DelegateCommand<string>(commandValue =>
+
+            DeleteExCommand = new DelegateCommand<ExCommandConfig>(command =>
             {
-                // TODO : 删除扩展指令逻辑
+                if (command == null || !_config.ExCommands.Remove(command))
+                {
+                    ShowToast("未找到要删除的扩展指令");
+                    return;
+                }
+
+                ExCommandCollection.Remove(command);
+                PersistConfig();
+                ShowToast("扩展指令已删除");
             });
-            
+
             CopyExCommand = new DelegateCommand<string>(commandValue =>
             {
                 Clipboard.SetText(commandValue);
                 ShowToast("已复制到剪贴板");
             });
-            
+
             /////////////////////////////////////////////////////////////////////////////////
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
@@ -391,30 +415,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        // TODO: 处理接收数据的逻辑
         private void UpdateTransportMessage(string command, byte[] bytes)
         {
-            if (command.Equals(""))
-            {
-                //默认显示为UTF8编码
-                // var log = new SocketMessage
-                // {
-                //     Content = bytes.ByBytesToHexString(" "),
-                //     Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                //     IsSend = 0
-                // };
-                // Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-            }
-            else
-            {
-                var log = new SocketMessage
-                {
-                    Content = command,
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 1
-                };
-                Logs.Add(log);
-            }
+            // TODO: 处理接收数据的逻辑
         }
 
         private void SetConnectionState(string state)
@@ -516,7 +519,7 @@ namespace DevKit.ViewModels
             _toastTimer.Stop();
             _toastTimer.Start();
         }
-        
+
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -570,55 +573,6 @@ namespace DevKit.ViewModels
         private void OnMessageSend()
         {
             SendMessage(_userInputText);
-        }
-
-        private void OnEdit(object id)
-        {
-            // var dialogParameters = new DialogParameters();
-            // ExCommandCache exCommand;
-            //
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
-            //     dialogParameters.Add("ExCommandCache", exCommand);
-            // }
-            //
-            // _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
-            // {
-            //     if (result.Result != ButtonResult.OK)
-            //     {
-            //         return;
-            //     }
-            //
-            //     var commandValue = result.Parameters.GetValue<string>("CommandValue");
-            //     var annotation = result.Parameters.GetValue<string>("Annotation");
-            //     exCommand.CommandValue = commandValue;
-            //     exCommand.Annotation = annotation;
-            //     using (var dataBase = new DataBaseConnection())
-            //     {
-            //         dataBase.Update(exCommand);
-            //         //刷新列表
-            //         ExCommandCollection.Clear();
-            //         var commandCache = dataBase.Table<ExCommandCache>()
-            //             .Where(x => x.ClientType == ClientType)
-            //             .ToList();
-            //         ExCommandCollection = commandCache.ToObservableCollection();
-            //     }
-            // });
-        }
-
-        private void OnDelete(object id)
-        {
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var itemToDelete = dataBase.Table<ExCommandCache>()
-            //         .First(x => x.Id == (int)id);
-            //     dataBase.Delete(itemToDelete);
-            //     var commandCache = dataBase.Table<ExCommandCache>()
-            //         .Where(x => x.ClientType == ClientType)
-            //         .ToList();
-            //     ExCommandCollection = commandCache.ToObservableCollection();
-            // }
         }
 
         private void SendMessage(string command)

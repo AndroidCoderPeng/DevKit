@@ -312,7 +312,7 @@
                                                 FontSize="13"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
                                                 IsHitTestVisible="False"
-                                                Text="{Binding CommandPlaceHolder, FallbackValue='如 aa550101，点格式化 → AA 55 01 01 '}"
+                                                Text="{Binding PlaceHolderText, FallbackValue='如 aa550101，点格式化 → AA 55 01 01 '}"
                                                 Visibility="Collapsed" />
                                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Top" />
                                         </Grid>
@@ -399,7 +399,7 @@
                                                 FontSize="13"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
                                                 IsHitTestVisible="False"
-                                                Text="{Binding MemoPlaceHolder, FallbackValue='例如：握手请求 '}"
+                                                Text="{Binding PlaceHolderText, FallbackValue='例如：握手请求 '}"
                                                 Visibility="Collapsed" />
                                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Top" />
                                         </Grid>

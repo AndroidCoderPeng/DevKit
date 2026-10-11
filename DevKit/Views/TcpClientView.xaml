@@ -918,14 +918,14 @@
 
                                                     <Button
                                                         Command="{Binding DataContext.EditExCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
+                                                        CommandParameter="{Binding}"
                                                         Content="&#xe6d4;"
                                                         Style="{StaticResource CmdEditButtonStyle}"
                                                         ToolTip="编辑" />
 
                                                     <Button
                                                         Command="{Binding DataContext.DeleteExCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
+                                                        CommandParameter="{Binding}"
                                                         Content="&#xe666;"
                                                         Style="{StaticResource CmdDeleteButtonStyle}"
                                                         ToolTip="删除" />

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using DevKit.Cache;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -33,12 +34,12 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _tips, value);
         }
 
-        private string _commandPlaceHolder = "例如：aa550101，点格式化 → AA 55 01 01";
+        private string _placeHolderText = "例如：aa550101，点格式化 → AA 55 01 01";
 
-        public string CommandPlaceHolder
+        public string PlaceHolderText
         {
-            get => _commandPlaceHolder;
-            set => SetProperty(ref _commandPlaceHolder, value);
+            get => _placeHolderText;
+            set => SetProperty(ref _placeHolderText, value);
         }
 
         private string _exCommandValue = string.Empty;
@@ -84,9 +85,10 @@ namespace DevKit.ViewModels
             if (parameters.Keys.Any())
             {
                 Title = "编辑扩展指令";
-                // var cache = parameters.GetValue<ExCommandCache>("ExCommandCache");
-                // ExCommandValue = cache.CommandValue;
-                // CommandMemo = cache.Annotation;
+                var command = parameters.GetValue<ExCommandConfig>("ExCommand");
+                CommandType = command.Type;
+                ExCommandValue = command.Value;
+                CommandMemo = command.Memo;
             }
             else
             {
@@ -102,13 +104,13 @@ namespace DevKit.ViewModels
                 {
                     CommandType = "HEX";
                     Tips = "HEX 字节，空格分隔";
-                    CommandPlaceHolder = "例如：aa550101，点格式化 → AA 55 01 01";
+                    PlaceHolderText = "例如：aa550101，点格式化 → AA 55 01 01";
                 }
                 else if (type == "1")
                 {
                     CommandType = "ASCII";
                     Tips = "ASCII 文本，原样发送";
-                    CommandPlaceHolder = "例如：AT + RST";
+                    PlaceHolderText = "例如：AT + RST";
                 }
             });
 
