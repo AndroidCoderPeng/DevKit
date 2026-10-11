@@ -57,42 +57,6 @@
             </Setter>
         </Style>
 
-        <!--  小方形图标按钮  -->
-        <Style x:Key="MiniSquareButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="24" />
-            <Setter Property="Height" Value="24" />
-            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="MiniBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
-                            TextElement.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="MiniBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
-                                <Setter TargetName="MiniBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="MiniBorder" Property="Opacity" Value="0.7" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!--  普通按钮：白底灰框，hover 蓝  -->
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
@@ -248,11 +212,10 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="{StaticResource DevKitTextMutedBrush}"
-                    Text="HEX 字节，空格分隔" />
+                    Text="{Binding CommandType, FallbackValue='HEX 字节，空格分隔'}" />
 
                 <Border
                     Grid.Column="5"
-                    Margin="8,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     BorderBrush="{StaticResource DevKitBorderStrongBrush}"
@@ -268,11 +231,54 @@
 
                 <Button
                     Grid.Column="6"
+                    Margin="8,0,0,0"
                     Command="{Binding FormatStyleCommand}"
                     Content="&#xe6f6;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
-                    FontSize="10"
-                    Style="{StaticResource MiniSquareButtonStyle}" />
+                    FontSize="10">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Width" Value="24" />
+                            <Setter Property="Height" Value="24" />
+                            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderStrongBrush}" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border
+                                            x:Name="MiniBorder"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="8"
+                                            TextElement.Foreground="{TemplateBinding Foreground}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="MiniBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                <Setter TargetName="MiniBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="MiniBorder" Property="Opacity" Value="0.7" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CommandType}" Value="ASCII">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </Grid>
 
             <TextBox Grid.Row="1" Text="{Binding ExCommandValue}">
