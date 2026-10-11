@@ -1447,18 +1447,11 @@
                                     x:Name="LoopSendSwitch"
                                     Grid.Column="1"
                                     Margin="16,0,0,0"
+                                    Command="{Binding LoopSendSwitchCommand}"
+                                    CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                     Content="循环发送"
-                                    Style="{StaticResource ToggleSwitchStyle}">
-                                    <b:Interaction.Triggers>
-                                        <b:EventTrigger EventName="Checked">
-                                            <b:InvokeCommandAction Command="{Binding TimeCheckedCommand}" />
-                                        </b:EventTrigger>
-
-                                        <b:EventTrigger EventName="Unchecked">
-                                            <b:InvokeCommandAction Command="{Binding TimeUncheckedCommand}" />
-                                        </b:EventTrigger>
-                                    </b:Interaction.Triggers>
-                                </CheckBox>
+                                    IsChecked="{Binding IsLoopSendEnabled, Mode=TwoWay}"
+                                    Style="{StaticResource ToggleSwitchStyle}" />
 
                                 <StackPanel
                                     Grid.Column="2"
@@ -1469,10 +1462,19 @@
                                         Width="64"
                                         Height="32"
                                         HorizontalContentAlignment="Center"
-                                        IsEnabled="{Binding IsChecked, ElementName=LoopSendSwitch}"
-                                        MaxLength="5"
-                                        Style="{StaticResource FieldTextBoxStyle}"
-                                        Text="{Binding CommandInterval}" />
+                                        Text="{Binding CommandInterval}">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=LoopSendSwitch}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
 
                                     <TextBlock
                                         Margin="4,0,0,0"

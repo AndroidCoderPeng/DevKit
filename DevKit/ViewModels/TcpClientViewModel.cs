@@ -185,11 +185,11 @@ namespace DevKit.ViewModels
         }
 
         public long SendCount => _logs.Count(x => x.IsSend == 1);
-        
+
         public long SendByteSize => _logs.Where(x => x.IsSend == 1).Sum(x => x.RawData?.Length ?? 0);
-        
+
         public long ReceiveCount => _logs.Count(x => x.IsSend == 0);
-        
+
         public long ReceiveByteSize => _logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
 
         private bool _isLogHexSelected = true;
@@ -247,9 +247,9 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         public string PlaceHolderText => IsSendAsciiSelected ? "例如：AT + RST" : "例如：aa550101，点格式化 → AA 55 01 01";
-        
+
         public bool IsSendAsciiSelected
         {
             get => !_isSendHexSelected;
@@ -261,20 +261,21 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
-        /// <summary>
-        /// ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
+
+        private bool _isLoopSendEnabled;
+
+        public bool IsLoopSendEnabled
+        {
+            get => _isLoopSendEnabled;
+            set => SetProperty(ref _isLoopSendEnabled, value);
+        }
+
         private string _commandInterval = "1000";
 
         public string CommandInterval
         {
-            set
-            {
-                _commandInterval = value;
-                RaisePropertyChanged();
-            }
             get => _commandInterval;
+            set => SetProperty(ref _commandInterval, value);
         }
 
         #endregion
@@ -294,18 +295,15 @@ namespace DevKit.ViewModels
         public DelegateCommand ClearLogCommand { set; get; }
         public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
         public DelegateCommand<string> SendRadioChangedCommand { set; get; }
+        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
         public DelegateCommand OpenScriptCommand { set; get; }
 
-        public DelegateCommand TimeCheckedCommand { set; get; }
-        public DelegateCommand TimeUncheckedCommand { set; get; }
-
         #endregion
 
-        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
 
         /// <summary>
@@ -319,6 +317,7 @@ namespace DevKit.ViewModels
         private DispatcherTimer _sessionTimer;
         private readonly TcpConfig _config;
         private DispatcherTimer _toastTimer;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -328,7 +327,7 @@ namespace DevKit.ViewModels
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
 
             _logs.CollectionChanged += Logs_CollectionChanged;
-            
+
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
             AddExtensionCommand = new DelegateCommand(() =>
@@ -450,7 +449,7 @@ namespace DevKit.ViewModels
                     IsLogHexSelected = false;
                 }
             });
-            
+
             SendRadioChangedCommand = new DelegateCommand<string>(value =>
             {
                 if (value == "0")
@@ -462,18 +461,30 @@ namespace DevKit.ViewModels
                     IsSendHexSelected = false;
                 }
             });
-            
+
+            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            {
+                if (!(value is bool isChecked)) return;
+
+                if (isChecked)
+                {
+                    StartLoopSending();
+                }
+                else
+                {
+                    StopLoopSending();
+                }
+            });
+
             /////////////////////////////////////////////////////////////////////////////////
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
-            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
-            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             RaiseLogStatisticsChanged();
         }
-        
+
         private void RaiseLogStatisticsChanged()
         {
             RaisePropertyChanged(nameof(SendCount));
@@ -481,7 +492,7 @@ namespace DevKit.ViewModels
             RaisePropertyChanged(nameof(ReceiveCount));
             RaisePropertyChanged(nameof(ReceiveByteSize));
         }
-        
+
         private async Task ConnectServerAsync()
         {
             if (_isConnecting)
@@ -751,6 +762,58 @@ namespace DevKit.ViewModels
             });
         }
 
+        private void StartLoopSending()
+        {
+            if (!int.TryParse(_commandInterval, NumberStyles.None, CultureInfo.InvariantCulture, out var intervalMs) ||
+                intervalMs <= 0)
+            {
+                MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_transport == null || ConnectionState != "已连接")
+            {
+                MessageBox.Show("请先连接 TCP 服务器", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_userInputText))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+            
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(intervalMs);
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Start();
+        }
+
+        private void StopLoopSending()
+        {
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+        }
+
+        private async void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (!_isLoopSendEnabled) return;
+
+            if (_transport == null || ConnectionState != "已连接")
+            {
+                StopLoopSending();
+                IsLoopSendEnabled = false;
+                ShowToast("TCP 连接已断开，循环发送已停止");
+                return;
+            }
+
+            await SendInputAsync();
+        }
+        
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -780,36 +843,6 @@ namespace DevKit.ViewModels
             //     _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
             //     _scriptTimer.Start();
             // });
-        }
-
-        private void OnTimeChecked()
-        {
-            if (!_commandInterval.IsNumber())
-            {
-                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
-            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
-            _loopSendCommandTimer.Start();
-        }
-
-        private void OnTimeUnchecked()
-        {
-            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
-            _loopSendCommandTimer.Stop();
-        }
-
-        private void TimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            // if (!_tcpClient.Connected)
-            // {
-            //     MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            //     return;
-            // }
-            //
-            // SendMessage(_userInputText);
         }
     }
 }
