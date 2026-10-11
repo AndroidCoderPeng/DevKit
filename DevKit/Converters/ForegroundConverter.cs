@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Data;
@@ -10,7 +9,6 @@ namespace DevKit.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Debug.Assert(value != null, nameof(value) + " != null");
             var color = ColorTranslator.FromHtml((string)value);
             //L=0.2126×R+0.7152×G+0.0722×B
 
