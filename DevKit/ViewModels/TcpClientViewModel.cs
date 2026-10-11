@@ -163,6 +163,14 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+
+        public ObservableCollection<SocketMessage> Logs
+        {
+            get => _logs;
+            set => SetProperty(ref _logs, value);
+        }
+
         private string _lastDataTime = string.Empty;
 
         public string LastDataTime
@@ -174,18 +182,6 @@ namespace DevKit.ViewModels
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
-
-        public ObservableCollection<SocketMessage> Logs
-        {
-            set
-            {
-                _logs = value;
-                RaisePropertyChanged();
-            }
-            get => _logs;
-        }
-
         private string _commandInterval = "1000";
 
         public string CommandInterval
@@ -340,6 +336,33 @@ namespace DevKit.ViewModels
             });
 
             SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+
+            /////////////////////////////////////////////////////////////////////////////////
+
+            for (var i = 0; i < 10; i++)
+            {
+                SocketMessage log;
+                if (i % 2 == 0)
+                {
+                    log = new SocketMessage
+                    {
+                        Content = "TCP客户端日志",
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 0
+                    };
+                }
+                else
+                {
+                    log = new SocketMessage
+                    {
+                        Content = "TCP客户端日志",
+                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
+                        IsSend = 1
+                    };
+                }
+
+                Logs.Add(log);
+            }
 
             /////////////////////////////////////////////////////////////////////////////////
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);

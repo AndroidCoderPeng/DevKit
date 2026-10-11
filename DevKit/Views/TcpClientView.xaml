@@ -5,10 +5,8 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bhv="clr-namespace:DevKit.Behaviors"
     xmlns:cache="clr-namespace:DevKit.Cache"
-    xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="1024"
@@ -459,10 +457,10 @@
             </Setter>
         </Style>
 
-        <!--  TODO 待调试——消息条上的「复制」小按钮：默认透明、悬浮出现  -->
+        <!--  消息条上的「复制」小按钮：默认透明、悬浮出现  -->
         <Style x:Key="CopyMiniButtonStyle" TargetType="Button">
-            <Setter Property="Padding" Value="6,1" />
-            <Setter Property="FontSize" Value="10.5" />
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="FontSize" Value="10" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
@@ -474,7 +472,7 @@
                         <Border
                             x:Name="CopyBorder"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="6"
+                            CornerRadius="4"
                             TextElement.Foreground="{TemplateBinding Foreground}">
                             <ContentPresenter
                                 Margin="{TemplateBinding Padding}"
@@ -491,8 +489,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
     </UserControl.Resources>
 
     <Grid>
@@ -1050,7 +1046,7 @@
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
-                        <DockPanel Margin="14,12">
+                        <DockPanel Margin="12">
                             <!--  工具条  -->
                             <Grid DockPanel.Dock="Top">
                                 <Grid.ColumnDefinitions>
@@ -1092,11 +1088,6 @@
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="显示" />
 
-                                <!--
-                                    显示编码：复用既有 ComboBoxItemSelectedCommand（0=16 进制 / 1=ASCII）。
-                                    说明：该命令是"就地改写消息内容"的旧逻辑；ASCII 段靠 RadioButton 同组互斥联动，
-                                    因此未绑定 IsChecked。若后续 VM 提供"显示编码"属性，这里可改为直接绑定。
-                                -->
                                 <Border
                                     Grid.Column="4"
                                     Margin="8,0"
@@ -1168,8 +1159,8 @@
                                 </Button>
                             </Grid>
 
-                            <!--  TODO 待调试——消息列表 + 空态  -->
-                            <Grid Margin="0,12,0,0">
+                            <!--  消息列表 + 空态  -->
+                            <Grid Margin="0,16,0,0">
                                 <ListBox
                                     x:Name="LogListBox"
                                     Background="Transparent"
@@ -1177,13 +1168,10 @@
                                     ItemsSource="{Binding Logs}"
                                     ScrollViewer.CanContentScroll="False"
                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid
-                                                x:Name="MessageRow"
-                                                MaxWidth="620"
-                                                HorizontalAlignment="Left">
+                                            <Grid x:Name="MessageRow" MaxWidth="620">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
@@ -1192,45 +1180,65 @@
                                                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                                                     <Border
                                                         x:Name="TagBorder"
-                                                        Padding="7,1"
+                                                        Padding="8,2"
                                                         Background="{StaticResource DevKitSuccess12Brush}"
                                                         CornerRadius="8">
                                                         <TextBlock
                                                             x:Name="TagText"
-                                                            FontSize="10.5"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="10"
                                                             FontWeight="SemiBold"
-                                                            Foreground="{StaticResource DevKitSuccessBrush}"
-                                                            Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
+                                                            Foreground="{StaticResource DevKitSuccessBrush}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="发送" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsSend}" Value="0">
+                                                                            <Setter Property="Text" Value="接收" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
                                                     </Border>
 
                                                     <TextBlock
-                                                        Margin="7,0,0,0"
+                                                        Margin="8,0"
                                                         VerticalAlignment="Center"
-                                                        FontSize="11"
+                                                        FontFamily="Consolas"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                                         Text="{Binding Time}" />
 
                                                     <Button
                                                         x:Name="CopyMessageButton"
-                                                        Margin="6,0,0,0"
                                                         Command="{Binding DataContext.CopyLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding Content}"
-                                                        Content="复制"
                                                         Style="{StaticResource CopyMiniButtonStyle}"
-                                                        ToolTip="复制本条内容" />
+                                                        ToolTip="复制本条内容">
+                                                        <Button.Content>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock
+                                                                    VerticalAlignment="Center"
+                                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                                    Text="&#xe66c;" />
+                                                                <TextBlock Margin="4,0,0,0" Text="复制" />
+                                                            </StackPanel>
+                                                        </Button.Content>
+                                                    </Button>
                                                 </StackPanel>
 
                                                 <Border
                                                     x:Name="MessageBubble"
                                                     Grid.Row="1"
-                                                    Margin="0,5,0,0"
-                                                    Padding="11,8"
+                                                    Margin="0,4,0,0"
+                                                    Padding="12,8"
                                                     Background="White"
                                                     BorderBrush="{DynamicResource DevKitBorderBrush}"
                                                     BorderThickness="1"
-                                                    CornerRadius="12,12,12,4">
+                                                    CornerRadius="12 12 12 2">
                                                     <TextBlock
-                                                        FontSize="12"
+                                                        FontFamily="Consolas"
+                                                        FontSize="13"
                                                         Foreground="{DynamicResource DevKitTextBrush}"
                                                         Text="{Binding Content}"
                                                         TextWrapping="Wrap" />
@@ -1245,7 +1253,7 @@
                                                     <Setter TargetName="TagText" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                                                     <Setter TargetName="MessageBubble" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
                                                     <Setter TargetName="MessageBubble" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
-                                                    <Setter TargetName="MessageBubble" Property="CornerRadius" Value="12,12,4,12" />
+                                                    <Setter TargetName="MessageBubble" Property="CornerRadius" Value="12,12,2,12" />
                                                 </DataTrigger>
 
                                                 <!--  悬浮整条消息时显示「复制」  -->
@@ -1262,7 +1270,7 @@
                                             <Setter Property="Template">
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="ListBoxItem">
-                                                        <Border Padding="0,0,0,10" Background="Transparent">
+                                                        <Border Padding="0,0,0,16" Background="Transparent">
                                                             <ContentPresenter />
                                                         </Border>
                                                     </ControlTemplate>
@@ -1275,23 +1283,6 @@
                                     <b:Interaction.Behaviors>
                                         <bhv:AutoScrollToBottomBehavior />
                                     </b:Interaction.Behaviors>
-
-                                    <ListBox.ContextMenu>
-                                        <ContextMenu Style="{StaticResource CmdContextMenuStyle}">
-                                            <MenuItem
-                                                Command="{Binding CopyLogCommand}"
-                                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:SocketMessage.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                Header="复制"
-                                                Style="{StaticResource CmdMenuItemStyle}">
-                                                <MenuItem.Icon>
-                                                    <TextBlock
-                                                        FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                        FontSize="16"
-                                                        Text="&#xe66c;" />
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </ListBox.ContextMenu>
                                 </ListBox>
 
                                 <!--  空态：无消息时覆盖显示  -->
