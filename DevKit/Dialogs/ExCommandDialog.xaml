@@ -192,8 +192,8 @@
                             Command="{Binding ComboBoxItemSelectedCommand}"
                             CommandParameter="0"
                             Content="HEX"
-                            GroupName="LogDisplayEncoding"
-                            IsChecked="True"
+                            GroupName="CommandDisplayType"
+                            IsChecked="{Binding IsHexSelected}"
                             Style="{StaticResource SegmentRadioStyle}"
                             ToolTip="把指令内容转为 16 进制显示" />
 
@@ -201,7 +201,8 @@
                             Command="{Binding ComboBoxItemSelectedCommand}"
                             CommandParameter="1"
                             Content="ASCII"
-                            GroupName="LogDisplayEncoding"
+                            GroupName="CommandDisplayType"
+                            IsChecked="{Binding IsAsciiSelected}"
                             Style="{StaticResource SegmentRadioStyle}"
                             ToolTip="把指令内容转为 ASCII 显示" />
                     </StackPanel>

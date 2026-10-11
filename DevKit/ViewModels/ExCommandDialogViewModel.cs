@@ -23,24 +23,39 @@ namespace DevKit.ViewModels
         public string CommandType
         {
             get => _commandType;
-            set => SetProperty(ref _commandType, value);
+            set
+            {
+                if (SetProperty(ref _commandType, value))
+                {
+                    RaisePropertyChanged(nameof(IsHexSelected));
+                    RaisePropertyChanged(nameof(IsAsciiSelected));
+                    RaisePropertyChanged(nameof(Tips));
+                    RaisePropertyChanged(nameof(PlaceHolderText));
+                }
+            }
         }
 
-        private string _tips = "HEX 字节，空格分隔";
-
-        public string Tips
+        public bool IsHexSelected
         {
-            get => _tips;
-            set => SetProperty(ref _tips, value);
+            get => CommandType == "HEX";
+            set
+            {
+                if (value) CommandType = "HEX";
+            }
         }
 
-        private string _placeHolderText = "例如：aa550101，点格式化 → AA 55 01 01";
-
-        public string PlaceHolderText
+        public bool IsAsciiSelected
         {
-            get => _placeHolderText;
-            set => SetProperty(ref _placeHolderText, value);
+            get => CommandType == "ASCII";
+            set
+            {
+                if (value) CommandType = "ASCII";
+            }
         }
+
+        public string Tips => CommandType == "ASCII" ? "ASCII 文本，原样发送" : "HEX 字节，空格分隔";
+
+        public string PlaceHolderText => CommandType == "ASCII" ? "例如：AT + RST" : "例如：aa550101，点格式化 → AA 55 01 01";
 
         private string _exCommandValue = string.Empty;
 
@@ -103,14 +118,10 @@ namespace DevKit.ViewModels
                 if (type == "0")
                 {
                     CommandType = "HEX";
-                    Tips = "HEX 字节，空格分隔";
-                    PlaceHolderText = "例如：aa550101，点格式化 → AA 55 01 01";
                 }
                 else if (type == "1")
                 {
                     CommandType = "ASCII";
-                    Tips = "ASCII 文本，原样发送";
-                    PlaceHolderText = "例如：AT + RST";
                 }
             });
 

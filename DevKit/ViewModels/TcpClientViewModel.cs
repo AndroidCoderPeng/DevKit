@@ -296,7 +296,7 @@ namespace DevKit.ViewModels
                 {
                     { "ExCommand", command }
                 };
-                dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+                dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
                 {
                     if (result.Result != ButtonResult.OK)
                     {
