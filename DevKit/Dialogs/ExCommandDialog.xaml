@@ -7,7 +7,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="472"
-    Height="332"
+    Height="320"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     mc:Ignorable="d">
 
@@ -20,6 +20,43 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
+        <!--  分段控件内的单选按钮  -->
+        <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="SegmentBorder"
+                            Background="Transparent"
+                            CornerRadius="8"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SegmentBorder" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!--  小方形图标按钮  -->
         <Style x:Key="MiniSquareButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="24" />
@@ -49,36 +86,6 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="MiniBorder" Property="Opacity" Value="0.7" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!--  圆角输入框  -->
-        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="34" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border
-                            x:Name="FieldBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -180,6 +187,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
@@ -206,16 +214,44 @@
                     Foreground="Red"
                     Text="*" />
 
-                <TextBlock
+                <Border
                     Grid.Column="3"
                     Margin="8,0"
+                    Padding="2"
+                    VerticalAlignment="Center"
+                    Background="{StaticResource DevKitSurfaceBrush}"
+                    BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton
+                            Command="{Binding ComboBoxItemSelectedCommand}"
+                            CommandParameter="0"
+                            Content="HEX"
+                            GroupName="LogDisplayEncoding"
+                            IsChecked="True"
+                            Style="{StaticResource SegmentRadioStyle}"
+                            ToolTip="把消息内容转为 16 进制显示" />
+
+                        <RadioButton
+                            Command="{Binding ComboBoxItemSelectedCommand}"
+                            CommandParameter="1"
+                            Content="ASCII"
+                            GroupName="LogDisplayEncoding"
+                            Style="{StaticResource SegmentRadioStyle}"
+                            ToolTip="把消息内容转为 ASCII 显示" />
+                    </StackPanel>
+                </Border>
+
+                <TextBlock
+                    Grid.Column="4"
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="{StaticResource DevKitTextMutedBrush}"
                     Text="HEX 字节，空格分隔" />
 
                 <Border
-                    Grid.Column="4"
+                    Grid.Column="5"
                     Margin="8,0"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
@@ -227,11 +263,11 @@
                         FontFamily="Consolas"
                         FontWeight="SemiBold"
                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                        Text="{Binding UserCommandValue.Length, StringFormat={}{0} B}" />
+                        Text="{Binding ExCommandValue.Length, StringFormat={}{0} B}" />
                 </Border>
 
                 <Button
-                    Grid.Column="5"
+                    Grid.Column="6"
                     Command="{Binding FormatStyleCommand}"
                     Content="&#xe6f6;"
                     FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -239,15 +275,64 @@
                     Style="{StaticResource MiniSquareButtonStyle}" />
             </Grid>
 
-            <TextBox
-                Grid.Row="1"
-                Height="102"
-                Margin="16,0"
-                Padding="0,8"
-                VerticalContentAlignment="Top"
-                Style="{StaticResource FieldTextBoxStyle}"
-                Text="{Binding UserCommandValue}"
-                TextWrapping="Wrap" />
+            <TextBox Grid.Row="1" Text="{Binding ExCommandValue}">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Height" Value="102" />
+                        <Setter Property="FontSize" Value="13" />
+                        <Setter Property="Margin" Value="16,0" />
+                        <Setter Property="Padding" Value="8" />
+                        <Setter Property="VerticalContentAlignment" Value="Top" />
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                        <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+                        <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+                        <Setter Property="CaretBrush" Value="{StaticResource DevKitAccentBrush}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border
+                                        x:Name="FieldBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <TextBlock
+                                                x:Name="PlaceholderText"
+                                                Padding="12,8"
+                                                VerticalAlignment="Top"
+                                                FontSize="13"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                IsHitTestVisible="False"
+                                                Text="{Binding CommandPlaceHolder, FallbackValue='如 aa550101，点格式化 → AA 55 01 01 '}"
+                                                Visibility="Collapsed" />
+                                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Top" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+
+                                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                            <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                            <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
 
             <Grid Grid.Row="2" Margin="16,16,16,8">
                 <Grid.ColumnDefinitions>
@@ -278,15 +363,63 @@
                     Text="可选，便于在指令列表中识别" />
             </Grid>
 
-            <TextBox
-                Grid.Row="3"
-                Height="52"
-                Margin="16,0"
-                Padding="0,8"
-                VerticalContentAlignment="Top"
-                Style="{StaticResource FieldTextBoxStyle}"
-                Text="{Binding CommandAnnotation}"
-                TextWrapping="Wrap" />
+            <TextBox Grid.Row="3" Text="{Binding CommandMemo}">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="FontSize" Value="13" />
+                        <Setter Property="Margin" Value="16,0" />
+                        <Setter Property="Padding" Value="8" />
+                        <Setter Property="VerticalContentAlignment" Value="Top" />
+                        <Setter Property="TextWrapping" Value="NoWrap" />
+                        <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+                        <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+                        <Setter Property="CaretBrush" Value="{StaticResource DevKitAccentBrush}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border
+                                        x:Name="FieldBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <TextBlock
+                                                x:Name="PlaceholderText"
+                                                Padding="12,8"
+                                                VerticalAlignment="Top"
+                                                FontSize="13"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                IsHitTestVisible="False"
+                                                Text="{Binding MemoPlaceHolder, FallbackValue='例如：握手请求 '}"
+                                                Visibility="Collapsed" />
+                                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Top" />
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter TargetName="PlaceholderText" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+
+                                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                            <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                                            <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.6" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
         </Grid>
 
         <Border

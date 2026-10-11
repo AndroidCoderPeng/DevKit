@@ -11,33 +11,25 @@ namespace DevKit.ViewModels
     public class ExCommandDialogViewModel : BindableBase, IDialogAware
     {
         public string Title { private set; get; }
-        
+
         public event Action<IDialogResult> RequestClose;
 
         #region VM
 
-        private string _userCommandValue = string.Empty;
+        private string _exCommandValue = string.Empty;
 
-        public string UserCommandValue
+        public string ExCommandValue
         {
-            set
-            {
-                _userCommandValue = value;
-                RaisePropertyChanged();
-            }
-            get => _userCommandValue;
+            get => _exCommandValue;
+            set => SetProperty(ref _exCommandValue, value);
         }
 
-        private string _commandAnnotation = string.Empty;
+        private string _commandMemo = string.Empty;
 
-        public string CommandAnnotation
+        public string CommandMemo
         {
-            set
-            {
-                _commandAnnotation = value;
-                RaisePropertyChanged();
-            }
-            get => _commandAnnotation;
+            get => _commandMemo;
+            set => SetProperty(ref _commandMemo, value);
         }
 
         #endregion
@@ -64,8 +56,8 @@ namespace DevKit.ViewModels
             {
                 Title = "编辑扩展指令";
                 var cache = parameters.GetValue<ExCommandCache>("ExCommandCache");
-                UserCommandValue = cache.CommandValue;
-                CommandAnnotation = cache.Annotation;
+                ExCommandValue = cache.CommandValue;
+                CommandMemo = cache.Annotation;
             }
             else
             {
@@ -81,7 +73,7 @@ namespace DevKit.ViewModels
 
         private void ExtensionCommandSave()
         {
-            if (string.IsNullOrWhiteSpace(_userCommandValue))
+            if (string.IsNullOrWhiteSpace(_exCommandValue))
             {
                 MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -89,8 +81,8 @@ namespace DevKit.ViewModels
 
             var dialogParameters = new DialogParameters
             {
-                { "CommandValue", _userCommandValue },
-                { "Annotation", _commandAnnotation }
+                { "CommandValue", _exCommandValue },
+                { "Annotation", _commandMemo }
             };
             RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
         }
