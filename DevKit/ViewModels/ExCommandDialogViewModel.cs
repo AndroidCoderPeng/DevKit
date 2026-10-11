@@ -33,6 +33,13 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _tips, value);
         }
 
+        private string _commandPlaceHolder = "例如：aa550101，点格式化 → AA 55 01 01";
+        public string CommandPlaceHolder
+        {
+            get => _commandPlaceHolder;
+            set => SetProperty(ref _commandPlaceHolder, value);
+        }
+
         private string _exCommandValue = string.Empty;
 
         public string ExCommandValue
@@ -99,24 +106,26 @@ namespace DevKit.ViewModels
                 {
                     CommandType = "HEX";
                     Tips = "HEX 字节，空格分隔";
+                    CommandPlaceHolder = "例如：aa550101，点格式化 → AA 55 01 01";
                 }
                 else if (type == "1")
                 {
                     CommandType = "ASCII";
                     Tips = "ASCII 文本，原样发送";
+                    CommandPlaceHolder = "例如：AT + RST";
                 }
             });
 
             CommandSaveCommand = new DelegateCommand(() =>
             {
-                if (string.IsNullOrWhiteSpace(_exCommandValue))
+                if (string.IsNullOrWhiteSpace(ExCommandValue))
                 {
                     MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
-                if (config.ExCommands.Any(x => x.Value == _exCommandValue))
+                var list = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp).ExCommands;
+                if (list.Any(x => x.Value == ExCommandValue))
                 {
                     MessageBox.Show("该指令已存在", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
