@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>指令脚本 · 界面重设计稿</title>
+    <link rel="stylesheet" href="commandscript.css" />
+</head>
+
+<body>
+
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-status="normal">正常</button>
+        <button class="demo-btn" data-status="empty">空队列</button>
+    </div>
+
+    <div class="app">
+        <!--
+      注意：本窗口为 Prism 对话框，窗口标题（指令脚本）由系统默认标题栏提供，
+      因此窗口内容顶部不再放置标题栏。
+
+      与原 XAML 的对应关系：
+      - 指令库：对应原「ExCommandCaches」列表（只读展示，双击加入队列；本界面不新增指令，
+        指令的新增/编辑在 TCP 客户端完成）
+      - 执行队列：对应原「SelectedCommands」横向 ListBox（改为竖排有序列表，
+        序号徽标 + 拖拽排序 + 删除，替代 40px 高的横条）
+      - 时间间隔（毫秒）：保留，并新增「预计总耗时」实时提示
+      - 确定 / 取消：保留
+    -->
+        <div class="window">
+
+            <!-- 演示用：仿真实窗口 chrome，仅示意标题，非窗口内容 -->
+            <div class="demo-titlebar">
+                <span class="title" id="dialogTitle">指令脚本</span>
+                <span class="win-controls" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="12" height="12">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5 12h14" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="12" height="12">
+                        <rect x="5.5" y="5.5" width="13" height="13" rx="1.5" fill="none" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+                    <svg viewBox="0 0 24 24" width="12" height="12">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- ============ 主体双栏：指令库 + 执行队列 ============ -->
+            <div class="layout">
+
+                <!-- 左栏：指令库（只读，本界面不新增指令） -->
+                <section class="card">
+                    <div class="card-head">
+                        <span class="card-title">指令库</span>
+                        <span class="count" id="libCount">4</span>
+                        <span class="line"></span>
+                        <span class="tip">双击加入队列</span>
+                    </div>
+
+                    <div class="lib-list" id="libList"></div>
+
+                    <div class="cmd-empty" id="libEmpty" hidden>
+                        指令库为空<br />请先在 TCP 客户端中添加扩展指令
+                    </div>
+                </section>
+
+                <!-- 右栏：执行队列 -->
+                <section class="card">
+                    <div class="card-head">
+                        <span class="card-title">执行队列</span>
+                        <span class="count" id="queueCount">2</span>
+                        <span class="line"></span>
+                        <span class="tip">拖动可调整顺序</span>
+                        <button class="btn btn-sm btn-danger" id="btnClearQueue" title="清空队列">清空</button>
+                    </div>
+
+                    <!-- 队列由 JS 渲染，可拖拽排序，也可从左栏拖入 -->
+                    <div class="queue-list" id="queueList"></div>
+
+                    <div class="cmd-empty" id="queueEmpty">
+                        队列还是空的<br />双击左侧指令加入队列
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ============ 执行参数条：间隔 + 预计耗时，两组之间竖线分隔 ============ -->
+            <div class="script-bar">
+                <span class="inline-field">
+                    <span class="field-label">执行间隔</span>
+                    <input id="interval" type="text" value="1000" maxlength="6" title="每条指令之间的间隔（毫秒）" />
+                    <span class="unit">ms / 条</span>
+                </span>
+
+                <span class="bar-divider" aria-hidden="true"></span>
+
+                <span class="eta">
+                    <span class="field-label">预计总耗时</span>
+                    <b id="etaValue">2.0 s</b>
+                </span>
+            </div>
+
+            <!-- ============ 底部：操作按钮 ============ -->
+            <footer class="footer">
+                <button class="btn" id="btnCancel">
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                    取消
+                </button>
+
+                <button class="btn btn-primary" id="btnOk">
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                    确定
+                </button>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="commandscript.js"></script>
+</body>
+
+</html>
