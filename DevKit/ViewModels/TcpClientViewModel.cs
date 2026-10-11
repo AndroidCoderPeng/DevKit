@@ -211,6 +211,7 @@ namespace DevKit.ViewModels
         public DelegateCommand<ExCommandConfig> EditExCommand { set; get; }
         public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
         public DelegateCommand<string> CopyExCommand { set; get; }
+        public DelegateCommand SendMessageCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +220,6 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ClearCommunicationCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SendCommand { set; get; }
         public DelegateCommand OpenScriptCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
@@ -282,10 +282,9 @@ namespace DevKit.ViewModels
                 });
             });
 
-            ExCommandItemSelectedCommand =
-                new DelegateCommand<string>(commandValue => { UserInputText = commandValue; });
+            ExCommandItemSelectedCommand = new DelegateCommand<string>(value => { UserInputText = value; });
 
-            QuickSendCommand = new DelegateCommand<string>(commandValue =>
+            QuickSendCommand = new DelegateCommand<string>(value =>
             {
                 // TODO : 发送消息逻辑
             });
@@ -306,7 +305,7 @@ namespace DevKit.ViewModels
                     var commandType = result.Parameters.GetValue<string>("Type");
                     var commandValue = result.Parameters.GetValue<string>("Value");
                     var commandMemo = result.Parameters.GetValue<string>("Memo");
-                    
+
                     command.Type = commandType;
                     command.Value = commandValue;
                     command.Memo = commandMemo;
@@ -328,17 +327,21 @@ namespace DevKit.ViewModels
                 ShowToast("扩展指令已删除");
             });
 
-            CopyExCommand = new DelegateCommand<string>(commandValue =>
+            CopyExCommand = new DelegateCommand<string>(value =>
             {
-                Clipboard.SetText(commandValue);
+                Clipboard.SetText(value);
                 ShowToast("已复制到剪贴板");
             });
 
+            SendMessageCommand = new DelegateCommand(() =>
+            {
+                // TODO : 发送消息逻辑
+            });
+            
             /////////////////////////////////////////////////////////////////////////////////
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            SendCommand = new DelegateCommand(OnMessageSend);
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
@@ -570,15 +573,6 @@ namespace DevKit.ViewModels
             Clipboard.SetText(log);
         }
 
-        private void OnMessageSend()
-        {
-            SendMessage(_userInputText);
-        }
-
-        private void SendMessage(string command)
-        {
-        }
-
         private void OpenScriptDialog()
         {
             // var dialogParameters = new DialogParameters();
@@ -605,19 +599,6 @@ namespace DevKit.ViewModels
             //     _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
             //     _scriptTimer.Start();
             // });
-        }
-
-        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            if (_commandEnumerator.MoveNext())
-            {
-                SendMessage(_commandEnumerator.Current);
-            }
-            else
-            {
-                _scriptTimer.Stop();
-                _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
-            }
         }
 
         private void OnTimeChecked()
