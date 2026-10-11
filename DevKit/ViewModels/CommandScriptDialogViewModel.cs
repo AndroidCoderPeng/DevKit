@@ -10,7 +10,7 @@ namespace DevKit.ViewModels
 {
     public class CommandScriptDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => "指令执行脚本（鼠标左键选择需要执行的指令）";
+        public string Title => "指令脚本";
 
         public event Action<IDialogResult> RequestClose;
 
@@ -30,12 +30,12 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(IDialogParameters parameters)
         {
-            _commands = parameters.GetValue<List<ExCommandConfig>>("ExCommands");
-            foreach (var exCmd in _commands)
-            {
-                // var command = $"【{exCmd.Annotation}】{exCmd.CommandValue}";
-                // ExCommandCaches.Add(command);
-            }
+            // _commands = parameters.GetValue<List<ExCommandConfig>>("ExCommands");
+            // foreach (var exCmd in _commands)
+            // {
+            //     var command = $"【{exCmd.Annotation}】{exCmd.CommandValue}";
+            //     ExCommandCaches.Add(command);
+            // }
         }
         
         #region VM

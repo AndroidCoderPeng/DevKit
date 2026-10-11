@@ -886,13 +886,13 @@
 
                                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                     <TextBlock
-                                                        x:Name="CommandValueTextBlock"
+                                                        x:Name="ValueTextBlock"
                                                         FontSize="13"
                                                         Foreground="{DynamicResource DevKitTextBrush}"
                                                         Text="{Binding Value}" />
 
                                                     <TextBlock
-                                                        x:Name="AnnotationTextBlock"
+                                                        x:Name="MemoTextBlock"
                                                         Margin="0,4,0,0"
                                                         FontSize="11"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
@@ -931,8 +931,8 @@
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
                                                     <Setter TargetName="ButtonPanel" Property="Visibility" Value="Visible" />
-                                                    <Setter TargetName="CommandValueTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
-                                                    <Setter TargetName="AnnotationTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
+                                                    <Setter TargetName="ValueTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
+                                                    <Setter TargetName="MemoTextBlock" Property="TextTrimming" Value="CharacterEllipsis" />
                                                 </DataTrigger>
                                             </DataTemplate.Triggers>
                                         </DataTemplate>

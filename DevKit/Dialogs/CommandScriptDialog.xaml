@@ -7,10 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="450"
-    Height="400"
+    Width="600"
+    Height="500"
     d:DataContext="{d:DesignInstance Type=vm:CommandScriptDialogViewModel}"
-    Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
 
     <prism:Dialog.WindowStyle>
@@ -23,119 +22,508 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14" />
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  危险操作按钮：默认红字红框、悬浮红底白字  -->
+        <Style x:Key="DangerOutlineButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitDanger40Brush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="DangerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            TextBlock.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="DangerBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter TargetName="DangerBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="DangerBorder" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  普通按钮：白底灰框，hover 蓝  -->
+        <Style x:Key="CompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  主按钮：蓝底白字  -->
+        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="15,20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ListBox
-            x:Name="CommandListBox"
-            Grid.Row="0"
-            BorderBrush="{DynamicResource DevKitBorderBrush}"
-            ItemsSource="{Binding ExCommandCaches}"
-            ScrollViewer.CanContentScroll="False">
-            <b:Interaction.Triggers>
-                <b:EventTrigger EventName="SelectionChanged">
-                    <b:InvokeCommandAction Command="{Binding ListBoxItemSelectedCommand}" CommandParameter="{Binding SelectedIndex, ElementName=CommandListBox}" />
-                </b:EventTrigger>
-            </b:Interaction.Triggers>
-        </ListBox>
+        <Grid Grid.Row="0" Background="{StaticResource DevKitBackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-        <TextBlock
-            Grid.Row="1"
-            Margin="0,15,0,0"
-            Text="拖动更改指令执行的顺序" />
+            <Border
+                Grid.Column="0"
+                Margin="16,16,8,16"
+                Background="White"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
 
-        <ListBox
-            x:Name="SelectedCommandListBox"
-            Grid.Row="2"
-            Height="40"
-            Padding="0"
-            AllowDrop="True"
-            BorderBrush="{DynamicResource DevKitBorderBrush}"
-            DragOver="SelectedCommandListBox_DragOver"
-            Drop="SelectedCommandListBox_Drop"
-            ItemsSource="{Binding SelectedCommands}"
-            PreviewMouseLeftButtonDown="SelectedCommandListBox_PreviewMouseLeftButtonDown"
-            PreviewMouseMove="SelectedCommandListBox_PreviewMouseMove"
-            ScrollViewer.CanContentScroll="False"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-            ScrollViewer.VerticalScrollBarVisibility="Hidden">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Label
-                        x:Name="DeleteSelectedCommandButton"
-                        HorizontalAlignment="Stretch"
-                        Background="{DynamicResource BackgroundBrush}"
-                        BorderThickness="0"
-                        Tag="{Binding}">
-                        <Label.Content>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            Foreground="{DynamicResource DevKitTextBrush}"
+                            Text="指令库" />
+
+                        <Border
+                            Grid.Column="1"
+                            Margin="8,0,0,0"
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource DevKitAccent12Brush}"
+                            CornerRadius="10">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource DevKitAccentBrush}"
+                                Text="{Binding ExCommandCollection.Count, FallbackValue=0}" />
+                        </Border>
+
+                        <Border
+                            Grid.Column="2"
+                            Height="1"
+                            Margin="8,0"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource DevKitBorderBrush}" />
+
+                        <TextBlock
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource DevKitTextMutedBrush}"
+                            Text="双击加入队列" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <ListBox
+                            x:Name="ExCommandListBox"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ItemsSource="{Binding ExCommandCollection}"
+                            ScrollViewer.CanContentScroll="False"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock
+                                                FontSize="13"
+                                                Foreground="{DynamicResource DevKitTextBrush}"
+                                                Text="{Binding Value}" />
+
+                                            <TextBlock
+                                                Margin="0,4,0,0"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="{Binding Memo}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border
+                                                    x:Name="CmdItemBorder"
+                                                    Margin="0,0,0,4"
+                                                    Padding="8"
+                                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                                    BorderThickness="2"
+                                                    CornerRadius="8">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="CmdItemBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="CmdItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+
+                            <!--  双击  -->
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="MouseDoubleClick">
+                                    <b:InvokeCommandAction Command="{Binding ExCommandDoubleClickCommand}" CommandParameter="{Binding SelectedItem, ElementName=ExCommandListBox}" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
+                        </ListBox>
+
+                        <!--  空态：无指令时覆盖显示  -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ExCommandCollection.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Rectangle
+                                Fill="{StaticResource DevKitSurfaceBrush}"
+                                Stroke="{StaticResource DevKitBorderStrongBrush}"
+                                StrokeDashArray="3 3" />
+
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="14"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="暂无扩展指令" />
 
                                 <TextBlock
-                                    Grid.Column="0"
-                                    Margin="5,0"
-                                    FontFamily="微软雅黑"
-                                    Foreground="{StaticResource PrimaryBrush}"
-                                    Text="{Binding}" />
+                                    Margin="0,8,0,0"
+                                    HorizontalAlignment="Center"
+                                    FontSize="14"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="请先新增扩展指令" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
 
-                                <Button
-                                    Grid.Column="1"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="5,0,0,0"
-                                    VerticalAlignment="Center"
-                                    Background="{StaticResource DevKitAccentBrush}"
-                                    BorderThickness="0"
-                                    Command="{Binding DataContext.DeleteSelectedItemCommand, ElementName=SelectedCommandListBox}"
-                                    CommandParameter="{Binding Path=Tag, ElementName=DeleteSelectedCommandButton}"
-                                    Content="&#xe692;"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="8"
-                                    Foreground="White"
-                                    Style="{DynamicResource ButtonDanger.Small}" />
-                            </Grid>
-                        </Label.Content>
-                    </Label>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+            <Border
+                Grid.Column="1"
+                Margin="8,16,16,16"
+                Background="White"
+                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
 
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
+                    <Grid Grid.Row="0" Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="Margin" Value="5" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <Border x:Name="ListBoxItemBorder">
-                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            Foreground="{DynamicResource DevKitTextBrush}"
+                            Text="执行队列" />
 
-        <Grid Grid.Row="3" Margin="0,20,0,0">
+                        <Border
+                            Grid.Column="1"
+                            Margin="8,0"
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource DevKitAccent12Brush}"
+                            CornerRadius="10">
+                            <TextBlock
+                                FontSize="12"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource DevKitAccentBrush}"
+                                Text="{Binding SelectedCommands.Count, FallbackValue=0}" />
+                        </Border>
+
+                        <Border
+                            Grid.Column="2"
+                            Height="1"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource DevKitBorderBrush}" />
+
+                        <TextBlock
+                            Grid.Column="3"
+                            Margin="8,0"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource DevKitTextMutedBrush}"
+                            Text="拖动可调整顺序" />
+
+                        <Button
+                            Grid.Column="4"
+                            Command="{Binding ClearSelectedCommand}"
+                            Content="清空"
+                            Style="{StaticResource DangerOutlineButtonStyle}" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <ListBox
+                            x:Name="SelectedCommandListBox"
+                            AllowDrop="True"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            DragOver="SelectedCommandListBox_DragOver"
+                            Drop="SelectedCommandListBox_Drop"
+                            ItemsSource="{Binding SelectedCommands}"
+                            PreviewMouseLeftButtonDown="SelectedCommandListBox_PreviewMouseLeftButtonDown"
+                            PreviewMouseMove="SelectedCommandListBox_PreviewMouseMove"
+                            ScrollViewer.CanContentScroll="False"
+                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Label
+                                        x:Name="DeleteSelectedCommandButton"
+                                        HorizontalAlignment="Stretch"
+                                        BorderThickness="0"
+                                        Tag="{Binding}">
+                                        <Label.Content>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock
+                                                    Grid.Column="0"
+                                                    Margin="5,0"
+                                                    FontFamily="微软雅黑"
+                                                    Text="{Binding}" />
+
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Width="16"
+                                                    Height="16"
+                                                    Margin="5,0,0,0"
+                                                    VerticalAlignment="Center"
+                                                    Background="{StaticResource DevKitAccentBrush}"
+                                                    BorderThickness="0"
+                                                    Command="{Binding DataContext.DeleteSelectedItemCommand, ElementName=SelectedCommandListBox}"
+                                                    CommandParameter="{Binding Path=Tag, ElementName=DeleteSelectedCommandButton}"
+                                                    Content="&#xe692;"
+                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                    FontSize="8"
+                                                    Foreground="White" />
+                                            </Grid>
+                                        </Label.Content>
+                                    </Label>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="5" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                <Border x:Name="ListBoxItemBorder">
+                                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+
+                        <!--  空态：无指令时覆盖显示  -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedCommands.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Rectangle
+                                Fill="{StaticResource DevKitSurfaceBrush}"
+                                Stroke="{StaticResource DevKitBorderStrongBrush}"
+                                StrokeDashArray="3 3" />
+
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    FontSize="14"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="暂无执行计划" />
+
+                                <TextBlock
+                                    Margin="0,8,0,0"
+                                    HorizontalAlignment="Center"
+                                    FontSize="14"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="请双击左侧扩展指令" />
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" Background="White">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
@@ -143,36 +531,92 @@
 
             <TextBlock
                 Grid.Column="0"
+                Margin="16,0,0,0"
                 VerticalAlignment="Center"
-                Text="时间间隔（毫秒）" />
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="执行间隔" />
 
             <TextBox
                 Grid.Column="1"
-                Width="60"
+                Width="64"
+                Height="32"
+                Margin="8,10"
+                HorizontalContentAlignment="Center"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
-                FontSize="14"
-                MaxLength="5"
-                Text="{Binding Interval}" />
+                Style="{StaticResource FieldTextBoxStyle}"
+                Text="{Binding Interval, FallbackValue=1000}" />
 
-            <UniformGrid
+            <TextBlock
                 Grid.Column="2"
-                Margin="50,0,0,0"
-                Columns="2"
-                Rows="1">
-                <Button
-                    Margin="0,0,5,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding SaveScriptCommand}"
-                    Content="确定"
-                    Style="{StaticResource ButtonPrimary}" />
+                VerticalAlignment="Center"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="ms / 条" />
 
-                <Button
-                    Margin="5,0,0,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding CancelDialogCommand}"
-                    Content="取消"
-                    Style="{StaticResource ButtonWarning}" />
-            </UniformGrid>
+            <TextBlock
+                Grid.Column="3"
+                Margin="0,0,16,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="{Binding TotalTime, StringFormat={}预计总耗时 {0} s, FallbackValue='预计总耗时 1.0 s'}" />
         </Grid>
+
+        <Border
+            Grid.Row="2"
+            BorderBrush="{StaticResource DevKitBorderBrush}"
+            BorderThickness="1" />
+
+        <UniformGrid
+            Grid.Row="3"
+            Background="White"
+            Columns="2"
+            Rows="1">
+            <Button
+                Margin="16,16,8,16"
+                Command="{Binding CancelDialogCommand}"
+                Style="{StaticResource CompactButtonStyle}">
+                <Button.Content>
+                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe668;" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="13"
+                            Text="取消" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button Margin="8,16,16,16" Command="{Binding ConfirmDialogCommand}">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                        <Setter Property="IsEnabled" Value="True" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedCommands.Count}" Value="0">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Button.Content>
+                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe67b;" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="13"
+                            Text="确定" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </UniformGrid>
     </Grid>
 </UserControl>
