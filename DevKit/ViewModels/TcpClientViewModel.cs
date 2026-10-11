@@ -243,11 +243,12 @@ namespace DevKit.ViewModels
                 if (SetProperty(ref _isSendHexSelected, value))
                 {
                     RaisePropertyChanged(nameof(IsSendAsciiSelected));
-                    
-                    // TODO 
+                    RaisePropertyChanged(nameof(PlaceHolderText));
                 }
             }
         }
+        
+        public string PlaceHolderText => IsSendAsciiSelected ? "例如：AT + RST" : "例如：aa550101，点格式化 → AA 55 01 01";
         
         public bool IsSendAsciiSelected
         {

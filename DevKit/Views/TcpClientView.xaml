@@ -1379,7 +1379,7 @@
                                     FontSize="12"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     IsHitTestVisible="False"
-                                    Text="输入要发送的内容；16 进制模式下使用空格分隔，例如 AA 55 01 01">
+                                    Text="{Binding PlaceHolderText}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Visibility" Value="Collapsed" />
@@ -1435,8 +1435,8 @@
                                                 Command="{Binding SendRadioChangedCommand}"
                                                 CommandParameter="1"
                                                 Content="ASCII"
-                                                IsChecked="{Binding IsSendAsciiSelected}"
                                                 GroupName="SendEncoding"
+                                                IsChecked="{Binding IsSendAsciiSelected}"
                                                 Style="{StaticResource SegmentRadioStyle}"
                                                 ToolTip="按 ASCII/UTF8 文本发送" />
                                         </StackPanel>
