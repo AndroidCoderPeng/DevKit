@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using DevKit.Cache;
 
 namespace DevKit.Dialogs
 {
@@ -45,20 +46,33 @@ namespace DevKit.Dialogs
 
         private void SelectedCommandListBox_Drop(object sender, DragEventArgs e)
         {
-            if (!(sender is ListBox listBox)) return;
-            var targetItem = e.OriginalSource as DependencyObject;
-            if (targetItem == null) return;
-            var targetContainer = ItemsControl.ContainerFromElement(listBox, targetItem) as ListBoxItem;
-            if (targetContainer != null && _draggedItem != null && _draggedItem != targetContainer.Content)
+            if (!(sender is ListBox listBox))
             {
-                if (!(listBox.ItemsSource is IList items)) return;
-                var oldIndex = items.IndexOf(_draggedItem);
-                var newIndex = items.IndexOf(targetContainer.Content);
+                return;
+            }
 
-                if (oldIndex >= 0 && newIndex >= 0)
+            if (!(e.OriginalSource is DependencyObject targetItem))
+            {
+                return;
+            }
+
+            var targetContainer = (ListBoxItem)ItemsControl.ContainerFromElement(listBox, targetItem);
+            if (targetContainer != null && _draggedItem != null &&
+                !ReferenceEquals(_draggedItem, targetContainer.Content) &&
+                listBox.ItemsSource is ObservableCollection<ExCommandConfig> items)
+            {
+                var draggedCommand = (ExCommandConfig)_draggedItem;
+                var targetCommand = (ExCommandConfig)targetContainer.Content;
+
+                if (draggedCommand != null && targetCommand != null)
                 {
-                    items.Remove(_draggedItem);
-                    items.Insert(newIndex, _draggedItem);
+                    var oldIndex = items.IndexOf(draggedCommand);
+                    var newIndex = items.IndexOf(targetCommand);
+
+                    if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex)
+                    {
+                        items.Move(oldIndex, newIndex);
+                    }
                 }
             }
 

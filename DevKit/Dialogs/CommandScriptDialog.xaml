@@ -458,10 +458,9 @@
                     </Grid>
 
                     <Grid Grid.Row="1" Margin="8,0">
-                        <!--  设置足够大的 AlternationCount  -->
                         <ListBox
                             AllowDrop="True"
-                            AlternationCount="2147483647"
+                            AlternationCount="{Binding SelectedCommands.Count}"
                             Background="Transparent"
                             BorderThickness="0"
                             DragOver="SelectedCommandListBox_DragOver"
@@ -538,7 +537,7 @@
 
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
-                                    <Setter Property="Cursor" Value="ScrollNS" />
+                                    <Setter Property="Cursor" Value="Hand" />
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate TargetType="ListBoxItem">
