@@ -70,15 +70,6 @@
         console.log("取消");
     });
 
-    /* ---------- 快捷键：Ctrl + Enter 保存 / Esc 取消 ---------- */
-    document.addEventListener("keydown", function (e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-            if (!btnSave.disabled) btnSave.click();
-        } else if (e.key === "Escape") {
-            document.getElementById("btnCancel").click();
-        }
-    });
-
     /* ---------- 演示状态切换 ---------- */
     var demoTitlebar = document.getElementById("demoTitlebar");
 

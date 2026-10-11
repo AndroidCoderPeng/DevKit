@@ -133,7 +133,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    padding: 18px 18px 4px;
+    padding: 18px 18px 16px;
 }
 
 .form-row {
@@ -309,14 +309,9 @@ body {
     border-top: 1px solid var(--border);
 }
 
-.footer .hint {
+/* 两个按钮等宽平分整行，视觉居中平衡 */
+.footer .btn {
     flex: 1;
-    min-width: 0;
-    font-size: 11px;
-    color: var(--text-3);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* ================= 按钮 ================= */
@@ -364,14 +359,4 @@ body {
     color: #fff;
     background: #1c6ae0;
     border-color: #1c6ae0;
-}
-
-.btn-primary kbd {
-    padding: 1px 5px;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: rgba(255, 255, 255, .82);
-    background: rgba(255, 255, 255, .18);
-    border: 1px solid rgba(255, 255, 255, .28);
-    border-radius: 5px;
 }
