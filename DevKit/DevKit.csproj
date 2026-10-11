@@ -173,6 +173,7 @@
     <Compile Include="Converters\MessageTagBgConverter.cs" />
     <Compile Include="Converters\MessageTagConverter.cs" />
     <Compile Include="Converters\MessageTypeConverter.cs" />
+    <Compile Include="Converters\SequenceNumberConverter.cs" />
     <Compile Include="DataService\AppDataServiceImpl.cs" />
     <Compile Include="DataService\IAppDataService.cs" />
     <Compile Include="Dialogs\AndroidLogcatDialog.xaml.cs">
