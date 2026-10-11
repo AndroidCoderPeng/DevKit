@@ -60,6 +60,7 @@
         <!--  普通按钮：白底灰框，hover 蓝  -->
         <Style x:Key="CompactButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -281,7 +282,7 @@
                 </Button>
             </Grid>
 
-            <TextBox Grid.Row="1" Text="{Binding ExCommandValue}">
+            <TextBox Grid.Row="1" Text="{Binding ExCommandValue, UpdateSourceTrigger=PropertyChanged}">
                 <TextBox.Style>
                     <Style TargetType="TextBox">
                         <Setter Property="Height" Value="102" />
@@ -441,7 +442,6 @@
             Rows="1">
             <Button
                 Margin="0,0,8,0"
-                HorizontalAlignment="Stretch"
                 Command="{Binding CancelDialogCommand}"
                 Style="{StaticResource CompactButtonStyle}">
                 <Button.Content>
@@ -460,11 +460,17 @@
                 </Button.Content>
             </Button>
 
-            <Button
-                Margin="8,0,0,0"
-                HorizontalAlignment="Stretch"
-                Command="{Binding CommandSaveCommand}"
-                Style="{StaticResource PrimaryCompactButtonStyle}">
+            <Button Margin="8,0,0,0" Command="{Binding CommandSaveCommand}">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                        <Setter Property="IsEnabled" Value="True" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ExCommandValue.Length}" Value="0">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
                 <Button.Content>
                     <StackPanel Margin="12,0" Orientation="Horizontal">
                         <TextBlock
