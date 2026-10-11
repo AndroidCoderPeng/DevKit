@@ -1155,7 +1155,7 @@
                                             <TextBlock
                                                 FontFamily="/DevKit;component/Fonts/#iconfont"
                                                 FontSize="16"
-                                                Text="&#xe692;" />
+                                                Text="&#xe668;" />
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
