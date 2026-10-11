@@ -1462,7 +1462,7 @@
                                         Width="64"
                                         Height="32"
                                         HorizontalContentAlignment="Center"
-                                        Text="{Binding CommandInterval}">
+                                        Text="{Binding Interval}">
                                         <TextBox.Style>
                                             <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
                                                 <Setter Property="IsEnabled" Value="True" />

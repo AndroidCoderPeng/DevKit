@@ -270,12 +270,12 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _isLoopSendEnabled, value);
         }
 
-        private string _commandInterval = "1000";
+        private string _interval = "1000";
 
-        public string CommandInterval
+        public string Interval
         {
-            get => _commandInterval;
-            set => SetProperty(ref _commandInterval, value);
+            get => _interval;
+            set => SetProperty(ref _interval, value);
         }
 
         #endregion
@@ -296,10 +296,6 @@ namespace DevKit.ViewModels
         public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
         public DelegateCommand<string> SendRadioChangedCommand { set; get; }
         public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
-
-        /// <summary>
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
         public DelegateCommand OpenScriptCommand { set; get; }
 
         #endregion
@@ -477,8 +473,27 @@ namespace DevKit.ViewModels
                 }
             });
 
-            /////////////////////////////////////////////////////////////////////////////////
-            OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
+            OpenScriptCommand = new DelegateCommand(() =>
+            {
+                var dialogParameters = new DialogParameters
+                {
+                    { "ExCommands", _exCommandCollection }
+                };
+                dialogService.ShowDialog("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+                {
+                    if (result.Result != ButtonResult.OK)
+                    {
+                        return;
+                    }
+
+                    // var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
+                    // var interval = result.Parameters.GetValue<string>("Interval");
+                    // _commandEnumerator = commands.GetEnumerator();
+                    // _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                    // _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                    // _scriptTimer.Start();
+                });
+            });
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -765,8 +780,7 @@ namespace DevKit.ViewModels
 
         private void StartLoopSending()
         {
-            if (!int.TryParse(_commandInterval, NumberStyles.None, CultureInfo.InvariantCulture, out var intervalMs) ||
-                intervalMs <= 0)
+            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
             {
                 MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
@@ -789,7 +803,7 @@ namespace DevKit.ViewModels
 
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
-            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(intervalMs);
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(ms);
             _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
             _loopSendCommandTimer.Start();
         }
@@ -826,37 +840,6 @@ namespace DevKit.ViewModels
             {
                 _isLoopSendInProgress = false;
             }
-        }
-
-        /// <summary>
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
-        private void OpenScriptDialog()
-        {
-            // var dialogParameters = new DialogParameters();
-            //
-            // using (var dataBase = new DataBaseConnection())
-            // {
-            //     var commandCache = dataBase.Table<ExCommandCache>()
-            //         .Where(x => x.ClientType == ClientType)
-            //         .ToList();
-            //     dialogParameters.Add("ExCommandCache", commandCache);
-            // }
-            //
-            // _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
-            // {
-            //     if (result.Result != ButtonResult.OK)
-            //     {
-            //         return;
-            //     }
-            //
-            //     var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
-            //     var interval = result.Parameters.GetValue<string>("Interval");
-            //     _commandEnumerator = commands.GetEnumerator();
-            //     _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-            //     _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-            //     _scriptTimer.Start();
-            // });
         }
     }
 }

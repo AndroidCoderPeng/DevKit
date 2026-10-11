@@ -14,6 +14,30 @@ namespace DevKit.ViewModels
 
         public event Action<IDialogResult> RequestClose;
 
+        private void CancelDialog()
+        {
+            RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
+        }
+
+        public bool CanCloseDialog()
+        {
+            return true;
+        }
+
+        public void OnDialogClosed()
+        {
+        }
+
+        public void OnDialogOpened(IDialogParameters parameters)
+        {
+            _commands = parameters.GetValue<List<ExCommandConfig>>("ExCommands");
+            foreach (var exCmd in _commands)
+            {
+                // var command = $"【{exCmd.Annotation}】{exCmd.CommandValue}";
+                // ExCommandCaches.Add(command);
+            }
+        }
+        
         #region VM
 
         private ObservableCollection<string> _exCommandCaches = new ObservableCollection<string>();
@@ -63,7 +87,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private List<ExCommandCache> _commandCache;
+        private List<ExCommandConfig> _commands;
 
         public CommandScriptDialogViewModel()
         {
@@ -75,70 +99,46 @@ namespace DevKit.ViewModels
 
         private void OnListBoxItemSelected(object index)
         {
-            if (index == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var command = _commandCache[(int)index];
-                var annotation = command.Annotation;
-                if (!SelectedCommands.Contains(annotation))
-                {
-                    SelectedCommands.Add(annotation);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            // if (index == null)
+            // {
+            //     return;
+            // }
+            //
+            // try
+            // {
+            //     var command = _commands[(int)index];
+            //     var annotation = command.Annotation;
+            //     if (!SelectedCommands.Contains(annotation))
+            //     {
+            //         SelectedCommands.Add(annotation);
+            //     }
+            // }
+            // catch (Exception e)
+            // {
+            //     Console.WriteLine(e);
+            // }
         }
 
         private void OnSelectedItemDeleted(string annotation)
         {
-            var find = _commandCache.Find(x => x.Annotation == annotation);
-            SelectedCommands.Remove(find.Annotation);
+            // var find = _commands.Find(x => x.Annotation == annotation);
+            // SelectedCommands.Remove(find.Annotation);
         }
         
         private void SaveScript()
         {
-            var result = new List<string>();
-            foreach (var str in _selectedCommands)
-            {
-                var command = _commandCache.Find(x => x.Annotation.Equals(str));
-                result.Add(command.CommandValue);
-            }
-            var dialogParameters = new DialogParameters
-            {
-                { "SelectedCommands", result },
-                { "Interval", _interval }
-            };
-            RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
-        }
-
-        private void CancelDialog()
-        {
-            RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            _commandCache = parameters.GetValue<List<ExCommandCache>>("ExCommandCache");
-            foreach (var cache in _commandCache)
-            {
-                var command = $"【{cache.Annotation}】{cache.CommandValue}";
-                ExCommandCaches.Add(command);
-            }
+            // var result = new List<string>();
+            // foreach (var str in _selectedCommands)
+            // {
+            //     var command = _commands.Find(x => x.Annotation.Equals(str));
+            //     result.Add(command.CommandValue);
+            // }
+            // var dialogParameters = new DialogParameters
+            // {
+            //     { "SelectedCommands", result },
+            //     { "Interval", _interval }
+            // };
+            // RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
         }
     }
 }
