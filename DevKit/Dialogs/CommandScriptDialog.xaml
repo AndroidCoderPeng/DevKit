@@ -467,6 +467,7 @@
                             Drop="SelectedCommandListBox_Drop"
                             ItemsSource="{Binding SelectedCommands}"
                             PreviewMouseLeftButtonDown="SelectedCommandListBox_PreviewMouseLeftButtonDown"
+                            PreviewMouseLeftButtonUp="SelectedCommandListBox_PreviewMouseLeftButtonUp"
                             PreviewMouseMove="SelectedCommandListBox_PreviewMouseMove"
                             ScrollViewer.CanContentScroll="False"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"

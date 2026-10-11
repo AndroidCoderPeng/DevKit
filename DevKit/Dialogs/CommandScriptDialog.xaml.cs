@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -8,7 +9,7 @@ namespace DevKit.Dialogs
 {
     public partial class CommandScriptDialog : UserControl
     {
-        private object _draggedItem;
+        private ExCommandConfig _draggedCommand;
         private Point _dragStartPoint;
 
         public CommandScriptDialog()
@@ -18,65 +19,87 @@ namespace DevKit.Dialogs
 
         private void SelectedCommandListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!(sender is ListBox listBox)) return;
-            _dragStartPoint = e.GetPosition(listBox);
-            if (!(e.OriginalSource is DependencyObject originalSource)) return;
-            if (ItemsControl.ContainerFromElement(listBox, originalSource) is ListBoxItem item)
-            {
-                _draggedItem = item.Content;
-            }
+            _draggedCommand = null;
+
+            if (!(sender is ListBox listBox) ||
+                !(e.OriginalSource is DependencyObject originalSource))
+                return;
+
+            var item = ItemsControl.ContainerFromElement(listBox, originalSource) as ListBoxItem;
+            _draggedCommand = item?.Content as ExCommandConfig;
+            if (_draggedCommand != null)
+                _dragStartPoint = e.GetPosition(listBox);
         }
 
         private void SelectedCommandListBox_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (!(sender is ListBox listBox)) return;
-            if (e.LeftButton != MouseButtonState.Pressed || _draggedItem == null) return;
+            if (!(sender is ListBox listBox) ||
+                e.LeftButton != MouseButtonState.Pressed ||
+                _draggedCommand == null)
+                return;
+
             var currentPoint = e.GetPosition(listBox);
-            if ((currentPoint - _dragStartPoint).Length > SystemParameters.MinimumHorizontalDragDistance)
+            var horizontalDistance = Math.Abs(currentPoint.X - _dragStartPoint.X);
+            var verticalDistance = Math.Abs(currentPoint.Y - _dragStartPoint.Y);
+            if (horizontalDistance < SystemParameters.MinimumHorizontalDragDistance &&
+                verticalDistance < SystemParameters.MinimumVerticalDragDistance)
+                return;
+
+            var draggedCommand = _draggedCommand;
+            try
             {
-                DragDrop.DoDragDrop(listBox, _draggedItem, DragDropEffects.Move);
+                var data = new DataObject(typeof(ExCommandConfig), draggedCommand);
+                DragDrop.DoDragDrop(listBox, data, DragDropEffects.Move);
+            }
+            finally
+            {
+                _draggedCommand = null;
             }
         }
 
         private void SelectedCommandListBox_DragOver(object sender, DragEventArgs e)
         {
-            e.Effects = DragDropEffects.Move;
+            if (sender is ListBox listBox &&
+                listBox.ItemsSource is ObservableCollection<ExCommandConfig> items &&
+                e.Data.GetDataPresent(typeof(ExCommandConfig)) &&
+                items.Contains(e.Data.GetData(typeof(ExCommandConfig)) as ExCommandConfig))
+            {
+                e.Effects = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+
             e.Handled = true;
         }
 
         private void SelectedCommandListBox_Drop(object sender, DragEventArgs e)
         {
-            if (!(sender is ListBox listBox))
-            {
+            e.Handled = true;
+
+            if (!(sender is ListBox listBox) ||
+                !(listBox.ItemsSource is ObservableCollection<ExCommandConfig> items) ||
+                !e.Data.GetDataPresent(typeof(ExCommandConfig)) ||
+                !(e.Data.GetData(typeof(ExCommandConfig)) is ExCommandConfig draggedCommand) ||
+                !(e.OriginalSource is DependencyObject targetItem))
                 return;
-            }
 
-            if (!(e.OriginalSource is DependencyObject targetItem))
-            {
+            var targetContainer = ItemsControl.ContainerFromElement(listBox, targetItem) as ListBoxItem;
+            var targetCommand = targetContainer?.Content as ExCommandConfig;
+            if (targetCommand == null || ReferenceEquals(draggedCommand, targetCommand))
                 return;
-            }
 
-            var targetContainer = (ListBoxItem)ItemsControl.ContainerFromElement(listBox, targetItem);
-            if (targetContainer != null && _draggedItem != null &&
-                !ReferenceEquals(_draggedItem, targetContainer.Content) &&
-                listBox.ItemsSource is ObservableCollection<ExCommandConfig> items)
-            {
-                var draggedCommand = (ExCommandConfig)_draggedItem;
-                var targetCommand = (ExCommandConfig)targetContainer.Content;
+            var oldIndex = items.IndexOf(draggedCommand);
+            var newIndex = items.IndexOf(targetCommand);
 
-                if (draggedCommand != null && targetCommand != null)
-                {
-                    var oldIndex = items.IndexOf(draggedCommand);
-                    var newIndex = items.IndexOf(targetCommand);
+            if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex)
+                items.Move(oldIndex, newIndex);
+        }
 
-                    if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex)
-                    {
-                        items.Move(oldIndex, newIndex);
-                    }
-                }
-            }
-
-            _draggedItem = null;
+        private void SelectedCommandListBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _draggedCommand = null;
         }
     }
 }
