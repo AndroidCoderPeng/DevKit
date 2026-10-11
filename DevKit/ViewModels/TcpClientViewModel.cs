@@ -133,6 +133,22 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _exCommandCollection, value);
         }
 
+        private string _toastMessage;
+
+        public string ToastMessage
+        {
+            get => _toastMessage;
+            set => SetProperty(ref _toastMessage, value);
+        }
+
+        private bool _isToastVisible;
+
+        public bool IsToastVisible
+        {
+            get => _isToastVisible;
+            set => SetProperty(ref _isToastVisible, value);
+        }
+        
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -190,19 +206,19 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ConnectServerCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
+        public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
+        public DelegateCommand<string> QuickSendCommand { set; get; }
+        public DelegateCommand<string> EditExCommand { set; get; }
+        public DelegateCommand<string> DeleteExCommand { set; get; }
+        public DelegateCommand<string> CopyExCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
         public DelegateCommand SaveCommunicationCommand { set; get; }
-
         public DelegateCommand ClearCommunicationCommand { set; get; }
-        public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand SendCommand { set; get; }
-        public DelegateCommand<string> CopyCommand { set; get; }
-        public DelegateCommand<object> EditCommand { set; get; }
-        public DelegateCommand<object> DeleteCommand { set; get; }
         public DelegateCommand OpenScriptCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
@@ -231,6 +247,7 @@ namespace DevKit.ViewModels
         /// 每次持久化都整体写回，杜绝快照互相覆盖
         /// </summary>
         private readonly TcpConfig _config;
+        private DispatcherTimer _toastTimer;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -266,16 +283,38 @@ namespace DevKit.ViewModels
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
                 });
             });
+            
+            ExCommandItemSelectedCommand = new DelegateCommand<string>(commandValue =>
+            {
+                UserInputText = commandValue;
+            });
 
+            QuickSendCommand = new DelegateCommand<string>(commandValue =>
+            {
+                // TODO : 发送消息逻辑
+            });
+            
+            EditExCommand = new DelegateCommand<string>(commandValue =>
+            {
+                // TODO : 编辑扩展指令逻辑
+            });
+            
+            DeleteExCommand = new DelegateCommand<string>(commandValue =>
+            {
+                // TODO : 删除扩展指令逻辑
+            });
+            
+            CopyExCommand = new DelegateCommand<string>(commandValue =>
+            {
+                Clipboard.SetText(commandValue);
+                ShowToast("已复制到剪贴板");
+            });
+            
             /////////////////////////////////////////////////////////////////////////////////
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
-            DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
             CopyLogCommand = new DelegateCommand<string>(CopyLog);
             SendCommand = new DelegateCommand(OnMessageSend);
-            CopyCommand = new DelegateCommand<string>(OnCopy);
-            EditCommand = new DelegateCommand<object>(OnEdit);
-            DeleteCommand = new DelegateCommand<object>(OnDelete);
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
@@ -459,6 +498,25 @@ namespace DevKit.ViewModels
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, _config);
         }
 
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
+        
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -504,11 +562,6 @@ namespace DevKit.ViewModels
             Logs.Clear();
         }
 
-        private void OnDataGridItemSelected(string command)
-        {
-            UserInputText = command;
-        }
-
         private void CopyLog(string log)
         {
             Clipboard.SetText(log);
@@ -517,11 +570,6 @@ namespace DevKit.ViewModels
         private void OnMessageSend()
         {
             SendMessage(_userInputText);
-        }
-
-        private void OnCopy(string command)
-        {
-            Clipboard.SetText(command);
         }
 
         private void OnEdit(object id)
@@ -579,30 +627,30 @@ namespace DevKit.ViewModels
 
         private void OpenScriptDialog()
         {
-            var dialogParameters = new DialogParameters();
-
-            using (var dataBase = new DataBaseConnection())
-            {
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                dialogParameters.Add("ExCommandCache", commandCache);
-            }
-
-            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
-            {
-                if (result.Result != ButtonResult.OK)
-                {
-                    return;
-                }
-
-                var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
-                var interval = result.Parameters.GetValue<string>("Interval");
-                _commandEnumerator = commands.GetEnumerator();
-                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                _scriptTimer.Start();
-            });
+            // var dialogParameters = new DialogParameters();
+            //
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     var commandCache = dataBase.Table<ExCommandCache>()
+            //         .Where(x => x.ClientType == ClientType)
+            //         .ToList();
+            //     dialogParameters.Add("ExCommandCache", commandCache);
+            // }
+            //
+            // _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+            // {
+            //     if (result.Result != ButtonResult.OK)
+            //     {
+            //         return;
+            //     }
+            //
+            //     var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
+            //     var interval = result.Parameters.GetValue<string>("Interval");
+            //     _commandEnumerator = commands.GetEnumerator();
+            //     _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+            //     _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+            //     _scriptTimer.Start();
+            // });
         }
 
         private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)

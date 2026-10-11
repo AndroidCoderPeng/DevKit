@@ -911,21 +911,21 @@
                                                     Visibility="Collapsed">
                                                     <Button
                                                         Command="{Binding DataContext.QuickSendCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding Value}"
+                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
                                                         Content="&#xe67b;"
                                                         Style="{StaticResource CmdSendButtonStyle}"
                                                         ToolTip="立即发送" />
 
                                                     <Button
-                                                        Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding Value}"
+                                                        Command="{Binding DataContext.EditExCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
                                                         Content="&#xe6d4;"
                                                         Style="{StaticResource CmdEditButtonStyle}"
                                                         ToolTip="编辑" />
 
                                                     <Button
-                                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding Value}"
+                                                        Command="{Binding DataContext.DeleteExCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
                                                         Content="&#xe666;"
                                                         Style="{StaticResource CmdDeleteButtonStyle}"
                                                         ToolTip="删除" />
@@ -973,15 +973,15 @@
                                     <!--  点击整行填入输入框  -->
                                     <b:Interaction.Triggers>
                                         <b:EventTrigger EventName="SelectionChanged">
-                                            <b:InvokeCommandAction Command="{Binding DataGridItemSelectedCommand}" CommandParameter="{Binding SelectedItem.CommandValue, ElementName=ExCommandListBox}" />
+                                            <b:InvokeCommandAction Command="{Binding ExCommandItemSelectedCommand}" CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}" />
                                         </b:EventTrigger>
                                     </b:Interaction.Triggers>
 
                                     <ListBox.ContextMenu>
                                         <ContextMenu Style="{StaticResource CmdContextMenuStyle}">
                                             <MenuItem
-                                                Command="{Binding CopyCommand}"
-                                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(cache:ExCommandCache.CommandValue), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                Command="{Binding CopyExCommand}"
+                                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(cache:ExCommandConfig.Value), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                 Header="复制"
                                                 Style="{StaticResource CmdMenuItemStyle}">
                                                 <MenuItem.Icon>
@@ -1536,6 +1536,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
             <TextBlock
@@ -1551,8 +1552,32 @@
                 </TextBlock.Text>
             </TextBlock>
 
-            <TextBlock
+            <Border
                 Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Panel.ZIndex="999"
+                Background="{StaticResource DevKitToastBrush}"
+                CornerRadius="16">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock
+                    Margin="18,9"
+                    FontSize="13"
+                    Foreground="White"
+                    Text="{Binding ToastMessage}" />
+            </Border>
+
+            <TextBlock
+                Grid.Column="2"
                 Margin="16"
                 HorizontalAlignment="Right"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
