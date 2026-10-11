@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -149,6 +151,26 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _isToastVisible, value);
         }
 
+        private string _userInputText = string.Empty;
+
+        public string UserInputText
+        {
+            set
+            {
+                _userInputText = value;
+                RaisePropertyChanged();
+            }
+            get => _userInputText;
+        }
+
+        private string _lastDataTime = string.Empty;
+
+        public string LastDataTime
+        {
+            get => _lastDataTime;
+            set => SetProperty(ref _lastDataTime, value);
+        }
+
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
@@ -176,18 +198,6 @@ namespace DevKit.ViewModels
             get => _commandInterval;
         }
 
-        private string _userInputText = string.Empty;
-
-        public string UserInputText
-        {
-            set
-            {
-                _userInputText = value;
-                RaisePropertyChanged();
-            }
-            get => _userInputText;
-        }
-
         private bool _isHexSelected = true;
 
         public bool IsHexSelected
@@ -207,7 +217,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ConnectServerCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
-        public DelegateCommand<string> QuickSendCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> QuickSendCommand { set; get; }
         public DelegateCommand<ExCommandConfig> EditExCommand { set; get; }
         public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
         public DelegateCommand<string> CopyExCommand { set; get; }
@@ -229,7 +239,6 @@ namespace DevKit.ViewModels
 
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
-        private IEnumerator<string> _commandEnumerator;
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,10 +293,7 @@ namespace DevKit.ViewModels
 
             ExCommandItemSelectedCommand = new DelegateCommand<string>(value => { UserInputText = value; });
 
-            QuickSendCommand = new DelegateCommand<string>(value =>
-            {
-                // TODO : 发送消息逻辑
-            });
+            QuickSendCommand = new DelegateCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
 
             EditExCommand = new DelegateCommand<ExCommandConfig>(command =>
             {
@@ -333,11 +339,8 @@ namespace DevKit.ViewModels
                 ShowToast("已复制到剪贴板");
             });
 
-            SendMessageCommand = new DelegateCommand(() =>
-            {
-                // TODO : 发送消息逻辑
-            });
-            
+            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+
             /////////////////////////////////////////////////////////////////////////////////
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
@@ -521,6 +524,84 @@ namespace DevKit.ViewModels
 
             _toastTimer.Stop();
             _toastTimer.Start();
+        }
+
+        private async Task QuickSendAsync(ExCommandConfig command)
+        {
+            if (command == null || string.IsNullOrWhiteSpace(command.Value))
+            {
+                MessageBox.Show("指令内容为空", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var transport = _transport;
+            if (transport == null)
+            {
+                MessageBox.Show("请先连接 TCP 服务器", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            byte[] payload;
+            if (command.Type == "HEX")
+            {
+                var tokens = command.Value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                var bytes = new List<byte>();
+                foreach (var token in tokens)
+                {
+                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
+                    {
+                        MessageBox.Show("HEX 指令格式无效", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    bytes.Add(value);
+                }
+
+                payload = bytes.ToArray();
+            }
+            else if (command.Type == "ASCII")
+            {
+                payload = Encoding.UTF8.GetBytes(command.Value);
+            }
+            else
+            {
+                MessageBox.Show($"不支持的指令类型：{command.Type}", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                await transport.SendAsync(payload, _transportCts?.Token ?? CancellationToken.None);
+                var time = DateTime.Now.ToString("HH:mm:ss.fff");
+                Logs.Add(new SocketMessage
+                {
+                    Content = command.Value,
+                    Time = time,
+                    IsSend = 1
+                });
+                LastDataTime = time;
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task SendInputAsync()
+        {
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            await QuickSendAsync(new ExCommandConfig
+            {
+                Type = _isHexSelected ? "HEX" : "ASCII",
+                Value = value,
+                Memo = "用户输入"
+            });
         }
 
         /// <summary>

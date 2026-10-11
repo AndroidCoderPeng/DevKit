@@ -911,7 +911,7 @@
                                                     Visibility="Collapsed">
                                                     <Button
                                                         Command="{Binding DataContext.QuickSendCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding SelectedItem.Value, ElementName=ExCommandListBox}"
+                                                        CommandParameter="{Binding}"
                                                         Content="&#xe67b;"
                                                         Style="{StaticResource CmdSendButtonStyle}"
                                                         ToolTip="立即发送" />
