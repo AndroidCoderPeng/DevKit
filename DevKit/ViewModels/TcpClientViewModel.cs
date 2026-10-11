@@ -486,8 +486,9 @@ namespace DevKit.ViewModels
                         return;
                     }
 
-                    // var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
-                    // var interval = result.Parameters.GetValue<string>("Interval");
+                    var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
+                    var interval = result.Parameters.GetValue<string>("Interval");
+                    
                     // _commandEnumerator = commands.GetEnumerator();
                     // _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
                     // _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));

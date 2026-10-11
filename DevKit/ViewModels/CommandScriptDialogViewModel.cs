@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Globalization;
 using DevKit.Cache;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -47,22 +49,52 @@ namespace DevKit.ViewModels
         public ObservableCollection<ExCommandConfig> SelectedCommands
         {
             get => _selectedCommands;
-            set => SetProperty(ref _selectedCommands, value);
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                var previous = _selectedCommands;
+                if (!SetProperty(ref _selectedCommands, value))
+                {
+                    return;
+                }
+
+                previous.CollectionChanged -= SelectedCommands_CollectionChanged;
+                _selectedCommands.CollectionChanged += SelectedCommands_CollectionChanged;
+                RaisePropertyChanged(nameof(TotalTime));
+            }
         }
 
-        /// <summary>
-        /// //////////////////////////////////////////////////////////////
-        /// </summary>
         private string _interval = "1000";
 
         public string Interval
         {
+            get => _interval;
             set
             {
-                _interval = value;
-                RaisePropertyChanged();
+                if (SetProperty(ref _interval, value))
+                {
+                    RaisePropertyChanged(nameof(TotalTime));
+                }
             }
-            get => _interval;
+        }
+
+        public string TotalTime
+        {
+            get
+            {
+                if (int.TryParse(_interval, NumberStyles.Integer, CultureInfo.CurrentCulture, out var interval) &&
+                    interval > 0)
+                {
+                    var totalSeconds = interval * (double)_selectedCommands.Count / 1000;
+                    return totalSeconds.ToString("0.##", CultureInfo.CurrentCulture);
+                }
+
+                return "0";
+            }
         }
 
         #endregion
@@ -72,18 +104,15 @@ namespace DevKit.ViewModels
         public DelegateCommand<ExCommandConfig> ExCommandDoubleClickCommand { set; get; }
         public DelegateCommand ClearSelectedCommand { set; get; }
         public DelegateCommand<ExCommandConfig> DeleteSelectedCommand { set; get; }
-
-        /// <summary>
-        /// //////////////////////////////////////////////////////////////
-        /// </summary>
-        public DelegateCommand<object> ListBoxItemSelectedCommand { set; get; }
-        public DelegateCommand SaveScriptCommand { set; get; }
         public DelegateCommand CancelDialogCommand { set; get; }
+        public DelegateCommand ConfirmDialogCommand { set; get; }
 
         #endregion
 
         public CommandScriptDialogViewModel()
         {
+            _selectedCommands.CollectionChanged += SelectedCommands_CollectionChanged;
+
             ExCommandDoubleClickCommand = new DelegateCommand<ExCommandConfig>(item =>
             {
                 if (item == null || SelectedCommands.Contains(item))
@@ -106,54 +135,26 @@ namespace DevKit.ViewModels
                 SelectedCommands.Remove(item);
             });
             
-            //////////////////////////////////////////////////////////////////////////////////////
-            ListBoxItemSelectedCommand = new DelegateCommand<object>(OnListBoxItemSelected);
-            SaveScriptCommand = new DelegateCommand(SaveScript);
-            CancelDialogCommand = new DelegateCommand(CancelDialog);
+            CancelDialogCommand = new DelegateCommand(() =>
+            {
+                RequestClose?.Invoke(new DialogResult(ButtonResult.Cancel));
+            });
+            
+            ConfirmDialogCommand = new DelegateCommand(() =>
+            {
+                var dialogParameters = new DialogParameters
+                {
+                    { "Commands", _selectedCommands },
+                    { "Interval", _interval }
+                };
+                
+                RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
+            });
         }
 
-        private void OnListBoxItemSelected(object index)
+        private void SelectedCommands_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            // if (index == null)
-            // {
-            //     return;
-            // }
-            //
-            // try
-            // {
-            //     var command = _commands[(int)index];
-            //     var annotation = command.Annotation;
-            //     if (!SelectedCommands.Contains(annotation))
-            //     {
-            //         SelectedCommands.Add(annotation);
-            //     }
-            // }
-            // catch (Exception e)
-            // {
-            //     Console.WriteLine(e);
-            // }
-        }
-
-        private void OnSelectedItemDeleted(string annotation)
-        {
-            // var find = _commands.Find(x => x.Annotation == annotation);
-            // SelectedCommands.Remove(find.Annotation);
-        }
-
-        private void SaveScript()
-        {
-            // var result = new List<string>();
-            // foreach (var str in _selectedCommands)
-            // {
-            //     var command = _commands.Find(x => x.Annotation.Equals(str));
-            //     result.Add(command.CommandValue);
-            // }
-            // var dialogParameters = new DialogParameters
-            // {
-            //     { "SelectedCommands", result },
-            //     { "Interval", _interval }
-            // };
-            // RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
+            RaisePropertyChanged(nameof(TotalTime));
         }
     }
 }

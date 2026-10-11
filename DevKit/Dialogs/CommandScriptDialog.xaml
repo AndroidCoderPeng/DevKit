@@ -625,7 +625,7 @@
                 HorizontalContentAlignment="Center"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 Style="{StaticResource FieldTextBoxStyle}"
-                Text="{Binding Interval, FallbackValue=1000}" />
+                Text="{Binding Interval, UpdateSourceTrigger=PropertyChanged, FallbackValue=1000}" />
 
             <TextBlock
                 Grid.Column="2"
