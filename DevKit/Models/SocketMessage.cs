@@ -4,6 +4,8 @@ namespace DevKit.Models
 {
     public class SocketMessage : INotifyPropertyChanged
     {
+        public byte[] RawData { get; set; }
+        
         private string _content;
 
         public string Content

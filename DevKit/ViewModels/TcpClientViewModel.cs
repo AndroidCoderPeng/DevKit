@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -168,7 +169,53 @@ namespace DevKit.ViewModels
         public ObservableCollection<SocketMessage> Logs
         {
             get => _logs;
-            set => SetProperty(ref _logs, value);
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                var previous = _logs;
+                if (!SetProperty(ref _logs, value))
+                    return;
+
+                previous.CollectionChanged -= Logs_CollectionChanged;
+                _logs.CollectionChanged += Logs_CollectionChanged;
+                RaiseLogStatisticsChanged();
+            }
+        }
+
+        public long SendCount => _logs.Count(x => x.IsSend == 1);
+        
+        public long SendByteSize => _logs.Where(x => x.IsSend == 1).Sum(x => x.RawData?.Length ?? 0);
+        
+        public long ReceiveCount => _logs.Count(x => x.IsSend == 0);
+        
+        public long ReceiveByteSize => _logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
+
+        private bool _isLogHexSelected = true;
+
+        public bool IsLogHexSelected
+        {
+            get => _isLogHexSelected;
+            set
+            {
+                if (SetProperty(ref _isLogHexSelected, value))
+                {
+                    RaisePropertyChanged(nameof(IsLogAsciiSelected));
+                }
+            }
+        }
+
+        public bool IsLogAsciiSelected
+        {
+            get => !_isLogHexSelected;
+            set
+            {
+                if (value)
+                {
+                    IsLogHexSelected = false;
+                }
+            }
         }
 
         private string _lastDataTime = string.Empty;
@@ -226,6 +273,7 @@ namespace DevKit.ViewModels
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
         public DelegateCommand OpenScriptCommand { set; get; }
+
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
         public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
@@ -254,6 +302,8 @@ namespace DevKit.ViewModels
             RemotePort = _config.Server.Port;
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
 
+            _logs.CollectionChanged += Logs_CollectionChanged;
+            
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
             AddExtensionCommand = new DelegateCommand(() =>
@@ -371,6 +421,19 @@ namespace DevKit.ViewModels
             ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
         }
 
+        private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            RaiseLogStatisticsChanged();
+        }
+        
+        private void RaiseLogStatisticsChanged()
+        {
+            RaisePropertyChanged(nameof(SendCount));
+            RaisePropertyChanged(nameof(SendByteSize));
+            RaisePropertyChanged(nameof(ReceiveCount));
+            RaisePropertyChanged(nameof(ReceiveByteSize));
+        }
+        
         private async Task ConnectServerAsync()
         {
             if (_isConnecting)
@@ -416,10 +479,7 @@ namespace DevKit.ViewModels
             };
             transport.DataReceived += delegate(byte[] bytes)
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    UpdateTransportMessage("", bytes);
-                }));
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => { UpdateTransportMessage(bytes); }));
             };
 
             _transport = transport;
@@ -441,9 +501,30 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void UpdateTransportMessage(string command, byte[] bytes)
+        private void UpdateTransportMessage(byte[] bytes)
         {
-            // TODO: 处理接收数据的逻辑
+            if (bytes == null || bytes.Length == 0)
+            {
+                return;
+            }
+
+            var rawData = (byte[])bytes.Clone();
+            var time = DateTime.Now.ToString("HH:mm:ss.fff");
+
+            Logs.Add(new SocketMessage
+            {
+                RawData = rawData,
+                Content = FormatLogContent(rawData),
+                Time = time,
+                IsSend = 0
+            });
+
+            LastDataTime = time;
+        }
+
+        private string FormatLogContent(byte[] bytes)
+        {
+            return _isLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
 
         private void SetConnectionState(string state)
@@ -592,6 +673,7 @@ namespace DevKit.ViewModels
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
                 Logs.Add(new SocketMessage
                 {
+                    RawData = payload,
                     Content = command.Value,
                     Time = time,
                     IsSend = 1

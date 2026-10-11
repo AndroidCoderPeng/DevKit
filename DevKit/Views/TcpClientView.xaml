@@ -1103,7 +1103,7 @@
                                             CommandParameter="0"
                                             Content="HEX"
                                             GroupName="LogDisplayEncoding"
-                                            IsChecked="True"
+                                            IsChecked="{Binding IsLogHexSelected}"
                                             Style="{StaticResource SegmentRadioStyle}"
                                             ToolTip="把消息内容转为 16 进制显示" />
 
@@ -1112,6 +1112,7 @@
                                             CommandParameter="1"
                                             Content="ASCII"
                                             GroupName="LogDisplayEncoding"
+                                            IsChecked="{Binding IsLogAsciiSelected}"
                                             Style="{StaticResource SegmentRadioStyle}"
                                             ToolTip="把消息内容转为 ASCII 显示" />
                                     </StackPanel>
