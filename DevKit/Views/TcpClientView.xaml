@@ -1119,7 +1119,7 @@
 
                                 <Button
                                     Grid.Column="5"
-                                    Command="{Binding SaveCommunicationCommand}"
+                                    Command="{Binding SaveLogCommand}"
                                     Style="{StaticResource CompactButtonStyle}"
                                     ToolTip="保存消息记录到文件">
                                     <StackPanel Orientation="Horizontal">
@@ -1140,7 +1140,7 @@
                                 <Button
                                     Grid.Column="6"
                                     Margin="8,0,0,0"
-                                    Command="{Binding ClearCommunicationCommand}"
+                                    Command="{Binding ClearLogCommand}"
                                     Style="{StaticResource DangerOutlineButtonStyle}"
                                     ToolTip="清空消息记录">
                                     <StackPanel Orientation="Horizontal">
@@ -1162,7 +1162,6 @@
                             <!--  消息列表 + 空态  -->
                             <Grid Margin="0,16,0,0">
                                 <ListBox
-                                    x:Name="LogListBox"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     ItemsSource="{Binding Logs}"
@@ -1171,7 +1170,10 @@
                                     ScrollViewer.VerticalScrollBarVisibility="Hidden">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid x:Name="MessageRow" MaxWidth="620">
+                                            <Grid
+                                                x:Name="MessageRow"
+                                                MaxWidth="620"
+                                                HorizontalAlignment="Left">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />

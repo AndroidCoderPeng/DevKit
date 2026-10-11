@@ -218,14 +218,13 @@ namespace DevKit.ViewModels
         public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
         public DelegateCommand<string> CopyExCommand { set; get; }
         public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SaveLogCommand { set; get; }
+        public DelegateCommand ClearLogCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        public DelegateCommand SaveCommunicationCommand { set; get; }
-
-        public DelegateCommand ClearCommunicationCommand { set; get; }
-        public DelegateCommand<string> CopyLogCommand { set; get; }
         public DelegateCommand OpenScriptCommand { set; get; }
         public DelegateCommand TimeCheckedCommand { set; get; }
         public DelegateCommand TimeUncheckedCommand { set; get; }
@@ -245,13 +244,7 @@ namespace DevKit.ViewModels
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
         private DispatcherTimer _sessionTimer;
-
-        /// <summary>
-        /// TCP 分组的唯一数据源：Server（IP/端口）与 ExCommands（扩展指令）都在这里，
-        /// 每次持久化都整体写回，杜绝快照互相覆盖
-        /// </summary>
         private readonly TcpConfig _config;
-
         private DispatcherTimer _toastTimer;
 
         public TcpClientViewModel(IDialogService dialogService)
@@ -337,37 +330,41 @@ namespace DevKit.ViewModels
 
             SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
 
-            /////////////////////////////////////////////////////////////////////////////////
-
-            for (var i = 0; i < 10; i++)
+            CopyLogCommand = new DelegateCommand<string>(log =>
             {
-                SocketMessage log;
-                if (i % 2 == 0)
+                Clipboard.SetText(log);
+                ShowToast("已复制到剪贴板");
+            });
+
+            SaveLogCommand = new DelegateCommand(() =>
+            {
+                if (!_logs.Any())
                 {
-                    log = new SocketMessage
-                    {
-                        Content = "AA BB CC DD EE FF AA BB CC DD EE FF",
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 0
-                    };
-                }
-                else
-                {
-                    log = new SocketMessage
-                    {
-                        Content = "AA BB CC DD EE FF AA BB CC DD EE FF AA BB CC DD EE FF AA BB CC DD EE FF",
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 1
-                    };
+                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
 
-                Logs.Add(log);
-            }
+                var fileDialog = new SaveFileDialog
+                {
+                    DefaultExt = ".txt",
+                    Filter = "Log文件(*.txt)|*.txt"
+                };
+                if (fileDialog.ShowDialog() != true) return;
+
+                var savePath = fileDialog.FileName;
+                using (var writer = new StreamWriter(savePath))
+                {
+                    foreach (var log in _logs)
+                    {
+                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                        writer.WriteLineAsync(text);
+                    }
+                }
+            });
+
+            ClearLogCommand = new DelegateCommand(() => { Logs.Clear(); });
 
             /////////////////////////////////////////////////////////////////////////////////
-            SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
-            ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
-            CopyLogCommand = new DelegateCommand<string>(CopyLog);
             OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
             TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
             TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
@@ -520,9 +517,6 @@ namespace DevKit.ViewModels
             SessionDuration = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
 
-        /// <summary>
-        /// 把当前 UI 上的 IP/端口 同步进 _config 后整体写回配置文件
-        /// </summary>
         private void PersistConfig()
         {
             _config.Server.Ip = _remoteAddress;
@@ -630,53 +624,6 @@ namespace DevKit.ViewModels
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        private async void SaveCommunicationLog()
-        {
-            if (!_logs.Any())
-            {
-                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var fileDialog = new SaveFileDialog
-            {
-                DefaultExt = ".txt",
-                Filter = "Log文件(*.txt)|*.txt",
-                RestoreDirectory = true
-            };
-            if (fileDialog.ShowDialog() == true)
-            {
-                var savePath = fileDialog.FileName;
-                try
-                {
-                    using (var writer = new StreamWriter(savePath))
-                    {
-                        foreach (var log in _logs)
-                        {
-                            var logText = log.IsSend == 1
-                                ? $"{log.Time}【发送】{log.Content}"
-                                : $"{log.Time}【接收】{log.Content}";
-                            await writer.WriteLineAsync(logText);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"保存日志时发生错误：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void ClearCommunicationLog()
-        {
-            Logs.Clear();
-        }
-
-        private void CopyLog(string log)
-        {
-            Clipboard.SetText(log);
-        }
-
         private void OpenScriptDialog()
         {
             // var dialogParameters = new DialogParameters();
