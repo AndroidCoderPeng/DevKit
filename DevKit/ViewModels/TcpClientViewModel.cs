@@ -131,21 +131,18 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _sessionDuration, value);
         }
 
+        private ObservableCollection<ExCommandConfig>
+            _exCommandCollection = new ObservableCollection<ExCommandConfig>();
+
+        public ObservableCollection<ExCommandConfig> ExCommandCollection
+        {
+            get => _exCommandCollection;
+            set => SetProperty(ref _exCommandCollection, value);
+        }
+
         /// <summary>
         /// ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// </summary>
-        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
-
-        public ObservableCollection<ExCommandCache> ExCommandCollection
-        {
-            set
-            {
-                _exCommandCollection = value;
-                RaisePropertyChanged();
-            }
-            get => _exCommandCollection;
-        }
-
         private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
         public ObservableCollection<SocketMessage> Logs
@@ -242,10 +239,12 @@ namespace DevKit.ViewModels
             _dialogService = dialogService;
 
             //加载连接配置缓存
-            var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
-            RemoteAddress = config.Servers.Ip;
-            RemotePort = config.Servers.Port;
-
+            var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp).Servers;
+            RemoteAddress = config.Ip;
+            RemotePort = config.Port;
+            ExCommandCollection = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp)
+                .ExCommands.ToObservableCollection();
+            
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
             AddExtensionCommand = new DelegateCommand(() =>
@@ -257,37 +256,12 @@ namespace DevKit.ViewModels
                         return;
                     }
 
-                    // var commandValue = result.Parameters.GetValue<string>("CommandValue");
-                    // var annotation = result.Parameters.GetValue<string>("Annotation");
-                    // using (var dataBase = new DataBaseConnection())
-                    // {
-                    //     var exCommand = new ExCommandCache
-                    //     {
-                    //         ClientType = ClientType,
-                    //         CommandValue = commandValue,
-                    //         Annotation = annotation
-                    //     };
-                    //     dataBase.Insert(exCommand);
-                    //     
-                    //     ExCommandCollection.Clear();
-                    //     var commandCache = dataBase.Table<ExCommandCache>()
-                    //         .Where(x => x.ClientType == ClientType)
-                    //         .ToList();
-                    //     ExCommandCollection = commandCache.ToObservableCollection();
-                    // }
+                    ExCommandCollection = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp)
+                        .ExCommands.ToObservableCollection();
                 });
             });
+
             /////////////////////////////////////////////////////////////////////////////////
-
-            using (var dataBase = new DataBaseConnection())
-            {
-                //加载扩展指令缓存
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                ExCommandCollection = commandCache.ToObservableCollection();
-            }
-
             SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
             ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
             DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
@@ -536,51 +510,51 @@ namespace DevKit.ViewModels
 
         private void OnEdit(object id)
         {
-            var dialogParameters = new DialogParameters();
-            ExCommandCache exCommand;
-
-            using (var dataBase = new DataBaseConnection())
-            {
-                exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
-                dialogParameters.Add("ExCommandCache", exCommand);
-            }
-
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
-            {
-                if (result.Result != ButtonResult.OK)
-                {
-                    return;
-                }
-
-                var commandValue = result.Parameters.GetValue<string>("CommandValue");
-                var annotation = result.Parameters.GetValue<string>("Annotation");
-                exCommand.CommandValue = commandValue;
-                exCommand.Annotation = annotation;
-                using (var dataBase = new DataBaseConnection())
-                {
-                    dataBase.Update(exCommand);
-                    //刷新列表
-                    ExCommandCollection.Clear();
-                    var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .ToList();
-                    ExCommandCollection = commandCache.ToObservableCollection();
-                }
-            });
+            // var dialogParameters = new DialogParameters();
+            // ExCommandCache exCommand;
+            //
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
+            //     dialogParameters.Add("ExCommandCache", exCommand);
+            // }
+            //
+            // _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+            // {
+            //     if (result.Result != ButtonResult.OK)
+            //     {
+            //         return;
+            //     }
+            //
+            //     var commandValue = result.Parameters.GetValue<string>("CommandValue");
+            //     var annotation = result.Parameters.GetValue<string>("Annotation");
+            //     exCommand.CommandValue = commandValue;
+            //     exCommand.Annotation = annotation;
+            //     using (var dataBase = new DataBaseConnection())
+            //     {
+            //         dataBase.Update(exCommand);
+            //         //刷新列表
+            //         ExCommandCollection.Clear();
+            //         var commandCache = dataBase.Table<ExCommandCache>()
+            //             .Where(x => x.ClientType == ClientType)
+            //             .ToList();
+            //         ExCommandCollection = commandCache.ToObservableCollection();
+            //     }
+            // });
         }
 
         private void OnDelete(object id)
         {
-            using (var dataBase = new DataBaseConnection())
-            {
-                var itemToDelete = dataBase.Table<ExCommandCache>()
-                    .First(x => x.Id == (int)id);
-                dataBase.Delete(itemToDelete);
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                ExCommandCollection = commandCache.ToObservableCollection();
-            }
+            // using (var dataBase = new DataBaseConnection())
+            // {
+            //     var itemToDelete = dataBase.Table<ExCommandCache>()
+            //         .First(x => x.Id == (int)id);
+            //     dataBase.Delete(itemToDelete);
+            //     var commandCache = dataBase.Table<ExCommandCache>()
+            //         .Where(x => x.ClientType == ClientType)
+            //         .ToList();
+            //     ExCommandCollection = commandCache.ToObservableCollection();
+            // }
         }
 
         private void SendMessage(string command)

@@ -33,7 +33,7 @@ namespace DevKit.Cache
     public class TcpConfig
     {
         public TcpEndpointConfig Servers { get; set; } = new TcpEndpointConfig();
-
+        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
         public List<TcpEndpointConfig> Clients { get; set; } = new List<TcpEndpointConfig>();
     }
 
@@ -44,6 +44,14 @@ namespace DevKit.Cache
         public string Port { get; set; }
     }
 
+    // 扩展指令分组
+    public class ExCommandConfig
+    {
+        public string Type { get; set; }
+        public string Value { get; set; }
+        public string Memo { get; set; }
+    }
+    
     // 最近处理颜色分组
     public class RecentlyColorConfig
     {

@@ -894,14 +894,14 @@
                                                         x:Name="CommandValueTextBlock"
                                                         FontSize="13"
                                                         Foreground="{DynamicResource DevKitTextBrush}"
-                                                        Text="{Binding CommandValue}" />
+                                                        Text="{Binding Value}" />
 
                                                     <TextBlock
                                                         x:Name="AnnotationTextBlock"
                                                         Margin="0,4,0,0"
                                                         FontSize="11"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                        Text="{Binding Annotation}" />
+                                                        Text="{Binding Memo}" />
                                                 </StackPanel>
 
                                                 <StackPanel
@@ -912,21 +912,21 @@
                                                     Visibility="Collapsed">
                                                     <Button
                                                         Command="{Binding DataContext.QuickSendCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding CommandValue}"
+                                                        CommandParameter="{Binding Value}"
                                                         Content="&#xe67b;"
                                                         Style="{StaticResource CmdSendButtonStyle}"
                                                         ToolTip="立即发送" />
 
                                                     <Button
                                                         Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding Id}"
+                                                        CommandParameter="{Binding Value}"
                                                         Content="&#xe6d4;"
                                                         Style="{StaticResource CmdEditButtonStyle}"
                                                         ToolTip="编辑" />
 
                                                     <Button
                                                         Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding Id}"
+                                                        CommandParameter="{Binding Value}"
                                                         Content="&#xe666;"
                                                         Style="{StaticResource CmdDeleteButtonStyle}"
                                                         ToolTip="删除" />

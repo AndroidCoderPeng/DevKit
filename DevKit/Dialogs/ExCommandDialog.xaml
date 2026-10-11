@@ -7,7 +7,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="472"
-    Height="320"
+    Height="318"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     mc:Ignorable="d">
 
@@ -134,7 +134,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
-            <RowDefinition Height="1" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -163,7 +162,7 @@
                     FontFamily="/DevKit;component/Fonts/#iconfont"
                     FontSize="14"
                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                    Text="&#xe668;" />
+                    Text="&#xe8a7;" />
 
                 <TextBlock
                     Grid.Column="1"
@@ -196,7 +195,7 @@
                             GroupName="LogDisplayEncoding"
                             IsChecked="True"
                             Style="{StaticResource SegmentRadioStyle}"
-                            ToolTip="把消息内容转为 16 进制显示" />
+                            ToolTip="把指令内容转为 16 进制显示" />
 
                         <RadioButton
                             Command="{Binding ComboBoxItemSelectedCommand}"
@@ -204,7 +203,7 @@
                             Content="ASCII"
                             GroupName="LogDisplayEncoding"
                             Style="{StaticResource SegmentRadioStyle}"
-                            ToolTip="把消息内容转为 ASCII 显示" />
+                            ToolTip="把指令内容转为 ASCII 显示" />
                     </StackPanel>
                 </Border>
 
@@ -213,7 +212,7 @@
                     VerticalAlignment="Center"
                     FontSize="12"
                     Foreground="{StaticResource DevKitTextMutedBrush}"
-                    Text="{Binding CommandType, FallbackValue='HEX 字节，空格分隔'}" />
+                    Text="{Binding Tips, FallbackValue='HEX 字节，空格分隔'}" />
 
                 <Border
                     Grid.Column="5"
@@ -239,8 +238,8 @@
                     FontSize="10">
                     <Button.Style>
                         <Style TargetType="Button">
-                            <Setter Property="Width" Value="24" />
-                            <Setter Property="Height" Value="24" />
+                            <Setter Property="Width" Value="20" />
+                            <Setter Property="Height" Value="20" />
                             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderStrongBrush}" />
                             <Setter Property="BorderThickness" Value="1" />
@@ -254,7 +253,7 @@
                                             Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="8"
+                                            CornerRadius="4"
                                             TextElement.Foreground="{TemplateBinding Foreground}">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                         </Border>
@@ -370,7 +369,7 @@
                     Text="可选，便于在指令列表中识别" />
             </Grid>
 
-            <TextBox Grid.Row="3" Text="{Binding CommandMemo}">
+            <TextBox Grid.Row="3" Text="{Binding CommandMemo, UpdateSourceTrigger=PropertyChanged}">
                 <TextBox.Style>
                     <Style TargetType="TextBox">
                         <Setter Property="FontSize" Value="13" />
@@ -429,19 +428,13 @@
             </TextBox>
         </Grid>
 
-        <Border
-            Grid.Row="1"
-            Background="{StaticResource DevKitBorderBrush}"
-            BorderThickness="1" />
-
         <UniformGrid
-            Grid.Row="2"
-            Margin="16"
+            Grid.Row="1"
             Background="White"
             Columns="2"
             Rows="1">
             <Button
-                Margin="0,0,8,0"
+                Margin="16,16,8,16"
                 Command="{Binding CancelDialogCommand}"
                 Style="{StaticResource CompactButtonStyle}">
                 <Button.Content>
@@ -460,7 +453,7 @@
                 </Button.Content>
             </Button>
 
-            <Button Margin="8,0,0,0" Command="{Binding CommandSaveCommand}">
+            <Button Margin="8,16,16,16" Command="{Binding CommandSaveCommand}">
                 <Button.Style>
                     <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
                         <Setter Property="IsEnabled" Value="True" />
