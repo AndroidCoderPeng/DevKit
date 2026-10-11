@@ -238,7 +238,27 @@ namespace DevKit.ViewModels
         public bool IsSendHexSelected
         {
             get => _isSendHexSelected;
-            set => SetProperty(ref _isSendHexSelected, value);
+            set
+            {
+                if (SetProperty(ref _isSendHexSelected, value))
+                {
+                    RaisePropertyChanged(nameof(IsSendAsciiSelected));
+                    
+                    // TODO 
+                }
+            }
+        }
+        
+        public bool IsSendAsciiSelected
+        {
+            get => !_isSendHexSelected;
+            set
+            {
+                if (value)
+                {
+                    IsSendHexSelected = false;
+                }
+            }
         }
         
         /// <summary>
@@ -272,6 +292,7 @@ namespace DevKit.ViewModels
         public DelegateCommand SaveLogCommand { set; get; }
         public DelegateCommand ClearLogCommand { set; get; }
         public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
+        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,6 +447,18 @@ namespace DevKit.ViewModels
                 else if (value == "1")
                 {
                     IsLogHexSelected = false;
+                }
+            });
+            
+            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsSendHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsSendHexSelected = false;
                 }
             });
             

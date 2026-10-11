@@ -1423,6 +1423,8 @@
                                         CornerRadius="16">
                                         <StackPanel Orientation="Horizontal">
                                             <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="0"
                                                 Content="HEX"
                                                 GroupName="SendEncoding"
                                                 IsChecked="{Binding IsSendHexSelected}"
@@ -1430,7 +1432,10 @@
                                                 ToolTip="按 16 进制解析发送内容" />
 
                                             <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="1"
                                                 Content="ASCII"
+                                                IsChecked="{Binding IsSendAsciiSelected}"
                                                 GroupName="SendEncoding"
                                                 Style="{StaticResource SegmentRadioStyle}"
                                                 ToolTip="按 ASCII/UTF8 文本发送" />
