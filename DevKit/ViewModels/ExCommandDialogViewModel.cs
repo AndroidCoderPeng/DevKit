@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
-using DevKit.Cache;
-using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -34,6 +34,7 @@ namespace DevKit.ViewModels
         }
 
         private string _commandPlaceHolder = "例如：aa550101，点格式化 → AA 55 01 01";
+
         public string CommandPlaceHolder
         {
             get => _commandPlaceHolder;
@@ -61,10 +62,13 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand<string> ComboBoxItemSelectedCommand { set; get; }
+        public DelegateCommand FormatStyleCommand { set; get; }
         public DelegateCommand CommandSaveCommand { set; get; }
         public DelegateCommand CancelDialogCommand { set; get; }
 
         #endregion
+
+        private static readonly Regex HexTokenRegex = new Regex("^[0-9a-fA-F]{1,2}$", RegexOptions.Compiled);
 
         public bool CanCloseDialog()
         {
@@ -73,14 +77,6 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
-            config.ExCommands.Add(new ExCommandConfig
-            {
-                Type = CommandType,
-                Value = ExCommandValue,
-                Memo = CommandMemo
-            });
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, config);
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -116,22 +112,65 @@ namespace DevKit.ViewModels
                 }
             });
 
+            // 格式化（仅 HEX 有意义）：去空白 → 大写 → 奇数长度补零 → 每两位一组空格分隔
+            FormatStyleCommand = new DelegateCommand(() =>
+            {
+                if (CommandType != "HEX" || string.IsNullOrWhiteSpace(_exCommandValue))
+                {
+                    return;
+                }
+
+                var compact = string.Concat(_exCommandValue.Where(c => !char.IsWhiteSpace(c))).ToUpperInvariant();
+                if (compact.Length % 2 == 1)
+                {
+                    compact = "0" + compact;
+                }
+
+                var builder = new StringBuilder();
+                for (var i = 0; i < compact.Length; i += 2)
+                {
+                    builder.Append(compact, i, 2);
+                    if (i + 2 < compact.Length)
+                    {
+                        builder.Append(' ');
+                    }
+                }
+
+                ExCommandValue = builder.ToString();
+            });
+
             CommandSaveCommand = new DelegateCommand(() =>
             {
-                if (string.IsNullOrWhiteSpace(ExCommandValue))
+                if (string.IsNullOrWhiteSpace(_exCommandValue))
                 {
                     MessageBox.Show("需要预设的指令为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                var list = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp).ExCommands;
-                if (list.Any(x => x.Value == ExCommandValue))
+                // HEX 模式下校验字节格式
+                if (_commandType == "HEX")
                 {
-                    MessageBox.Show("该指令已存在", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    var invalid = _exCommandValue
+                        .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Any(token => !HexTokenRegex.IsMatch(token));
+                    if (invalid)
+                    {
+                        MessageBox.Show(
+                            "指令值格式不正确：仅支持十六进制字节（00 - FF），以空格分隔",
+                            "温馨提示", MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        return;
+                    }
                 }
 
-                RequestClose?.Invoke(new DialogResult(ButtonResult.OK));
+                var dialogParameters = new DialogParameters
+                {
+                    { "Type", _commandType },
+                    { "Value", _exCommandValue },
+                    { "Memo", _commandMemo }
+                };
+
+                RequestClose?.Invoke(new DialogResult(ButtonResult.OK, dialogParameters));
             });
 
             CancelDialogCommand = new DelegateCommand(() =>

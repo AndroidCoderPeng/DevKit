@@ -32,7 +32,7 @@ namespace DevKit.Cache
     // TCP分组
     public class TcpConfig
     {
-        public TcpEndpointConfig Servers { get; set; } = new TcpEndpointConfig();
+        public TcpEndpointConfig Server { get; set; } = new TcpEndpointConfig();
         public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
         public List<TcpEndpointConfig> Clients { get; set; } = new List<TcpEndpointConfig>();
     }

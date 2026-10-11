@@ -35,14 +35,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, new TcpConfig
-            {
-                Servers = new TcpEndpointConfig
-                {
-                    Ip = _remoteAddress,
-                    Port = _remotePort
-                }
-            });
+            PersistConfig();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -228,36 +221,49 @@ namespace DevKit.ViewModels
         private readonly IDialogService _dialogService;
 
         private ITransport _transport;
-
         private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
         private DispatcherTimer _sessionTimer;
 
+        /// <summary>
+        /// TCP 分组的唯一数据源：Server（IP/端口）与 ExCommands（扩展指令）都在这里，
+        /// 每次持久化都整体写回，杜绝快照互相覆盖
+        /// </summary>
+        private readonly TcpConfig _config;
+
         public TcpClientViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
 
-            //加载连接配置缓存
-            var config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp).Servers;
-            RemoteAddress = config.Ip;
-            RemotePort = config.Port;
-            ExCommandCollection = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp)
-                .ExCommands.ToObservableCollection();
-            
+            _config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
+            RemoteAddress = _config.Server.Ip;
+            RemotePort = _config.Server.Port;
+            ExCommandCollection = _config.ExCommands.ToObservableCollection();
+
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
             AddExtensionCommand = new DelegateCommand(() =>
             {
-                _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
+                _dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
                 {
                     if (result.Result != ButtonResult.OK)
                     {
                         return;
                     }
 
-                    ExCommandCollection = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp)
-                        .ExCommands.ToObservableCollection();
+                    var commandType = result.Parameters.GetValue<string>("Type");
+                    var commandValue = result.Parameters.GetValue<string>("Value");
+                    var commandMemo = result.Parameters.GetValue<string>("Memo");
+
+                    _config.ExCommands.Add(new ExCommandConfig
+                    {
+                        Type = commandType,
+                        Value = commandValue,
+                        Memo = commandMemo
+                    });
+                    PersistConfig();
+                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
                 });
             });
 
@@ -441,6 +447,16 @@ namespace DevKit.ViewModels
         {
             var elapsed = DateTime.Now - _sessionStartedAt;
             SessionDuration = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+        }
+
+        /// <summary>
+        /// 把当前 UI 上的 IP/端口 同步进 _config 后整体写回配置文件
+        /// </summary>
+        private void PersistConfig()
+        {
+            _config.Server.Ip = _remoteAddress;
+            _config.Server.Port = _remotePort;
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, _config);
         }
 
         /// <summary>
