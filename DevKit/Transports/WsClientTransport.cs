@@ -7,24 +7,29 @@ namespace DevKit.Transports
 {
     public class WsClientTransport : ITransport
     {
+        public event Action<byte[]> DataReceived;
+        
         public void Dispose()
         {
             
         }
 
-        public Task ConnectAsync(CancellationToken token)
+        public void SetRemoteEndPoint(string ip, int port)
         {
-            return Task.CompletedTask;
+            
         }
 
         public Task SendAsync(byte[] payload, CancellationToken token)
         {
             return Task.CompletedTask;
         }
-
-        public event Action<byte[]> DataReceived;
         
         public event Action<TransportState> StateChanged;
+        
+        public Task ConnectAsync(CancellationToken token)
+        {
+            return Task.CompletedTask;
+        }
         
         public Task DisconnectAsync()
         {

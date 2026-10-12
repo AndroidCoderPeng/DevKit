@@ -8,29 +8,12 @@ namespace DevKit.Transports
 {
     public class TcpClientTransport : ITransport
     {
-        private readonly string _remoteAddress;
-        private readonly int _remotePort;
-
+        private string _remoteAddress;
+        private int _remotePort;
         private TcpClient _client;
         private CancellationTokenSource _receiveCts;
         private Task _receiveTask = Task.CompletedTask;
         private bool _disposed;
-
-        public TcpClientTransport(string remoteAddress, int remotePort)
-        {
-            if (string.IsNullOrWhiteSpace(remoteAddress))
-            {
-                throw new ArgumentException(@"服务端 IP 不能为空", nameof(remoteAddress));
-            }
-
-            if (remotePort < 1 || remotePort > 65535)
-            {
-                throw new ArgumentOutOfRangeException(nameof(remotePort));
-            }
-
-            _remoteAddress = remoteAddress;
-            _remotePort = remotePort;
-        }
 
         public void Dispose()
         {
@@ -44,6 +27,60 @@ namespace DevKit.Transports
             _client?.Close();
         }
 
+        public event Action<byte[]> DataReceived;
+
+        public void SetRemoteEndPoint(string address, int port)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentException(@"服务端地址不能为空", nameof(address));
+            }
+
+            if (port < 1 || port > 65535)
+            {
+                throw new ArgumentOutOfRangeException(nameof(port));
+            }
+
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(TcpClientTransport));
+            }
+
+            if (_client != null)
+            {
+                throw new InvalidOperationException("请先断开连接，再修改远端地址");
+            }
+
+            _remoteAddress = address.Trim();
+            _remotePort = port;
+        }
+
+        public async Task SendAsync(byte[] payload, CancellationToken token)
+        {
+            ThrowIfDisposed();
+
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            var client = _client;
+            if (client == null)
+            {
+                throw new InvalidOperationException("TCP 客户端尚未连接");
+            }
+
+            var stream = client.GetStream();
+            await stream.WriteAsync(payload, 0, payload.Length, token);
+        }
+        
+        public event Action<TransportState> StateChanged;
+        
+        public TcpClientTransport(string remoteAddress, int remotePort)
+        {
+            SetRemoteEndPoint(remoteAddress, remotePort);
+        }
+        
         public async Task ConnectAsync(CancellationToken token)
         {
             ThrowIfDisposed();
@@ -81,29 +118,6 @@ namespace DevKit.Transports
                 throw;
             }
         }
-
-        public async Task SendAsync(byte[] payload, CancellationToken token)
-        {
-            ThrowIfDisposed();
-
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
-
-            var client = _client;
-            if (client == null)
-            {
-                throw new InvalidOperationException("TCP 客户端尚未连接");
-            }
-
-            var stream = client.GetStream();
-            await stream.WriteAsync(payload, 0, payload.Length, token);
-        }
-
-        public event Action<byte[]> DataReceived;
-
-        public event Action<TransportState> StateChanged;
 
         public async Task DisconnectAsync()
         {
