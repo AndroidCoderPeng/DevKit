@@ -18,8 +18,7 @@ namespace DevKit.Transports
         /// <param name="address"></param>
         /// <param name="port"></param>
         /// <param name="path"></param>
-        /// <param name="secure"></param>
-        void SetRemoteEndPoint(string address, int port, string path = null, bool secure = false);
+        void SetRemoteEndPoint(string address, int port, string path = null);
 
         /// <summary>
         /// Sends data to the remote endpoint.

@@ -29,7 +29,7 @@ namespace DevKit.Transports
             _client?.Close();
         }
 
-        public void SetRemoteEndPoint(string address, int port, string path = null, bool secure = false)
+        public void SetRemoteEndPoint(string address, int port, string path = null)
         {
             if (string.IsNullOrWhiteSpace(address))
             {

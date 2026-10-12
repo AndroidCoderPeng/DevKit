@@ -30,7 +30,7 @@ namespace DevKit.Utils
 
             return $"{(double)length / (1024 * 1024 * 1024):F2}GB";
         }
-        
+
         /// <summary>
         /// List 转 ObservableCollection
         /// </summary>
@@ -60,15 +60,15 @@ namespace DevKit.Utils
 
             return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
         }
-        
+
         public static bool IsNumber(this string s)
         {
             return new Regex(@"^\d+$").IsMatch(s);
         }
 
-        public static bool IsWebSocketUrl(this string url)
+        public static bool IsValidWsPath(this string path)
         {
-            return url.StartsWith("ws") || url.StartsWith("wss");
+            return string.IsNullOrWhiteSpace(path) || (path.StartsWith("/") && path.IndexOf(' ') < 0);
         }
     }
 }
