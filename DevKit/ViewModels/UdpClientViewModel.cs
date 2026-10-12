@@ -38,9 +38,12 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            SendButtonEnabled = false;
-            PersistConfig();
+            StopLoopSending();
             StopCommandScript();
+            _transportCts?.Dispose();
+            _transportCts = null;
+            _transport?.Dispose();
+            _transport = null;
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -64,8 +67,9 @@ namespace DevKit.ViewModels
             get => _stateTextColor;
             set => SetProperty(ref _stateTextColor, value);
         }
-        
+
         private string _stateText = "请指定对端地址和端口";
+
         public string StateText
         {
             get => _stateText;
@@ -281,7 +285,7 @@ namespace DevKit.ViewModels
             _logs.CollectionChanged += Logs_CollectionChanged;
 
             SetEndpointCommand = new DelegateCommand(() => { _ = SetEndpointAsync(); });
-            
+
             AddExtensionCommand = new DelegateCommand(() =>
             {
                 dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
@@ -305,11 +309,11 @@ namespace DevKit.ViewModels
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
                 });
             });
-            
+
             ExCommandItemSelectedCommand = new DelegateCommand<string>(value => { UserInputText = value; });
-            
+
             QuickSendCommand = new DelegateCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
-            
+
             EditExCommand = new DelegateCommand<ExCommandConfig>(command =>
             {
                 var dialogParameters = new DialogParameters
@@ -334,7 +338,7 @@ namespace DevKit.ViewModels
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
                 });
             });
-            
+
             DeleteExCommand = new DelegateCommand<ExCommandConfig>(command =>
             {
                 if (command == null || !_config.ExCommands.Remove(command))
@@ -347,21 +351,21 @@ namespace DevKit.ViewModels
                 PersistConfig();
                 ShowToast("扩展指令已删除");
             });
-            
+
             CopyExCommand = new DelegateCommand<string>(value =>
             {
                 Clipboard.SetText(value);
                 ShowToast("已复制到剪贴板");
             });
-            
+
             SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
-            
+
             CopyLogCommand = new DelegateCommand<string>(log =>
             {
                 Clipboard.SetText(log);
                 ShowToast("已复制到剪贴板");
             });
-            
+
             SaveLogCommand = new DelegateCommand(() =>
             {
                 if (!_logs.Any())
@@ -387,9 +391,9 @@ namespace DevKit.ViewModels
                     }
                 }
             });
-            
+
             ClearLogCommand = new DelegateCommand(() => { Logs.Clear(); });
-            
+
             DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
             {
                 if (value == "0")
@@ -401,7 +405,7 @@ namespace DevKit.ViewModels
                     IsLogHexSelected = false;
                 }
             });
-            
+
             SendRadioChangedCommand = new DelegateCommand<string>(value =>
             {
                 if (value == "0")
@@ -413,7 +417,7 @@ namespace DevKit.ViewModels
                     IsSendHexSelected = false;
                 }
             });
-            
+
             LoopSendSwitchCommand = new DelegateCommand<object>(value =>
             {
                 if (!(value is bool isChecked)) return;
@@ -427,7 +431,7 @@ namespace DevKit.ViewModels
                     StopLoopSending();
                 }
             });
-            
+
             OpenScriptCommand = new DelegateCommand(() =>
             {
                 var dialogParameters = new DialogParameters
@@ -496,50 +500,82 @@ namespace DevKit.ViewModels
                 port < 1 || port > 65535)
             {
                 MessageBox.Show("端口必须是 1 到 65535 之间的整数", "端点无效", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                return; // 校验失败：旧对端仍有效，不重置
             }
 
             var transport = _transport;
-            var isNewTransport = transport == null;
-            var cts = new CancellationTokenSource();
-
-            try
+            if (transport == null)
             {
-                if (isNewTransport)
+                var cts = new CancellationTokenSource();
+                try
                 {
-                    transport = new UdpClientTransport(RemoteAddress, port);
-                    transport.DataReceived += OnUdpDataReceived;
+                    var fresh = new UdpClientTransport(RemoteAddress, port);
+                    fresh.DataReceived += OnUdpDataReceived;
+                    fresh.Start(cts.Token);
+
+                    _transport = fresh;
+                    _transportCts = cts;
+                    SetPeerReady();
+                    PersistConfig();
                 }
-                else
+                catch (Exception ex)
                 {
-                    await transport.StopAsync();
-                    _transportCts?.Dispose();
-                    _transportCts = null;
-
-                    transport.SetRemoteEndPoint(RemoteAddress, port);
-                }
-
-                transport.Start(cts.Token);
-            }
-            catch (Exception ex)
-            {
-                cts.Dispose();
-
-                if (isNewTransport)
-                {
-                    transport?.Dispose();
+                    cts.Dispose();
+                    ResetPeerState(); // 新建失败：不存在可用 transport
+                    MessageBox.Show($"应用 UDP 对端失败：{ex.Message}", "设置失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
-                MessageBox.Show($"应用 UDP 对端失败：{ex.Message}", "设置失败", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            _transport = transport;
-            _transportCts = cts;
+            try
+            {
+                transport.SetRemoteEndPoint(RemoteAddress, port); // 同地址族：即时生效，无需重启
+                SetPeerReady();
+                PersistConfig();
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("地址族"))
+            {
+                // 跨 IPv4/IPv6 重建：旧 transport 即将废弃
+                var cts = new CancellationTokenSource();
+                try
+                {
+                    await transport.StopAsync();
+                    transport.Dispose();
+
+                    var fresh = new UdpClientTransport(RemoteAddress, port);
+                    fresh.DataReceived += OnUdpDataReceived;
+                    fresh.Start(cts.Token);
+
+                    _transport = fresh;
+                    _transportCts = cts;
+                    SetPeerReady();
+                    PersistConfig();
+                }
+                catch (Exception retryEx)
+                {
+                    cts.Dispose();
+                    _transport = null;
+                    _transportCts?.Dispose();
+                    _transportCts = null;
+                    ResetPeerState(); // 旧的已停、新的没起来：必须回到未就绪
+                    MessageBox.Show($"应用 UDP 对端失败：{retryEx.Message}", "设置失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void SetPeerReady()
+        {
             SendButtonEnabled = true;
             StateTextColor = "#16A34A";
             StateText = $"对端已指定 {RemoteAddress}:{RemotePort}，可直接发送数据";
-            PersistConfig();
+        }
+
+        private void ResetPeerState()
+        {
+            SendButtonEnabled = false;
+            StateTextColor = "#5F6B7A";
+            StateText = "请指定对端地址和端口";
         }
 
         private void OnUdpDataReceived(byte[] bytes)
@@ -566,7 +602,7 @@ namespace DevKit.ViewModels
             _config.Server.Port = _remotePort;
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.Udp, _config);
         }
-        
+
         private async Task QuickSendAsync(ExCommandConfig command)
         {
             if (command == null || string.IsNullOrWhiteSpace(command.Value))
@@ -628,7 +664,7 @@ namespace DevKit.ViewModels
                 MessageBox.Show(e.Message, "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;
@@ -647,7 +683,7 @@ namespace DevKit.ViewModels
             _toastTimer.Stop();
             _toastTimer.Start();
         }
-        
+
         private async Task SendInputAsync()
         {
             var value = _userInputText;
@@ -664,7 +700,7 @@ namespace DevKit.ViewModels
                 Memo = "用户输入"
             });
         }
-        
+
         private void StartLoopSending()
         {
             if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
@@ -700,7 +736,7 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_isLoopSendInProgress)
@@ -709,7 +745,7 @@ namespace DevKit.ViewModels
             _isLoopSendInProgress = true;
             _ = SendLoopInputAsync();
         }
-        
+
         private async Task SendLoopInputAsync()
         {
             try
@@ -728,7 +764,7 @@ namespace DevKit.ViewModels
                 _isLoopSendInProgress = false;
             }
         }
-        
+
         private void StopCommandScript()
         {
             _scriptTimer.Stop();
@@ -737,12 +773,12 @@ namespace DevKit.ViewModels
             _commandEnumerator = null;
             _isScriptCommandInProgress = false;
         }
-        
+
         private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
         {
             _ = ScriptTimerTickEvent_HandlerAsync();
         }
-        
+
         private async Task ScriptTimerTickEvent_HandlerAsync()
         {
             if (_isScriptCommandInProgress)
