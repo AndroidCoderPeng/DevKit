@@ -14,7 +14,7 @@ namespace DevKit.Transports
             
         }
 
-        public void SetRemoteEndPoint(string ip, int port)
+        public void SetRemoteEndPoint(string address, int port, string path = null, bool secure = false)
         {
             
         }

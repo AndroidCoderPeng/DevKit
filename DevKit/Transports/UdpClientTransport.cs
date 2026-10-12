@@ -32,7 +32,7 @@ namespace DevKit.Transports
 
         public event Action<byte[]> DataReceived;
 
-        public void SetRemoteEndPoint(string address, int port)
+        public void SetRemoteEndPoint(string address, int port, string path = null, bool secure = false)
         {
             if (string.IsNullOrWhiteSpace(address))
             {

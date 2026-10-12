@@ -336,7 +336,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private ITransport _transport;
+        private WsClientTransport _transport;
         private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
