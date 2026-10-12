@@ -227,8 +227,8 @@
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
     <Compile Include="ViewModels\UdpServerViewModel.cs" />
-    <Compile Include="ViewModels\WebSocketClientViewModel.cs" />
-    <Compile Include="ViewModels\WebSocketServerViewModel.cs" />
+    <Compile Include="ViewModels\WsClientViewModel.cs" />
+    <Compile Include="ViewModels\WsServerViewModel.cs" />
     <Compile Include="Views\AndroidDebugBridgeView.xaml.cs">
       <DependentUpon>AndroidDebugBridgeView.xaml</DependentUpon>
     </Compile>
@@ -260,11 +260,11 @@
     <Compile Include="Views\UdpServerView.xaml.cs">
       <DependentUpon>UdpServerView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\WebSocketClientView.xaml.cs">
-      <DependentUpon>WebSocketClientView.xaml</DependentUpon>
+    <Compile Include="Views\WsClientView.xaml.cs">
+      <DependentUpon>WsClientView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\WebSocketServerView.xaml.cs">
-      <DependentUpon>WebSocketServerView.xaml</DependentUpon>
+    <Compile Include="Views\WsServerView.xaml.cs">
+      <DependentUpon>WsServerView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -306,8 +306,12 @@
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />
     <Page Include="Views\UdpServerView.xaml" />
-    <Page Include="Views\WebSocketClientView.xaml" />
-    <Page Include="Views\WebSocketServerView.xaml" />
+    <Page Include="Views\WsClientView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\WsServerView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\launcher.ico" />

@@ -16,7 +16,7 @@ namespace DevKit.Views
         {
             if (sender is ListBoxItem item && item.Content is WebSocketClientModel model)
             {
-                var vm = DataContext as WebSocketServerViewModel;
+                var vm = DataContext as WsServerViewModel;
                 vm?.ClientItemClickedCommand.Execute(model);
             }
         }

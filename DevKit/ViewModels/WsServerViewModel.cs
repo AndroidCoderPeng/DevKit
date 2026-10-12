@@ -17,7 +17,7 @@ using WebSocketServer = TouchSocket.Http.HttpService;
 
 namespace DevKit.ViewModels
 {
-    public class WebSocketServerViewModel : BindableBase, IDialogAware
+    public class WsServerViewModel : BindableBase, IDialogAware
     {
         public string Title => "WebSocket服务端";
 
@@ -208,7 +208,7 @@ namespace DevKit.ViewModels
         private string _selectedHost;
         private WebSocketClientModel _selectedClient;
 
-        public WebSocketServerViewModel(IAppDataService dataService)
+        public WsServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
             _selectedHost = LocalHostSource?.First();
@@ -227,7 +227,7 @@ namespace DevKit.ViewModels
         {
             _selectedHost = host;
         }
-        
+
         private void OnServerListened()
         {
             if (!_listenPort.IsNumber())

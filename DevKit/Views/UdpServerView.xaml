@@ -103,8 +103,7 @@
                     Margin="10,0"
                     HorizontalAlignment="Stretch"
                     Command="{Binding ServerListenCommand}"
-                    Content="{Binding ListenState}"
-                    Style="{StaticResource ButtonPrimary}" />
+                    Content="{Binding ListenState}" />
             </Grid>
 
             <ListBox
@@ -156,7 +155,7 @@
                 </b:Interaction.Behaviors>
 
                 <ListBox.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListBoxItemBaseStyle}" TargetType="ListBoxItem">
+                    <Style TargetType="ListBoxItem">
                         <EventSetter Event="PreviewMouseDown" Handler="ClientListBox_ListBoxItem_PreviewMouseDown" />
                     </Style>
                 </ListBox.ItemContainerStyle>
@@ -173,7 +172,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Style="{StaticResource BorderTipSuccess}">
+                <Border Grid.Row="0">
                     <TextBlock
                         FontSize="16"
                         Foreground="{DynamicResource DevKitTextBrush}"
@@ -283,8 +282,7 @@
                         Height="60"
                         Margin="10,0,0,0"
                         Command="{Binding SendCommand}"
-                        Content="发送"
-                        Style="{StaticResource ButtonPrimary}" />
+                        Content="发送" />
                 </Grid>
 
                 <Grid Grid.Row="3">

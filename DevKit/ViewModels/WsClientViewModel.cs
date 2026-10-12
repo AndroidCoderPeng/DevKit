@@ -19,7 +19,7 @@ using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
 namespace DevKit.ViewModels
 {
-    public class WebSocketClientViewModel : BindableBase, IDialogAware
+    public class WsClientViewModel : BindableBase, IDialogAware
     {
         public string Title => "WebSocket客户端";
 
@@ -155,7 +155,7 @@ namespace DevKit.ViewModels
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
         private IEnumerator<string> _commandEnumerator;
 
-        public WebSocketClientViewModel(IDialogService dialogService)
+        public WsClientViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
 
@@ -324,7 +324,7 @@ namespace DevKit.ViewModels
 
         private void AddExtension()
         {
-            _dialogService.Show("ExCommandDialog", null, delegate(IDialogResult result)
+            _dialogService.Show("ExCommandDialog", null, delegate (IDialogResult result)
             {
                 if (result.Result != ButtonResult.OK)
                 {
@@ -383,7 +383,7 @@ namespace DevKit.ViewModels
                 dialogParameters.Add("ExCommandCache", exCommand);
             }
 
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+            _dialogService.Show("ExCommandDialog", dialogParameters, delegate (IDialogResult result)
             {
                 if (result.Result != ButtonResult.OK)
                 {
@@ -457,7 +457,7 @@ namespace DevKit.ViewModels
                 dialogParameters.Add("ExCommandCache", commandCache);
             }
 
-            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate (IDialogResult result)
             {
                 if (result.Result != ButtonResult.OK)
                 {
