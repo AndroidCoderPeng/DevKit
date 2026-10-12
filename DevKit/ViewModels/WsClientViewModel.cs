@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Models;
+using DevKit.Transports;
 using DevKit.Utils;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TouchSocket.Core;
-using TouchSocket.Http.WebSockets;
-using TouchSocket.Sockets;
-using WebSocketClient = TouchSocket.Http.WebSockets.WebSocketClient;
 
 namespace DevKit.ViewModels
 {
@@ -36,6 +38,8 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            PersistConfig();
+            StopCommandScript();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -44,76 +48,143 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private string _webSocketPath = string.Empty;
+        private string _stateOuterBackgroundColor = "#FFF7F9FC";
 
-        public string WebSocketPath
+        public string StateOuterBackgroundColor
         {
-            set
-            {
-                _webSocketPath = value;
-                RaisePropertyChanged();
-            }
-            get => _webSocketPath;
+            get => _stateOuterBackgroundColor;
+            set => SetProperty(ref _stateOuterBackgroundColor, value);
         }
 
-        private string _buttonState = "连接";
+        private string _stateOuterBorderColor = "#FFEEEEF0";
 
-        public string ButtonState
+        public string StateOuterBorderColor
         {
-            set
-            {
-                _buttonState = value;
-                RaisePropertyChanged();
-            }
-            get => _buttonState;
+            get => _stateOuterBorderColor;
+            set => SetProperty(ref _stateOuterBorderColor, value);
         }
 
-        private string _connectionStateColor = "red";
+        private string _stateInnerBackgroundColor = "#E7EBF0";
 
-        public string ConnectionStateColor
+        public string StateInnerBackgroundColor
         {
-            set
-            {
-                _connectionStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _connectionStateColor;
+            get => _stateInnerBackgroundColor;
+            set => SetProperty(ref _stateInnerBackgroundColor, value);
         }
 
-        private ObservableCollection<ExCommandCache> _exCommandCollection = new ObservableCollection<ExCommandCache>();
+        private string _stateInnerBorderColor = "#93A0AE";
 
-        public ObservableCollection<ExCommandCache> ExCommandCollection
+        public string StateInnerBorderColor
         {
+            get => _stateInnerBorderColor;
+            set => SetProperty(ref _stateInnerBorderColor, value);
+        }
+
+        private bool _isWsSelected = true;
+
+        public bool IsWsSelected
+        {
+            get => _isWsSelected;
             set
             {
-                _exCommandCollection = value;
-                RaisePropertyChanged();
+                if (SetProperty(ref _isWsSelected, value))
+                {
+                    RaisePropertyChanged(nameof(IsWssSelected));
+                }
             }
+        }
+
+        public bool IsWssSelected
+        {
+            get => !_isWsSelected;
+            set
+            {
+                if (value)
+                {
+                    IsWsSelected = false;
+                }
+            }
+        }
+
+        private string _stateTextColor = "#5F6B7A";
+
+        public string StateTextColor
+        {
+            get => _stateTextColor;
+            set => SetProperty(ref _stateTextColor, value);
+        }
+
+        private string _connectionState = "未连接";
+
+        public string ConnectionState
+        {
+            get => _connectionState;
+            set => SetProperty(ref _connectionState, value);
+        }
+
+        private string _remoteAddress = string.Empty;
+
+        public string RemoteAddress
+        {
+            get => _remoteAddress;
+            set => SetProperty(ref _remoteAddress, value);
+        }
+
+        private string _remotePort = "8080";
+
+        public string RemotePort
+        {
+            get => _remotePort;
+            set => SetProperty(ref _remotePort, value);
+        }
+
+        private string _wsPath = string.Empty;
+
+        public string WsPath
+        {
+            get => _wsPath;
+            set => SetProperty(ref _wsPath, value);
+        }
+
+        private string _buttonStateText = "连接";
+
+        public string ButtonStateText
+        {
+            get => _buttonStateText;
+            set => SetProperty(ref _buttonStateText, value);
+        }
+
+        private string _sessionDuration = "00:00:00";
+
+        public string SessionDuration
+        {
+            get => _sessionDuration;
+            set => SetProperty(ref _sessionDuration, value);
+        }
+
+        private ObservableCollection<ExCommandConfig>
+            _exCommandCollection = new ObservableCollection<ExCommandConfig>();
+
+        public ObservableCollection<ExCommandConfig> ExCommandCollection
+        {
             get => _exCommandCollection;
+            set => SetProperty(ref _exCommandCollection, value);
         }
 
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+        private string _toastMessage;
 
-        public ObservableCollection<SocketMessage> Logs
+        public string ToastMessage
         {
-            set
-            {
-                _logs = value;
-                RaisePropertyChanged();
-            }
-            get => _logs;
+            get => _toastMessage;
+            set => SetProperty(ref _toastMessage, value);
         }
 
-        private string _commandInterval = "1000";
+        private bool _isToastVisible;
 
-        public string CommandInterval
+        public bool IsToastVisible
         {
-            set
-            {
-                _commandInterval = value;
-                RaisePropertyChanged();
-            }
-            get => _commandInterval;
+            get => _isToastVisible;
+            set => SetProperty(ref _isToastVisible, value);
         }
 
         private string _userInputText = string.Empty;
@@ -128,392 +199,548 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+
+        public ObservableCollection<SocketMessage> Logs
+        {
+            get => _logs;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                var previous = _logs;
+                if (!SetProperty(ref _logs, value))
+                    return;
+
+                previous.CollectionChanged -= Logs_CollectionChanged;
+                _logs.CollectionChanged += Logs_CollectionChanged;
+                RaiseLogStatisticsChanged();
+            }
+        }
+
+        public long SendCount => _logs.Count(x => x.IsSend == 1);
+
+        public long SendByteSize => _logs.Where(x => x.IsSend == 1).Sum(x => x.RawData?.Length ?? 0);
+
+        public long ReceiveCount => _logs.Count(x => x.IsSend == 0);
+
+        public long ReceiveByteSize => _logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
+
+        private bool _isLogHexSelected = true;
+
+        public bool IsLogHexSelected
+        {
+            get => _isLogHexSelected;
+            set
+            {
+                if (SetProperty(ref _isLogHexSelected, value))
+                {
+                    RaisePropertyChanged(nameof(IsLogAsciiSelected));
+                    foreach (var log in Logs)
+                    {
+                        if (log.RawData != null)
+                        {
+                            log.Content = FormatLogContent(log.RawData);
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool IsLogAsciiSelected
+        {
+            get => !_isLogHexSelected;
+            set
+            {
+                if (value)
+                {
+                    IsLogHexSelected = false;
+                }
+            }
+        }
+
+        private string _lastDataTime = string.Empty;
+
+        public string LastDataTime
+        {
+            get => _lastDataTime;
+            set => SetProperty(ref _lastDataTime, value);
+        }
+
+        private bool _isSendHexSelected = true;
+
+        public bool IsSendHexSelected
+        {
+            get => _isSendHexSelected;
+            set
+            {
+                if (SetProperty(ref _isSendHexSelected, value))
+                {
+                    RaisePropertyChanged(nameof(IsSendAsciiSelected));
+                    RaisePropertyChanged(nameof(PlaceHolderText));
+                }
+            }
+        }
+
+        public string PlaceHolderText => IsSendAsciiSelected ? "例如：AT + RST" : "例如：aa550101，点格式化 → AA 55 01 01";
+
+        public bool IsSendAsciiSelected
+        {
+            get => !_isSendHexSelected;
+            set
+            {
+                if (value)
+                {
+                    IsSendHexSelected = false;
+                }
+            }
+        }
+
+        private bool _isLoopSendEnabled;
+
+        public bool IsLoopSendEnabled
+        {
+            get => _isLoopSendEnabled;
+            set => SetProperty(ref _isLoopSendEnabled, value);
+        }
+
+        private string _interval = "1000";
+
+        public string Interval
+        {
+            get => _interval;
+            set => SetProperty(ref _interval, value);
+        }
+
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand ConnectRemoteCommand { set; get; }
-        public DelegateCommand SaveCommunicationCommand { set; get; }
-        public DelegateCommand ClearCommunicationCommand { set; get; }
+        public DelegateCommand<string> WsRadioChangedCommand { set; get; }
+        public DelegateCommand ConnectServerCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
-        public DelegateCommand<string> DataGridItemSelectedCommand { set; get; }
+        public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> QuickSendCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> EditExCommand { set; get; }
+        public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
+        public DelegateCommand<string> CopyExCommand { set; get; }
+        public DelegateCommand SendMessageCommand { set; get; }
         public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SendCommand { set; get; }
-        public DelegateCommand<string> CopyCommand { set; get; }
-        public DelegateCommand<object> EditCommand { set; get; }
-        public DelegateCommand<object> DeleteCommand { set; get; }
+        public DelegateCommand SaveLogCommand { set; get; }
+        public DelegateCommand ClearLogCommand { set; get; }
+        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
+        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
+        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
         public DelegateCommand OpenScriptCommand { set; get; }
-        public DelegateCommand TimeCheckedCommand { set; get; }
-        public DelegateCommand TimeUncheckedCommand { set; get; }
 
         #endregion
 
-        private const string ClientType = "WebSocket";
-        private readonly IDialogService _dialogService;
-        private readonly WebSocketClient _webSocketClient = new WebSocketClient();
+        private ITransport _transport;
+        private CancellationTokenSource _transportCts;
+        private bool _isConnecting;
+        private DateTime _sessionStartedAt;
+        private DispatcherTimer _sessionTimer;
+        private readonly WebSocketConfig _config;
+        private DispatcherTimer _toastTimer;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private bool _isLoopSendInProgress;
+        private IEnumerator<ExCommandConfig> _commandEnumerator;
+        private bool _isScriptCommandInProgress;
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
-        private IEnumerator<string> _commandEnumerator;
 
         public WsClientViewModel(IDialogService dialogService)
         {
-            _dialogService = dialogService;
+            _config = SettingsStore.Load<WebSocketConfig>(ConfigSections.FileName, ConfigSections.WebSocket);
+            RemoteAddress = _config.Server.Ip;
+            RemotePort = _config.Server.Port;
+            WsPath = _config.Server.Path;
+            ExCommandCollection = _config.ExCommands.ToObservableCollection();
 
-            using (var dataBase = new DataBaseConnection())
+            _logs.CollectionChanged += Logs_CollectionChanged;
+
+            WsRadioChangedCommand = new DelegateCommand<string>(value =>
             {
-                //加载连接配置缓存
-                var queryResult = dataBase.Table<ClientConfigCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .OrderByDescending(x => x.Id)
-                    .FirstOrDefault();
-                if (queryResult != null)
+                if (value == "0")
                 {
-                    WebSocketPath = queryResult.WebSocketPath;
+                    IsWsSelected = true;
                 }
-
-                //加载扩展指令缓存
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                ExCommandCollection = commandCache.ToObservableCollection();
-            }
-
-            InitConnectStateEvent();
-
-            ConnectRemoteCommand = new DelegateCommand(ConnectRemote);
-            SaveCommunicationCommand = new DelegateCommand(SaveCommunicationLog);
-            ClearCommunicationCommand = new DelegateCommand(ClearCommunicationLog);
-            AddExtensionCommand = new DelegateCommand(AddExtension);
-            DataGridItemSelectedCommand = new DelegateCommand<string>(OnDataGridItemSelected);
-            CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            SendCommand = new DelegateCommand(OnMessageSend);
-            CopyCommand = new DelegateCommand<string>(OnCopy);
-            EditCommand = new DelegateCommand<object>(OnEdit);
-            DeleteCommand = new DelegateCommand<object>(OnDelete);
-            OpenScriptCommand = new DelegateCommand(OpenScriptDialog);
-            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
-            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-        }
-
-        private void InitConnectStateEvent()
-        {
-            _webSocketClient.Handshaked = (client, e) =>
-            {
-                ConnectionStateColor = "Lime";
-                ButtonState = "断开";
-                //更新连接配置缓存
-                using (var dataBase = new DataBaseConnection())
+                else if (value == "1")
                 {
-                    var queryResult = dataBase.Table<ClientConfigCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .OrderByDescending(x => x.Id)
-                        .FirstOrDefault();
-                    if (queryResult != null)
-                    {
-                        queryResult.WebSocketPath = _webSocketPath;
-                        dataBase.Update(queryResult);
-                    }
-                    else
-                    {
-                        var config = new ClientConfigCache
-                        {
-                            ClientType = ClientType,
-                            WebSocketPath = _webSocketPath,
-                        };
-                        dataBase.Insert(config);
-                    }
+                    IsWsSelected = false;
                 }
+            });
 
-                return EasyTask.CompletedTask;
-            };
+            ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 
-            _webSocketClient.Received = (client, e) =>
+            AddExtensionCommand = new DelegateCommand(() =>
             {
-                //默认显示为UTF8编码
-                var log = new SocketMessage
+                dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
                 {
-                    Content = e.DataFrame.ToText(),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 0
+                    if (result.Result != ButtonResult.OK)
+                    {
+                        return;
+                    }
+
+                    var commandType = result.Parameters.GetValue<string>("Type");
+                    var commandValue = result.Parameters.GetValue<string>("Value");
+                    var commandMemo = result.Parameters.GetValue<string>("Memo");
+
+                    _config.ExCommands.Add(new ExCommandConfig
+                    {
+                        Type = commandType,
+                        Value = commandValue,
+                        Memo = commandMemo
+                    });
+                    PersistConfig();
+                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
+                });
+            });
+            
+            ExCommandItemSelectedCommand = new DelegateCommand<string>(value => { UserInputText = value; });
+            
+            QuickSendCommand = new DelegateCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
+
+            EditExCommand = new DelegateCommand<ExCommandConfig>(command =>
+            {
+                var dialogParameters = new DialogParameters
+                {
+                    { "ExCommand", command }
                 };
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Logs.Add(log); }));
-                return EasyTask.CompletedTask;
-            };
-
-            _webSocketClient.Closed = (client, e) =>
-            {
-                ConnectionStateColor = "LightGray";
-                ButtonState = "连接";
-                return EasyTask.CompletedTask;
-            };
-        }
-
-        private void ConnectRemote()
-        {
-            if (string.IsNullOrWhiteSpace(_webSocketPath))
-            {
-                MessageBox.Show("WebSocket服务端地址未填写", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (!_webSocketPath.IsWebSocketUrl())
-            {
-                MessageBox.Show("WebSocket服务端地址格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_webSocketClient.Online)
-            {
-                _webSocketClient.Close();
-            }
-            else
-            {
-                _webSocketClient.Setup(new TouchSocketConfig().SetRemoteIPHost($"{_webSocketPath}"));
-                try
+                dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
                 {
-                    _webSocketClient.Connect();
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.StackTrace, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void SaveCommunicationLog()
-        {
-            if (!_logs.Any())
-            {
-                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var fileDialog = new SaveFileDialog
-            {
-                DefaultExt = ".txt",
-                Filter = "Log文件(*.txt)|*.txt",
-                RestoreDirectory = true
-            };
-            if (fileDialog.ShowDialog() == true)
-            {
-                var savePath = fileDialog.FileName;
-                try
-                {
-                    using (var writer = new StreamWriter(savePath))
+                    if (result.Result != ButtonResult.OK)
                     {
-                        foreach (var log in _logs)
-                        {
-                            var logText = log.IsSend == 1
-                                ? $"{log.Time}【发送】{log.Content}"
-                                : $"{log.Time}【接收】{log.Content}";
-                            await writer.WriteLineAsync(logText);
-                        }
+                        return;
+                    }
+
+                    var commandType = result.Parameters.GetValue<string>("Type");
+                    var commandValue = result.Parameters.GetValue<string>("Value");
+                    var commandMemo = result.Parameters.GetValue<string>("Memo");
+
+                    command.Type = commandType;
+                    command.Value = commandValue;
+                    command.Memo = commandMemo;
+                    PersistConfig();
+                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
+                });
+            });
+
+            DeleteExCommand = new DelegateCommand<ExCommandConfig>(command =>
+            {
+                if (command == null || !_config.ExCommands.Remove(command))
+                {
+                    ShowToast("未找到要删除的扩展指令");
+                    return;
+                }
+
+                ExCommandCollection.Remove(command);
+                PersistConfig();
+                ShowToast("扩展指令已删除");
+            });
+
+            CopyExCommand = new DelegateCommand<string>(value =>
+            {
+                Clipboard.SetText(value);
+                ShowToast("已复制到剪贴板");
+            });
+            
+            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+
+            CopyLogCommand = new DelegateCommand<string>(log =>
+            {
+                Clipboard.SetText(log);
+                ShowToast("已复制到剪贴板");
+            });
+
+            SaveLogCommand = new DelegateCommand(() =>
+            {
+                if (!_logs.Any())
+                {
+                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var fileDialog = new SaveFileDialog
+                {
+                    DefaultExt = ".txt",
+                    Filter = "Log文件(*.txt)|*.txt"
+                };
+                if (fileDialog.ShowDialog() != true) return;
+
+                var savePath = fileDialog.FileName;
+                using (var writer = new StreamWriter(savePath))
+                {
+                    foreach (var log in _logs)
+                    {
+                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                        writer.WriteLine(text);
                     }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"保存日志时发生错误：{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+            });
 
-        private void ClearCommunicationLog()
-        {
-            Logs.Clear();
-        }
-
-        private void AddExtension()
-        {
-            _dialogService.Show("ExCommandDialog", null, delegate (IDialogResult result)
+            ClearLogCommand = new DelegateCommand(() => { Logs.Clear(); });
+            
+            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
             {
-                if (result.Result != ButtonResult.OK)
+                if (value == "0")
                 {
-                    return;
+                    IsLogHexSelected = true;
                 }
-
-                var commandValue = result.Parameters.GetValue<string>("CommandValue");
-                var annotation = result.Parameters.GetValue<string>("Annotation");
-                using (var dataBase = new DataBaseConnection())
+                else if (value == "1")
                 {
-                    var exCommand = new ExCommandCache
+                    IsLogHexSelected = false;
+                }
+            });
+
+            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsSendHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsSendHexSelected = false;
+                }
+            });
+
+            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            {
+                if (!(value is bool isChecked)) return;
+
+                if (isChecked)
+                {
+                    StartLoopSending();
+                }
+                else
+                {
+                    StopLoopSending();
+                }
+            });
+
+            OpenScriptCommand = new DelegateCommand(() =>
+            {
+                var dialogParameters = new DialogParameters
+                {
+                    { "ExCommands", _exCommandCollection }
+                };
+                dialogService.ShowDialog("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+                {
+                    if (result.Result != ButtonResult.OK)
                     {
-                        ClientType = ClientType,
-                        CommandValue = commandValue,
-                        Annotation = annotation
-                    };
-                    dataBase.Insert(exCommand);
-                    //刷新列表
-                    ExCommandCollection.Clear();
-                    var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .ToList();
-                    ExCommandCollection = commandCache.ToObservableCollection();
-                }
+                        return;
+                    }
+
+                    var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
+                    var interval = result.Parameters.GetValue<string>("Interval");
+
+                    if (commands == null || commands.Count == 0)
+                    {
+                        ShowToast("请先添加脚本指令");
+                        return;
+                    }
+
+                    if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+                    {
+                        ShowToast("时间间隔必须是正整数");
+                        return;
+                    }
+
+                    if (_transport == null || ConnectionState != "已连接")
+                    {
+                        ShowToast("请先连接 TCP 服务器");
+                        return;
+                    }
+
+                    StopCommandScript();
+
+                    _commandEnumerator = commands.GetEnumerator();
+                    _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                    _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                    _scriptTimer.Start();
+                });
             });
         }
 
-        private void OnDataGridItemSelected(string command)
+        private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            UserInputText = command;
+            RaiseLogStatisticsChanged();
         }
 
-        private void CopyLog(string log)
+        private void RaiseLogStatisticsChanged()
         {
-            Clipboard.SetText(log);
+            RaisePropertyChanged(nameof(SendCount));
+            RaisePropertyChanged(nameof(SendByteSize));
+            RaisePropertyChanged(nameof(ReceiveCount));
+            RaisePropertyChanged(nameof(ReceiveByteSize));
         }
 
-        private void OnMessageSend()
+        private string FormatLogContent(byte[] bytes)
         {
-            SendMessage(_userInputText);
+            return _isLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
 
-        private void OnCopy(string command)
+        private async Task ConnectServerAsync()
         {
-            Clipboard.SetText(command);
+            // TODO: Implement WebSocket connection logic here
+        }
+        
+        private void PersistConfig()
+        {
+            _config.Server.Ip = _remoteAddress;
+            _config.Server.Port = _remotePort;
+            _config.Server.Path = _wsPath;
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.WebSocket, _config);
         }
 
-        private void OnEdit(object id)
+        private async Task QuickSendAsync(ExCommandConfig command)
         {
-            var dialogParameters = new DialogParameters();
-            ExCommandCache exCommand;
+            // TODO: Implement quick send logic here
+        }
+        
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
 
-            using (var dataBase = new DataBaseConnection())
+            if (_toastTimer == null)
             {
-                exCommand = dataBase.Table<ExCommandCache>().First(x => x.Id == (int)id);
-                dialogParameters.Add("ExCommandCache", exCommand);
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
             }
 
-            _dialogService.Show("ExCommandDialog", dialogParameters, delegate (IDialogResult result)
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
+        
+        private async Task SendInputAsync()
+        {
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
             {
-                if (result.Result != ButtonResult.OK)
-                {
-                    return;
-                }
+                MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                var commandValue = result.Parameters.GetValue<string>("CommandValue");
-                var annotation = result.Parameters.GetValue<string>("Annotation");
-                exCommand.CommandValue = commandValue;
-                exCommand.Annotation = annotation;
-                using (var dataBase = new DataBaseConnection())
-                {
-                    dataBase.Update(exCommand);
-                    //刷新列表
-                    ExCommandCollection.Clear();
-                    var commandCache = dataBase.Table<ExCommandCache>()
-                        .Where(x => x.ClientType == ClientType)
-                        .ToList();
-                    ExCommandCollection = commandCache.ToObservableCollection();
-                }
+            await QuickSendAsync(new ExCommandConfig
+            {
+                Type = _isSendHexSelected ? "HEX" : "ASCII",
+                Value = value,
+                Memo = "用户输入"
             });
         }
-
-        private void OnDelete(object id)
+        
+        private void StartLoopSending()
         {
-            using (var dataBase = new DataBaseConnection())
+            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
             {
-                var itemToDelete = dataBase.Table<ExCommandCache>()
-                    .First(x => x.Id == (int)id);
-                dataBase.Delete(itemToDelete);
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                ExCommandCollection = commandCache.ToObservableCollection();
-            }
-        }
-
-        private void SendMessage(string command)
-        {
-            if (!_webSocketClient.Online)
-            {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(command))
+            if (_transport == null || ConnectionState != "已连接")
             {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("请先连接 TCP 服务器", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
                 return;
             }
 
-            _webSocketClient.SendAsync(command);
-            var log = new SocketMessage
+            if (string.IsNullOrWhiteSpace(_userInputText))
             {
-                Content = command,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = 1
-            };
-            Logs.Add(log);
-        }
-
-        private void OpenScriptDialog()
-        {
-            var dialogParameters = new DialogParameters();
-
-            using (var dataBase = new DataBaseConnection())
-            {
-                var commandCache = dataBase.Table<ExCommandCache>()
-                    .Where(x => x.ClientType == ClientType)
-                    .ToList();
-                dialogParameters.Add("ExCommandCache", commandCache);
-            }
-
-            _dialogService.Show("CommandScriptDialog", dialogParameters, delegate (IDialogResult result)
-            {
-                if (result.Result != ButtonResult.OK)
-                {
-                    return;
-                }
-
-                var commands = result.Parameters.GetValue<List<string>>("SelectedCommands");
-                var interval = result.Parameters.GetValue<string>("Interval");
-                _commandEnumerator = commands.GetEnumerator();
-                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                _scriptTimer.Start();
-            });
-        }
-
-        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            if (_commandEnumerator.MoveNext())
-            {
-                SendMessage(_commandEnumerator.Current);
-            }
-            else
-            {
-                _scriptTimer.Stop();
-                _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
-            }
-        }
-
-        private void OnTimeChecked()
-        {
-            if (!_commandInterval.IsNumber())
-            {
-                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
                 return;
             }
 
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(ms);
             _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
-            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
             _loopSendCommandTimer.Start();
         }
 
-        private void OnTimeUnchecked()
+        private void StopLoopSending()
         {
-            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
             _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
         }
 
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
-            if (!_webSocketClient.Online)
+            if (_isLoopSendInProgress)
+                return;
+
+            _isLoopSendInProgress = true;
+            _ = SendLoopInputAsync();
+        }
+
+        private async Task SendLoopInputAsync()
+        {
+            try
             {
-                MessageBox.Show("未连接成功，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                await SendInputAsync();
+            }
+            catch (Exception ex)
+            {
+                StopLoopSending();
+                IsLoopSendEnabled = false;
+
+                MessageBox.Show($"循环发送失败：{ex.Message}", "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isLoopSendInProgress = false;
+            }
+        }
+        
+        private void StopCommandScript()
+        {
+            _scriptTimer.Stop();
+            _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
+            _commandEnumerator?.Dispose();
+            _commandEnumerator = null;
+            _isScriptCommandInProgress = false;
+        }
+
+        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            _ = ScriptTimerTickEvent_HandlerAsync();
+        }
+
+        private async Task ScriptTimerTickEvent_HandlerAsync()
+        {
+            if (_isScriptCommandInProgress)
+            {
                 return;
             }
 
-            SendMessage(_userInputText);
+            _isScriptCommandInProgress = true;
+            try
+            {
+                if (_commandEnumerator == null || !_commandEnumerator.MoveNext())
+                {
+                    StopCommandScript();
+                    return;
+                }
+
+                await QuickSendAsync(_commandEnumerator.Current);
+            }
+            catch (Exception ex)
+            {
+                StopCommandScript();
+                MessageBox.Show($"脚本发送失败：{ex.Message}", "发送失败",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isScriptCommandInProgress = false;
+            }
         }
     }
 }

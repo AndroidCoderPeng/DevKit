@@ -10,6 +10,7 @@ namespace DevKit.Cache
         public const string Apk = "Apk";
         public const string Tcp = "Tcp";
         public const string Udp = "Udp";
+        public const string WebSocket = "WebSocket";
         public const string History = "History";
     }
 
@@ -45,11 +46,23 @@ namespace DevKit.Cache
         public List<EndpointConfig> Clients { get; set; } = new List<EndpointConfig>();
     }
 
-    // TCP端点
+    public class WebSocketConfig
+    {
+        public WsEndpointConfig Server { get; set; } = new WsEndpointConfig();
+        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
+        public List<WsEndpointConfig> Clients { get; set; } = new List<WsEndpointConfig>();
+    }
+
+    // TCP/UDP端点
     public class EndpointConfig
     {
         public string Ip { get; set; }
         public string Port { get; set; }
+    }
+
+    public class WsEndpointConfig : EndpointConfig
+    {
+        public string Path { get; set; }
     }
 
     // 扩展指令分组
