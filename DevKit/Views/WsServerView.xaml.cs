@@ -5,9 +5,9 @@ using DevKit.ViewModels;
 
 namespace DevKit.Views
 {
-    public partial class WebSocketServerView : UserControl
+    public partial class WsServerView : UserControl
     {
-        public WebSocketServerView()
+        public WsServerView()
         {
             InitializeComponent();
         }

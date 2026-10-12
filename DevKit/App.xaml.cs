@@ -71,8 +71,8 @@ namespace DevKit
             containerRegistry.RegisterDialog<TcpServerView, TcpServerViewModel>();
             containerRegistry.RegisterDialog<UdpClientView, UdpClientViewModel>();
             containerRegistry.RegisterDialog<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterDialog<WebSocketClientView, WsClientViewModel>();
-            containerRegistry.RegisterDialog<WebSocketServerView, WsServerViewModel>();
+            containerRegistry.RegisterDialog<WsClientView, WsClientViewModel>();
+            containerRegistry.RegisterDialog<WsServerView, WsServerViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
             containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
             

@@ -2,9 +2,9 @@
 
 namespace DevKit.Views
 {
-    public partial class WebSocketClientView : UserControl
+    public partial class WsClientView : UserControl
     {
-        public WebSocketClientView()
+        public WsClientView()
         {
             InitializeComponent();
         }
