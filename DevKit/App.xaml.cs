@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using DevKit.Cache;
+﻿using System.Windows;
 using DevKit.DataService;
 using DevKit.Dialogs;
-using DevKit.Utils;
 using DevKit.ViewModels;
 using DevKit.Views;
-using Newtonsoft.Json;
 using Prism.DryIoc;
 using Prism.Ioc;
 
@@ -22,36 +15,7 @@ namespace DevKit
     {
         protected override Window CreateShell()
         {
-            var mainWindow = Container.Resolve<MainWindow>();
-            mainWindow.Loaded += async (sender, e) => 
-            {
-                using (var dataBase = new DataBaseConnection())
-                {
-                    if (!dataBase.Table<ColorResourceCache>().Any())
-                    {
-                        await InitializeColorDataAsync(dataBase);
-                    }
-                }
-            };
-            return mainWindow;
-        }
-
-        private async Task InitializeColorDataAsync(DataBaseConnection dataBase)
-        {
-            var traditionColorModels = await DeserializeColorFileAsync("Colors.json");
-            if (traditionColorModels.Count > 0)
-            {
-                dataBase.InsertAll(traditionColorModels);
-            }
-        }
-
-        private async Task<List<ColorResourceCache>> DeserializeColorFileAsync(string filePath)
-        {
-            using (var reader = new StreamReader(filePath))
-            {
-                var json = await reader.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<List<ColorResourceCache>>(json);
-            }
+            return Container.Resolve<MainWindow>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)

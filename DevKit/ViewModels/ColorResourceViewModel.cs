@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,7 +10,9 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
 using DevKit.Cache;
+using DevKit.Models;
 using DevKit.Utils;
+using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -191,10 +195,10 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ColorResourceCache> _colorResources =
-            new ObservableCollection<ColorResourceCache>();
+        private ObservableCollection<ColorResource> _colorResources =
+            new ObservableCollection<ColorResource>();
 
-        public ObservableCollection<ColorResourceCache> ColorResources
+        public ObservableCollection<ColorResource> ColorResources
         {
             get => _colorResources;
             set
@@ -248,7 +252,7 @@ namespace DevKit.ViewModels
         public DelegateCommand ResetCommand { set; get; }
         public DelegateCommand CopyColorHexValueCommand { set; get; }
         public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
-        public DelegateCommand<ColorResourceCache> ColorItemClickedCommand { set; get; }
+        public DelegateCommand<ColorResource> ColorItemClickedCommand { set; get; }
 
         #endregion
 
@@ -297,7 +301,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            ColorItemClickedCommand = new DelegateCommand<ColorResourceCache>(item =>
+            ColorItemClickedCommand = new DelegateCommand<ColorResource>(item =>
             {
                 if (item == null)
                 {
@@ -319,10 +323,9 @@ namespace DevKit.ViewModels
             {
                 var colorResCaches = await Task.Run(() =>
                 {
-                    using (var dataBase = new DataBaseConnection())
-                    {
-                        return dataBase.Table<ColorResourceCache>().ToList();
-                    }
+                    var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Colors.json");
+                    var json = File.ReadAllText(path);
+                    return JsonConvert.DeserializeObject<List<ColorResource>>(json) ?? new List<ColorResource>();
                 });
 
                 const int batchSize = 32;
@@ -364,7 +367,7 @@ namespace DevKit.ViewModels
 
             view.Filter = item =>
             {
-                if (!(item is ColorResourceCache color))
+                if (!(item is ColorResource color))
                 {
                     return false;
                 }

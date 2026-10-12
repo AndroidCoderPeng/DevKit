@@ -1,13 +1,7 @@
-﻿using SQLite;
-
-namespace DevKit.Cache
+﻿namespace DevKit.Models
 {
-    [Table("ColorResourceCache")]
-    public class ColorResourceCache
+    public class ColorResource
     {
-        [PrimaryKey, Unique, NotNull, AutoIncrement]
-        public int Id { get; set; }
-
         /// <summary>
         /// 颜色名
         /// </summary>
