@@ -80,32 +80,6 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _stateInnerBorderColor, value);
         }
 
-        private bool _isWsSelected = true;
-
-        public bool IsWsSelected
-        {
-            get => _isWsSelected;
-            set
-            {
-                if (SetProperty(ref _isWsSelected, value))
-                {
-                    RaisePropertyChanged(nameof(IsWssSelected));
-                }
-            }
-        }
-
-        public bool IsWssSelected
-        {
-            get => !_isWsSelected;
-            set
-            {
-                if (value)
-                {
-                    IsWsSelected = false;
-                }
-            }
-        }
-
         private string _stateTextColor = "#5F6B7A";
 
         public string StateTextColor
@@ -317,7 +291,6 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand<string> WsRadioChangedCommand { set; get; }
         public DelegateCommand ConnectServerCommand { set; get; }
         public DelegateCommand AddExtensionCommand { set; get; }
         public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
@@ -358,18 +331,6 @@ namespace DevKit.ViewModels
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
 
             _logs.CollectionChanged += Logs_CollectionChanged;
-
-            WsRadioChangedCommand = new DelegateCommand<string>(value =>
-            {
-                if (value == "0")
-                {
-                    IsWsSelected = true;
-                }
-                else if (value == "1")
-                {
-                    IsWsSelected = false;
-                }
-            });
 
             ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
 

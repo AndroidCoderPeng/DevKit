@@ -15,6 +15,8 @@ namespace DevKit.Transports
         private Task _receiveTask = Task.CompletedTask;
         private bool _disposed;
 
+        public event Action<byte[]> DataReceived;
+        
         public void Dispose()
         {
             if (_disposed)
@@ -26,8 +28,6 @@ namespace DevKit.Transports
             _receiveCts?.Cancel();
             _client?.Close();
         }
-
-        public event Action<byte[]> DataReceived;
 
         public void SetRemoteEndPoint(string address, int port, string path = null, bool secure = false)
         {

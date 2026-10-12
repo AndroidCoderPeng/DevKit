@@ -502,8 +502,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="2" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -560,37 +559,8 @@
 
             <Border
                 Grid.Column="2"
-                Margin="8,0"
-                Padding="2"
-                VerticalAlignment="Center"
-                Background="{StaticResource DevKitSurfaceBrush}"
-                BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
-                BorderThickness="1"
-                CornerRadius="16">
-                <StackPanel Orientation="Horizontal">
-                    <RadioButton
-                        Command="{Binding WsRadioChangedCommand}"
-                        CommandParameter="0"
-                        Content="WS"
-                        GroupName="WsProtocol"
-                        IsChecked="{Binding IsWsSelected}"
-                        Style="{StaticResource SegmentRadioStyle}"
-                        ToolTip="WS协议" />
-
-                    <RadioButton
-                        Command="{Binding WsRadioChangedCommand}"
-                        CommandParameter="1"
-                        Content="WSS"
-                        GroupName="WsProtocol"
-                        IsChecked="{Binding IsWssSelected}"
-                        Style="{StaticResource SegmentRadioStyle}"
-                        ToolTip="WSS协议" />
-                </StackPanel>
-            </Border>
-
-            <Border
-                Grid.Column="3"
                 Height="36"
+                Margin="14,0"
                 Background="{StaticResource DevKitSurfaceBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
@@ -661,8 +631,7 @@
             </Border>
 
             <TextBlock
-                Grid.Column="4"
-                Margin="14,0"
+                Grid.Column="3"
                 VerticalAlignment="Center"
                 FontSize="16"
                 FontWeight="Bold"
@@ -670,18 +639,18 @@
                 Text=":" />
 
             <TextBox
-                Grid.Column="5"
+                Grid.Column="4"
                 Width="100"
                 Height="36"
+                Margin="14,0"
                 HorizontalContentAlignment="Center"
                 MaxLength="6"
                 Style="{StaticResource FieldTextBoxStyle}"
                 Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}" />
 
             <Border
-                Grid.Column="6"
+                Grid.Column="5"
                 Height="36"
-                Margin="14,0"
                 Background="{StaticResource DevKitSurfaceBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
@@ -750,8 +719,8 @@
             </Border>
 
             <Button
-                Grid.Column="7"
-                Margin="0,0,14,0"
+                Grid.Column="6"
+                Margin="14,0"
                 Command="{Binding ConnectServerCommand}"
                 Style="{StaticResource PrimaryCompactButtonStyle}">
                 <Button.Content>
