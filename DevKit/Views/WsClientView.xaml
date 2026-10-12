@@ -1284,8 +1284,17 @@
                                                     <Border
                                                         x:Name="LogTypeBorder"
                                                         Grid.Column="1"
-                                                        Margin="8,0">
-                                                        <TextBlock Text="文本帧" />
+                                                        Margin="8,0"
+                                                        Background="{StaticResource DevKitSurfaceBrush}"
+                                                        BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8">
+                                                        <TextBlock
+                                                            Padding="8,0"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="10"
+                                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                                            Text="{Binding FrameType, FallbackValue=文本帧}" />
                                                     </Border>
 
                                                     <TextBlock
