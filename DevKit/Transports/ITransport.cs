@@ -8,7 +8,7 @@ namespace DevKit.Transports
     {
         event Action<byte[]> DataReceived; 
         
-        void SetRemoteEndPoint(string ip, int port);
+        void SetRemoteEndPoint(string address, int port);
         
         Task SendAsync(byte[] payload, CancellationToken token);
     }

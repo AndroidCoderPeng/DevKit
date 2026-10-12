@@ -9,6 +9,7 @@ namespace DevKit.Cache
         public const string Jni = "Jni";
         public const string Apk = "Apk";
         public const string Tcp = "Tcp";
+        public const string Udp = "Udp";
         public const string History = "History";
     }
 
@@ -32,13 +33,20 @@ namespace DevKit.Cache
     // TCP分组
     public class TcpConfig
     {
-        public TcpEndpointConfig Server { get; set; } = new TcpEndpointConfig();
+        public EndpointConfig Server { get; set; } = new EndpointConfig();
         public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
-        public List<TcpEndpointConfig> Clients { get; set; } = new List<TcpEndpointConfig>();
+        public List<EndpointConfig> Clients { get; set; } = new List<EndpointConfig>();
+    }
+
+    public class UdpConfig
+    {
+        public EndpointConfig Server { get; set; } = new EndpointConfig();
+        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
+        public List<EndpointConfig> Clients { get; set; } = new List<EndpointConfig>();
     }
 
     // TCP端点
-    public class TcpEndpointConfig
+    public class EndpointConfig
     {
         public string Ip { get; set; }
         public string Port { get; set; }
@@ -51,7 +59,7 @@ namespace DevKit.Cache
         public string Value { get; set; }
         public string Memo { get; set; }
     }
-    
+
     // 最近处理颜色分组
     public class RecentlyColorConfig
     {
