@@ -771,7 +771,7 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="16"
+                                    FontSize="15"
                                     FontWeight="SemiBold"
                                     Foreground="{DynamicResource DevKitTextBrush}"
                                     Text="会话统计" />
@@ -901,7 +901,7 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="16"
+                                    FontSize="15"
                                     FontWeight="SemiBold"
                                     Foreground="{DynamicResource DevKitTextBrush}"
                                     Text="扩展指令" />
@@ -1133,7 +1133,7 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="16"
+                                    FontSize="15"
                                     FontWeight="SemiBold"
                                     Foreground="{DynamicResource DevKitTextBrush}"
                                     Text="消息记录" />
