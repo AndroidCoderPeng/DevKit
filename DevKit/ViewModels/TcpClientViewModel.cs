@@ -426,7 +426,7 @@ namespace DevKit.ViewModels
                     foreach (var log in _logs)
                     {
                         var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
-                        writer.WriteLineAsync(text);
+                        writer.WriteLine(text);
                     }
                 }
             });

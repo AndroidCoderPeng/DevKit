@@ -1429,6 +1429,7 @@
                                     Grid.Column="5"
                                     Margin="8,0,0,0"
                                     Command="{Binding SendMessageCommand}"
+                                    IsEnabled="{Binding SendButtonEnabled}"
                                     Style="{StaticResource PrimaryCompactButtonStyle}"
                                     ToolTip="Ctrl + Enter 快速发送">
                                     <StackPanel Margin="12,0" Orientation="Horizontal">
@@ -1474,14 +1475,8 @@
             <TextBlock
                 Grid.Column="0"
                 Margin="16"
-                Foreground="{Binding StateTextColor}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}对端已指定 {0}:{1}，可直接发送数据报">
-                        <Binding Path="RemoteAddress" />
-                        <Binding Path="RemotePort" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
+                Foreground="{Binding StateTextColor}"
+                Text="{Binding StateText}" />
 
             <Border
                 Grid.Column="1"
