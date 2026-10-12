@@ -39,6 +39,7 @@ namespace DevKit.ViewModels
         public void OnDialogClosed()
         {
             PersistConfig();
+            StopCommandScript();
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -300,13 +301,7 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
-
-        /// <summary>
-        /// /////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// </summary>
         private ITransport _transport;
-
         private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
@@ -315,6 +310,9 @@ namespace DevKit.ViewModels
         private DispatcherTimer _toastTimer;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private bool _isLoopSendInProgress;
+        private IEnumerator<ExCommandConfig> _commandEnumerator;
+        private bool _isScriptCommandInProgress;
+        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -488,11 +486,31 @@ namespace DevKit.ViewModels
 
                     var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
                     var interval = result.Parameters.GetValue<string>("Interval");
-                    
-                    // _commandEnumerator = commands.GetEnumerator();
-                    // _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                    // _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                    // _scriptTimer.Start();
+
+                    if (commands == null || commands.Count == 0)
+                    {
+                        ShowToast("请先添加脚本指令");
+                        return;
+                    }
+
+                    if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+                    {
+                        ShowToast("时间间隔必须是正整数");
+                        return;
+                    }
+
+                    if (_transport == null || ConnectionState != "已连接")
+                    {
+                        ShowToast("请先连接 TCP 服务器");
+                        return;
+                    }
+
+                    StopCommandScript();
+
+                    _commandEnumerator = commands.GetEnumerator();
+                    _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                    _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                    _scriptTimer.Start();
                 });
             });
         }
@@ -840,6 +858,50 @@ namespace DevKit.ViewModels
             finally
             {
                 _isLoopSendInProgress = false;
+            }
+        }
+
+        private void StopCommandScript()
+        {
+            _scriptTimer.Stop();
+            _scriptTimer.Tick -= ScriptTimerTickEvent_Handler;
+            _commandEnumerator?.Dispose();
+            _commandEnumerator = null;
+            _isScriptCommandInProgress = false;
+        }
+
+        private void ScriptTimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            _ = ScriptTimerTickEvent_HandlerAsync();
+        }
+
+        private async Task ScriptTimerTickEvent_HandlerAsync()
+        {
+            if (_isScriptCommandInProgress)
+            {
+                return;
+            }
+
+            _isScriptCommandInProgress = true;
+            try
+            {
+                if (_commandEnumerator == null || !_commandEnumerator.MoveNext())
+                {
+                    StopCommandScript();
+                    return;
+                }
+
+                await QuickSendAsync(_commandEnumerator.Current);
+            }
+            catch (Exception ex)
+            {
+                StopCommandScript();
+                MessageBox.Show($"脚本发送失败：{ex.Message}", "发送失败",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isScriptCommandInProgress = false;
             }
         }
     }

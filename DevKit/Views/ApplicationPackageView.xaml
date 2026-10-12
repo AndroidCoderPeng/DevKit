@@ -7,7 +7,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:utils="clr-namespace:DevKit.Utils"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="860"
+    Width="872"
     Height="872"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
