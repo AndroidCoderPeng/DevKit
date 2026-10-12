@@ -161,7 +161,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Behaviors\AutoScrollToBottomBehavior.cs" />
-    <Compile Include="Behaviors\ListBoxItemMarginBehavior.cs" />
     <Compile Include="Cache\AppConfigCache.cs" />
     <Compile Include="Cache\ColorResourceCache.cs" />
     <Compile Include="Cache\ExCommandCache.cs" />

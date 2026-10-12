@@ -59,8 +59,8 @@ namespace DevKit.ViewModels
             { "TCP服务端", "TcpServerView" },
             { "UDP客户端", "UdpClientView" },
             { "UDP服务端", "UdpServerView" },
-            { "WS客户端", "WebSocketClientView" },
-            { "WS服务端", "WebSocketServerView" }
+            { "WS客户端", "WsClientView" },
+            { "WS服务端", "WsServerView" }
         };
         
         private void OnSocketToolClicked(MainMenu menu)
