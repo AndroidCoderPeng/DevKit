@@ -169,13 +169,9 @@
     <Compile Include="Dialogs\ExCommandDialog.xaml.cs">
       <DependentUpon>ExCommandDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\LoadingDialog.xaml.cs">
-      <DependentUpon>LoadingDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\ScreenshotExportDialog.xaml.cs">
       <DependentUpon>ScreenshotExportDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Events\CloseLoadingDialogEvent.cs" />
     <Compile Include="Models\ApkFile.cs" />
     <Compile Include="Models\CmdCommand.cs" />
     <Compile Include="Models\AndroidLog.cs" />
@@ -203,7 +199,6 @@
     <Compile Include="ViewModels\CommandScriptDialogViewModel.cs" />
     <Compile Include="ViewModels\ExCommandDialogViewModel.cs" />
     <Compile Include="ViewModels\JNIReverseViewModel.cs" />
-    <Compile Include="ViewModels\LoadingDialogViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\NetConfigurationViewModel.cs" />
     <Compile Include="ViewModels\ScreenshotExportDialogViewModel.cs" />
@@ -275,7 +270,6 @@
     <Page Include="Dialogs\AndroidLogcatDialog.xaml" />
     <Page Include="Dialogs\CommandScriptDialog.xaml" />
     <Page Include="Dialogs\ExCommandDialog.xaml" />
-    <Page Include="Dialogs\LoadingDialog.xaml" />
     <Page Include="Dialogs\ScreenshotExportDialog.xaml" />
     <Page Include="Views\AndroidDebugBridgeView.xaml" />
     <Page Include="Views\ApplicationPackageView.xaml" />

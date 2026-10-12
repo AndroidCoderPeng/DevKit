@@ -1211,17 +1211,84 @@
             </Border>
         </Grid>
 
-        <DockPanel
-            Grid.Row="3"
-            Margin="16,0,16,16"
-            LastChildFill="True">
-            <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="{Binding AdbVision, StringFormat={}{0} · 已就绪, TargetNullValue=adb · 已就绪, FallbackValue=adb · 已就绪}" />
+        <Grid Grid.Row="3" Margin="16,0,16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
             <TextBlock
+                Grid.Column="0"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="{Binding AdbVision, StringFormat={}{0} · 已就绪, TargetNullValue=adb · 已就绪, FallbackValue=adb · 已就绪}" />
+
+            <Grid
+                Grid.Column="1"
+                Margin="64,0"
+                VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Hidden" />
+                        <Style.Triggers>
+                            <Trigger Property="{Binding IsInstalling}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <TextBlock
+                    Grid.Column="0"
+                    Margin="0,0,8,0"
+                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                    Text="安装中，请稍后" />
+
+                <ProgressBar
+                    Grid.Column="1"
+                    Background="Transparent"
+                    BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                    BorderThickness="1"
+                    Foreground="{StaticResource GradientForegroundBrush}">
+                    <ProgressBar.Style>
+                        <Style TargetType="ProgressBar">
+                            <Setter Property="Height" Value="12" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ProgressBar">
+                                        <Grid>
+                                            <Border
+                                                x:Name="PART_Track"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="6" />
+                                            <Border
+                                                x:Name="PART_Indicator"
+                                                Margin="2"
+                                                HorizontalAlignment="Left"
+                                                Background="{TemplateBinding Foreground}"
+                                                CornerRadius="4" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
+            </Grid>
+
+            <TextBlock
+                Grid.Column="2"
                 HorizontalAlignment="Right"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="右键包名可导出安装包 / 卸载应用" />
-        </DockPanel>
+        </Grid>
 
         <Border
             Grid.Row="0"

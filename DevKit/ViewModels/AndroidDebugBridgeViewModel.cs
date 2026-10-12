@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
-using DevKit.Events;
 using DevKit.Utils;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Application = System.Windows.Application;
@@ -69,11 +67,7 @@ namespace DevKit.ViewModels
         public string CurrentDevice
         {
             get => _currentDevice;
-            set
-            {
-                _currentDevice = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _currentDevice, value);
         }
 
         private string _deviceBrand;
@@ -81,11 +75,7 @@ namespace DevKit.ViewModels
         public string DeviceBrand
         {
             get => _deviceBrand;
-            set
-            {
-                _deviceBrand = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceBrand, value);
         }
 
         private string _deviceModel;
@@ -93,11 +83,7 @@ namespace DevKit.ViewModels
         public string DeviceModel
         {
             get => _deviceModel;
-            set
-            {
-                _deviceModel = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceModel, value);
         }
 
         private string _connectionType;
@@ -105,11 +91,7 @@ namespace DevKit.ViewModels
         public string ConnectionType
         {
             get => _connectionType;
-            set
-            {
-                _connectionType = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _connectionType, value);
         }
 
         private string _androidVersion;
@@ -117,11 +99,7 @@ namespace DevKit.ViewModels
         public string AndroidVersion
         {
             get => _androidVersion;
-            set
-            {
-                _androidVersion = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _androidVersion, value);
         }
 
         private string _apiCode;
@@ -129,11 +107,7 @@ namespace DevKit.ViewModels
         public string ApiCode
         {
             get => _apiCode;
-            set
-            {
-                _apiCode = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _apiCode, value);
         }
 
         private string _cpuType;
@@ -141,11 +115,7 @@ namespace DevKit.ViewModels
         public string CpuType
         {
             get => _cpuType;
-            set
-            {
-                _cpuType = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _cpuType, value);
         }
 
         private string _batteryCapacity;
@@ -153,11 +123,7 @@ namespace DevKit.ViewModels
         public string BatteryCapacity
         {
             get => _batteryCapacity;
-            set
-            {
-                _batteryCapacity = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _batteryCapacity, value);
         }
 
         private string _deviceSize;
@@ -165,11 +131,7 @@ namespace DevKit.ViewModels
         public string DeviceSize
         {
             get => _deviceSize;
-            set
-            {
-                _deviceSize = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceSize, value);
         }
 
         private string _deviceDpi;
@@ -177,11 +139,7 @@ namespace DevKit.ViewModels
         public string DeviceDpi
         {
             get => _deviceDpi;
-            set
-            {
-                _deviceDpi = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceDpi, value);
         }
 
         private string _deviceAbi;
@@ -189,11 +147,7 @@ namespace DevKit.ViewModels
         public string DeviceAbi
         {
             get => _deviceAbi;
-            set
-            {
-                _deviceAbi = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceAbi, value);
         }
 
         private string _androidId;
@@ -201,11 +155,7 @@ namespace DevKit.ViewModels
         public string AndroidId
         {
             get => _androidId;
-            set
-            {
-                _androidId = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _androidId, value);
         }
 
         private string _deviceIp;
@@ -213,11 +163,7 @@ namespace DevKit.ViewModels
         public string DeviceIp
         {
             get => _deviceIp;
-            set
-            {
-                _deviceIp = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _deviceIp, value);
         }
 
         private string _batteryState;
@@ -225,11 +171,7 @@ namespace DevKit.ViewModels
         public string BatteryState
         {
             get => _batteryState;
-            set
-            {
-                _batteryState = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _batteryState, value);
         }
 
         private double _batteryProgress;
@@ -237,11 +179,7 @@ namespace DevKit.ViewModels
         public double BatteryProgress
         {
             get => _batteryProgress;
-            set
-            {
-                _batteryProgress = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _batteryProgress, value);
         }
 
         private string _batteryTemperature;
@@ -249,11 +187,7 @@ namespace DevKit.ViewModels
         public string BatteryTemperature
         {
             get => _batteryTemperature;
-            set
-            {
-                _batteryTemperature = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _batteryTemperature, value);
         }
 
         private string _adbVision = "adb";
@@ -261,11 +195,7 @@ namespace DevKit.ViewModels
         public string AdbVision
         {
             get => _adbVision;
-            set
-            {
-                _adbVision = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _adbVision, value);
         }
 
         private string _keyword = string.Empty;
@@ -286,11 +216,7 @@ namespace DevKit.ViewModels
         public string ToastMessage
         {
             get => _toastMessage;
-            set
-            {
-                _toastMessage = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _toastMessage, value);
         }
 
         private bool _isToastVisible;
@@ -298,11 +224,7 @@ namespace DevKit.ViewModels
         public bool IsToastVisible
         {
             get => _isToastVisible;
-            set
-            {
-                _isToastVisible = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _isToastVisible, value);
         }
 
         private bool _canInstall = true;
@@ -310,25 +232,23 @@ namespace DevKit.ViewModels
         public bool CanInstall
         {
             get => _canInstall;
-            set
-            {
-                _canInstall = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _canInstall, value);
         }
 
-        // ----------- ***** -----------
+        private bool _isInstalling;
+
+        public bool IsInstalling
+        {
+            get => _isInstalling;
+            set => SetProperty(ref _isInstalling, value);
+        }
 
         private Visibility _exportProgressVisibility = Visibility.Hidden;
 
         public Visibility ExportProgressVisibility
         {
             get => _exportProgressVisibility;
-            set
-            {
-                _exportProgressVisibility = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _exportProgressVisibility, value);
         }
 
         private double _exportProgress;
@@ -336,11 +256,7 @@ namespace DevKit.ViewModels
         public double ExportProgress
         {
             get => _exportProgress;
-            set
-            {
-                _exportProgress = value;
-                RaisePropertyChanged();
-            }
+            set => SetProperty(ref _exportProgress, value);
         }
 
         private ObservableCollection<string> _applicationPackages = new ObservableCollection<string>();
@@ -377,8 +293,6 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly IDialogService _dialogService;
-        private readonly IEventAggregator _eventAggregator;
         private static readonly Regex InetRegex = new Regex(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})", RegexOptions.Compiled);
         private static readonly Regex WifiRegex = new Regex(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$", RegexOptions.Compiled);
         private volatile bool _deviceLoaded;
@@ -387,15 +301,12 @@ namespace DevKit.ViewModels
         private bool _isAscending;
         private string _selectedPackage = string.Empty;
 
-        public AndroidDebugBridgeViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
+        public AndroidDebugBridgeViewModel(IDialogService dialogService)
         {
-            _dialogService = dialogService;
-            _eventAggregator = eventAggregator;
-
             RefreshDeviceCommand = new DelegateCommand(LoadConnectedDevice);
             AndroidIdLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
             DeviceIpLabelClickCommand = new DelegateCommand<string>(CopyToClipboard);
-            
+
             OutputImageCommand = new DelegateCommand(() =>
             {
                 if (_currentDevice == "未连接任何设备")
@@ -409,7 +320,7 @@ namespace DevKit.ViewModels
                     { "device", _currentDevice }
                 };
 
-                _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
+                dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
             });
 
             ScreenshotCommand = new DelegateCommand(() =>
@@ -440,7 +351,7 @@ namespace DevKit.ViewModels
                     { "device", _currentDevice }
                 };
 
-                _dialogService.ShowDialog("AndroidLogcatDialog", dialogParameters, _ => { });
+                dialogService.ShowDialog("AndroidLogcatDialog", dialogParameters, _ => { });
             });
 
             InstallCommand = new DelegateCommand(() => _ = InstallApplicationAsync());
@@ -710,14 +621,8 @@ namespace DevKit.ViewModels
 
             if (!CanInstall) return;
             CanInstall = false;
-
-            var dialogParameters = new DialogParameters
-            {
-                { "LoadingMessage", "软件安装中，请稍后......" }
-            };
-
-            _dialogService.Show("LoadingDialog", dialogParameters, delegate { });
-
+            IsInstalling = true;
+            
             try
             {
                 await Task.Run(() =>
@@ -739,8 +644,8 @@ namespace DevKit.ViewModels
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
-
+                        IsInstalling = false;
+                        
                         var success = exitCode == 0 &&
                                       lastLine != null &&
                                       lastLine.Trim().StartsWith("Success", StringComparison.OrdinalIgnoreCase);
@@ -762,7 +667,7 @@ namespace DevKit.ViewModels
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _eventAggregator.GetEvent<CloseLoadingDialogEvent>().Publish();
+                    IsInstalling = false;
                     MessageBox.Show($"安装失败：{e.Message}", "安装应用", MessageBoxButton.OK, MessageBoxImage.Error);
                 });
             }
