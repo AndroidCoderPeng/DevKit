@@ -1236,9 +1236,9 @@
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Hidden" />
                         <Style.Triggers>
-                            <Trigger Property="{Binding IsInstalling}" Value="True">
+                            <DataTrigger Binding="{Binding IsInstalling}" Value="True">
                                 <Setter Property="Visibility" Value="Visible" />
-                            </Trigger>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>

@@ -664,14 +664,12 @@
                             </Grid>
 
                             <!--  发送 / 接收  -->
-                            <Grid Margin="0,12,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-
+                            <UniformGrid
+                                Margin="0,12,0,0"
+                                Columns="2"
+                                Rows="1">
                                 <Border
-                                    Grid.Column="0"
+                                    Margin="0,0,6,0"
                                     Padding="12,10"
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
@@ -699,8 +697,7 @@
                                 </Border>
 
                                 <Border
-                                    Grid.Column="1"
-                                    Margin="8,0,0,0"
+                                    Margin="6,0,0,0"
                                     Padding="12,10"
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
@@ -726,7 +723,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
-                            </Grid>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
 
