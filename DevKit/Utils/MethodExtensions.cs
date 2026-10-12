@@ -65,10 +65,5 @@ namespace DevKit.Utils
         {
             return new Regex(@"^\d+$").IsMatch(s);
         }
-
-        public static bool IsValidWsPath(this string path)
-        {
-            return string.IsNullOrWhiteSpace(path) || (path.StartsWith("/") && path.IndexOf(' ') < 0);
-        }
     }
 }
