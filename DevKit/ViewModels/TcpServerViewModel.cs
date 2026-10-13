@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
@@ -193,10 +197,9 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _receiveByteSize, value);
         }
 
-        // TODO 泛型待定
-        private ObservableCollection<object> _clientItems = new ObservableCollection<object>();
+        private ObservableCollection<TcpServerClient> _clientItems = new ObservableCollection<TcpServerClient>();
 
-        public ObservableCollection<object> ClientItems
+        public ObservableCollection<TcpServerClient> ClientItems
         {
             get => _clientItems;
             set => SetProperty(ref _clientItems, value);
@@ -251,10 +254,9 @@ namespace DevKit.ViewModels
             }
         }
         
-        // TODO 泛型待定
-        private ObservableCollection<object> _logs = new ObservableCollection<object>();
+        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
-        public ObservableCollection<object> Logs
+        public ObservableCollection<SocketMessage> Logs
         {
             get => _logs;
             set
@@ -372,6 +374,8 @@ namespace DevKit.ViewModels
             }
             
             _logs.CollectionChanged += Logs_CollectionChanged;
+
+            ListenPortCommand = new DelegateCommand(() => _ = StartListeningAsync());
         }
         
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -385,6 +389,107 @@ namespace DevKit.ViewModels
             RaisePropertyChanged(nameof(SendByteSize));
             RaisePropertyChanged(nameof(ReceiveCount));
             RaisePropertyChanged(nameof(ReceiveByteSize));
+        }
+
+        private async Task StartListeningAsync()
+        {
+            if (_server == null)
+            {
+                _server = new TcpServerTransport();
+                _server.ClientConnected += OnClientConnected;
+                _server.ClientClosed += OnClientClosed;
+                _server.DataReceived += OnClientDataReceived;
+            }
+
+            if (!_server.IsRunning)
+            {
+                try
+                {
+                    await _server.StartAsync(SelectedIp, int.Parse(LocalPort), CancellationToken.None);
+                    StateText = "已监听";
+                    ListenButtonText = "停止监听";
+                }
+                catch (Exception ex)
+                {
+                    StateText = $"监听失败: {ex.Message}";
+                }
+            }
+            else
+            {
+                await _server.StopAsync();
+                StateText = "未监听";
+                ListenButtonText = "开始监听";
+            }
+        }
+
+        private void OnClientConnected(ServerClient info)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ClientItems.Add(new TcpServerClient
+                {
+                    Id = info.Id,
+                    Ip = info.Ip,
+                    Port = info.Port,
+                    IsConnected = true
+                });
+
+                ClientCount = ClientItems.Count;
+                OnlineClientCount = ClientItems.Count(x => x.IsConnected);
+            }));
+        }
+        
+        private void OnClientClosed(ServerClient info)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var client = ClientItems.FirstOrDefault(x => x.Id == info.Id);
+                if (client != null)
+                {
+                    client.IsConnected = false;
+                }
+
+                OnlineClientCount = ClientItems.Count(x => x.IsConnected);
+            }));
+        }
+
+        private void OnClientDataReceived(ServerClient info, byte[] bytes)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var client = ClientItems.FirstOrDefault(x => x.Id == info.Id);
+                if (client == null)
+                {
+                    return;
+                }
+                
+                var time = DateTime.Now.ToString("HH:mm:ss.fff");
+                client.Logs.Add(new SocketMessage
+                {
+                    RawData = bytes,
+                    Content = FormatLogContent(bytes),
+                    Time = time,
+                    IsSend = 0
+                });
+                client.MessageCount++;
+
+                ReceiveCount++;
+                ReceiveByteSize += bytes.Length;
+                LastDataTime = time;
+                
+                // 若正在查看该客户端，同步刷新当前日志视图
+                if (SelectedClientIp == client.Ip && SelectedClientPort == client.Port)
+                {
+                    Logs = client.Logs;
+                }
+            }));
+        }
+        
+        private string FormatLogContent(byte[] bytes)
+        {
+            return IsLogHexSelected
+                ? BitConverter.ToString(bytes).Replace("-", " ")
+                : Encoding.UTF8.GetString(bytes);
         }
     }
 }

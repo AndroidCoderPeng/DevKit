@@ -213,7 +213,8 @@
     <Compile Include="Models\SocketMessage.cs" />
     <Compile Include="Models\MainMenu.cs" />
     <Compile Include="Models\ScreenshotFile.cs" />
-    <Compile Include="Models\ServerClientInfo.cs" />
+    <Compile Include="Models\ServerClient.cs" />
+    <Compile Include="Models\TcpServerClient.cs" />
     <Compile Include="Models\UdpClientModel.cs" />
     <Compile Include="Models\WebSocketClientModel.cs" />
     <Compile Include="Models\WebSocketMessage.cs" />

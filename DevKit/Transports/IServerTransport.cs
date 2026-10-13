@@ -7,7 +7,7 @@ namespace DevKit.Transports
 {
     public interface IServerTransport : IDisposable
     {
-        event Action<ServerClientInfo, byte[]> DataReceived;
+        event Action<ServerClient, byte[]> DataReceived;
 
         bool IsRunning { get; }
 

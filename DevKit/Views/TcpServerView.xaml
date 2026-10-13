@@ -567,8 +567,6 @@
 
             <CheckBox
                 Grid.Column="5"
-                Command="{Binding ReusePortSwitchCommand}"
-                CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                 Content="复用端口"
                 IsChecked="{Binding IsReusePortEnabled, Mode=TwoWay}"
                 Style="{StaticResource ToggleSwitchStyle}" />
@@ -599,7 +597,7 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="2.5*" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Margin="16">
@@ -761,7 +759,6 @@
                                 </Border>
 
                                 <Border
-                                    Grid.Column="1"
                                     Margin="6,6,0,0"
                                     Padding="12,10"
                                     Background="{StaticResource DevKitSurfaceBrush}"
@@ -873,21 +870,45 @@
                                                     Width="20"
                                                     Height="20"
                                                     VerticalAlignment="Center"
-                                                    Background="{Binding StateInnerBackgroundColor}"
                                                     CornerRadius="10">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#E7EBF0" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                    <Setter Property="Background" Value="#BEE7D1" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+
                                                     <Border
                                                         Width="10"
                                                         Height="10"
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
-                                                        Background="{Binding StateInnerBorderColor}"
-                                                        CornerRadius="5" />
+                                                        CornerRadius="5">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#93A0AE" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                        <Setter Property="Background" Value="#16A34A" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                    </Border>
                                                 </Border>
 
-                                                <StackPanel Grid.Column="1" Orientation="Vertical">
+                                                <StackPanel
+                                                    Grid.Column="1"
+                                                    Margin="8,0"
+                                                    Orientation="Vertical">
                                                     <TextBlock
                                                         FontFamily="Consolas"
-                                                        FontSize="13"
+                                                        FontSize="14"
+                                                        FontWeight="SemiBold"
                                                         Foreground="{DynamicResource DevKitTextBrush}">
                                                         <TextBlock.Text>
                                                             <MultiBinding StringFormat="{}{0}:{1}">
@@ -897,11 +918,20 @@
                                                         </TextBlock.Text>
                                                     </TextBlock>
 
-                                                    <TextBlock
-                                                        Margin="0,4,0,0"
-                                                        FontSize="11"
-                                                        Foreground="{Binding ClientStateColor}"
-                                                        Text="{Binding ClientState}" />
+                                                    <TextBlock Margin="0,4,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="已断开" />
+                                                                <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                        <Setter Property="Text" Value="已连接" />
+                                                                        <Setter Property="Foreground" Value="{StaticResource DevKitSuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
                                                 </StackPanel>
 
                                                 <Border
@@ -909,12 +939,19 @@
                                                     Padding="8,4"
                                                     VerticalAlignment="Center"
                                                     Background="{StaticResource DevKitDangerBorderBrush}"
-                                                    CornerRadius="10">
-                                                    <TextBlock
-                                                        FontSize="12"
-                                                        FontWeight="SemiBold"
-                                                        Foreground="{StaticResource DevKitDangerBrush}"
-                                                        Text="{Binding ClientLogs.Count, FallbackValue=0}" />
+                                                    CornerRadius="12">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding UnreadLogCount}" Value="0">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+
+                                                    <TextBlock Foreground="{StaticResource DevKitDangerBrush}" Text="{Binding UnreadLogCount, FallbackValue=0}" />
                                                 </Border>
 
                                                 <Button
@@ -1043,9 +1080,9 @@
                                         <TextBlock
                                             Margin="0,8,0,0"
                                             HorizontalAlignment="Center"
-                                            FontSize="14"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="启动监听后，客户端接入会自动出现在这里" />
+                                            Text="启动后，会自动显示已连接的客户端"
+                                            TextWrapping="Wrap" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>

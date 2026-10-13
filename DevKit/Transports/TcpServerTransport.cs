@@ -17,9 +17,9 @@ namespace DevKit.Transports
         private TcpService _service;
         private bool _disposed;
 
-        public event Action<ServerClientInfo> ClientConnected;
-        public event Action<ServerClientInfo> ClientClosed;
-        public event Action<ServerClientInfo, byte[]> DataReceived;
+        public event Action<ServerClient> ClientConnected;
+        public event Action<ServerClient> ClientClosed;
+        public event Action<ServerClient, byte[]> DataReceived;
 
         public bool IsRunning => _service != null && _service.ServerState == ServerState.Running;
 
@@ -72,21 +72,21 @@ namespace DevKit.Transports
             service.Connected = (client, e) =>
             {
                 _clients[client.Id] = client;
-                ClientConnected?.Invoke(new ServerClientInfo(client.Id, client.IP, client.Port));
+                ClientConnected?.Invoke(new ServerClient(client.Id, client.IP, client.Port));
                 return EasyTask.CompletedTask;
             };
 
             service.Closed = (client, e) =>
             {
                 _clients.TryRemove(client.Id, out _);
-                ClientClosed?.Invoke(new ServerClientInfo(client.Id, client.IP, client.Port));
+                ClientClosed?.Invoke(new ServerClient(client.Id, client.IP, client.Port));
                 return EasyTask.CompletedTask;
             };
             
             service.Received = (client, e) =>
             {
                 // ReceivedDataEventArgs 的数据在 e.Memory，必须 ToArray() 拷贝
-                DataReceived?.Invoke(new ServerClientInfo(client.Id, client.IP, client.Port), e.Memory.ToArray());
+                DataReceived?.Invoke(new ServerClient(client.Id, client.IP, client.Port), e.Memory.ToArray());
                 return EasyTask.CompletedTask;
             };
         }

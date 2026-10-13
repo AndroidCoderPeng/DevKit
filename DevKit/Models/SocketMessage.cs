@@ -5,7 +5,7 @@ namespace DevKit.Models
     public class SocketMessage : INotifyPropertyChanged
     {
         public byte[] RawData { get; set; }
-        
+
         private string _content;
 
         public string Content
@@ -18,14 +18,23 @@ namespace DevKit.Models
             }
         }
 
+        public string Time { get; set; }
+
+        /// <summary>
+        /// Indicates whether the message was sent or received. 1 for sent messages, 0 for received messages.
+        /// </summary>
+        public int IsSend { get; set; }
+
+        /// <summary>
+        /// Indicates whether the message has been read. True if the message has been read; otherwise, false.
+        /// </summary>
+        public bool IsRead { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
-        public string Time { get; set; }
-        public int IsSend { get; set; }
     }
 }
