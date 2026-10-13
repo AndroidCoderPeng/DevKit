@@ -531,7 +531,7 @@
                         FontSize="15"
                         FontWeight="SemiBold"
                         Foreground="{Binding StateTextColor}"
-                        Text="{Binding ListenState, FallbackValue=未监听}" />
+                        Text="{Binding StateText, FallbackValue=未监听}" />
                 </StackPanel>
             </Border>
 
@@ -541,7 +541,6 @@
                 Background="{StaticResource DevKitBorderBrush}" />
 
             <ComboBox
-                x:Name="LocalHostComboBox"
                 Grid.Column="2"
                 Margin="14,8"
                 ItemsSource="{Binding LocalHostSource}"
@@ -564,10 +563,9 @@
                 HorizontalContentAlignment="Center"
                 MaxLength="6"
                 Style="{StaticResource FieldTextBoxStyle}"
-                Text="{Binding RemotePort, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" />
 
             <CheckBox
-                x:Name="ReusePortSwitch"
                 Grid.Column="5"
                 Command="{Binding ReusePortSwitchCommand}"
                 CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
@@ -592,7 +590,7 @@
                             Margin="6,0,0,0"
                             VerticalAlignment="Center"
                             FontSize="13"
-                            Text="{Binding ButtonStateText}" />
+                            Text="{Binding ListenButtonText}" />
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -693,14 +691,14 @@
                                                 FontSize="16"
                                                 FontWeight="SemiBold"
                                                 Foreground="{StaticResource DevKitSuccessBrush}"
-                                                Text="{Binding OnlineClienCount, FallbackValue=0}" />
+                                                Text="{Binding OnlineClientCount, FallbackValue=0}" />
 
                                             <TextBlock
                                                 Margin="6,0,0,0"
                                                 VerticalAlignment="Bottom"
                                                 FontSize="11"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                Text="{Binding ClienCount, StringFormat={}共 {0} 个}" />
+                                                Text="{Binding ClientCount, StringFormat={}共 {0} 个}" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -1119,8 +1117,8 @@
                                         Foreground="#7C5CFF">
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat="{}{0}:{1}">
-                                                <Binding Path="Ip" />
-                                                <Binding Path="Port" />
+                                                <Binding Path="SelectedClientIp" />
+                                                <Binding Path="SelectedClientPort" />
                                             </MultiBinding>
                                         </TextBlock.Text>
                                     </TextBlock>
@@ -1588,9 +1586,9 @@
                 Foreground="{Binding StateTextColor}">
                 <TextBlock.Text>
                     <MultiBinding StringFormat="{}{0} {1}:{2}">
-                        <Binding Path="ListenState" />
-                        <Binding Path="ListenAddress" />
-                        <Binding Path="ListenPort" />
+                        <Binding Path="StateText" />
+                        <Binding Path="SelectedIp" />
+                        <Binding Path="LocalPort" />
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
