@@ -792,7 +792,7 @@ namespace DevKit.ViewModels
 
                 targets = new List<TcpServerClient> { selectedClient };
             }
-            
+
             var failures = new List<string>();
             var successCount = 0;
             foreach (var client in targets)
@@ -821,7 +821,7 @@ namespace DevKit.ViewModels
                     failures.Add($"{client.Ip}:{client.Port}：{ex.Message}");
                 }
             }
-            
+
             if (failures.Count > 0)
             {
                 var title = successCount == 0 ? "发送失败" : "部分发送失败";
@@ -839,19 +839,51 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // if (_transport == null || ConnectionState != "已连接")
-            // {
-            //     MessageBox.Show("请先连接 TCP 服务器", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //     IsLoopSendEnabled = false;
-            //     return;
-            // }
-            //
-            // if (string.IsNullOrWhiteSpace(_userInputText))
-            // {
-            //     MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //     IsLoopSendEnabled = false;
-            //     return;
-            // }
+            if (_server == null || !_server.IsRunning)
+            {
+                MessageBox.Show("请先启动 TCP 服务", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_isBroadcastAllEnabled)
+            {
+                if (!ClientItems.Any(client => client.IsConnected))
+                {
+                    MessageBox.Show("当前没有在线客户端", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsLoopSendEnabled = false;
+                    return;
+                }
+            }
+            else if (_selectedClient == null || !_selectedClient.IsConnected)
+            {
+                MessageBox.Show("请先选择一个在线客户端，或启用广播全部", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_isSendHexSelected)
+            {
+                var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var token in tokens)
+                {
+                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
+                    {
+                        MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法循环发送", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        IsLoopSendEnabled = false;
+                        return;
+                    }
+                }
+            }
 
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
