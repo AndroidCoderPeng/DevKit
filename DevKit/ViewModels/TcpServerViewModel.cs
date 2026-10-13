@@ -354,7 +354,7 @@ namespace DevKit.ViewModels
 
         public DelegateCommand ListenPortCommand { set; get; }
         public DelegateCommand DisconnectAllCommand { set; get; }
-        public DelegateCommand DisconnectClientCommand { set; get; } // TODO: 断开指定连接
+        public DelegateCommand DisconnectClientCommand { set; get; }
         public DelegateCommand<TcpServerClient> ClientItemSelectedCommand { set; get; }
 
         #endregion
