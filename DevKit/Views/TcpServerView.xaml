@@ -922,7 +922,7 @@
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Text" Value="已断开" />
-                                                                <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+                                                                <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsConnected}" Value="True">
                                                                         <Setter Property="Text" Value="已连接" />

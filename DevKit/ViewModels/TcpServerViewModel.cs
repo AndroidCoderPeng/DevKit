@@ -254,7 +254,7 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
 
         public ObservableCollection<SocketMessage> Logs
@@ -315,7 +315,7 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         private bool _isLoopSendEnabled;
 
         public bool IsLoopSendEnabled
@@ -331,7 +331,7 @@ namespace DevKit.ViewModels
             get => _interval;
             set => SetProperty(ref _interval, value);
         }
-        
+
         private string _toastMessage;
 
         public string ToastMessage
@@ -347,7 +347,7 @@ namespace DevKit.ViewModels
             get => _isToastVisible;
             set => SetProperty(ref _isToastVisible, value);
         }
-        
+
         private string _lastDataTime = string.Empty;
 
         public string LastDataTime
@@ -355,18 +355,22 @@ namespace DevKit.ViewModels
             get => _lastDataTime;
             set => SetProperty(ref _lastDataTime, value);
         }
-        
+
         #endregion
 
         #region DelegateCommand
 
         public DelegateCommand ListenPortCommand { set; get; }
+        public DelegateCommand DisconnectAllCommand { set; get; } // TODO: 断开所有连接
+        public DelegateCommand DisconnectClientCommand { set; get; } // TODO: 断开指定连接
+        public DelegateCommand<TcpServerClient> ClientItemSelectedCommand { set; get; }
 
         #endregion
 
         private TcpServerTransport _server;
         private DispatcherTimer _runningTimer;
         private DateTime _listenStartedAt;
+        private TcpServerClient _selectedClient;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -375,17 +379,35 @@ namespace DevKit.ViewModels
             {
                 SelectedIp = _localHostSource.First();
             }
-            
+
             _logs.CollectionChanged += Logs_CollectionChanged;
 
             ListenPortCommand = new DelegateCommand(() => _ = StartListeningAsync());
+
+
+            ClientItemSelectedCommand = new DelegateCommand<TcpServerClient>(client =>
+            {
+                if (client == null)
+                {
+                    return;
+                }
+
+                _selectedClient = client;
+                SelectedClientIp = client.Ip;
+                SelectedClientPort = client.Port;
+
+                // 切到该客户端 = 查看，未读清零
+                client.MarkAllRead();
+                Logs = client.Logs;
+                RefreshUnreadMessageCount();
+            });
         }
-        
+
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             RaiseLogStatisticsChanged();
         }
-        
+
         private void RaiseLogStatisticsChanged()
         {
             RaisePropertyChanged(nameof(SendCount));
@@ -423,11 +445,16 @@ namespace DevKit.ViewModels
                 await _server.StopAsync();
                 ApplyListenState(ListenState.NotListening);
                 StopRunningTimer();
-                
+
                 // 停止后清掉旧的连接记录（StopAsync 会断开所有客户端）
                 ClientItems.Clear();
                 ClientCount = 0;
                 OnlineClientCount = 0;
+                UnReadMessageCount = 0;
+                _selectedClient = null;
+                Logs.Clear();
+                SelectedClientIp = string.Empty;
+                SelectedClientPort = 0;
             }
         }
 
@@ -447,7 +474,7 @@ namespace DevKit.ViewModels
                 OnlineClientCount = ClientItems.Count(x => x.IsConnected);
             }));
         }
-        
+
         private void OnClientClosed(ServerClient info)
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
@@ -471,27 +498,31 @@ namespace DevKit.ViewModels
                 {
                     return;
                 }
-                
+
+                var isViewing = ReferenceEquals(_selectedClient, client);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
                 client.Logs.Add(new SocketMessage
                 {
                     RawData = bytes,
                     Content = FormatLogContent(bytes),
                     Time = time,
-                    IsSend = 0
+                    IsSend = 0,
+                    IsRead = isViewing   // 正在看 → 直接算已读；否则进未读
                 });
                 client.MessageCount++;
 
                 ReceiveCount++;
                 ReceiveByteSize += bytes.Length;
                 LastDataTime = time;
-                
-                // 若正在查看该客户端，同步刷新当前日志视图
-                if (SelectedClientIp == client.Ip && SelectedClientPort == client.Port)
-                {
-                    Logs = client.Logs;
-                }
+
+                RefreshUnreadMessageCount();
             }));
+        }
+
+        private void RefreshUnreadMessageCount()
+        {
+            // 统计面板上的"未读消息"= 所有客户端未读数之和
+            UnReadMessageCount = ClientItems.Sum(x => x.UnreadLogCount);
         }
         
         private void ApplyListenState(ListenState state)
@@ -510,7 +541,7 @@ namespace DevKit.ViewModels
 
                 case ListenState.Error:
                     StateText = "监听失败";
-                    ListenButtonText = "开始监听";   // 保持可重试
+                    ListenButtonText = "开始监听"; // 保持可重试
                     StateOuterBackgroundColor = "#66F2994A";
                     StateOuterBorderColor = "#1FF2994A";
                     StateInnerBackgroundColor = "#FBE1C9";
@@ -529,7 +560,7 @@ namespace DevKit.ViewModels
                     break;
             }
         }
-        
+
         private void StartRunningTimer()
         {
             StopRunningTimer();
@@ -559,7 +590,7 @@ namespace DevKit.ViewModels
             var elapsed = DateTime.Now - _listenStartedAt;
             RunningTime = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
-        
+
         private string FormatLogContent(byte[] bytes)
         {
             return IsLogHexSelected
