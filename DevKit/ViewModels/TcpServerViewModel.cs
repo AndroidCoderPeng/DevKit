@@ -227,13 +227,13 @@ namespace DevKit.ViewModels
                 if (SetProperty(ref _isLogHexSelected, value))
                 {
                     RaisePropertyChanged(nameof(IsLogAsciiSelected));
-                    // foreach (var log in Logs)
-                    // {
-                    //     if (log.RawData != null)
-                    //     {
-                    //         log.Content = FormatLogContent(log.RawData);
-                    //     }
-                    // }
+                    foreach (var log in SelectedClient?.Logs ?? Enumerable.Empty<SocketMessage>())
+                    {
+                        if (log.RawData != null)
+                        {
+                            log.Content = FormatLogContent(log.RawData);
+                        }
+                    }
                 }
             }
         }
