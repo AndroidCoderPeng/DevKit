@@ -206,20 +206,12 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _clientItems, value);
         }
 
-        private string _selectedClientIp = string.Empty;
+        private TcpServerClient _selectedClient;
 
-        public string SelectedClientIp
+        public TcpServerClient SelectedClient
         {
-            get => _selectedClientIp;
-            set => SetProperty(ref _selectedClientIp, value);
-        }
-
-        private int _selectedClientPort;
-
-        public int SelectedClientPort
-        {
-            get => _selectedClientPort;
-            set => SetProperty(ref _selectedClientPort, value);
+            get => _selectedClient;
+            set => SetProperty(ref _selectedClient, value);
         }
 
         private bool _isLogHexSelected = true;
@@ -370,7 +362,6 @@ namespace DevKit.ViewModels
         private TcpServerTransport _server;
         private DispatcherTimer _runningTimer;
         private DateTime _listenStartedAt;
-        private TcpServerClient _selectedClient;
         private DispatcherTimer _toastTimer;
 
         public TcpServerViewModel(IAppDataService dataService)
@@ -399,9 +390,7 @@ namespace DevKit.ViewModels
                     return;
                 }
                 
-                _selectedClient = client;
-                SelectedClientIp = client.Ip;
-                SelectedClientPort = client.Port;
+                SelectedClient = client;
 
                 // 切到该客户端 = 查看，未读清零
                 client.MarkAllRead();
@@ -454,14 +443,9 @@ namespace DevKit.ViewModels
                 StopRunningTimer();
 
                 // 停止后清掉旧的连接记录（StopAsync 会断开所有客户端）
-                ClientItems.Clear();
-                ClientCount = 0;
                 OnlineClientCount = 0;
                 UnReadMessageCount = 0;
-                _selectedClient = null;
-                Logs.Clear();
-                SelectedClientIp = string.Empty;
-                SelectedClientPort = 0;
+                SelectedClient = null;
             }
         }
 

@@ -1158,8 +1158,8 @@
                                         Foreground="#7C5CFF">
                                         <TextBlock.Text>
                                             <MultiBinding StringFormat="{}{0}:{1}">
-                                                <Binding Path="SelectedClientIp" />
-                                                <Binding Path="SelectedClientPort" />
+                                                <Binding Path="SelectedClient.Ip" />
+                                                <Binding Path="SelectedClient.Port" />
                                             </MultiBinding>
                                         </TextBlock.Text>
                                     </TextBlock>
