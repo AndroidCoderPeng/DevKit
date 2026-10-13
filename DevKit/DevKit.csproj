@@ -220,8 +220,10 @@
     <Compile Include="Models\WebSocketMessage.cs" />
     <Compile Include="Transports\IServerTransport.cs" />
     <Compile Include="Transports\IClientTransport.cs" />
+    <Compile Include="Transports\ListenState.cs" />
     <Compile Include="Transports\TcpClientTransport.cs" />
     <Compile Include="Transports\TcpServerTransport.cs" />
+    <Compile Include="Transports\TransportState.cs" />
     <Compile Include="Transports\UdpClientTransport.cs" />
     <Compile Include="Transports\WsClientTransport.cs" />
     <Compile Include="Transports\WsFrameKind.cs" />
@@ -230,7 +232,6 @@
     <Compile Include="Utils\MethodExtensions.cs" />
     <Compile Include="Utils\PasswordAttachAttribute.cs" />
     <Compile Include="Utils\SettingsStore.cs" />
-    <Compile Include="Utils\TransportState.cs" />
     <Compile Include="ViewModels\AndroidDebugBridgeViewModel.cs" />
     <Compile Include="ViewModels\AndroidLogcatDialogViewModel.cs" />
     <Compile Include="ViewModels\ApplicationPackageViewModel.cs" />

@@ -1,4 +1,4 @@
-﻿namespace DevKit.Utils
+﻿namespace DevKit.Transports
 {
     public enum TransportState
     {

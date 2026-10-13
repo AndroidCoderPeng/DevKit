@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
@@ -364,6 +365,8 @@ namespace DevKit.ViewModels
         #endregion
 
         private TcpServerTransport _server;
+        private DispatcherTimer _runningTimer;
+        private DateTime _listenStartedAt;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -406,19 +409,25 @@ namespace DevKit.ViewModels
                 try
                 {
                     await _server.StartAsync(SelectedIp, int.Parse(LocalPort), CancellationToken.None);
-                    StateText = "已监听";
-                    ListenButtonText = "停止监听";
+                    ApplyListenState(ListenState.Listening);
+                    StartRunningTimer();
                 }
                 catch (Exception ex)
                 {
-                    StateText = $"监听失败: {ex.Message}";
+                    ApplyListenState(ListenState.Error);
+                    MessageBox.Show($"监听失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
                 await _server.StopAsync();
-                StateText = "未监听";
-                ListenButtonText = "开始监听";
+                ApplyListenState(ListenState.NotListening);
+                StopRunningTimer();
+                
+                // 停止后清掉旧的连接记录（StopAsync 会断开所有客户端）
+                ClientItems.Clear();
+                ClientCount = 0;
+                OnlineClientCount = 0;
             }
         }
 
@@ -483,6 +492,72 @@ namespace DevKit.ViewModels
                     Logs = client.Logs;
                 }
             }));
+        }
+        
+        private void ApplyListenState(ListenState state)
+        {
+            switch (state)
+            {
+                case ListenState.Listening:
+                    StateText = "已监听";
+                    ListenButtonText = "停止监听";
+                    StateOuterBackgroundColor = "#5917A95C";
+                    StateOuterBorderColor = "#1F17A95C";
+                    StateInnerBackgroundColor = "#BEE7D1";
+                    StateInnerBorderColor = "#16A34A";
+                    StateTextColor = "#16A34A";
+                    break;
+
+                case ListenState.Error:
+                    StateText = "监听失败";
+                    ListenButtonText = "开始监听";   // 保持可重试
+                    StateOuterBackgroundColor = "#66F2994A";
+                    StateOuterBorderColor = "#1FF2994A";
+                    StateInnerBackgroundColor = "#FBE1C9";
+                    StateInnerBorderColor = "#F2994A";
+                    StateTextColor = "#F2994A";
+                    break;
+
+                default: // NotListening
+                    StateText = "未监听";
+                    ListenButtonText = "开始监听";
+                    StateOuterBackgroundColor = "#FFF7F9FC";
+                    StateOuterBorderColor = "#FFEEEEF0";
+                    StateInnerBackgroundColor = "#E7EBF0";
+                    StateInnerBorderColor = "#93A0AE";
+                    StateTextColor = "#5F6B7A";
+                    break;
+            }
+        }
+        
+        private void StartRunningTimer()
+        {
+            StopRunningTimer();
+
+            RunningTime = "00:00:00";
+            _listenStartedAt = DateTime.Now;
+
+            _runningTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _runningTimer.Tick += RunningTimerTick;
+            _runningTimer.Start();
+        }
+
+        private void StopRunningTimer()
+        {
+            if (_runningTimer == null)
+            {
+                return;
+            }
+
+            _runningTimer.Stop();
+            _runningTimer.Tick -= RunningTimerTick;
+            _runningTimer = null;
+        }
+
+        private void RunningTimerTick(object sender, EventArgs e)
+        {
+            var elapsed = DateTime.Now - _listenStartedAt;
+            RunningTime = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
         
         private string FormatLogContent(byte[] bytes)
