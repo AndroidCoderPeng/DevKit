@@ -511,7 +511,7 @@ namespace DevKit.ViewModels
                 {
                     var fresh = new UdpClientTransport(RemoteAddress, port);
                     fresh.DataReceived += OnUdpDataReceived;
-                    fresh.Start(cts.Token);
+                    await fresh.StartAsync(cts.Token);
 
                     _transport = fresh;
                     _transportCts = cts;
@@ -545,7 +545,7 @@ namespace DevKit.ViewModels
 
                     var fresh = new UdpClientTransport(RemoteAddress, port);
                     fresh.DataReceived += OnUdpDataReceived;
-                    fresh.Start(cts.Token);
+                    await fresh.StartAsync(cts.Token);
 
                     _transport = fresh;
                     _transportCts = cts;

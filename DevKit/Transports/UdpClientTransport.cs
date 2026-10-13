@@ -3,34 +3,25 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using TouchSocket.Core;
+using TouchSocket.Sockets;
 
 namespace DevKit.Transports
 {
     public class UdpClientTransport : ITransport
     {
         private readonly object _lock = new object();
-        private UdpClient _client;
+        private UdpSession _session;
         private IPEndPoint _remoteEndPoint;
-        private CancellationTokenSource _receiveCts;
-        private Task _receiveTask = Task.CompletedTask;
+        private AddressFamily _boundAddressFamily;
         private bool _disposed;
 
-        public void Dispose()
-        {
-            lock (_lock)
-            {
-                if (_disposed)
-                {
-                    return;
-                }
-
-                _disposed = true;
-                _receiveCts?.Cancel();
-                _client?.Close();
-            }
-        }
-
         public event Action<byte[]> DataReceived;
+
+        public UdpClientTransport(string remoteAddress, int remotePort)
+        {
+            SetRemoteEndPoint(remoteAddress, remotePort);
+        }
 
         public void SetRemoteEndPoint(string address, int port, string path = null)
         {
@@ -53,9 +44,9 @@ namespace DevKit.Transports
                     throw new ObjectDisposedException(nameof(UdpClientTransport));
                 }
 
-                // 运行中允许随时更换对端；但 IPv4/IPv6 之间切换需要重建底层 socket，这里要求调用方先 StopAsync 再 Start，属资源约束而非连接状态
-                var client = _client;
-                if (client != null && client.Client.AddressFamily != endPoint.AddressFamily)
+                // 运行中允许随时更换对端；IPv4/IPv6 之间切换需重建底层 socket
+                var session = _session;
+                if (session != null && _boundAddressFamily != endPoint.AddressFamily)
                 {
                     throw new InvalidOperationException("对端地址族（IPv4/IPv6）发生变化，请先停止收发再重新启动");
                 }
@@ -64,37 +55,70 @@ namespace DevKit.Transports
             }
         }
 
-        public UdpClientTransport(string remoteAddress, int remotePort)
-        {
-            SetRemoteEndPoint(remoteAddress, remotePort);
-        }
-
         /// <summary>
         /// 启动收发：绑定本地随机端口并开始接收循环
         /// </summary>
         /// <param name="token"></param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void Start(CancellationToken token)
+        public async Task StartAsync(CancellationToken token)
         {
+            ThrowIfDisposed();
+            token.ThrowIfCancellationRequested();
+
+            UdpSession session;
+            IPAddress anyAddress;
+
             lock (_lock)
             {
-                ThrowIfDisposed();
-                token.ThrowIfCancellationRequested();
-
-                if (_client != null)
+                if (_session != null)
                 {
                     throw new InvalidOperationException("UdpClientTransport 已启动");
                 }
 
                 var endPoint = _remoteEndPoint;
-                var loopback = endPoint.AddressFamily == AddressFamily.InterNetworkV6
-                    ? IPAddress.IPv6Any
-                    : IPAddress.Any;
+                anyAddress = endPoint.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
 
-                var client = new UdpClient(new IPEndPoint(loopback, 0));
-                _receiveCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-                _client = client;
-                _receiveTask = ReceiveLoopAsync(client, _receiveCts);
+                session = new UdpSession();
+                _session = session;
+                _boundAddressFamily = endPoint.AddressFamily;
+            }
+
+            try
+            {
+                // 客户端必须绑定本地地址（0 端口由系统分配），否则收不到数据
+                var host = new IPHost(anyAddress, 0);
+                await session.SetupAsync(new TouchSocketConfig().SetBindIPHost(host)).ConfigureAwait(false);
+                session.Received = (c, e) =>
+                {
+                    IPEndPoint current;
+                    lock (_lock)
+                    {
+                        current = _remoteEndPoint;
+                    }
+
+                    // 仅处理来自当前对端的数据
+                    if (Equals(e.EndPoint, current))
+                    {
+                        DataReceived?.Invoke(e.Memory.ToArray());
+                    }
+
+                    return EasyTask.CompletedTask;
+                };
+
+                await session.StartAsync(token).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                lock (_lock)
+                {
+                    if (ReferenceEquals(_session, session))
+                    {
+                        _session = null;
+                    }
+                }
+
+                session.Dispose();
+                throw;
             }
         }
 
@@ -105,115 +129,73 @@ namespace DevKit.Transports
                 throw new ArgumentNullException(nameof(payload));
             }
 
-            UdpClient client;
+            UdpSession session;
             IPEndPoint endPoint;
 
             lock (_lock)
             {
                 ThrowIfDisposed();
-                client = _client;
+                session = _session;
                 endPoint = _remoteEndPoint;
             }
 
-            if (client == null)
+            if (session == null)
             {
-                throw new InvalidOperationException("UdpClientTransport 尚未启动，请先调用 Start");
+                throw new InvalidOperationException("UdpClientTransport 尚未启动，请先调用 StartAsync");
             }
 
-            // .NET Framework 4.8 的 UdpClient.SendAsync 不支持 CancellationToken；
-            // 若与 StopAsync 并发，此处会抛 ObjectDisposedException，属正常的停止竞态
-            var count = await client.SendAsync(payload, payload.Length, endPoint).ConfigureAwait(false);
-            if (count != payload.Length)
-            {
-                throw new InvalidOperationException($"UDP 数据报发送不完整：预期 {payload.Length} 字节，实际 {count} 字节");
-            }
+            await session.SendAsync(endPoint, payload, CancellationToken.None).ConfigureAwait(false);
         }
 
         public async Task StopAsync()
         {
-            Task receiveTask;
+            UdpSession session;
 
             lock (_lock)
             {
-                if (_client == null)
+                session = _session;
+                if (session == null)
                 {
                     return;
                 }
 
-                /* _client 非空则 _receiveCts 必未被 finally 释放（同锁成对置空），Cancel 安全 */
-                receiveTask = _receiveTask;
-                _receiveCts.Cancel();
-                _client.Close();
+                _session = null;
             }
-
-            // 锁外等待清理：finally 完成后 _client 已置空，StopAsync 返回即可立即 Start
-            await receiveTask.ConfigureAwait(false);
-        }
-
-        private async Task ReceiveLoopAsync(UdpClient client, CancellationTokenSource receiveCts)
-        {
-            var token = receiveCts.Token;
 
             try
             {
-                // 注册取消即关闭 socket：打断挂起的 ReceiveAsync，避免 token 取消后循环仍卡在等待
-                using (token.Register(client.Close))
-                {
-                    while (!token.IsCancellationRequested)
-                    {
-                        var result = await client.ReceiveAsync().ConfigureAwait(false);
-
-                        // 锁内快照当前对端，与 SetRemoteEndPoint 的发布点构成同步关系；
-                        // 每个数据报取一次快照，运行中切换对端后新数据报立即按新端点过滤
-                        IPEndPoint endPoint;
-                        lock (_lock)
-                        {
-                            endPoint = _remoteEndPoint;
-                        }
-
-                        if (!Equals(result.RemoteEndPoint, endPoint))
-                        {
-                            continue;
-                        }
-
-                        DataReceived?.Invoke(result.Buffer);
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // 主动停止收发
-            }
-            catch (ObjectDisposedException) when (token.IsCancellationRequested)
-            {
-                // 主动停止时底层 Socket 已关闭
-            }
-            catch (SocketException) when (token.IsCancellationRequested)
-            {
-                // 主动停止时 ReceiveAsync 被中断
+                await session.StopAsync(CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                Console.WriteLine(@"UDP 接收失败：{0}", e);
+                Console.WriteLine(@"UDP 停止失败：{0}", e);
             }
             finally
             {
-                lock (_lock)
-                {
-                    client.Close();
-                    receiveCts.Dispose();
-
-                    if (ReferenceEquals(_client, client))
-                    {
-                        _client = null;
-                        _receiveCts = null;
-                    }
-                }
+                session.Dispose();
             }
         }
 
-        // 输入限定为 IP 字面量：SetRemoteEndPoint 是同步接口，域名解析会阻塞 UI 线程。
-        // 若日后要支持域名，在 VM 层异步解析成 IP 后再传入
+        public void Dispose()
+        {
+            UdpSession session;
+
+            lock (_lock)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                session = _session;
+                _session = null;
+            }
+
+            session?.Dispose();
+        }
+
+        // 输入限定为 IP 字面量：SetRemoteEndPoint 是同步接口，域名解析会阻塞 UI 线程
         private static IPEndPoint ResolveEndPoint(string address, int port)
         {
             if (!IPAddress.TryParse(address, out var ip))
