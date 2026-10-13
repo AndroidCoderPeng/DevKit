@@ -1633,8 +1633,18 @@
                                     Grid.Column="5"
                                     Margin="8,0,0,0"
                                     Command="{Binding SendMessageCommand}"
-                                    Style="{StaticResource PrimaryCompactButtonStyle}"
                                     ToolTip="Ctrl + Enter 快速发送">
+                                    <Button.Style>
+                                        <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OnlineClientCount}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="False" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+
                                     <StackPanel Margin="12,0" Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
