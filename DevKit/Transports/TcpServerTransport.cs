@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Models;
@@ -131,14 +130,22 @@ namespace DevKit.Transports
             await client.SendAsync(payload, CancellationToken.None).ConfigureAwait(false);
         }
 
-        public async Task CloseClientAsync(string clientId)
+        public async Task DisconnectAll()
+        {
+            foreach (var client in _clients.Values)
+            {
+                await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
+            }
+        }
+        
+        public async Task DisconnectClient(string clientId)
         {
             if (_clients.TryGetValue(clientId, out var client))
             {
                 await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
             }
         }
-
+        
         public void Dispose()
         {
             if (_disposed)

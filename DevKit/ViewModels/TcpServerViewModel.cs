@@ -353,7 +353,7 @@ namespace DevKit.ViewModels
         #region DelegateCommand
 
         public DelegateCommand ListenPortCommand { set; get; }
-        public DelegateCommand DisconnectAllCommand { set; get; } // TODO: 断开所有连接
+        public DelegateCommand DisconnectAllCommand { set; get; }
         public DelegateCommand DisconnectClientCommand { set; get; } // TODO: 断开指定连接
         public DelegateCommand<TcpServerClient> ClientItemSelectedCommand { set; get; }
 
@@ -376,6 +376,33 @@ namespace DevKit.ViewModels
 
             ListenPortCommand = new DelegateCommand(() => _ = StartListeningAsync());
 
+            DisconnectAllCommand = new DelegateCommand(() =>
+            {
+                if (_server == null || !_server.IsRunning)
+                {
+                    ShowToast("服务未启动");
+                    return;
+                }
+
+                _ = _server.DisconnectAll();
+            });
+
+            DisconnectClientCommand = new DelegateCommand(() =>
+            {
+                if (_server == null || !_server.IsRunning)
+                {
+                    ShowToast("服务未启动");
+                    return;
+                }
+
+                if (_selectedClient == null)
+                {
+                    ShowToast("请先选择一个客户端");
+                    return;
+                }
+
+                _ = _server.DisconnectClient(_selectedClient.Id);
+            });
 
             ClientItemSelectedCommand = new DelegateCommand<TcpServerClient>(client =>
             {
@@ -389,7 +416,7 @@ namespace DevKit.ViewModels
                     ShowToast($"{client.Ip}:{client.Port} 已断开");
                     return;
                 }
-                
+
                 SelectedClient = client;
 
                 // 切到该客户端 = 查看，未读清零
@@ -498,7 +525,7 @@ namespace DevKit.ViewModels
                     Content = FormatLogContent(bytes),
                     Time = time,
                     IsSend = 0,
-                    IsRead = isViewing   // 正在看 → 直接算已读；否则进未读
+                    IsRead = isViewing // 正在看 → 直接算已读；否则进未读
                 });
                 client.MessageCount++;
 
@@ -515,7 +542,7 @@ namespace DevKit.ViewModels
             // 统计面板上的"未读消息"= 所有客户端未读数之和
             UnReadMessageCount = ClientItems.Sum(x => x.UnreadLogCount);
         }
-        
+
         private void ApplyListenState(ListenState state)
         {
             switch (state)
@@ -588,7 +615,7 @@ namespace DevKit.ViewModels
                 ? BitConverter.ToString(bytes).Replace("-", " ")
                 : Encoding.UTF8.GetString(bytes);
         }
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;

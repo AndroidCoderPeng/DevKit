@@ -14,6 +14,7 @@ namespace DevKit.Transports
         Task StartAsync(string address, int port, CancellationToken token);
         Task StopAsync();
         Task SendAsync(string clientId, byte[] payload);
-        Task CloseClientAsync(string clientId);
+        Task DisconnectAll();
+        Task DisconnectClient(string clientId);
     }
 }
