@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,6 +13,7 @@ using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -356,6 +359,13 @@ namespace DevKit.ViewModels
         public DelegateCommand DisconnectAllCommand { set; get; }
         public DelegateCommand DisconnectClientCommand { set; get; }
         public DelegateCommand<TcpServerClient> ClientItemSelectedCommand { set; get; }
+        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
+        public DelegateCommand SaveLogCommand { set; get; }
+        public DelegateCommand ClearLogCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
+        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
 
         #endregion
 
@@ -363,6 +373,8 @@ namespace DevKit.ViewModels
         private DispatcherTimer _runningTimer;
         private DateTime _listenStartedAt;
         private DispatcherTimer _toastTimer;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private bool _isLoopSendInProgress;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -423,6 +435,105 @@ namespace DevKit.ViewModels
                 client.MarkAllRead();
                 Logs = client.Logs;
                 RefreshUnreadMessageCount();
+            });
+            
+            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsLogHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsLogHexSelected = false;
+                }
+            });
+            
+            SaveLogCommand = new DelegateCommand(() =>
+            {
+                if (_selectedClient == null)
+                {
+                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
+                if (!_selectedClient.Logs.Any())
+                {
+                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var fileDialog = new SaveFileDialog
+                {
+                    DefaultExt = ".txt",
+                    Filter = "Log文件(*.txt)|*.txt"
+                };
+                if (fileDialog.ShowDialog() != true) return;
+
+                var savePath = fileDialog.FileName;
+                using (var writer = new StreamWriter(savePath))
+                {
+                    foreach (var log in _selectedClient.Logs)
+                    {
+                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                        writer.WriteLine(text);
+                    }
+                }
+            });
+            
+            ClearLogCommand = new DelegateCommand(() =>
+            {
+                if (_selectedClient == null)
+                {
+                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (!_selectedClient.Logs.Any())
+                {
+                    MessageBox.Show("没有需要清除的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result != MessageBoxResult.Yes) return;
+
+                _selectedClient.Logs.Clear();
+                RefreshUnreadMessageCount();
+            });
+            
+            CopyLogCommand = new DelegateCommand<string>(log =>
+            {
+                Clipboard.SetText(log);
+                ShowToast("已复制到剪贴板");
+            });
+
+            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+            
+            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsSendHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsSendHexSelected = false;
+                }
+            });
+            
+            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            {
+                if (!(value is bool isChecked)) return;
+
+                if (isChecked)
+                {
+                    StartLoopSending();
+                }
+                else
+                {
+                    StopLoopSending();
+                }
             });
         }
 
@@ -610,6 +721,87 @@ namespace DevKit.ViewModels
             RunningTime = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
 
+        private async Task SendInputAsync()
+        {
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // await QuickSendAsync(new ExCommandConfig
+            // {
+            //     Type = _isSendHexSelected ? "HEX" : "ASCII",
+            //     Value = value,
+            //     Memo = "用户输入"
+            // });
+        }
+        
+        private void StartLoopSending()
+        {
+            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+            {
+                MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            // if (_transport == null || ConnectionState != "已连接")
+            // {
+            //     MessageBox.Show("请先连接 TCP 服务器", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //     IsLoopSendEnabled = false;
+            //     return;
+            // }
+            //
+            // if (string.IsNullOrWhiteSpace(_userInputText))
+            // {
+            //     MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //     IsLoopSendEnabled = false;
+            //     return;
+            // }
+
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(ms);
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Start();
+        }
+
+        private void StopLoopSending()
+        {
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+        }
+        
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_isLoopSendInProgress)
+                return;
+
+            _isLoopSendInProgress = true;
+            _ = SendLoopInputAsync();
+        }
+        
+        private async Task SendLoopInputAsync()
+        {
+            try
+            {
+                await SendInputAsync();
+            }
+            catch (Exception ex)
+            {
+                StopLoopSending();
+                IsLoopSendEnabled = false;
+
+                MessageBox.Show($"循环发送失败：{ex.Message}", "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isLoopSendInProgress = false;
+            }
+        }
+        
         private string FormatLogContent(byte[] bytes)
         {
             return IsLogHexSelected
