@@ -311,6 +311,7 @@ namespace DevKit.ViewModels
         private IEnumerator<ExCommandConfig> _commandEnumerator;
         private bool _isScriptCommandInProgress;
         private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private object _transportConnectionToken;
 
         public TcpClientViewModel(IDialogService dialogService)
         {
@@ -535,19 +536,38 @@ namespace DevKit.ViewModels
 
             if (_transport != null)
             {
-                await _transport.DisconnectAsync();
-                _transport.Dispose();
-                _transport = null;
+                var currentTransport = _transport;
+                var connectionToken = _transportConnectionToken;
+
+                await currentTransport.DisconnectAsync();
+
+                if (ReferenceEquals(_transport, currentTransport) &&
+                    ReferenceEquals(_transportConnectionToken, connectionToken))
+                {
+                    _transport = null;
+                    _transportConnectionToken = null;
+                }
+
+                currentTransport.Dispose();
                 return;
             }
 
             _isConnecting = true;
 
             var transport = new TcpClientTransport(_remoteAddress, Convert.ToInt32(_remotePort));
+            var token = new object();
+            _transport = transport;
+            _transportConnectionToken = token;
+            
             transport.StateChanged += delegate(TransportState state)
             {
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    if (!ReferenceEquals(_transportConnectionToken, token))
+                    {
+                        return;
+                    }
+                    
                     if (state == TransportState.Connecting)
                     {
                         SetConnectionState("连接中");
@@ -555,16 +575,21 @@ namespace DevKit.ViewModels
                     else if (state == TransportState.Connected)
                     {
                         SetConnectionState("已连接");
-
-                        // 开始计时
                         StartSessionTimer();
                     }
-                    else if (state == TransportState.Disconnected)
+                    else if (state == TransportState.Disconnected || state == TransportState.Error)
                     {
                         SetConnectionState("未连接");
-
-                        // 停止计时
                         StopSessionTimer();
+
+                        var failedTransport = _transport;
+                        _transport = null;
+                        _transportConnectionToken = null;
+                        failedTransport?.Dispose();
+
+                        StopLoopSending();
+                        IsLoopSendEnabled = false;
+                        StopCommandScript();
                     }
                 }));
             };
@@ -573,8 +598,6 @@ namespace DevKit.ViewModels
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => { UpdateTransportMessage(bytes); }));
             };
 
-            _transport = transport;
-
             try
             {
                 await transport.ConnectAsync();
@@ -582,8 +605,18 @@ namespace DevKit.ViewModels
             catch (Exception e)
             {
                 transport.Dispose();
-                _transport = null;
-                SetConnectionState("未连接");
+
+                if (ReferenceEquals(_transportConnectionToken, token))
+                {
+                    _transport = null;
+                    _transportConnectionToken = null;
+                    SetConnectionState("未连接");
+                    StopSessionTimer();
+                    StopLoopSending();
+                    IsLoopSendEnabled = false;
+                    StopCommandScript();
+                }
+                
                 MessageBox.Show(e.Message, "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
