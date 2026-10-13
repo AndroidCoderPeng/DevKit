@@ -8,7 +8,7 @@ using TouchSocket.Sockets;
 
 namespace DevKit.Transports
 {
-    public class UdpClientTransport : ITransport
+    public class UdpClientTransport : IClientTransport
     {
         private readonly object _lock = new object();
         private UdpSession _session;

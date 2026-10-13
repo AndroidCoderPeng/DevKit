@@ -10,7 +10,7 @@ using TouchSocket.Sockets;
 
 namespace DevKit.Transports
 {
-    public class WsClientTransport : ITransport
+    public class WsClientTransport : IClientTransport
     {
         private const int MaxMessageBytes = 4 * 1024 * 1024;
 

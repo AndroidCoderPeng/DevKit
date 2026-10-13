@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace DevKit.Transports
 {
-    public interface ITransport : IDisposable
+    public interface IClientTransport : IDisposable
     {
         /// <summary>
         /// Gets the current state of the transport.

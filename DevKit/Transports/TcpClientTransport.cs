@@ -8,7 +8,7 @@ using TouchTcpClient = TouchSocket.Sockets.TcpClient;
 
 namespace DevKit.Transports
 {
-    public class TcpClientTransport : ITransport
+    public class TcpClientTransport : IClientTransport
     {
         private const int ConnectTimeoutMs = 10000;
 
