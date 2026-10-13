@@ -22,7 +22,7 @@ namespace DevKit.Transports
 
         public bool IsRunning => _service != null && _service.ServerState == ServerState.Running;
 
-        public async Task StartAsync(string address, int port, CancellationToken token)
+        public async Task StartAsync(string address, int port, bool reuseAddress, CancellationToken token)
         {
             ThrowIfDisposed();
 
@@ -49,7 +49,8 @@ namespace DevKit.Transports
             {
                 // 监听只支持 IP + 端口，不支持域名
                 var host = new IPHost($"{address.Trim()}:{port}");
-                await service.SetupAsync(new TouchSocketConfig().SetListenIPHosts(host)).ConfigureAwait(false);
+                var config = new TouchSocketConfig().SetListenIPHosts(host).SetReuseAddress(reuseAddress);
+                await service.SetupAsync(config).ConfigureAwait(false);
 
                 await service.StartAsync(token).ConfigureAwait(false);
             }
@@ -81,7 +82,7 @@ namespace DevKit.Transports
                 ClientClosed?.Invoke(new ServerClient(client.Id, client.IP, client.Port));
                 return EasyTask.CompletedTask;
             };
-            
+
             service.Received = (client, e) =>
             {
                 // ReceivedDataEventArgs 的数据在 e.Memory，必须 ToArray() 拷贝
@@ -89,7 +90,7 @@ namespace DevKit.Transports
                 return EasyTask.CompletedTask;
             };
         }
-        
+
         public async Task StopAsync()
         {
             var service = _service;
@@ -137,7 +138,7 @@ namespace DevKit.Transports
                 await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
             }
         }
-        
+
         public async Task DisconnectClient(string clientId)
         {
             if (_clients.TryGetValue(clientId, out var client))
@@ -145,7 +146,7 @@ namespace DevKit.Transports
                 await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
             }
         }
-        
+
         public void Dispose()
         {
             if (_disposed)
@@ -161,7 +162,7 @@ namespace DevKit.Transports
 
             service?.Dispose();
         }
-        
+
         private void ThrowIfDisposed()
         {
             if (_disposed)

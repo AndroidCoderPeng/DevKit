@@ -453,7 +453,8 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    await _server.StartAsync(SelectedIp, int.Parse(LocalPort), CancellationToken.None);
+                    await _server.StartAsync(SelectedIp, int.Parse(LocalPort), _isReusePortEnabled,
+                        CancellationToken.None);
                     ApplyListenState(ListenState.Listening);
                     StartRunningTimer();
                 }
