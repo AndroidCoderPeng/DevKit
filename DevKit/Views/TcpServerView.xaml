@@ -23,6 +23,184 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
+        <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border
+                            x:Name="ItemBorder"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            CornerRadius="4">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LocalHostComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!--  外框：底色 / 边框 / 圆角  -->
+                            <Border
+                                x:Name="RootBorder"
+                                Background="{StaticResource DevKitSurfaceBrush}"
+                                BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True" />
+
+                            <Grid Margin="12,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  左侧图标  -->
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="18"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="&#xe8b2;" />
+
+                                <!--  选中项文本  -->
+                                <ContentPresenter
+                                    x:Name="ContentSite"
+                                    Grid.Column="1"
+                                    Margin="8,0"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                    IsHitTestVisible="False"
+                                    SnapsToDevicePixels="True" />
+
+                                <!--  右侧箭头  -->
+                                <Path
+                                    x:Name="Arrow"
+                                    Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Data="M 0,0 L 5,5 L 10,0"
+                                    Stroke="{StaticResource DevKitTextSecondaryBrush}"
+                                    StrokeEndLineCap="Round"
+                                    StrokeLineJoin="Round"
+                                    StrokeStartLineCap="Round"
+                                    StrokeThickness="1" />
+                            </Grid>
+
+                            <!--  点击层：放在最上层捕获鼠标、驱动 IsDropDownOpen  -->
+                            <ToggleButton
+                                ClickMode="Press"
+                                Focusable="False"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!--  下拉浮层（POPUP 名称必须保留为 PART_Popup）  -->
+                            <Popup
+                                x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom"
+                                PopupAnimation="Slide">
+                                <Border
+                                    x:Name="DropDownBorder"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    Margin="0,4,0,0"
+                                    Padding="2"
+                                    Background="White"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <Border.Effect>
+                                        <DropShadowEffect
+                                            BlurRadius="16"
+                                            Direction="270"
+                                            Opacity="0.12"
+                                            ShadowDepth="4"
+                                            Color="{StaticResource DevKitShadowColor}" />
+                                    </Border.Effect>
+                                    <ScrollViewer
+                                        CanContentScroll="True"
+                                        SnapsToDevicePixels="True"
+                                        VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--  hover：边框变主色  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+
+                            <!--  focus-within：白底 + 主色边框 + 主色光晕（近似 box-shadow: 0 0 0 3px accent-soft）  -->
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="White" />
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="RootBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect
+                                            BlurRadius="6"
+                                            Opacity="0.18"
+                                            ShadowDepth="0"
+                                            Color="{StaticResource DevKitAccentColor}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+
+                            <!--  展开：箭头翻转  -->
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Arrow" Property="Data" Value="M 0,5 L 5,0 L 10,5" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="FontSize" Value="13" />
@@ -330,7 +508,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="2" />
-                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1.5*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -385,63 +563,13 @@
                 Margin="0,20"
                 Background="{StaticResource DevKitBorderBrush}" />
 
-            <Border
+            <ComboBox
+                x:Name="LocalHostComboBox"
                 Grid.Column="2"
-                Height="36"
                 Margin="14,8"
-                Background="{StaticResource DevKitSurfaceBrush}"
-                BorderThickness="1"
-                CornerRadius="8">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=LocalHostComboBox}" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect
-                                            BlurRadius="6"
-                                            Opacity="0.18"
-                                            ShadowDepth="0"
-                                            Color="{StaticResource DevKitAccentColor}" />
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
-                <Grid Margin="12,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock
-                        Grid.Column="0"
-                        VerticalAlignment="Center"
-                        FontFamily="/DevKit;component/Fonts/#iconfont"
-                        FontSize="18"
-                        Foreground="{StaticResource DevKitTextMutedBrush}"
-                        Text="&#xe8b2;" />
-
-                    <ComboBox
-                        x:Name="LocalHostComboBox"
-                        Grid.Column="1"
-                        Margin="4,0,0,0"
-                        ItemsSource="{Binding LocalHostSource}">
-                        <ComboBox.Style>
-                            <Style TargetType="ComboBox">
-                                <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="BorderThickness" Value="0" />
-                                <Setter Property="FontSize" Value="13" />
-                                <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
-                            </Style>
-                        </ComboBox.Style>
-                    </ComboBox>
-                </Grid>
-            </Border>
+                ItemsSource="{Binding LocalHostSource}"
+                SelectedItem="{Binding SelectedIp, Mode=TwoWay}"
+                Style="{StaticResource LocalHostComboBoxStyle}" />
 
             <TextBlock
                 Grid.Column="3"
