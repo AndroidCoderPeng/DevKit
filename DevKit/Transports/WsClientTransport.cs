@@ -1,39 +1,34 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Utils;
+using TouchSocket.Core;
+using TouchSocket.Http.WebSockets;
+using TouchSocket.Sockets;
 
 namespace DevKit.Transports
 {
     public class WsClientTransport : ITransport
     {
         private const int MaxMessageBytes = 4 * 1024 * 1024;
+
+        private readonly object _receiveLock = new object();
+        private readonly List<byte> _pending = new List<byte>();
+
         private Uri _remoteUri;
-        private ClientWebSocket _client;
+        private WebSocketClient _client;
+        private TaskCompletionSource<bool> _closedTcs;
+        private bool _activeClose;
         private bool _disposed;
-        private CancellationTokenSource _sessionCts;
-        private CancellationTokenSource _receiveCts;
-        private Task _receiveTask = Task.CompletedTask;
 
         public event Action<byte[]> DataReceived;
+        public event Action<TransportState> StateChanged;
 
         public WsClientTransport(string remoteAddress, int remotePort, string remotePath = null)
         {
             SetRemoteEndPoint(remoteAddress, remotePort, remotePath);
-        }
-
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            _disposed = true;
-            CancelSafely(_sessionCts);
-            _client?.Abort();
         }
 
         public void SetRemoteEndPoint(string address, int port, string path = null)
@@ -72,6 +67,89 @@ namespace DevKit.Transports
             _remoteUri = builder.Uri;
         }
 
+        public async Task ConnectAsync()
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(WsClientTransport));
+            }
+
+            if (_client != null)
+            {
+                throw new InvalidOperationException("WebSocket 客户端已经连接或正在连接");
+            }
+
+            var remoteUri = _remoteUri;
+            if (remoteUri == null)
+            {
+                throw new InvalidOperationException("尚未设置 WebSocket 远端地址");
+            }
+
+            StateChanged?.Invoke(TransportState.Connecting);
+
+            var client = new WebSocketClient();
+            var closedTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            BindEvents(client, closedTcs);
+
+            _client = client;
+            _closedTcs = closedTcs;
+            _activeClose = false;
+
+            try
+            {
+                var host = new IPHost(remoteUri.ToString());
+                await client.SetupAsync(new TouchSocketConfig().SetRemoteIPHost(host)).ConfigureAwait(false);
+
+                await client.ConnectAsync(CancellationToken.None).ConfigureAwait(false);
+                StateChanged?.Invoke(TransportState.Connected);
+            }
+            catch
+            {
+                client.Dispose();
+                closedTcs.TrySetResult(true);
+
+                if (ReferenceEquals(_client, client))
+                {
+                    _client = null;
+                    _closedTcs = null;
+                }
+
+                StateChanged?.Invoke(TransportState.Error);
+                throw;
+            }
+        }
+
+        private void BindEvents(WebSocketClient client, TaskCompletionSource<bool> closedTcs)
+        {
+            client.Received = (c, e) =>
+            {
+                AppendFrame(e.DataFrame);
+                return EasyTask.CompletedTask;
+            };
+            
+            // Closing 仅主动断开时触发
+            client.Closing = (c, e) =>
+            {
+                _activeClose = true;
+                return EasyTask.CompletedTask;
+            };
+            
+            client.Closed = (c, e) =>
+            {
+                var isCurrent = ReferenceEquals(_client, c);
+                if (isCurrent)
+                {
+                    _client = null;
+                    _closedTcs = null;
+                    StateChanged?.Invoke(_activeClose ? TransportState.Disconnected : TransportState.Error);
+                }
+
+                closedTcs.TrySetResult(true);
+                c.Dispose();
+                return EasyTask.CompletedTask;
+            };
+        }
+
         public async Task SendAsync(byte[] payload)
         {
             if (payload == null)
@@ -85,207 +163,99 @@ namespace DevKit.Transports
             }
 
             var client = _client;
-            if (client == null || client.State != WebSocketState.Open)
+            if (client == null || !client.Online)
             {
                 throw new InvalidOperationException("WebSocket 客户端尚未连接");
             }
-        }
 
-        public event Action<TransportState> StateChanged;
-
-        public async Task ConnectAsync(CancellationToken token)
-        {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(WsClientTransport));
-            }
-
-            if (_client != null)
-            {
-                throw new InvalidOperationException("WebSocket 客户端已经连接或正在连接");
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            var remoteUri = _remoteUri;
-            if (remoteUri == null)
-            {
-                throw new InvalidOperationException("尚未设置 WebSocket 远端地址");
-            }
-
-            var client = new ClientWebSocket();
-            var sessionCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-            var receiveCts = new CancellationTokenSource();
-            _client = client;
-            _sessionCts = sessionCts;
-            _receiveCts = receiveCts;
-
-            try
-            {
-                StateChanged?.Invoke(TransportState.Connecting);
-                await client.ConnectAsync(remoteUri, sessionCts.Token);
-                sessionCts.Token.ThrowIfCancellationRequested();
-
-                StateChanged?.Invoke(TransportState.Connected);
-            }
-            catch
-            {
-                var wasCanceled = sessionCts.IsCancellationRequested;
-                sessionCts.Cancel();
-                receiveCts.Cancel();
-
-                if (ReferenceEquals(_client, client))
-                {
-                    _client = null;
-                }
-
-                if (ReferenceEquals(_sessionCts, sessionCts))
-                {
-                    _sessionCts = null;
-                }
-
-                if (ReferenceEquals(_receiveCts, receiveCts))
-                {
-                    _receiveCts = null;
-                }
-
-                client.Dispose();
-                receiveCts.Dispose();
-                sessionCts.Dispose();
-                StateChanged?.Invoke(wasCanceled
-                    ? TransportState.Disconnected
-                    : TransportState.Error);
-                throw;
-            }
-
-            _receiveTask = ReceiveLoopAsync(client, sessionCts, receiveCts);
+            // 二进制、单帧完整消息（FIN = true）
+            await client.SendAsync(payload, true, CancellationToken.None).ConfigureAwait(false);
         }
 
         public async Task DisconnectAsync()
         {
             var client = _client;
+            var closedTcs = _closedTcs;
+
             if (client == null)
             {
                 return;
             }
 
-            var sessionCts = _sessionCts;
-            var receiveTask = _receiveTask;
-
-            CancelSafely(sessionCts);
-            client.Abort();
-
-            if (receiveTask != Task.CompletedTask)
-            {
-                await receiveTask.ConfigureAwait(false);
-            }
-        }
-
-        private async Task ReceiveLoopAsync(
-            ClientWebSocket client,
-            CancellationTokenSource sessionCts,
-            CancellationTokenSource receiveCts)
-        {
-            var failed = false;
-            var receiveToken = receiveCts.Token;
-
             try
             {
-                using (sessionCts.Token.Register(receiveCts.Cancel))
-                {
-                    var buffer = new byte[8192];
-
-                    while (!receiveToken.IsCancellationRequested)
-                    {
-                        using (var message = new MemoryStream())
-                        {
-                            WebSocketReceiveResult result;
-
-                            do
-                            {
-                                result = await client.ReceiveAsync(new ArraySegment<byte>(buffer), receiveToken)
-                                    .ConfigureAwait(false);
-
-                                if (result.MessageType == WebSocketMessageType.Close)
-                                {
-                                    if (client.State == WebSocketState.CloseReceived)
-                                    {
-                                        await client.CloseOutputAsync(
-                                            result.CloseStatus ?? WebSocketCloseStatus.NormalClosure,
-                                            result.CloseStatusDescription ?? string.Empty,
-                                            CancellationToken.None).ConfigureAwait(false);
-                                    }
-
-                                    return;
-                                }
-
-                                if (message.Length + result.Count > MaxMessageBytes)
-                                {
-                                    throw new InvalidDataException($"WebSocket 消息超过最大长度 {MaxMessageBytes} 字节");
-                                }
-
-                                message.Write(buffer, 0, result.Count);
-                            } while (!result.EndOfMessage);
-
-                            DataReceived?.Invoke(message.ToArray());
-                        }
-                    }
-                }
-            }
-            catch (OperationCanceledException) when (
-                sessionCts.IsCancellationRequested || receiveCts.IsCancellationRequested)
-            {
-                // 主动断开连接
-            }
-            catch (WebSocketException) when (
-                sessionCts.IsCancellationRequested || receiveCts.IsCancellationRequested)
-            {
-                // 主动断开时底层 WebSocket 已关闭
+                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "主动断开连接", CancellationToken.None)
+                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                failed = true;
-                Console.WriteLine(@"WebSocket 接收失败：{0}", e);
+                Console.WriteLine(@"WebSocket 主动断开异常：{0}", e);
             }
-            finally
+
+            if (closedTcs != null)
             {
-                if (ReferenceEquals(_client, client))
-                {
-                    _client = null;
-                }
-
-                if (ReferenceEquals(_sessionCts, sessionCts))
-                {
-                    _sessionCts = null;
-                }
-
-                if (ReferenceEquals(_receiveCts, receiveCts))
-                {
-                    _receiveCts = null;
-                }
-
-                client.Dispose();
-                receiveCts.Dispose();
-                sessionCts.Dispose();
-
-                StateChanged?.Invoke(failed ? TransportState.Error : TransportState.Disconnected);
+                await closedTcs.Task.ConfigureAwait(false);
             }
         }
 
-        private static void CancelSafely(CancellationTokenSource cancellationTokenSource)
+        public void Dispose()
         {
-            if (cancellationTokenSource == null)
+            if (_disposed)
             {
                 return;
             }
 
-            try
+            _disposed = true;
+
+            var client = _client;
+            _client = null;
+            _closedTcs?.TrySetResult(true);
+
+            client?.Dispose();
+        }
+        
+        // Received 按帧触发，分片消息（Cont）需累积到 FIN 才拼出完整消息
+        private void AppendFrame(WSDataFrame frame)
+        {
+            if (frame == null)
             {
-                cancellationTokenSource.Cancel();
+                return;
             }
-            catch (ObjectDisposedException)
+
+            var payload = frame.PayloadData;
+            if (payload.Length == 0)
             {
-                // The receive loop may dispose its sources while disconnect is in progress.
+                return;
+            }
+            
+            byte[] complete = null;
+            lock (_receiveLock)
+            {
+                var isMessageStart = frame.Opcode == WSDataType.Binary || frame.Opcode == WSDataType.Text;
+                if (isMessageStart)
+                {
+                    _pending.Clear();
+                }
+
+                if (_pending.Count + payload.Length > MaxMessageBytes)
+                {
+                    Console.WriteLine(@"WebSocket 消息超过最大长度 {0} 字节，已丢弃", MaxMessageBytes);
+                    _pending.Clear();
+                    return;
+                }
+
+                _pending.AddRange(payload.ToArray());
+
+                if (frame.FIN)
+                {
+                    complete = _pending.ToArray();
+                    _pending.Clear();
+                }
+            }
+            
+            if (complete != null)
+            {
+                DataReceived?.Invoke(complete);
             }
         }
     }

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -201,7 +200,7 @@ namespace DevKit.ViewModels
 
         public long ReceiveByteSize => _logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
 
-        private bool _isLogHexSelected = true;
+        private bool _isLogHexSelected;
 
         public bool IsLogHexSelected
         {
@@ -242,7 +241,7 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _lastDataTime, value);
         }
 
-        private bool _isSendHexSelected = true;
+        private bool _isSendHexSelected;
 
         public bool IsSendHexSelected
         {
@@ -310,7 +309,6 @@ namespace DevKit.ViewModels
         #endregion
 
         private WsClientTransport _transport;
-        private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
         private DispatcherTimer _sessionTimer;
@@ -558,7 +556,6 @@ namespace DevKit.ViewModels
             }
 
             _isConnecting = true;
-            _transportCts = new CancellationTokenSource();
 
             var transport = new WsClientTransport(_remoteAddress, Convert.ToInt32(_remotePort), _wsPath);
 
@@ -595,7 +592,7 @@ namespace DevKit.ViewModels
 
             try
             {
-                await transport.ConnectAsync(_transportCts.Token);
+                await transport.ConnectAsync();
             }
             catch (Exception e)
             {
