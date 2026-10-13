@@ -22,8 +22,10 @@ namespace DevKit.Transports
         private TaskCompletionSource<bool> _closedTcs;
         private bool _activeClose;
         private bool _disposed;
+        private WsFrameKind _currentKind = WsFrameKind.Binary;
 
         public event Action<byte[]> DataReceived;
+        public event Action<byte[], WsFrameKind> FrameReceived;
         public event Action<TransportState> StateChanged;
 
         public WsClientTransport(string remoteAddress, int remotePort, string remotePath = null)
@@ -232,12 +234,14 @@ namespace DevKit.Transports
             }
             
             byte[] complete = null;
+            var completeKind = WsFrameKind.Binary;
             lock (_receiveLock)
             {
                 var isMessageStart = frame.Opcode == WSDataType.Binary || frame.Opcode == WSDataType.Text;
                 if (isMessageStart)
                 {
                     _pending.Clear();
+                    _currentKind = frame.Opcode == WSDataType.Text ? WsFrameKind.Text : WsFrameKind.Binary;
                 }
 
                 if (_pending.Count + payload.Length > MaxMessageBytes)
@@ -252,6 +256,7 @@ namespace DevKit.Transports
                 if (frame.FIN)
                 {
                     complete = _pending.ToArray();
+                    completeKind = _currentKind;
                     _pending.Clear();
                 }
             }
@@ -259,6 +264,7 @@ namespace DevKit.Transports
             if (complete != null)
             {
                 DataReceived?.Invoke(complete);
+                FrameReceived?.Invoke(complete, completeKind);
             }
         }
     }

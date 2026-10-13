@@ -172,9 +172,9 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+        private ObservableCollection<WebSocketMessage> _logs = new ObservableCollection<WebSocketMessage>();
 
-        public ObservableCollection<SocketMessage> Logs
+        public ObservableCollection<WebSocketMessage> Logs
         {
             get => _logs;
             set
@@ -588,9 +588,9 @@ namespace DevKit.ViewModels
                     }
                 }));
             };
-            transport.DataReceived += delegate(byte[] bytes)
+            transport.FrameReceived += delegate(byte[] bytes, WsFrameKind kind)
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { UpdateTransportMessage(bytes); }));
+                Application.Current.Dispatcher.BeginInvoke(new Action(() => UpdateTransportMessage(bytes, kind)));
             };
 
             _transport = transport;
@@ -612,7 +612,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void UpdateTransportMessage(byte[] bytes)
+        private void UpdateTransportMessage(byte[] bytes, WsFrameKind kind)
         {
             if (bytes == null || bytes.Length == 0)
             {
@@ -622,12 +622,13 @@ namespace DevKit.ViewModels
             var rawData = (byte[])bytes.Clone();
             var time = DateTime.Now.ToString("HH:mm:ss.fff");
 
-            Logs.Add(new SocketMessage
+            Logs.Add(new WebSocketMessage
             {
                 RawData = rawData,
                 Content = FormatLogContent(rawData),
                 Time = time,
-                IsSend = 0
+                IsSend = 0,
+                FrameType = kind == WsFrameKind.Text ? "文本帧" : "二进制帧"
             });
 
             LastDataTime = time;
@@ -759,12 +760,13 @@ namespace DevKit.ViewModels
             {
                 await transport.SendAsync(payload);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
-                Logs.Add(new SocketMessage
+                Logs.Add(new WebSocketMessage
                 {
                     RawData = payload,
                     Content = command.Value,
                     Time = time,
-                    IsSend = 1
+                    IsSend = 1,
+                    FrameType = command.Type == "HEX" ? "二进制帧" : "文本帧"
                 });
                 LastDataTime = time;
             }
