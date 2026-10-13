@@ -182,6 +182,8 @@ namespace DevKit.Transports
                 return;
             }
 
+            _activeClose = true;   // 主动断开显式标记，不依赖 Closing 事件
+            
             try
             {
                 await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "主动断开连接", CancellationToken.None)
@@ -206,6 +208,7 @@ namespace DevKit.Transports
             }
 
             _disposed = true;
+            _activeClose = true;   // 主动释放也按主动断开处理
 
             var client = _client;
             _client = null;

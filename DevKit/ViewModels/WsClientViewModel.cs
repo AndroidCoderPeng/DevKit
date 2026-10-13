@@ -581,6 +581,11 @@ namespace DevKit.ViewModels
                         // 停止计时
                         StopSessionTimer();
                     }
+                    else if (state == TransportState.Error)
+                    {
+                        SetConnectionState("未连接");
+                        StopSessionTimer();
+                    }
                 }));
             };
             transport.DataReceived += delegate(byte[] bytes)
