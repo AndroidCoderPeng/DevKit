@@ -739,12 +739,95 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // await QuickSendAsync(new ExCommandConfig
-            // {
-            //     Type = _isSendHexSelected ? "HEX" : "ASCII",
-            //     Value = value,
-            //     Memo = "用户输入"
-            // });
+            var server = _server;
+            if (server == null || !server.IsRunning)
+            {
+                MessageBox.Show("请先启动 TCP 服务", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            byte[] payload;
+            if (_isSendHexSelected)
+            {
+                var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                var bytes = new List<byte>();
+
+                foreach (var token in tokens)
+                {
+                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var parsedByte))
+                    {
+                        MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法发送", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    bytes.Add(parsedByte);
+                }
+
+                payload = bytes.ToArray();
+            }
+            else
+            {
+                payload = Encoding.UTF8.GetBytes(value);
+            }
+
+            List<TcpServerClient> targets;
+            if (_isBroadcastAllEnabled)
+            {
+                targets = ClientItems.Where(client => client.IsConnected).ToList();
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show("当前没有在线客户端", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                var selectedClient = _selectedClient;
+                if (selectedClient == null || !selectedClient.IsConnected)
+                {
+                    MessageBox.Show("请先选择一个在线客户端，或启用广播全部", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                targets = new List<TcpServerClient> { selectedClient };
+            }
+            
+            var failures = new List<string>();
+            var successCount = 0;
+            foreach (var client in targets)
+            {
+                try
+                {
+                    await server.SendAsync(client.Id, payload);
+
+                    var time = DateTime.Now.ToString("HH:mm:ss.fff");
+                    client.Logs.Add(new SocketMessage
+                    {
+                        RawData = payload,
+                        Content = FormatLogContent(payload),
+                        Time = time,
+                        IsSend = 1,
+                        IsRead = true
+                    });
+
+                    SendCount++;
+                    SendByteSize += payload.Length;
+                    LastDataTime = time;
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    failures.Add($"{client.Ip}:{client.Port}：{ex.Message}");
+                }
+            }
+            
+            if (failures.Count > 0)
+            {
+                var title = successCount == 0 ? "发送失败" : "部分发送失败";
+                var message = string.Join(Environment.NewLine, failures);
+                MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void StartLoopSending()
