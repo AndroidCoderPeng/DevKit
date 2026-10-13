@@ -1072,18 +1072,28 @@
                                                             x:Name="ClientItemBorder"
                                                             Margin="0,0,0,4"
                                                             Padding="8"
-                                                            Background="{StaticResource DevKitSurfaceBrush}"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
                                                             BorderThickness="2"
                                                             CornerRadius="8">
                                                             <ContentPresenter />
                                                         </Border>
                                                         <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="ClientItemBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
-                                                            </Trigger>
-                                                            <Trigger Property="IsSelected" Value="True">
-                                                                <Setter TargetName="ClientItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
-                                                            </Trigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding DataContext.IsConnected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                            </MultiDataTrigger>
+
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding DataContext.IsConnected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                            </MultiDataTrigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
                                                 </Setter.Value>
