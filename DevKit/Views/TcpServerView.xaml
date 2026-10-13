@@ -876,8 +876,18 @@
                                     Height="28"
                                     Command="{Binding DisconnectAllCommand}"
                                     Content="断开全部"
-                                    Style="{StaticResource DangerOutlineButtonStyle}"
-                                    ToolTip="断开当前所有在线客户端" />
+                                    ToolTip="断开当前所有在线客户端">
+                                    <Button.Style>
+                                        <Style BasedOn="{StaticResource DangerOutlineButtonStyle}" TargetType="Button">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OnlineClientCount}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="False" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
 
                             <!--  指令列表 + 空态  -->
