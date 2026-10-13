@@ -371,6 +371,7 @@ namespace DevKit.ViewModels
         private DispatcherTimer _runningTimer;
         private DateTime _listenStartedAt;
         private TcpServerClient _selectedClient;
+        private DispatcherTimer _toastTimer;
 
         public TcpServerViewModel(IAppDataService dataService)
         {
@@ -392,6 +393,12 @@ namespace DevKit.ViewModels
                     return;
                 }
 
+                if (!client.IsConnected)
+                {
+                    ShowToast($"{client.Ip}:{client.Port} 已断开");
+                    return;
+                }
+                
                 _selectedClient = client;
                 SelectedClientIp = client.Ip;
                 SelectedClientPort = client.Port;
@@ -596,6 +603,25 @@ namespace DevKit.ViewModels
             return IsLogHexSelected
                 ? BitConverter.ToString(bytes).Replace("-", " ")
                 : Encoding.UTF8.GetString(bytes);
+        }
+        
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
         }
     }
 }
