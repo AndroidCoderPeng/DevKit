@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using DevKit.DataService;
+using DevKit.Transports;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
@@ -62,6 +66,8 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        private TcpServerTransport _server;
+        
         public TcpServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();

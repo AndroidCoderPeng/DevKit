@@ -213,12 +213,13 @@
     <Compile Include="Models\SocketMessage.cs" />
     <Compile Include="Models\MainMenu.cs" />
     <Compile Include="Models\ScreenshotFile.cs" />
-    <Compile Include="Models\TcpClientInfo.cs" />
+    <Compile Include="Models\ServerClientInfo.cs" />
     <Compile Include="Models\UdpClientModel.cs" />
     <Compile Include="Models\WebSocketClientModel.cs" />
     <Compile Include="Transports\IServerTransport.cs" />
     <Compile Include="Transports\IClientTransport.cs" />
     <Compile Include="Transports\TcpClientTransport.cs" />
+    <Compile Include="Transports\TcpServerTransport.cs" />
     <Compile Include="Transports\UdpClientTransport.cs" />
     <Compile Include="Transports\WsClientTransport.cs" />
     <Compile Include="Utils\ArgumentCreator.cs" />

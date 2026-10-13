@@ -324,6 +324,10 @@ namespace DevKit.ViewModels
                 var colorResCaches = await Task.Run(() =>
                 {
                     var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Colors.json");
+                    if (!File.Exists(path))
+                    {
+                        return new List<ColorResource>();
+                    }
                     var json = File.ReadAllText(path);
                     return JsonConvert.DeserializeObject<List<ColorResource>>(json) ?? new List<ColorResource>();
                 });

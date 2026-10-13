@@ -3,9 +3,9 @@
     /// <summary>
     /// 客户端信息，避免 transport 依赖 VM 的 Model
     /// </summary>
-    public sealed class TcpClientInfo
+    public sealed class ServerClientInfo
     {
-        public TcpClientInfo(string id, string ip, int port)
+        public ServerClientInfo(string id, string ip, int port)
         {
             Id = id;
             Ip = ip;

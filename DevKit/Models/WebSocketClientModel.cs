@@ -1,4 +1,8 @@
-﻿namespace DevKit.Models
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using TouchSocket.Http.WebSockets;
+
+namespace DevKit.Models
 {
     public class WebSocketClientModel : INotifyPropertyChanged
     {

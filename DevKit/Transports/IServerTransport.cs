@@ -5,11 +5,9 @@ using DevKit.Models;
 
 namespace DevKit.Transports
 {
-    public interface ITcpServerTransport
+    public interface IServerTransport : IDisposable
     {
-        event Action<TcpClientInfo> ClientConnected;
-        event Action<TcpClientInfo> ClientClosed;
-        event Action<TcpClientInfo, byte[]> DataReceived;
+        event Action<ServerClientInfo, byte[]> DataReceived;
 
         bool IsRunning { get; }
 
