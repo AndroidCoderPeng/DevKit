@@ -1020,7 +1020,7 @@
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="ListBoxItem">
                                                         <Border
-                                                            x:Name="CmdItemBorder"
+                                                            x:Name="ClientItemBorder"
                                                             Margin="0,0,0,4"
                                                             Padding="8"
                                                             Background="{StaticResource DevKitSurfaceBrush}"
@@ -1030,10 +1030,10 @@
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="CmdItemBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                                <Setter TargetName="ClientItemBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
                                                             </Trigger>
                                                             <Trigger Property="IsSelected" Value="True">
-                                                                <Setter TargetName="CmdItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                                <Setter TargetName="ClientItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
