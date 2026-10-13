@@ -608,7 +608,7 @@
                             VerticalAlignment="Center"
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="16"
-                            Text="&#xe714;" />
+                            Text="&#xe6c8;" />
                         <TextBlock
                             Margin="6,0,0,0"
                             VerticalAlignment="Center"

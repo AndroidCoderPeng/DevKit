@@ -147,14 +147,6 @@
                                     BorderBrush="{StaticResource DevKitBorderStrongBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8">
-                                    <Border.Effect>
-                                        <DropShadowEffect
-                                            BlurRadius="16"
-                                            Direction="270"
-                                            Opacity="0.12"
-                                            ShadowDepth="4"
-                                            Color="{StaticResource DevKitShadowColor}" />
-                                    </Border.Effect>
                                     <ScrollViewer
                                         CanContentScroll="True"
                                         SnapsToDevicePixels="True"
@@ -169,21 +161,6 @@
                             <!--  hover：边框变主色  -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                            </Trigger>
-
-                            <!--  focus-within：白底 + 主色边框 + 主色光晕（近似 box-shadow: 0 0 0 3px accent-soft）  -->
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="RootBorder" Property="Background" Value="White" />
-                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter TargetName="RootBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect
-                                            BlurRadius="6"
-                                            Opacity="0.18"
-                                            ShadowDepth="0"
-                                            Color="{StaticResource DevKitAccentColor}" />
-                                    </Setter.Value>
-                                </Setter>
                             </Trigger>
 
                             <!--  展开：箭头翻转  -->
@@ -610,7 +587,7 @@
                             VerticalAlignment="Center"
                             FontFamily="/DevKit;component/Fonts/#iconfont"
                             FontSize="16"
-                            Text="&#xe667;" />
+                            Text="&#xe714;" />
                         <TextBlock
                             Margin="6,0,0,0"
                             VerticalAlignment="Center"
