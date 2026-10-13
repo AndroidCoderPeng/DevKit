@@ -72,7 +72,7 @@ namespace DevKit.Transports
             _remoteUri = builder.Uri;
         }
 
-        public async Task SendAsync(byte[] payload, CancellationToken token)
+        public async Task SendAsync(byte[] payload)
         {
             if (payload == null)
             {
@@ -89,8 +89,6 @@ namespace DevKit.Transports
             {
                 throw new InvalidOperationException("WebSocket 客户端尚未连接");
             }
-
-            await client.SendAsync(new ArraySegment<byte>(payload), WebSocketMessageType.Binary, true, token);
         }
 
         public event Action<TransportState> StateChanged;

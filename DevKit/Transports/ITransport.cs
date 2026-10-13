@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace DevKit.Transports
@@ -24,8 +23,7 @@ namespace DevKit.Transports
         /// Sends data to the remote endpoint.
         /// </summary>
         /// <param name="payload"></param>
-        /// <param name="token"></param>
         /// <returns></returns>
-        Task SendAsync(byte[] payload, CancellationToken token);
+        Task SendAsync(byte[] payload);
     }
 }

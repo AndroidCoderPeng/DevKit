@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
-using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TouchSocket.Core;
-using TouchSocket.Sockets;
-using TcpServer = TouchSocket.Sockets.TcpService;
 
 namespace DevKit.ViewModels
 {
@@ -34,8 +26,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            if (_tcpServer.ServerState != ServerState.Running) return;
-            _tcpServer.Stop();
+            
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -203,244 +194,9 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly TcpServer _tcpServer = new TcpServer();
-        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
-        private string _selectedHost;
-        private SocketClientModel _selectedClient;
-
         public TcpServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
-            _selectedHost = LocalHostSource?.First();
-
-            InitListenStateEvent();
-
-            HostSelectedCommand = new DelegateCommand<string>(HostSelected);
-            ServerListenCommand = new DelegateCommand(OnServerListened);
-            ClientItemClickedCommand = new DelegateCommand<SocketClientModel>(OnClientItemClicked);
-            CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            SendCommand = new DelegateCommand(OnMessageSend);
-            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
-            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
-        }
-
-        private void InitListenStateEvent()
-        {
-            _tcpServer.Connected = (client, e) =>
-            {
-                var model = new SocketClientModel
-                {
-                    Id = client.Id,
-                    Ip = client.IP,
-                    Port = client.Port,
-                    IsConnected = true
-                };
-
-                OnClientItemClicked(model);
-                Application.Current.Dispatcher.BeginInvoke(new Action(() => { Clients.Add(_selectedClient); }));
-                return EasyTask.CompletedTask;
-            };
-
-            _tcpServer.Closed = (client, e) =>
-            {
-                var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
-                if (tcp != null)
-                {
-                    tcp.IsConnected = false;
-                }
-
-                return EasyTask.CompletedTask;
-            };
-
-            _tcpServer.Received = (client, e) =>
-            {
-                var tcp = _clients.FirstOrDefault(x => x.Id == client.Id);
-                if (tcp != null)
-                {
-                    //默认显示为UTF8编码
-                    var log = new SocketMessage
-                    {
-                        Content = e.ByteBlock.ToArray().ByBytesToHexString(" "),
-                        Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                        IsSend = 0
-                    };
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        tcp.MessageCount++;
-                        tcp.Logs.Add(log);
-                    }));
-                }
-
-                return EasyTask.CompletedTask;
-            };
-        }
-
-        private void HostSelected(string host)
-        {
-            _selectedHost = host;
-        }
-
-        private void OnServerListened()
-        {
-            if (!_listenPort.IsNumber())
-            {
-                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_tcpServer.ServerState == ServerState.Running)
-            {
-                _tcpServer.Stop();
-                ListenState = "监听";
-                ListenStateColor = "LightGray";
-            }
-            else
-            {
-                try
-                {
-                    var socketConfig = new TouchSocketConfig().SetListenOptions(options =>
-                    {
-                        options.Add(new TcpListenOption
-                        {
-                            IpHost = new IPHost($"{_selectedHost}:{_listenPort}")
-                        });
-                    });
-                    _tcpServer.Setup(socketConfig);
-                    _tcpServer.Start();
-                    ListenState = "停止";
-                    ListenStateColor = "Lime";
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void OnClientItemClicked(SocketClientModel client)
-        {
-            _selectedClient = client;
-            if (_selectedClient != null)
-            {
-                IsContentViewVisible = "Visible";
-                IsEmptyImageVisible = "Collapsed";
-
-                client.MessageCount = 0;
-                ClientAddress = $"{client.Ip}:{client.Port}";
-                // 显示当前选中客户端的消息
-                Logs = _selectedClient.Logs;
-            }
-        }
-
-        private void CopyLog(string log)
-        {
-            Clipboard.SetText(log);
-        }
-
-        private void OnMessageSend()
-        {
-            SendMessage(_userInputText);
-        }
-
-        private void OnTimeChecked()
-        {
-            if (!_commandInterval.IsNumber())
-            {
-                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
-            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
-            _loopSendCommandTimer.Start();
-        }
-
-        private void OnTimeUnchecked()
-        {
-            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
-            _loopSendCommandTimer.Stop();
-        }
-
-        private void TimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            if (_tcpServer.ServerState != ServerState.Running)
-            {
-                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            SendMessage(_userInputText);
-        }
-
-        private void SendMessage(string command)
-        {
-            if (_tcpServer.ServerState != ServerState.Running)
-            {
-                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_selectedClient == null)
-            {
-                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(command))
-            {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            byte[] bytes;
-            if (_isHexSelected)
-            {
-                if (!command.IsHex())
-                {
-                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                bytes = command.Replace(" ", "").ByHexStringToBytes();
-            }
-            else
-            {
-                bytes = command.ToUtf8Bytes();
-            }
-
-            _tcpServer.GetClient(_selectedClient.Id).Send(bytes);
-            var log = new SocketMessage
-            {
-                Content = command,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = 1
-            };
-            _selectedClient.Logs.Add(log);
-        }
-
-        private void OnComboBoxItemSelected(object index)
-        {
-            if (index == null) return;
-
-            if (index.ToString().Equals("0"))
-            {
-                //转为16进制显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.ToUtf8Bytes();
-                    log.Content = bytes.ByBytesToHexString(" ");
-                }
-            }
-            else if (index.ToString().Equals("1"))
-            {
-                //转为ASCII显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                    log.Content = Encoding.UTF8.GetString(bytes);
-                }
-            }
         }
     }
 }

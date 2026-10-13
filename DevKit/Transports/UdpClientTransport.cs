@@ -98,7 +98,7 @@ namespace DevKit.Transports
             }
         }
 
-        public async Task SendAsync(byte[] payload, CancellationToken token)
+        public async Task SendAsync(byte[] payload)
         {
             if (payload == null)
             {
@@ -119,10 +119,6 @@ namespace DevKit.Transports
             {
                 throw new InvalidOperationException("UdpClientTransport 尚未启动，请先调用 Start");
             }
-
-            // 发送前检查取消。UDP 单个数据报发送是原子动作且不可撤回，
-            // 发送成功后再抛取消只会让调用方误判发送失败，故不做发送后检查
-            token.ThrowIfCancellationRequested();
 
             // .NET Framework 4.8 的 UdpClient.SendAsync 不支持 CancellationToken；
             // 若与 StopAsync 并发，此处会抛 ObjectDisposedException，属正常的停止竞态

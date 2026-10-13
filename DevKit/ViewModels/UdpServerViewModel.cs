@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
-using DevKit.Utils;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using TouchSocket.Core;
-using TouchSocket.Sockets;
-using UdpServer = TouchSocket.Sockets.UdpSession;
 
 namespace DevKit.ViewModels
 {
@@ -34,8 +26,7 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            if (_udpServer.ServerState != ServerState.Running) return;
-            _udpServer.Stop();
+            
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -203,229 +194,9 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private readonly UdpServer _udpServer = new UdpServer();
-        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
-        private string _selectedHost;
-        private UdpClientModel _selectedClient;
-
         public UdpServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
-            _selectedHost = LocalHostSource?.First();
-
-            InitListenStateEvent();
-
-            HostSelectedCommand = new DelegateCommand<string>(HostSelected);
-            ServerListenCommand = new DelegateCommand(OnServerListened);
-            ClientItemClickedCommand = new DelegateCommand<UdpClientModel>(OnClientItemClicked);
-            CopyLogCommand = new DelegateCommand<string>(CopyLog);
-            SendCommand = new DelegateCommand(OnMessageSend);
-            TimeCheckedCommand = new DelegateCommand(OnTimeChecked);
-            TimeUncheckedCommand = new DelegateCommand(OnTimeUnchecked);
-            ComboBoxItemSelectedCommand = new DelegateCommand<object>(OnComboBoxItemSelected);
-        }
-
-        private void InitListenStateEvent()
-        {
-            _udpServer.Received = (session, e) =>
-            {
-                var endPoint = e.EndPoint;
-                var udp = _clients.FirstOrDefault(x => x.Ip == endPoint.GetIP() && x.Port == endPoint.GetPort());
-                if (udp != null)
-                {
-                    _selectedClient = udp;
-                }
-                else
-                {
-                    _selectedClient = new UdpClientModel
-                    {
-                        Ip = endPoint.GetIP(),
-                        Port = endPoint.GetPort(),
-                        TargetEndPoint = endPoint
-                    };
-                }
-
-                var log = new SocketMessage
-                {
-                    Content = e.ByteBlock.ToArray().ByBytesToHexString(" "),
-                    Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                    IsSend = 0
-                };
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    if (!Clients.Contains(_selectedClient))
-                    {
-                        Clients.Add(_selectedClient);
-                        OnClientItemClicked(_selectedClient);
-                    }
-
-                    _selectedClient.MessageCount++;
-                    _selectedClient.Logs.Add(log);
-                }));
-
-                return EasyTask.CompletedTask;
-            };
-        }
-        
-        private void HostSelected(string host)
-        {
-            _selectedHost = host;
-        }
-
-        private void OnServerListened()
-        {
-            if (!_listenPort.IsNumber())
-            {
-                MessageBox.Show("端口格式错误", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_udpServer.ServerState == ServerState.Running)
-            {
-                _udpServer.Stop();
-                ListenState = "监听";
-                ListenStateColor = "LightGray";
-            }
-            else
-            {
-                try
-                {
-                    var socketConfig = new TouchSocketConfig().SetBindIPHost(new IPHost($"{_selectedHost}:{_listenPort}"));
-                    _udpServer.Setup(socketConfig);
-                    _udpServer.Start();
-                    ListenState = "停止";
-                    ListenStateColor = "Lime";
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void OnClientItemClicked(UdpClientModel client)
-        {
-            _selectedClient = client;
-            if (_selectedClient != null)
-            {
-                IsContentViewVisible = "Visible";
-                IsEmptyImageVisible = "Collapsed";
-
-                client.MessageCount = 0;
-                ClientAddress = $"{client.Ip}:{client.Port}";
-                // 显示当前选中客户端的消息
-                Logs = _selectedClient.Logs;
-            }
-        }
-
-        private void CopyLog(string log)
-        {
-            Clipboard.SetText(log);
-        }
-
-        private void OnMessageSend()
-        {
-            SendMessage(_userInputText);
-        }
-
-        private void OnTimeChecked()
-        {
-            if (!_commandInterval.IsNumber())
-            {
-                MessageBox.Show("时间间隔仅支持正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
-            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(_commandInterval));
-            _loopSendCommandTimer.Start();
-        }
-
-        private void OnTimeUnchecked()
-        {
-            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
-            _loopSendCommandTimer.Stop();
-        }
-
-        private void TimerTickEvent_Handler(object sender, EventArgs e)
-        {
-            if (_udpServer.ServerState != ServerState.Running)
-            {
-                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            SendMessage(_userInputText);
-        }
-
-        private void SendMessage(string command)
-        {
-            if (_udpServer.ServerState != ServerState.Running)
-            {
-                MessageBox.Show("未开启监听，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (_selectedClient == null)
-            {
-                MessageBox.Show("未选中客户端，无法发送消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(command))
-            {
-                MessageBox.Show("不能发送空消息", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            byte[] bytes;
-            if (_isHexSelected)
-            {
-                if (!command.IsHex())
-                {
-                    MessageBox.Show("16进制格式数据错误，请确认发送数据的模式", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                bytes = command.Replace(" ", "").ByHexStringToBytes();
-            }
-            else
-            {
-                bytes = command.ToUtf8Bytes();
-            }
-
-            _udpServer.Send(_selectedClient.TargetEndPoint, bytes);
-            var log = new SocketMessage
-            {
-                Content = command,
-                Time = DateTime.Now.ToString("HH:mm:ss.fff"),
-                IsSend = 1
-            };
-            _selectedClient.Logs.Add(log);
-        }
-
-        private void OnComboBoxItemSelected(object index)
-        {
-            if (index == null) return;
-
-            if (index.ToString().Equals("0"))
-            {
-                //转为16进制显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.ToUtf8Bytes();
-                    log.Content = bytes.ByBytesToHexString(" ");
-                }
-            }
-            else if (index.ToString().Equals("1"))
-            {
-                //转为ASCII显示
-                foreach (var log in _selectedClient.Logs)
-                {
-                    var bytes = log.Content.Replace(" ", "").ByHexStringToBytes();
-                    log.Content = Encoding.UTF8.GetString(bytes);
-                }
-            }
         }
     }
 }

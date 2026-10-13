@@ -1,32 +1,30 @@
 ﻿using System;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Utils;
+using TouchSocket.Core;
+using TouchSocket.Sockets;
+using TouchTcpClient = TouchSocket.Sockets.TcpClient;
 
 namespace DevKit.Transports
 {
     public class TcpClientTransport : ITransport
     {
+        private const int ConnectTimeoutMs = 10000;
+
         private string _remoteAddress;
         private int _remotePort;
-        private TcpClient _client;
-        private CancellationTokenSource _receiveCts;
-        private Task _receiveTask = Task.CompletedTask;
+        private TouchTcpClient _client;
+        private TaskCompletionSource<bool> _closedTcs;
+        private bool _activeClose;
         private bool _disposed;
 
         public event Action<byte[]> DataReceived;
-        
-        public void Dispose()
-        {
-            if (_disposed)
-            {
-                return;
-            }
+        public event Action<TransportState> StateChanged;
 
-            _disposed = true;
-            _receiveCts?.Cancel();
-            _client?.Close();
+        public TcpClientTransport(string remoteAddress, int remotePort)
+        {
+            SetRemoteEndPoint(remoteAddress, remotePort);
         }
 
         public void SetRemoteEndPoint(string address, int port, string path = null)
@@ -55,33 +53,7 @@ namespace DevKit.Transports
             _remotePort = port;
         }
 
-        public async Task SendAsync(byte[] payload, CancellationToken token)
-        {
-            ThrowIfDisposed();
-
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
-
-            var client = _client;
-            if (client == null)
-            {
-                throw new InvalidOperationException("TCP 客户端尚未连接");
-            }
-
-            var stream = client.GetStream();
-            await stream.WriteAsync(payload, 0, payload.Length, token);
-        }
-        
-        public event Action<TransportState> StateChanged;
-        
-        public TcpClientTransport(string remoteAddress, int remotePort)
-        {
-            SetRemoteEndPoint(remoteAddress, remotePort);
-        }
-        
-        public async Task ConnectAsync(CancellationToken token)
+        public async Task ConnectAsync()
         {
             ThrowIfDisposed();
 
@@ -92,99 +64,129 @@ namespace DevKit.Transports
 
             StateChanged?.Invoke(TransportState.Connecting);
 
-            var client = new TcpClient();
+            var client = new TouchTcpClient();
+            var closedTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            _client = client;
+            _closedTcs = closedTcs;
 
             try
             {
-                using (token.Register(client.Close))
-                {
-                    await client.ConnectAsync(_remoteAddress, _remotePort);
-                }
+                var host = new IPHost($"{_remoteAddress}:{_remotePort}");
+                await client.SetupAsync(new TouchSocketConfig().SetRemoteIPHost(host)).ConfigureAwait(false);
 
-                token.ThrowIfCancellationRequested();
-
+                BindEvents(client, closedTcs);
                 _client = client;
-                _receiveCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-
+                _closedTcs = closedTcs;
+                
+                // 带超时的连接扩展，避免无 token 时连接挂死
+                await client.ConnectAsync(ConnectTimeoutMs).ConfigureAwait(false);
                 StateChanged?.Invoke(TransportState.Connected);
-                _receiveTask = ReceiveLoopAsync(client, _receiveCts);
             }
             catch
             {
                 client.Dispose();
-                StateChanged?.Invoke(token.IsCancellationRequested
-                    ? TransportState.Disconnected
-                    : TransportState.Error);
+                closedTcs.TrySetResult(true);
+
+                if (ReferenceEquals(_client, client))
+                {
+                    _client = null;
+                    _closedTcs = null;
+                }
+
+                StateChanged?.Invoke(TransportState.Error);
                 throw;
             }
+        }
+
+        public async Task SendAsync(byte[] payload)
+        {
+            ThrowIfDisposed();
+
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
+
+            var client = _client;
+            if (client == null || !client.Online)
+            {
+                throw new InvalidOperationException("TCP 客户端尚未连接");
+            }
+
+            await client.SendAsync(payload, CancellationToken.None).ConfigureAwait(false);
         }
 
         public async Task DisconnectAsync()
         {
             var client = _client;
-            var receiveCts = _receiveCts;
+            var closedTcs = _closedTcs;
 
             if (client == null)
             {
                 return;
             }
 
-            receiveCts?.Cancel();
-            client.Close();
-
-            await _receiveTask;
-        }
-
-        private async Task ReceiveLoopAsync(TcpClient client, CancellationTokenSource receiveCts)
-        {
-            var failed = false;
-            var token = receiveCts.Token;
-
             try
             {
-                var stream = client.GetStream();
-                var buffer = new byte[8192];
-
-                while (!token.IsCancellationRequested)
-                {
-                    var count = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false);
-
-                    if (count == 0)
-                    {
-                        break;
-                    }
-
-                    var bytes = new byte[count];
-                    Buffer.BlockCopy(buffer, 0, bytes, 0, count);
-                    DataReceived?.Invoke(bytes);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // 主动断开连接
-            }
-            catch (ObjectDisposedException) when (token.IsCancellationRequested)
-            {
-                // 主动断开时底层流已关闭
+                await client.CloseAsync("主动断开连接", CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                failed = true;
-                Console.WriteLine(@"TCP 接收失败：{0}", e);
+                Console.WriteLine(@"TCP 主动断开异常：{0}", e);
             }
-            finally
-            {
-                client.Dispose();
-                receiveCts.Dispose();
 
-                if (ReferenceEquals(_client, client))
+            if (closedTcs != null)
+            {
+                await closedTcs.Task.ConfigureAwait(false);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            var client = _client;
+            _client = null;
+            _closedTcs?.TrySetResult(true);
+
+            client?.Dispose();
+        }
+
+        private void BindEvents(TouchTcpClient client, TaskCompletionSource<bool> closedTcs)
+        {
+            client.Received = (c, e) =>
+            {
+                DataReceived?.Invoke(e.Memory.ToArray());
+                return EasyTask.CompletedTask;
+            };
+
+            // Closing 仅在主动断开时触发，用它区分主动/被动断开
+            client.Closing = (c, e) =>
+            {
+                _activeClose = true;
+                return EasyTask.CompletedTask;
+            };
+
+            client.Closed = (c, e) =>
+            {
+                var isCurrent = ReferenceEquals(_client, c);
+                if (isCurrent)
                 {
                     _client = null;
-                    _receiveCts = null;
+                    _closedTcs = null;
+                    StateChanged?.Invoke(_activeClose ? TransportState.Disconnected : TransportState.Error);
                 }
 
-                StateChanged?.Invoke(failed ? TransportState.Error : TransportState.Disconnected);
-            }
+                closedTcs.TrySetResult(true);
+                c.Dispose();
+                return EasyTask.CompletedTask;
+            };
         }
 
         private void ThrowIfDisposed()

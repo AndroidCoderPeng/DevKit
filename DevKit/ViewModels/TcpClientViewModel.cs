@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -302,7 +301,6 @@ namespace DevKit.ViewModels
         #endregion
 
         private TcpClientTransport _transport;
-        private CancellationTokenSource _transportCts;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
         private DispatcherTimer _sessionTimer;
@@ -544,7 +542,6 @@ namespace DevKit.ViewModels
             }
 
             _isConnecting = true;
-            _transportCts = new CancellationTokenSource();
 
             var transport = new TcpClientTransport(_remoteAddress, Convert.ToInt32(_remotePort));
             transport.StateChanged += delegate(TransportState state)
@@ -580,7 +577,7 @@ namespace DevKit.ViewModels
 
             try
             {
-                await transport.ConnectAsync(_transportCts.Token);
+                await transport.ConnectAsync();
             }
             catch (Exception e)
             {
@@ -763,7 +760,7 @@ namespace DevKit.ViewModels
 
             try
             {
-                await transport.SendAsync(payload, _transportCts?.Token ?? CancellationToken.None);
+                await transport.SendAsync(payload);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
                 Logs.Add(new SocketMessage
                 {

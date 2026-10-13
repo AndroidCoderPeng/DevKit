@@ -648,7 +648,7 @@ namespace DevKit.ViewModels
 
             try
             {
-                await transport.SendAsync(payload, _transportCts?.Token ?? CancellationToken.None);
+                await transport.SendAsync(payload);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
                 Logs.Add(new SocketMessage
                 {
