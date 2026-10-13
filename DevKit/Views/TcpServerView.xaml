@@ -1625,7 +1625,6 @@
 
                                 <CheckBox
                                     Grid.Column="4"
-                                    Command="{Binding BroadcastAllCommand}"
                                     Content="广播全部"
                                     IsChecked="{Binding IsBroadcastAllEnabled, Mode=TwoWay}"
                                     Style="{StaticResource ToggleSwitchStyle}" />

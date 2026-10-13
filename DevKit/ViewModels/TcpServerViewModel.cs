@@ -327,6 +327,14 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _interval, value);
         }
 
+        private bool _isBroadcastAllEnabled;
+
+        public bool IsBroadcastAllEnabled
+        {
+            get => _isBroadcastAllEnabled;
+            set => SetProperty(ref _isBroadcastAllEnabled, value);
+        }
+
         private string _toastMessage;
 
         public string ToastMessage
@@ -436,7 +444,7 @@ namespace DevKit.ViewModels
                 Logs = client.Logs;
                 RefreshUnreadMessageCount();
             });
-            
+
             DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
             {
                 if (value == "0")
@@ -448,7 +456,7 @@ namespace DevKit.ViewModels
                     IsLogHexSelected = false;
                 }
             });
-            
+
             SaveLogCommand = new DelegateCommand(() =>
             {
                 if (_selectedClient == null)
@@ -456,7 +464,7 @@ namespace DevKit.ViewModels
                     MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                
+
                 if (!_selectedClient.Logs.Any())
                 {
                     MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -480,7 +488,7 @@ namespace DevKit.ViewModels
                     }
                 }
             });
-            
+
             ClearLogCommand = new DelegateCommand(() =>
             {
                 if (_selectedClient == null)
@@ -495,13 +503,14 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes) return;
 
                 _selectedClient.Logs.Clear();
                 RefreshUnreadMessageCount();
             });
-            
+
             CopyLogCommand = new DelegateCommand<string>(log =>
             {
                 Clipboard.SetText(log);
@@ -509,7 +518,7 @@ namespace DevKit.ViewModels
             });
 
             SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
-            
+
             SendRadioChangedCommand = new DelegateCommand<string>(value =>
             {
                 if (value == "0")
@@ -521,7 +530,7 @@ namespace DevKit.ViewModels
                     IsSendHexSelected = false;
                 }
             });
-            
+
             LoopSendSwitchCommand = new DelegateCommand<object>(value =>
             {
                 if (!(value is bool isChecked)) return;
@@ -737,7 +746,7 @@ namespace DevKit.ViewModels
             //     Memo = "用户输入"
             // });
         }
-        
+
         private void StartLoopSending()
         {
             if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
@@ -773,7 +782,7 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_isLoopSendInProgress)
@@ -782,7 +791,7 @@ namespace DevKit.ViewModels
             _isLoopSendInProgress = true;
             _ = SendLoopInputAsync();
         }
-        
+
         private async Task SendLoopInputAsync()
         {
             try
@@ -801,7 +810,7 @@ namespace DevKit.ViewModels
                 _isLoopSendInProgress = false;
             }
         }
-        
+
         private string FormatLogContent(byte[] bytes)
         {
             return IsLogHexSelected
