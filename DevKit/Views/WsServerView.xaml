@@ -577,18 +577,8 @@
                 Margin="14,0"
                 HorizontalContentAlignment="Center"
                 MaxLength="6"
-                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}">
-                <TextBox.Style>
-                    <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsReusePortEnabled}" Value="True">
-                                <Setter Property="IsEnabled" Value="False" />
-                                <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
+                Style="{StaticResource FieldTextBoxStyle}"
+                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" />
 
             <Border
                 Grid.Column="5"

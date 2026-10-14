@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
@@ -35,7 +37,63 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private List<string> _localHostSource;
+        private string _stateOuterBackgroundColor = "#FFF7F9FC";
+
+        public string StateOuterBackgroundColor
+        {
+            get => _stateOuterBackgroundColor;
+            set => SetProperty(ref _stateOuterBackgroundColor, value);
+        }
+
+        private string _stateOuterBorderColor = "#FFEEEEF0";
+
+        public string StateOuterBorderColor
+        {
+            get => _stateOuterBorderColor;
+            set => SetProperty(ref _stateOuterBorderColor, value);
+        }
+
+        private string _stateInnerBackgroundColor = "#E7EBF0";
+
+        public string StateInnerBackgroundColor
+        {
+            get => _stateInnerBackgroundColor;
+            set => SetProperty(ref _stateInnerBackgroundColor, value);
+        }
+
+        private string _stateInnerBorderColor = "#93A0AE";
+
+        public string StateInnerBorderColor
+        {
+            get => _stateInnerBorderColor;
+            set => SetProperty(ref _stateInnerBorderColor, value);
+        }
+
+        private string _stateTextColor = "#5F6B7A";
+
+        public string StateTextColor
+        {
+            get => _stateTextColor;
+            set => SetProperty(ref _stateTextColor, value);
+        }
+
+        private string _stateText = "未监听";
+
+        public string StateText
+        {
+            get => _stateText;
+            set => SetProperty(ref _stateText, value);
+        }
+
+        private string _selectedIp = string.Empty;
+
+        public string SelectedIp
+        {
+            get => _selectedIp;
+            set => SetProperty(ref _selectedIp, value);
+        }
+
+        private List<string> _localHostSource = new List<string>();
 
         public List<string> LocalHostSource
         {
@@ -47,155 +105,116 @@ namespace DevKit.ViewModels
             get => _localHostSource;
         }
 
-        private string _listenPort = "9000";
+        private string _localPort = "24242";
 
-        public string ListenPort
+        public string LocalPort
         {
-            set
-            {
-                _listenPort = value;
-                RaisePropertyChanged();
-            }
-            get => _listenPort;
+            get => _localPort;
+            set => SetProperty(ref _localPort, value);
         }
 
-        private string _webSocketPath = string.Empty;
+        private string _wsPath = string.Empty;
 
-        public string WebSocketPath
+        public string WsPath
         {
-            set
-            {
-                _webSocketPath = value;
-                RaisePropertyChanged();
-            }
-            get => _webSocketPath;
+            get => _wsPath;
+            set => SetProperty(ref _wsPath, value);
+        }
+        
+        private string _listenButtonText = "开始监听";
+
+        public string ListenButtonText
+        {
+            get => _listenButtonText;
+            set => SetProperty(ref _listenButtonText, value);
+        }
+        
+        private string _runningTime = "00:00:00";
+
+        public string RunningTime
+        {
+            get => _runningTime;
+            set => SetProperty(ref _runningTime, value);
         }
 
-        private string _listenStateColor = "LightGray";
+        private int _onlineClientCount;
 
-        public string ListenStateColor
+        public int OnlineClientCount
         {
-            set
-            {
-                _listenStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _listenStateColor;
+            get => _onlineClientCount;
+            set => SetProperty(ref _onlineClientCount, value);
         }
 
-        private string _listenState = "监听";
+        private int _clientCount;
 
-        public string ListenState
+        public int ClientCount
         {
-            set
-            {
-                _listenState = value;
-                RaisePropertyChanged();
-            }
-            get => _listenState;
+            get => _clientCount;
+            set => SetProperty(ref _clientCount, value);
         }
 
-        private ObservableCollection<WebSocketClientModel> _clients = new ObservableCollection<WebSocketClientModel>();
+        private int _unReadMessageCount;
 
-        public ObservableCollection<WebSocketClientModel> Clients
+        public int UnReadMessageCount
         {
-            set
-            {
-                _clients = value;
-                RaisePropertyChanged();
-            }
-            get => _clients;
+            get => _unReadMessageCount;
+            set => SetProperty(ref _unReadMessageCount, value);
         }
 
-        private string _isContentViewVisible = "Collapsed";
+        private int _sendCount;
 
-        public string IsContentViewVisible
+        public int SendCount
         {
-            set
-            {
-                _isContentViewVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isContentViewVisible;
+            get => _sendCount;
+            set => SetProperty(ref _sendCount, value);
         }
 
-        private string _isEmptyImageVisible = "Visible";
+        private int _sendByteSize;
 
-        public string IsEmptyImageVisible
+        public int SendByteSize
         {
-            set
-            {
-                _isEmptyImageVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isEmptyImageVisible;
+            get => _sendByteSize;
+            set => SetProperty(ref _sendByteSize, value);
         }
 
-        private string _clientAddress = string.Empty;
+        private int _receiveCount;
 
-        public string ClientAddress
+        public int ReceiveCount
         {
-            set
-            {
-                _clientAddress = value;
-                RaisePropertyChanged();
-            }
-            get => _clientAddress;
+            get => _receiveCount;
+            set => SetProperty(ref _receiveCount, value);
         }
 
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+        private int _receiveByteSize;
 
-        public ObservableCollection<SocketMessage> Logs
+        public int ReceiveByteSize
         {
-            set
-            {
-                _logs = value;
-                RaisePropertyChanged();
-            }
-            get => _logs;
+            get => _receiveByteSize;
+            set => SetProperty(ref _receiveByteSize, value);
         }
-
-        private string _userInputText = string.Empty;
-
-        public string UserInputText
-        {
-            set
-            {
-                _userInputText = value;
-                RaisePropertyChanged();
-            }
-            get => _userInputText;
-        }
-
-        private string _commandInterval = "1000";
-
-        public string CommandInterval
-        {
-            set
-            {
-                _commandInterval = value;
-                RaisePropertyChanged();
-            }
-            get => _commandInterval;
-        }
-
+        
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand CopyWebSocketPathCommand { set; get; }
-        public DelegateCommand<WebSocketClientModel> ClientItemClickedCommand { set; get; }
-        public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SendCommand { set; get; }
-        public DelegateCommand TimeCheckedCommand { set; get; }
-        public DelegateCommand TimeUncheckedCommand { set; get; }
+        
 
         #endregion
 
+        // private TcpServerTransport _server;
+        private DispatcherTimer _runningTimer;
+        private DateTime _listenStartedAt;
+        private DispatcherTimer _toastTimer;
+        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private bool _isLoopSendInProgress;
+        
         public WsServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
+            if (_localHostSource.Any())
+            {
+                SelectedIp = _localHostSource.First();
+            }
         }
     }
 }

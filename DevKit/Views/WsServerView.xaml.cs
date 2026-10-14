@@ -1,7 +1,4 @@
 ﻿using System.Windows.Controls;
-using System.Windows.Input;
-using DevKit.Models;
-using DevKit.ViewModels;
 
 namespace DevKit.Views
 {
@@ -10,15 +7,6 @@ namespace DevKit.Views
         public WsServerView()
         {
             InitializeComponent();
-        }
-
-        private void ClientListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is ListBoxItem item && item.Content is WebSocketClientModel model)
-            {
-                var vm = DataContext as WsServerViewModel;
-                vm?.ClientItemClickedCommand.Execute(model);
-            }
         }
     }
 }
