@@ -327,12 +327,12 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _interval, value);
         }
 
-        private bool _isBroadcastAllEnabled;
+        private bool _isMassSendEnabled;
 
-        public bool IsBroadcastAllEnabled
+        public bool IsMassSendEnabled
         {
-            get => _isBroadcastAllEnabled;
-            set => SetProperty(ref _isBroadcastAllEnabled, value);
+            get => _isMassSendEnabled;
+            set => SetProperty(ref _isMassSendEnabled, value);
         }
 
         private string _toastMessage;
@@ -772,7 +772,7 @@ namespace DevKit.ViewModels
             }
 
             List<TcpServerClient> targets;
-            if (_isBroadcastAllEnabled)
+            if (_isMassSendEnabled)
             {
                 targets = ClientItems.Where(client => client.IsConnected).ToList();
                 if (targets.Count == 0)
@@ -846,7 +846,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_isBroadcastAllEnabled)
+            if (_isMassSendEnabled)
             {
                 if (!ClientItems.Any(client => client.IsConnected))
                 {

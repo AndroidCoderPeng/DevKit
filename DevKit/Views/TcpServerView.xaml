@@ -1625,8 +1625,8 @@
 
                                 <CheckBox
                                     Grid.Column="4"
-                                    Content="广播全部"
-                                    IsChecked="{Binding IsBroadcastAllEnabled, Mode=TwoWay}"
+                                    Content="群发全部"
+                                    IsChecked="{Binding IsMassSendEnabled, Mode=TwoWay}"
                                     Style="{StaticResource ToggleSwitchStyle}" />
 
                                 <Button
