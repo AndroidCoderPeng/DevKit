@@ -22,16 +22,24 @@ namespace DevKit.Transports
 
         public bool IsRunning => _running;
 
-        public async Task StartAsync(string address, int port, bool reuseAddress, CancellationToken token)
+        public async Task StartAsync(string address, int port, CancellationToken token)
         {
             ThrowIfDisposed();
 
             if (string.IsNullOrWhiteSpace(address))
+            {
                 throw new ArgumentException(@"监听地址不能为空", nameof(address));
+            }
+
             if (port < 1 || port > 65535)
+            {
                 throw new ArgumentOutOfRangeException(nameof(port));
+            }
+
             if (_session != null)
+            {
                 throw new InvalidOperationException("UDP 服务已经启动");
+            }
 
             var session = new UdpSession();
             _session = session;
@@ -39,17 +47,17 @@ namespace DevKit.Transports
             try
             {
                 var host = new IPHost($"{address.Trim()}:{port}");
-                var config = new TouchSocketConfig().SetBindIPHost(host).SetReuseAddress(reuseAddress);
+                // 复用地址：允许同机多开监听同一端口，与 TCP 服务端保持一致的默认行为
+                var config = new TouchSocketConfig().SetBindIPHost(host).SetReuseAddress(true);
 
                 session.Received = (s, e) =>
                 {
-                    if (!(e.EndPoint is IPEndPoint remote))
+                    if (e.EndPoint is IPEndPoint remote)
                     {
-                        return EasyTask.CompletedTask;
+                        var client = new ServerClient(remote.ToString(), remote.Address.ToString(), remote.Port);
+                        DataReceived?.Invoke(client, e.Memory.ToArray());
                     }
 
-                    var client = new ServerClient(remote.ToString(), remote.Address.ToString(), remote.Port);
-                    DataReceived?.Invoke(client, e.Memory.ToArray());
                     return EasyTask.CompletedTask;
                 };
 
@@ -59,7 +67,11 @@ namespace DevKit.Transports
             }
             catch
             {
-                if (ReferenceEquals(_session, session)) _session = null;
+                if (ReferenceEquals(_session, session))
+                {
+                    _session = null;
+                }
+
                 _running = false;
                 session.Dispose();
                 throw;
@@ -68,8 +80,17 @@ namespace DevKit.Transports
 
         public async Task SendAsync(IPEndPoint remote, byte[] payload)
         {
-            if (payload == null) throw new ArgumentNullException(nameof(payload));
-            if (remote == null) throw new ArgumentNullException(nameof(remote));
+            ThrowIfDisposed();
+
+            if (remote == null)
+            {
+                throw new ArgumentNullException(nameof(remote));
+            }
+
+            if (payload == null)
+            {
+                throw new ArgumentNullException(nameof(payload));
+            }
 
             var session = _session;
             if (session == null || !_running)
@@ -79,11 +100,14 @@ namespace DevKit.Transports
 
             await session.SendAsync(remote, payload, CancellationToken.None).ConfigureAwait(false);
         }
-        
+
         public async Task StopAsync()
         {
             var session = _session;
-            if (session == null) return;
+            if (session == null)
+            {
+                return;
+            }
 
             _session = null;
             _running = false;
@@ -104,7 +128,11 @@ namespace DevKit.Transports
 
         public void Dispose()
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
+
             _disposed = true;
 
             var session = _session;
@@ -115,7 +143,10 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(UdpServerTransport));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(UdpServerTransport));
+            }
         }
     }
 }

@@ -940,7 +940,7 @@
                                 <Button
                                     Grid.Column="3"
                                     Height="28"
-                                    Command="{Binding ClearAllCommand}"
+                                    Command="{Binding ClearAllClientCommand}"
                                     Content="清空列表"
                                     ToolTip="清空已发现来源列表">
                                     <Button.Style>
@@ -1072,7 +1072,7 @@
                                                     Orientation="Horizontal"
                                                     Visibility="Collapsed">
                                                     <Button
-                                                        Command="{Binding DataContext.CopyAdressCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Command="{Binding DataContext.CopyAddressCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Content="&#xe66c;"
                                                         Style="{StaticResource ClientCopyButtonStyle}"
