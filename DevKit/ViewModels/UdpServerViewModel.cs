@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,12 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            StopLoopSending();
+            StopRunningTimer();
+            _toastTimer?.Stop();
+
+            _server?.Dispose();
+            _server = null;
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -395,24 +402,19 @@ namespace DevKit.ViewModels
 
             ClearAllClientCommand = new DelegateCommand(() =>
             {
-                if (_server == null || !_server.IsRunning)
-                {
-                    ShowToast("服务未启动");
-                    return;
-                }
-
+                // 清空来源列表是纯界面操作，不需要服务处于监听中
                 ClientItems.Clear();
                 ClientCount = 0;
                 ActiveClientCount = 0;
                 UnReadMessageCount = 0;
                 SelectedClient = null;
+                Logs = new ObservableCollection<SocketMessage>();
             });
 
             CopyAddressCommand = new DelegateCommand<UdpServerClient>(client =>
             {
                 if (client == null)
                 {
-                    ShowToast("请选择客户端");
                     return;
                 }
 
@@ -425,12 +427,25 @@ namespace DevKit.ViewModels
             {
                 if (client == null)
                 {
-                    ShowToast("请选择客户端");
                     return;
                 }
 
-                ClientItems.Remove(client);
+                var wasSelected = ReferenceEquals(_selectedClient, client);
+                if (!ClientItems.Remove(client))
+                {
+                    return;
+                }
+
                 ClientCount = ClientItems.Count;
+                ActiveClientCount = ClientItems.Count(x => x.IsActive);
+
+                if (wasSelected)
+                {
+                    // 已被移除的来源不能再当发送/查看目标
+                    SelectedClient = null;
+                    Logs = new ObservableCollection<SocketMessage>();
+                }
+
                 RefreshUnreadMessageCount();
             });
 
@@ -586,9 +601,17 @@ namespace DevKit.ViewModels
 
             if (!_server.IsRunning)
             {
+                if (!int.TryParse(LocalPort, out var port) || port < 1 || port > 65535)
+                {
+                    ApplyListenState(ListenState.Error);
+                    MessageBox.Show("端口必须是 1 到 65535 之间的整数", "端口无效", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
                 try
                 {
-                    await _server.StartAsync(SelectedIp, int.Parse(LocalPort), CancellationToken.None);
+                    await _server.StartAsync(SelectedIp, port, CancellationToken.None);
                     ApplyListenState(ListenState.Listening);
                     StartRunningTimer();
                 }
@@ -604,10 +627,18 @@ namespace DevKit.ViewModels
                 ApplyListenState(ListenState.NotListening);
                 StopRunningTimer();
 
-                // 停止后清掉旧的连接记录（StopAsync 会断开所有客户端）
+                // UDP 没有「断开」事件：停止监听后列表里的来源不再有活跃可言
+                var now = DateTime.Now;
+                foreach (var client in ClientItems)
+                {
+                    client.IsActive = false;
+                    client.LastActiveTime = (int)(now - client.LastReceivedAt).TotalMinutes;
+                }
+
                 ActiveClientCount = 0;
                 UnReadMessageCount = 0;
                 SelectedClient = null;
+                Logs = new ObservableCollection<SocketMessage>();
             }
         }
 
@@ -643,6 +674,7 @@ namespace DevKit.ViewModels
                 ReceiveByteSize += bytes.Length;
                 LastDataTime = time;
 
+                ActiveClientCount = ClientItems.Count(x => x.IsActive);
                 RefreshUnreadMessageCount();
             }));
         }
@@ -713,10 +745,44 @@ namespace DevKit.ViewModels
             _runningTimer = null;
         }
 
+        /// <summary>
+        /// XAML 的空闲超时是 MaxLength=3，合法值 1~999；非法输入按 1 秒兜底
+        /// </summary>
+        private int GetIdleTimeoutSeconds()
+        {
+            if (!int.TryParse(_idleTimeout, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds)
+                || seconds < 1)
+            {
+                seconds = 1;
+            }
+
+            return seconds;
+        }
+
         private void RunningTimerTick(object sender, EventArgs e)
         {
             var elapsed = DateTime.Now - _listenStartedAt;
             RunningTime = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+
+            // UDP 没有「断开」事件，来源的活跃/静默只能在这里按空闲超时推断
+            var idleSeconds = GetIdleTimeoutSeconds();
+            var now = DateTime.Now;
+            foreach (var client in ClientItems)
+            {
+                var seconds = (now - client.LastReceivedAt).TotalSeconds;
+                if (seconds <= idleSeconds)
+                {
+                    client.IsActive = true;
+                    client.LastMessageTime = (int)seconds;        // 活跃 · N 秒前收到的数据
+                }
+                else
+                {
+                    client.IsActive = false;
+                    client.LastActiveTime = (int)(seconds / 60);  // 静默 · N 分钟前收到的数据
+                }
+            }
+
+            ActiveClientCount = ClientItems.Count(x => x.IsActive);
         }
 
         private void ShowToast(string message)
@@ -807,7 +873,9 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    await server.SendAsync(client.Id, payload);
+                    // UDP 的发送目标就是来源端点本身，Id 只是列表项的 key
+                    var remote = new IPEndPoint(IPAddress.Parse(client.Ip), client.Port);
+                    await server.SendAsync(remote, payload);
 
                     var time = DateTime.Now.ToString("HH:mm:ss.fff");
                     client.Logs.Add(new SocketMessage
@@ -849,7 +917,7 @@ namespace DevKit.ViewModels
 
             if (_server == null || !_server.IsRunning)
             {
-                MessageBox.Show("请先启动 TCP 服务", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("请先启动 UDP 服务", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
                 return;
             }
