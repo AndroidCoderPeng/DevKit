@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>串口调试助手 · 界面重设计稿</title>
+    <link rel="stylesheet" href="serialport.css" />
+</head>
+
+<body>
+
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-status="opened">已打开</button>
+        <button class="demo-btn" data-status="opening">打开中</button>
+        <button class="demo-btn" data-status="closed">已关闭</button>
+        <button class="demo-btn" data-status="empty">空记录</button>
+    </div>
+
+    <div class="app">
+        <!--
+      说明：与 TCP / SFTP 等模块一致，本窗口是 Prism 对话框，标题由系统默认标题栏提供，
+      内容顶部只放一条「串口工具条」——串口调试与 Socket 工具的差别是
+      连接对象是物理串口，因此工具条首位是状态，随后是 端口 与 波特率。
+    -->
+        <div class="window">
+
+            <!-- ============ 串口工具条 ============ -->
+            <div class="toolbar">
+                <span class="state-pill on" id="statePill">
+                    <span class="dot on" id="stateDot"></span>
+                    <b id="statePillText">已打开</b>
+                </span>
+
+                <span class="toolbar-divider"></span>
+
+                <div class="param-group">
+                    <label class="select-wrap port" id="portWrap" title="串口号">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <rect x="4" y="3" width="16" height="10" rx="2" fill="none" stroke="currentColor"
+                                stroke-width="2" />
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                d="M8 13v3a4 4 0 0 0 4 4h4" />
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                d="M8 16h2m4 4h2" />
+                        </svg>
+                        <select id="port">
+                            <option>COM1</option>
+                            <option selected>COM3</option>
+                            <option>COM5</option>
+                            <option>COM7</option>
+                            <option>COM9</option>
+                        </select>
+                    </label>
+
+                    <label class="select-wrap baud" id="baudWrap" title="波特率">
+                        <select id="baudrate">
+                            <option>9600</option>
+                            <option>19200</option>
+                            <option>38400</option>
+                            <option>57600</option>
+                            <option selected>115200</option>
+                            <option>230400</option>
+                            <option>460800</option>
+                            <option>921600</option>
+                        </select>
+                    </label>
+
+                    <button class="icon-btn lg" id="btnScan" title="重新扫描可用串口">
+                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1M21 4.5V10h-5.5" />
+                        </svg>
+                    </button>
+                </div>
+
+                <span class="spacer"></span>
+
+                <button class="btn btn-primary" id="btnOpen">
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M9 12h6M8 7H6a5 5 0 0 0 0 10h2m8-10h2a5 5 0 0 1 0 10h-2" />
+                    </svg>
+                    <span id="btnOpenText">关闭串口</span>
+                </button>
+            </div>
+
+            <!-- 校验提示（有错误时才出现，不占用固定高度） -->
+            <div class="toolbar-hint" id="toolbarHint">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 8v5" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 16.5h.01" />
+                </svg>
+                <span id="toolbarHintText"></span>
+            </div>
+
+            <!-- ============ 主体 ============ -->
+            <div class="layout">
+
+                <!-- ---------- 左栏：串口参数 + 统计 + 快捷指令 ---------- -->
+                <aside class="sidebar">
+
+                    <section class="card">
+                        <div class="card-head">
+                            <span class="card-title">串口参数</span>
+                            <span class="spacer"></span>
+                            <span class="lock-tag on" id="paramLock">已锁定</span>
+                        </div>
+
+                        <div class="param-grid">
+                            <label class="param">
+                                <span class="param-label">数据位</span>
+                                <span class="select-wrap">
+                                    <select id="databits" disabled>
+                                        <option>5</option>
+                                        <option>6</option>
+                                        <option>7</option>
+                                        <option selected>8</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="param">
+                                <span class="param-label">停止位</span>
+                                <span class="select-wrap">
+                                    <select id="stopbits" disabled>
+                                        <option selected>1</option>
+                                        <option>1.5</option>
+                                        <option>2</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="param">
+                                <span class="param-label">校验位</span>
+                                <span class="select-wrap">
+                                    <select id="parity" disabled>
+                                        <option selected>无</option>
+                                        <option>奇校验</option>
+                                        <option>偶校验</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="param">
+                                <span class="param-label">流控</span>
+                                <span class="select-wrap">
+                                    <select id="flow" disabled>
+                                        <option selected>无</option>
+                                        <option>硬件 RTS/CTS</option>
+                                        <option>软件 XON/XOFF</option>
+                                    </select>
+                                </span>
+                            </label>
+                        </div>
+
+                        <p class="card-hint">串口打开后参数被锁定，需先关闭串口才能修改。</p>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-head">
+                            <span class="card-title">会话统计</span>
+                        </div>
+
+                        <div class="session-row">
+                            <span class="stat-label">保持时长</span>
+                            <b id="connTimer">00:12:31</b>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat tx">
+                                <span class="stat-label">发送</span>
+                                <span class="stat-value">
+                                    <b id="statTx">12</b>
+                                    <small id="statTxBytes">96 B</small>
+                                </span>
+                            </div>
+                            <div class="stat rx">
+                                <span class="stat-label">接收</span>
+                                <span class="stat-value">
+                                    <b id="statRx">34</b>
+                                    <small id="statRxBytes">1.2 KB</small>
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 快捷指令：点一下即填入，▶ 直接发送，时钟按钮设为定时循环 -->
+                    <section class="card card-flex">
+                        <div class="card-head">
+                            <span class="card-title">快捷指令</span>
+                            <span class="count" id="cmdCount">6</span>
+                            <span class="spacer"></span>
+                            <button class="icon-btn" id="btnAddCmd" title="新增指令">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        d="M12 5v14M5 12h14" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="cmd-list" id="cmdList">
+                            <div class="cmd-item" data-cmd="AT" data-anno="握手测试">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">AT</span>
+                                    <span class="cmd-anno">握手测试</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div class="cmd-item" data-cmd="AT+GMR" data-anno="查询固件版本">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">AT+GMR</span>
+                                    <span class="cmd-anno">查询固件版本</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div class="cmd-item" data-cmd="AT+CWMODE=1" data-anno="设为 Station 模式">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">AT+CWMODE=1</span>
+                                    <span class="cmd-anno">设为 Station 模式</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div class="cmd-item" data-cmd="AT+CIFSR" data-anno="查询本机 IP">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">AT+CIFSR</span>
+                                    <span class="cmd-anno">查询本机 IP</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div class="cmd-item" data-cmd="01 03 00 00 00 01 84 0A" data-anno="Modbus 读保持寄存器">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">01 03 00 00 00 01 84 0A</span>
+                                    <span class="cmd-anno">Modbus 读保持寄存器</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+
+                            <div class="cmd-item" data-cmd="AT+RST" data-anno="重启模块">
+                                <span class="cmd-text">
+                                    <span class="cmd-value">AT+RST</span>
+                                    <span class="cmd-anno">重启模块</span>
+                                </span>
+                                <span class="cmd-actions">
+                                    <button class="mini-btn go" data-act="send" title="立即发送">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="timer" title="定时循环发送">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"
+                                                stroke-width="2" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M12 8v4l3 2" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn" data-act="edit" title="编辑">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                        </svg>
+                                    </button>
+                                    <button class="mini-btn del" data-act="del" title="删除">
+                                        <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                        </svg>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="cmd-empty" id="cmdEmpty" hidden>
+                            暂无快捷指令<br />点击右上角「+」新增常用 AT / Modbus 指令
+                        </div>
+                    </section>
+
+                </aside>
+
+                <!-- ---------- 右栏：接收区 + 发送区 ---------- -->
+                <section class="main">
+
+                    <section class="card card-flex">
+                        <div class="rx-toolbar">
+                            <span class="card-title">接收区</span>
+                            <span class="count" id="rxCount">34</span>
+                            <span class="spacer"></span>
+
+                            <div class="segmented" id="viewSeg">
+                                <button class="active" data-view="text">文本</button>
+                                <button data-view="hex">HEX</button>
+                            </div>
+
+                            <label class="inline-field" title="每条数据前显示时间">
+                                <input type="checkbox" class="switch-input" id="tsSwitch" checked />
+                                <span class="switch"></span>
+                                时间戳
+                            </label>
+
+                            <label class="inline-field" title="把发送出去的内容也列在接收区，便于对照设备应答">
+                                <input type="checkbox" class="switch-input" id="echoSwitch" checked />
+                                <span class="switch"></span>
+                                显示发送
+                            </label>
+
+                            <span class="toolbar-divider"></span>
+
+                            <button class="btn btn-sm" id="btnPause">暂停</button>
+                            <button class="btn btn-sm" id="btnSave">保存</button>
+                            <button class="btn btn-sm btn-danger" id="btnClear">清空</button>
+                        </div>
+
+                        <!-- 接收内容由 JS 渲染 -->
+                        <div class="rx-body" id="rxBody"></div>
+
+                        <div class="empty" id="rxEmpty">
+                            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+                                <rect x="4" y="3" width="16" height="10" rx="2" fill="none" stroke="currentColor"
+                                    stroke-width="1.6" />
+                                <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                    d="M8 13v3a4 4 0 0 0 4 4h4" />
+                            </svg>
+                            <span class="empty-title">还没有收发记录</span>
+                            <span class="empty-desc">
+                                选择串口号与波特率后点击「打开串口」即可开始调试；接收到的数据会带时间显示在这里，
+                                开启「显示发送」后，发出去的内容也会一并列出，便于对照设备应答。
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- 发送区 -->
+                    <div class="composer">
+                        <div class="composer-head">
+                            <span class="card-title">发送区</span>
+                            <span class="spacer"></span>
+                            <span class="ret-hint" id="sendHint">上次发送 AT+GMR · 6 B</span>
+                        </div>
+
+                        <!-- 输入框与发送按钮并排：按钮固定右侧，选项行换行时也不会把它顶到下一行 -->
+                        <div class="composer-body">
+                            <textarea id="input"
+                                placeholder="输入要发送的内容；HEX 模式下用空格分隔，例如 01 03 00 00 00 01 84 0A"></textarea>
+
+                            <div class="composer-side">
+                                <button class="btn btn-primary" id="btnSend">
+                                    <span class="send-main">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M22 2l-7 20-4-9-9-4 22-7z" />
+                                        </svg>
+                                        发送
+                                    </span>
+                                    <kbd>Ctrl + Enter</kbd>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="composer-bar">
+                            <span class="inline-field">
+                                编码
+                                <span class="segmented" id="encSeg">
+                                    <button class="active" data-enc="text">文本</button>
+                                    <button data-enc="hex">HEX</button>
+                                </span>
+                            </span>
+
+                            <label class="inline-field" title="发送时在末尾追加换行符">
+                                追加换行
+                                <span class="select-wrap small">
+                                    <select id="eol">
+                                        <option value="none" selected>无</option>
+                                        <option value="crlf">\r\n</option>
+                                        <option value="lf">\n</option>
+                                    </select>
+                                </span>
+                            </label>
+
+                            <label class="inline-field">
+                                <input type="checkbox" class="switch-input" id="timerSwitch" />
+                                <span class="switch"></span>
+                                定时发送
+                            </label>
+
+                            <span class="inline-field">
+                                <input class="w-sm" id="interval" type="text" value="1000" maxlength="6" disabled />
+                                <span class="unit">ms / 次</span>
+                            </span>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+
+            <!--
+          状态栏只承担「最近一次操作结果 + 最近接收时间」这类“瞬时/过程”信息；
+          串口状态看工具条药丸，端口与波特率看工具条下拉，累计量看左栏「会话统计」
+        -->
+            <footer class="statusbar">
+                <span id="statusLeft">就绪 · COM3 已打开（115200 · 8-N-1）</span>
+                <span id="statusRight">最后接收 12:03:44.201 · 接收区自动滚动</span>
+            </footer>
+
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="serialport.js"></script>
+</body>
+
+</html>

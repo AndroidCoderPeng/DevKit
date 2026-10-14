@@ -27,8 +27,8 @@ namespace DevKit.DataService
                 new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
                 new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
                 new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端" },
-                new MainMenu { MenuIcon = "\ue795", MenuName = "SFTP" },
-                new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信" }
+                new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信" },
+                new MainMenu { MenuIcon = "\ue795", MenuName = "SFTP" }
             };
         }
 
