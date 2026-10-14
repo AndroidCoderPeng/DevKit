@@ -339,12 +339,6 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\empty.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\apk.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Analyzer Include="..\packages\TouchSocket.Core.4.3.10\analyzers\dotnet\cs\TouchSocket.Core.SourceGenerator.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

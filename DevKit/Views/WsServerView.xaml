@@ -4,14 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:bhv="clr-namespace:DevKit.Behaviors"
-    xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:model="clr-namespace:DevKit.Models"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="800"
-    Height="600"
+    Width="1024"
+    Height="760"
     d:DataContext="{d:DesignInstance Type=vm:WsServerViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     mc:Ignorable="d">
@@ -25,348 +23,1785 @@
     </prism:Dialog.WindowStyle>
 
     <UserControl.Resources>
-        <cvt:MessageTagBgConverter x:Key="MessageTagBgConverterKey" />
-        <cvt:MessageTypeConverter x:Key="MessageTypeConverterKey" />
-        <cvt:ConnectStateConverter x:Key="ConnectStateConverterKey" />
-        <cvt:MessageTagConverter x:Key="MessageTagConverterKey" />
-        <cvt:MessageCountConverter x:Key="MessageCountConverterKey" />
+        <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border
+                            x:Name="ItemBorder"
+                            Padding="{TemplateBinding Padding}"
+                            Background="Transparent"
+                            CornerRadius="4">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LocalHostComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!--  外框：底色 / 边框 / 圆角  -->
+                            <Border
+                                x:Name="RootBorder"
+                                Background="{StaticResource DevKitSurfaceBrush}"
+                                BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True" />
+
+                            <Grid Margin="12,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  左侧图标  -->
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                    FontSize="18"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="&#xe8b2;" />
+
+                                <!--  选中项文本  -->
+                                <ContentPresenter
+                                    x:Name="ContentSite"
+                                    Grid.Column="1"
+                                    Margin="8,0"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                    IsHitTestVisible="False"
+                                    SnapsToDevicePixels="True" />
+
+                                <!--  右侧箭头  -->
+                                <Path
+                                    x:Name="Arrow"
+                                    Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Data="M 0,0 L 5,5 L 10,0"
+                                    Stroke="{StaticResource DevKitTextSecondaryBrush}"
+                                    StrokeEndLineCap="Round"
+                                    StrokeLineJoin="Round"
+                                    StrokeStartLineCap="Round"
+                                    StrokeThickness="1" />
+                            </Grid>
+
+                            <!--  点击层：放在最上层捕获鼠标、驱动 IsDropDownOpen  -->
+                            <ToggleButton
+                                ClickMode="Press"
+                                Focusable="False"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!--  下拉浮层（POPUP 名称必须保留为 PART_Popup）  -->
+                            <Popup
+                                x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom"
+                                PopupAnimation="Slide">
+                                <Border
+                                    x:Name="DropDownBorder"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    Margin="0,4,0,0"
+                                    Padding="2"
+                                    Background="White"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <ScrollViewer
+                                        CanContentScroll="True"
+                                        SnapsToDevicePixels="True"
+                                        VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--  hover：边框变主色  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+
+                            <!--  展开：箭头翻转  -->
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Arrow" Property="Data" Value="M 0,5 L 5,0 L 10,5" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" TextElement.Foreground="{TemplateBinding Foreground}">
+                            <Border
+                                x:Name="SwitchTrack"
+                                Width="36"
+                                Height="24"
+                                Background="{StaticResource DevKitBorderStrongBrush}"
+                                CornerRadius="12">
+                                <Ellipse
+                                    x:Name="SwitchThumb"
+                                    Width="18"
+                                    Height="18"
+                                    Margin="3,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Fill="White"
+                                    RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="0" />
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect
+                                            BlurRadius="4"
+                                            Direction="270"
+                                            Opacity="0.25"
+                                            ShadowDepth="1"
+                                            Color="{StaticResource DevKitShadowColor}" />
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="12"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="0"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  主按钮：蓝底白字  -->
+        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonContainerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
+                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  危险操作按钮：默认红字红框、悬浮红底白字  -->
+        <Style x:Key="DangerOutlineButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitDanger40Brush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="DangerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            TextBlock.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="DangerBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter TargetName="DangerBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="DangerBorder" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  分段控件内的单选按钮  -->
+        <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="SegmentBorder"
+                            Background="Transparent"
+                            CornerRadius="14"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SegmentBorder" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  紧凑按钮：白底灰框、悬浮蓝  -->
+        <Style x:Key="CompactButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="CompactBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CompactBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="CompactBorder" Property="Opacity" Value="0.75" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  消息条上的「复制」小按钮：默认透明、悬浮出现  -->
+        <Style x:Key="CopyMiniButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="CopyBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="4"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CopyBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  发送区输入框：多行、可换行  -->
+        <Style x:Key="ComposerTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="ComposerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="ComposerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="ComposerBorder" Property="Background" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <DockPanel Margin="10" LastChildFill="True">
-        <!--  WebSocket 已连接的客户端列表  -->
-        <Grid Width="260">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <DockPanel Grid.Row="0" LastChildFill="True">
-                <TextBlock
-                    Width="70"
-                    VerticalAlignment="Center"
-                    Text="本机地址" />
+        <Grid Grid.Row="0" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="2" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <ComboBox
-                    x:Name="HostComboBox"
-                    Margin="10,0"
-                    VerticalAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    FontSize="14"
-                    ItemsSource="{Binding LocalHostSource}"
-                    SelectedIndex="0">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="SelectionChanged">
-                            <b:InvokeCommandAction Command="{Binding HostSelectedCommand}" CommandParameter="{Binding ElementName=HostComboBox, Path=SelectedItem}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </ComboBox>
-            </DockPanel>
+            <Border
+                Grid.Column="0"
+                Margin="14"
+                Background="{Binding StateOuterBackgroundColor}"
+                BorderBrush="{Binding StateOuterBorderColor}"
+                BorderThickness="1"
+                CornerRadius="16">
+                <StackPanel Margin="10,6" Orientation="Horizontal">
+                    <Border
+                        Width="20"
+                        Height="20"
+                        VerticalAlignment="Center"
+                        Background="{Binding StateInnerBackgroundColor}"
+                        CornerRadius="10">
+                        <Border
+                            Width="10"
+                            Height="10"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="{Binding StateInnerBorderColor}"
+                            CornerRadius="5" />
+                    </Border>
 
-            <DockPanel
-                Grid.Row="1"
-                Margin="0,10"
-                LastChildFill="True">
-                <TextBlock
-                    Width="70"
-                    VerticalAlignment="Center"
-                    Text="监听端口" />
+                    <TextBlock
+                        Margin="8,0,4,0"
+                        VerticalAlignment="Center"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="{Binding StateTextColor}"
+                        Text="{Binding StateText, FallbackValue=未监听}" />
+                </StackPanel>
+            </Border>
 
-                <TextBox
-                    Margin="10,0"
-                    VerticalAlignment="Center"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    MaxLength="5"
-                    Text="{Binding ListenPort}"
-                    TextWrapping="NoWrap" />
-            </DockPanel>
+            <Border
+                Grid.Column="1"
+                Margin="0,20"
+                Background="{StaticResource DevKitBorderBrush}" />
 
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <ComboBox
+                Grid.Column="2"
+                Margin="14,8"
+                ItemsSource="{Binding LocalHostSource}"
+                SelectedItem="{Binding SelectedIp, Mode=TwoWay}"
+                Style="{StaticResource LocalHostComboBoxStyle}" />
 
-                <TextBlock
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Text="地址" />
+            <TextBlock
+                Grid.Column="3"
+                VerticalAlignment="Center"
+                FontSize="16"
+                FontWeight="Bold"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text=":" />
 
-                <TextBox
-                    Grid.Column="1"
-                    Margin="10,0,0,0"
-                    BorderBrush="{DynamicResource DevKitBorderBrush}"
-                    IsReadOnly="True"
-                    Text="{Binding WebSocketPath}"
-                    TextWrapping="NoWrap" />
-
-                <Button
-                    Grid.Column="2"
-                    Margin="10,0"
-                    BorderThickness="0"
-                    Command="{Binding CopyWebSocketPathCommand}"
-                    Content="复制" />
-            </Grid>
-
-            <Grid Grid.Row="3" Margin="0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
-                <DockPanel Grid.Column="0">
-                    <TextBlock VerticalAlignment="Center" Text="状态" />
-
-                    <Ellipse
-                        Width="15"
-                        Height="15"
-                        Margin="15,0,0,0"
-                        Fill="{Binding ListenStateColor}" />
-                </DockPanel>
-
-                <Button
-                    x:Name="ListenStateButton"
-                    Grid.Column="1"
-                    Margin="10,0"
-                    HorizontalAlignment="Stretch"
-                    Command="{Binding ServerListenCommand}"
-                    Content="{Binding ListenState}" />
-            </Grid>
-
-            <ListBox
-                Grid.Row="4"
-                HorizontalContentAlignment="Stretch"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
-                ItemsSource="{Binding Clients}"
-                ScrollViewer.CanContentScroll="False"
-                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Height="40">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Ellipse
-                                Grid.Column="0"
-                                Width="15"
-                                Height="15"
-                                Margin="0,0,10,0"
-                                Fill="{Binding IsConnected, Converter={StaticResource ConnectStateConverterKey}}" />
-
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0}:{1}">
-                                        <Binding Path="Ip" />
-                                        <Binding Path="Port" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-
-                            <Border
-                                Grid.Column="2"
-                                Width="18"
-                                Height="18"
-                                Background="Red"
-                                CornerRadius="9"
-                                Visibility="{Binding MessageCount, Converter={StaticResource MessageTagConverterKey}}">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontSize="8"
-                                    Foreground="White"
-                                    Text="{Binding MessageCount, Converter={StaticResource MessageCountConverterKey}}"
-                                    TextAlignment="Center" />
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-
-                <!--  自动滑动到最底部  -->
-                <b:Interaction.Behaviors>
-                    <bhv:AutoScrollToBottomBehavior />
-                </b:Interaction.Behaviors>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <EventSetter Event="PreviewMouseDown" Handler="ClientListBox_ListBoxItem_PreviewMouseDown" />
+            <TextBox
+                Grid.Column="4"
+                Width="100"
+                Height="36"
+                Margin="14,0"
+                HorizontalContentAlignment="Center"
+                MaxLength="6"
+                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Style>
+                    <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsReusePortEnabled}" Value="True">
+                                <Setter Property="IsEnabled" Value="False" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
+                </TextBox.Style>
+            </TextBox>
+
+            <Border
+                Grid.Column="5"
+                Height="36"
+                Background="{StaticResource DevKitSurfaceBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=PathTextBox}" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect
+                                            BlurRadius="6"
+                                            Opacity="0.18"
+                                            ShadowDepth="0"
+                                            Color="{StaticResource DevKitAccentColor}" />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid Margin="12,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                        Text="路径" />
+
+                    <Grid Grid.Column="1">
+                        <TextBox
+                            x:Name="PathTextBox"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            FontSize="13"
+                            Foreground="{DynamicResource DevKitTextBrush}"
+                            Text="{Binding WsPath, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                            IsHitTestVisible="False"
+                            Text="/ws，可为空">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=PathTextBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Button
+                Grid.Column="6"
+                Margin="14,0"
+                Command="{Binding CopyWsUrlCommand}"
+                Style="{StaticResource CompactButtonStyle}">
+                <Button.Content>
+                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe66c;" />
+                        <TextBlock
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="13"
+                            Text="复制地址" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+
+            <Button
+                Grid.Column="7"
+                Margin="14,0"
+                HorizontalAlignment="Right"
+                Command="{Binding ListenPortCommand}"
+                Style="{StaticResource PrimaryCompactButtonStyle}">
+                <Button.Content>
+                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                            FontSize="16"
+                            Text="&#xe714;" />
+                        <TextBlock
+                            Margin="6,0,0,0"
+                            VerticalAlignment="Center"
+                            FontSize="13"
+                            Text="{Binding ListenButtonText}" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </Grid>
 
-        <!--  WebSocket 客户端 通信界面  -->
-        <Grid>
-            <Grid Visibility="{Binding IsContentViewVisible}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
 
-                <Border Grid.Row="0">
-                    <TextBlock
-                        FontSize="16"
-                        Foreground="{DynamicResource DevKitTextBrush}"
-                        Text="{Binding ClientAddress, StringFormat={}【{0}】已连接}"
-                        TextWrapping="NoWrap" />
-                </Border>
+            <Border Grid.Column="0" Margin="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <ListBox
-                    Grid.Row="1"
-                    Margin="0,10"
-                    BorderBrush="{StaticResource DevKitBorderBrush}"
-                    ItemsSource="{Binding Logs}"
-                    ScrollViewer.CanContentScroll="False"
-                    ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
+                    <!--  会话统计  -->
+                    <Border
+                        Grid.Row="0"
+                        Background="White"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Margin="14,12">
+                            <!--  标题 + 分隔线  -->
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                    <Border Background="{Binding IsSend, Converter={StaticResource MessageTagBgConverterKey}}" CornerRadius="3">
-                                        <TextBlock
-                                            Margin="3,1"
-                                            FontSize="10"
-                                            FontWeight="Light"
-                                            Foreground="White"
-                                            Text="{Binding IsSend, Converter={StaticResource MessageTypeConverterKey}}" />
-                                    </Border>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Text="监听概览" />
+
+                                <Border
+                                    Grid.Column="1"
+                                    Height="1"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource DevKitBorderBrush}" />
+                            </Grid>
+
+                            <!--  运行时长  -->
+                            <Border
+                                Margin="0,12,0,0"
+                                Padding="12,10"
+                                Background="{StaticResource DevKitSurfaceBrush}"
+                                CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
                                     <TextBlock
-                                        Margin="5,0,0,0"
+                                        Grid.Column="0"
                                         VerticalAlignment="Center"
-                                        FontSize="12"
-                                        Text="{Binding Time, StringFormat=[{0}]}" />
-                                </StackPanel>
+                                        FontSize="13"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                        Text="运行时长" />
+
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        FontWeight="SemiBold"
+                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        Text="{Binding RunningTime, FallbackValue=--:--:--}" />
+                                </Grid>
+                            </Border>
+
+                            <UniformGrid
+                                Margin="0,12,0,4"
+                                Columns="2"
+                                Rows="2">
+                                <!--  在线客户端 / 未读消息  -->
+                                <Border
+                                    Margin="0,0,6,6"
+                                    Padding="12,10"
+                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                    CornerRadius="8">
+                                    <StackPanel>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="在线客户端" />
+
+                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Foreground="{StaticResource DevKitSuccessBrush}"
+                                                Text="{Binding OnlineClientCount, FallbackValue=0}" />
+
+                                            <TextBlock
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Bottom"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="{Binding ClientCount, StringFormat={}共 {0} 个}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border
+                                    Margin="6,0,0,6"
+                                    Padding="12,10"
+                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                    CornerRadius="8">
+                                    <StackPanel>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="未读消息" />
+
+                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Foreground="{StaticResource DevKitWarningBrush}"
+                                                Text="{Binding UnReadMessageCount, FallbackValue=0}" />
+
+                                            <TextBlock
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Bottom"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="待查看" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!--  发送 / 接收  -->
+                                <Border
+                                    Margin="0,6,6,0"
+                                    Padding="12,10"
+                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                    CornerRadius="8">
+                                    <StackPanel>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="发送" />
+
+                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Foreground="{StaticResource DevKitAccentBrush}"
+                                                Text="{Binding SendCount, FallbackValue=0}" />
+
+                                            <TextBlock
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Bottom"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="{Binding SendByteSize, StringFormat={}共 {0} B}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border
+                                    Margin="6,6,0,0"
+                                    Padding="12,10"
+                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                    CornerRadius="8">
+                                    <StackPanel>
+                                        <TextBlock
+                                            FontSize="13"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="接收" />
+
+                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Foreground="{StaticResource DevKitSuccessBrush}"
+                                                Text="{Binding ReceiveCount, FallbackValue=0}" />
+
+                                            <TextBlock
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Bottom"
+                                                FontSize="11"
+                                                Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                Text="{Binding ReceiveByteSize, StringFormat={}共 {0} B}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!--  客户端列表  -->
+                    <Border
+                        Grid.Row="1"
+                        Margin="0,16,0,0"
+                        Background="White"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <DockPanel Margin="14,12">
+                            <!--  标题 + 数量 + 分隔线  -->
+                            <Grid DockPanel.Dock="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
                                 <TextBlock
-                                    Grid.Row="1"
-                                    Margin="0,2,0,0"
-                                    FontSize="12"
-                                    Text="{Binding Content}"
-                                    TextWrapping="Wrap" />
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Text="连接客户端" />
+
+                                <Border
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center"
+                                    Background="{StaticResource DevKitAccent12Brush}"
+                                    CornerRadius="10">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="{StaticResource DevKitAccentBrush}"
+                                        Text="{Binding ClientItems.Count, FallbackValue=0}" />
+                                </Border>
+
+                                <Border
+                                    Grid.Column="2"
+                                    Height="1"
+                                    Margin="8,0"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource DevKitBorderBrush}" />
+
+                                <Button
+                                    Grid.Column="3"
+                                    Height="28"
+                                    Command="{Binding DisconnectAllCommand}"
+                                    Content="断开全部"
+                                    ToolTip="断开当前所有在线客户端">
+                                    <Button.Style>
+                                        <Style BasedOn="{StaticResource DangerOutlineButtonStyle}" TargetType="Button">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OnlineClientCount}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="False" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
                             </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
 
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                        <Border x:Name="ItemContainerBorder" Padding="3">
-                                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                            <!--  客户端列表 + 空态  -->
+                            <Grid Margin="0,12,0,0">
+                                <ListBox
+                                    x:Name="ClientListBox"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    ItemsSource="{Binding ClientItems}"
+                                    ScrollViewer.CanContentScroll="False"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border
+                                                    Grid.Column="0"
+                                                    Width="20"
+                                                    Height="20"
+                                                    VerticalAlignment="Center"
+                                                    CornerRadius="10">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#E7EBF0" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                    <Setter Property="Background" Value="#BEE7D1" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+
+                                                    <Border
+                                                        Width="10"
+                                                        Height="10"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        CornerRadius="5">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="#93A0AE" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                        <Setter Property="Background" Value="#16A34A" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                    </Border>
+                                                </Border>
+
+                                                <StackPanel
+                                                    Grid.Column="1"
+                                                    Margin="8,0"
+                                                    Orientation="Vertical">
+                                                    <TextBlock
+                                                        FontFamily="Consolas"
+                                                        FontSize="14"
+                                                        FontWeight="SemiBold"
+                                                        Foreground="{DynamicResource DevKitTextBrush}">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="{}{0}:{1}">
+                                                                <Binding Path="Ip" />
+                                                                <Binding Path="Port" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+
+                                                    <TextBlock Margin="0,4,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="{Binding WsPath, StringFormat={}已断开 · 曾握手 {0}}" />
+                                                                <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                                        <Setter Property="Text" Value="{Binding WsPath, StringFormat={}已连接 · 握手路径 {0}}" />
+                                                                        <Setter Property="Foreground" Value="{StaticResource DevKitSuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <Border
+                                                    Grid.Column="2"
+                                                    Padding="8,4"
+                                                    VerticalAlignment="Center"
+                                                    Background="{StaticResource DevKitDangerBorderBrush}"
+                                                    CornerRadius="12">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding UnreadLogCount}" Value="0">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+
+                                                    <TextBlock Foreground="{StaticResource DevKitDangerBrush}" Text="{Binding UnreadLogCount, FallbackValue=0}" />
+                                                </Border>
+
+                                                <Button
+                                                    x:Name="DisconnectButton"
+                                                    Grid.Column="3"
+                                                    VerticalAlignment="Center"
+                                                    Command="{Binding DataContext.DisconnectClientCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="&#xe668;"
+                                                    ToolTip="断开该客户端"
+                                                    Visibility="Collapsed">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Width" Value="24" />
+                                                            <Setter Property="Height" Value="24" />
+                                                            <Setter Property="Margin" Value="4,0,0,0" />
+                                                            <Setter Property="FontFamily" Value="/DevKit;component/Fonts/#iconfont" />
+                                                            <Setter Property="FontSize" Value="12" />
+                                                            <Setter Property="Background" Value="White" />
+                                                            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
+                                                            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                                                            <Setter Property="Cursor" Value="Hand" />
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border
+                                                                            x:Name="CmdMiniBorder"
+                                                                            Background="{TemplateBinding Background}"
+                                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                                            CornerRadius="6"
+                                                                            TextElement.Foreground="{TemplateBinding Foreground}">
+                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                        </Border>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsPressed" Value="True">
+                                                                                <Setter TargetName="CmdMiniBorder" Property="Opacity" Value="0.7" />
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="{StaticResource DevKitDangerBrush}" />
+                                                                    <Setter Property="BorderThickness" Value="0" />
+                                                                    <Setter Property="Foreground" Value="White" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
+
+                                            <DataTemplate.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsConnected}" Value="True" />
+                                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="DisconnectButton" Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border
+                                                            x:Name="ClientItemBorder"
+                                                            Margin="0,0,0,4"
+                                                            Padding="8"
+                                                            Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="2"
+                                                            CornerRadius="8">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding DataContext.IsConnected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                            </MultiDataTrigger>
+
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding DataContext.IsConnected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                            </MultiDataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+
+                                    <!--  点击切换客户端消息界面  -->
+                                    <b:Interaction.Triggers>
+                                        <b:EventTrigger EventName="SelectionChanged">
+                                            <b:InvokeCommandAction Command="{Binding ClientItemSelectedCommand}" CommandParameter="{Binding SelectedItem, ElementName=ClientListBox}" />
+                                        </b:EventTrigger>
+                                    </b:Interaction.Triggers>
+                                </ListBox>
+
+                                <!--  空态：无指令时覆盖显示  -->
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ClientItems.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+
+                                    <Rectangle
+                                        Fill="{StaticResource DevKitSurfaceBrush}"
+                                        RadiusX="8"
+                                        RadiusY="8"
+                                        Stroke="{StaticResource DevKitBorderStrongBrush}"
+                                        StrokeDashArray="3 3" />
+
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontSize="14"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="暂无客户端连接" />
+
+                                        <TextBlock
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Center"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="启动后，会自动显示已连接的客户端"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Margin="0,16,16,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <!--  消息记录  -->
+                    <Border
+                        Grid.Row="0"
+                        Background="White"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <DockPanel Margin="12">
+                            <!--  工具条  -->
+                            <Grid DockPanel.Dock="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Text="消息记录" />
+
+                                <Border
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center"
+                                    Background="{StaticResource DevKitAccent12Brush}"
+                                    CornerRadius="10">
+                                    <TextBlock
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="{StaticResource DevKitAccentBrush}"
+                                        Text="{Binding Logs.Count}" />
+                                </Border>
+
+                                <TextBlock
+                                    Grid.Column="3"
+                                    VerticalAlignment="Center"
+                                    FontSize="12"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    Text="显示" />
+
+                                <Border
+                                    Grid.Column="4"
+                                    Margin="8,0"
+                                    Padding="2"
+                                    VerticalAlignment="Center"
+                                    Background="{StaticResource DevKitSurfaceBrush}"
+                                    BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="16">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton
+                                            Command="{Binding DisplayRadioChangedCommand}"
+                                            CommandParameter="0"
+                                            Content="HEX"
+                                            GroupName="LogDisplayEncoding"
+                                            IsChecked="{Binding IsLogHexSelected}"
+                                            Style="{StaticResource SegmentRadioStyle}"
+                                            ToolTip="把消息内容转为 16 进制显示" />
+
+                                        <RadioButton
+                                            Command="{Binding DisplayRadioChangedCommand}"
+                                            CommandParameter="1"
+                                            Content="ASCII"
+                                            GroupName="LogDisplayEncoding"
+                                            IsChecked="{Binding IsLogAsciiSelected}"
+                                            Style="{StaticResource SegmentRadioStyle}"
+                                            ToolTip="把消息内容转为 ASCII 显示" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Button
+                                    Grid.Column="5"
+                                    Command="{Binding SaveLogCommand}"
+                                    Style="{StaticResource CompactButtonStyle}"
+                                    ToolTip="保存消息记录到文件">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="13"
+                                            Text="&#xe60c;" />
+
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="13"
+                                            Text="保存" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button
+                                    Grid.Column="6"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding ClearLogCommand}"
+                                    Style="{StaticResource DangerOutlineButtonStyle}"
+                                    ToolTip="清空消息记录">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="13"
+                                            Text="&#xe666;" />
+
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="13"
+                                            Text="清空" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!--  消息列表 + 空态  -->
+                            <Grid Margin="0,16,0,0">
+                                <ListBox
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    ItemsSource="{Binding Logs}"
+                                    ScrollViewer.CanContentScroll="False"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid
+                                                x:Name="MessageRow"
+                                                MaxWidth="620"
+                                                HorizontalAlignment="Left">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <Grid x:Name="MessageHeader" Grid.Row="0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border
+                                                        x:Name="TagBorder"
+                                                        Grid.Column="0"
+                                                        Padding="8,2"
+                                                        Background="{StaticResource DevKitSuccess12Brush}"
+                                                        CornerRadius="8">
+                                                        <TextBlock
+                                                            x:Name="TagText"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="10"
+                                                            FontWeight="SemiBold"
+                                                            Foreground="{StaticResource DevKitSuccessBrush}">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="发送" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsSend}" Value="0">
+                                                                            <Setter Property="Text" Value="接收" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+
+                                                    <Border
+                                                        x:Name="LogTypeBorder"
+                                                        Grid.Column="1"
+                                                        Margin="8,0"
+                                                        Background="{StaticResource DevKitSurfaceBrush}"
+                                                        BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8">
+                                                        <TextBlock
+                                                            Padding="8,0"
+                                                            VerticalAlignment="Center"
+                                                            FontSize="10"
+                                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                                            Text="{Binding FrameType, FallbackValue=文本帧}" />
+                                                    </Border>
+
+                                                    <TextBlock
+                                                        x:Name="MessageTime"
+                                                        Grid.Column="2"
+                                                        VerticalAlignment="Center"
+                                                        FontFamily="Consolas"
+                                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                                        Text="{Binding Time}" />
+
+                                                    <Button
+                                                        x:Name="CopyMessageButton"
+                                                        Grid.Column="3"
+                                                        Margin="8,0,0,0"
+                                                        Command="{Binding DataContext.CopyLogCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding Content}"
+                                                        Style="{StaticResource CopyMiniButtonStyle}"
+                                                        ToolTip="复制本条内容">
+                                                        <Button.Content>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock
+                                                                    VerticalAlignment="Center"
+                                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                                    Text="&#xe66c;" />
+                                                                <TextBlock Margin="4,0,0,0" Text="复制" />
+                                                            </StackPanel>
+                                                        </Button.Content>
+                                                    </Button>
+                                                </Grid>
+
+                                                <Border
+                                                    x:Name="MessageBubble"
+                                                    Grid.Row="1"
+                                                    Margin="0,4,0,0"
+                                                    Padding="12,8"
+                                                    Background="White"
+                                                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="12 12 12 2">
+                                                    <TextBlock
+                                                        FontFamily="Consolas"
+                                                        FontSize="13"
+                                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                                        Text="{Binding Content}"
+                                                        TextWrapping="Wrap" />
+                                                </Border>
+                                            </Grid>
+
+                                            <DataTemplate.Triggers>
+                                                <!--  发送：右对齐、蓝底气泡  -->
+                                                <DataTrigger Binding="{Binding IsSend}" Value="1">
+                                                    <Setter TargetName="MessageHeader" Property="HorizontalAlignment" Value="Right" />
+                                                    <Setter TargetName="CopyMessageButton" Property="Grid.Column" Value="0" />
+                                                    <Setter TargetName="MessageTime" Property="Grid.Column" Value="1" />
+                                                    <Setter TargetName="LogTypeBorder" Property="Grid.Column" Value="2" />
+                                                    <Setter TargetName="TagBorder" Property="Grid.Column" Value="3" />
+                                                    <Setter TargetName="MessageRow" Property="HorizontalAlignment" Value="Right" />
+                                                    <Setter TargetName="TagBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                    <Setter TargetName="TagText" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                                                    <Setter TargetName="MessageBubble" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                                    <Setter TargetName="MessageBubble" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                                    <Setter TargetName="MessageBubble" Property="CornerRadius" Value="12,12,2,12" />
+                                                </DataTrigger>
+
+                                                <!--  悬浮整条消息时显示「复制」  -->
+                                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                                    <Setter TargetName="CopyMessageButton" Property="Opacity" Value="1" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                        <Border Padding="0,0,0,16" Background="Transparent">
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+
+                                    <!--  新消息自动滚动到底部  -->
+                                    <b:Interaction.Behaviors>
+                                        <bhv:AutoScrollToBottomBehavior />
+                                    </b:Interaction.Behaviors>
+                                </ListBox>
+
+                                <!--  空态：无消息时覆盖显示  -->
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Logs.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+
+                                    <Rectangle
+                                        Fill="{StaticResource DevKitSurfaceBrush}"
+                                        RadiusX="8"
+                                        RadiusY="8"
+                                        Stroke="{StaticResource DevKitBorderStrongBrush}"
+                                        StrokeDashArray="3 3" />
+
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock
+                                            HorizontalAlignment="Center"
+                                            FontSize="14"
+                                            FontWeight="SemiBold"
+                                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                            Text="还没有消息记录" />
+
+                                        <TextBlock
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Center"
+                                            FontSize="14"
+                                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                                            Text="连接成功后即可收发数据，收发内容会显示在这里；悬浮单条消息可复制。"
+                                            TextAlignment="Center"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+
+                    <!--  发送区  -->
+                    <Border
+                        Grid.Row="1"
+                        Margin="0,16,0,0"
+                        Background="White"
+                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <Grid Margin="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!--  输入框（含占位提示）  -->
+                            <Grid Grid.Row="0">
+                                <TextBox
+                                    x:Name="MessageInputTextBox"
+                                    Style="{StaticResource ComposerTextBoxStyle}"
+                                    Text="{Binding UserInputText, UpdateSourceTrigger=PropertyChanged}"
+                                    VerticalScrollBarVisibility="Auto">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding
+                                            Key="Return"
+                                            Command="{Binding SendMessageCommand}"
+                                            Modifiers="Control" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
+
+                                <TextBlock
+                                    Margin="10,8,10,0"
+                                    VerticalAlignment="Top"
+                                    FontSize="12"
+                                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                                    IsHitTestVisible="False"
+                                    Text="{Binding PlaceHolderText}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Text, ElementName=MessageInputTextBox}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+
+                            <!--  操作条  -->
+                            <Grid Grid.Row="1" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                        Text="发送" />
+
+                                    <Border
+                                        Margin="8,0,0,0"
+                                        Padding="2"
+                                        Background="{StaticResource DevKitSurfaceBrush}"
+                                        BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="16">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="0"
+                                                Content="HEX"
+                                                GroupName="SendEncoding"
+                                                IsChecked="{Binding IsSendHexSelected}"
+                                                Style="{StaticResource SegmentRadioStyle}"
+                                                ToolTip="按 16 进制解析发送内容" />
+
+                                            <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="1"
+                                                Content="ASCII"
+                                                GroupName="SendEncoding"
+                                                IsChecked="{Binding IsSendAsciiSelected}"
+                                                Style="{StaticResource SegmentRadioStyle}"
+                                                ToolTip="按 ASCII/UTF8 文本发送" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <CheckBox
+                                    x:Name="LoopSendSwitch"
+                                    Grid.Column="1"
+                                    Margin="16,0,0,0"
+                                    Command="{Binding LoopSendSwitchCommand}"
+                                    CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
+                                    Content="循环发送"
+                                    IsChecked="{Binding IsLoopSendEnabled, Mode=TwoWay}"
+                                    Style="{StaticResource ToggleSwitchStyle}" />
+
+                                <StackPanel
+                                    Grid.Column="2"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <TextBox
+                                        Width="64"
+                                        Height="32"
+                                        HorizontalContentAlignment="Center"
+                                        Text="{Binding Interval}">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=LoopSendSwitch}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+
+                                    <TextBlock
+                                        Margin="4,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="12"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                        Text="ms / 次" />
+                                </StackPanel>
+
+                                <Button
+                                    Grid.Column="4"
+                                    Command="{Binding OpenScriptCommand}"
+                                    Style="{StaticResource CompactButtonStyle}"
+                                    ToolTip="按脚本批量、定时发送指令">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="13"
+                                            Text="&#xe676;" />
+
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="13"
+                                            Text="指令脚本" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button
+                                    Grid.Column="5"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding SendMessageCommand}"
+                                    Style="{StaticResource PrimaryCompactButtonStyle}"
+                                    ToolTip="Ctrl + Enter 快速发送">
+                                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="/DevKit;component/Fonts/#iconfont"
+                                            FontSize="14"
+                                            Text="&#xe6cd;" />
+
+                                        <TextBlock
+                                            Margin="6,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="13"
+                                            Text="发送" />
+
+                                        <Border
+                                            Margin="8,0,0,0"
+                                            Padding="5,1"
+                                            VerticalAlignment="Center"
+                                            Background="#33FFFFFF"
+                                            CornerRadius="5">
+                                            <TextBlock
+                                                FontSize="10"
+                                                Foreground="#D9FFFFFF"
+                                                Text="Ctrl + Enter" />
                                         </Border>
-
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="ItemContainerBorder" Property="Background" Value="{DynamicResource DevKitBackgroundBrush}" />
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-
-                    <!--  自动滑动到最底部  -->
-                    <b:Interaction.Behaviors>
-                        <bhv:AutoScrollToBottomBehavior />
-                    </b:Interaction.Behaviors>
-
-                    <ListBox.ContextMenu>
-                        <ContextMenu Width="120">
-                            <MenuItem
-                                Command="{Binding CopyLogCommand}"
-                                CommandParameter="{Binding Path=PlacementTarget.(ListBox.SelectedItem).(model:SocketMessage.Content), RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                Header="复制" />
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
-                </ListBox>
-
-                <Grid
-                    Grid.Row="2"
-                    Height="60"
-                    Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox
-                        Grid.Column="0"
-                        Padding="4"
-                        VerticalContentAlignment="Top"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        Text="{Binding UserInputText}"
-                        TextWrapping="Wrap"
-                        VerticalScrollBarVisibility="Auto" />
-
-                    <Button
-                        Grid.Column="1"
-                        Width="65"
-                        Height="60"
-                        Margin="10,0,0,0"
-                        Command="{Binding SendCommand}"
-                        Content="发送" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
                 </Grid>
-
-                <Grid Grid.Row="3">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-
-                    <CheckBox
-                        x:Name="LoopCheckBox"
-                        Grid.Column="0"
-                        Content="循环发送">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="Checked">
-                                <b:InvokeCommandAction Command="{Binding TimeCheckedCommand}" />
-                            </b:EventTrigger>
-
-                            <b:EventTrigger EventName="Unchecked">
-                                <b:InvokeCommandAction Command="{Binding TimeUncheckedCommand}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </CheckBox>
-
-                    <TextBox
-                        Grid.Column="1"
-                        Width="60"
-                        Margin="10,0,0,0"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
-                        FontSize="14"
-                        IsEnabled="{Binding ElementName=LoopCheckBox, Path=IsChecked}"
-                        MaxLength="5"
-                        Text="{Binding CommandInterval}" />
-
-                    <TextBlock
-                        Grid.Column="2"
-                        VerticalAlignment="Center"
-                        Text="ms/次" />
-                </Grid>
-            </Grid>
-
-            <Grid Visibility="{Binding IsEmptyImageVisible}">
-                <Grid.Background>
-                    <ImageBrush ImageSource="/DevKit;component/Images/empty.png" Stretch="Uniform" />
-                </Grid.Background>
-            </Grid>
+            </Border>
         </Grid>
-    </DockPanel>
+
+        <Grid Grid.Row="2" Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                Margin="16"
+                Foreground="{Binding StateTextColor}">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} {1}:{2}">
+                        <Binding Path="StateText" />
+                        <Binding Path="SelectedIp" />
+                        <Binding Path="LocalPort" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+
+            <Border
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Panel.ZIndex="999"
+                Background="{StaticResource DevKitToastBrush}"
+                CornerRadius="16">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsToastVisible}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock
+                    Margin="18,9"
+                    FontSize="13"
+                    Foreground="White"
+                    Text="{Binding ToastMessage}" />
+            </Border>
+
+            <TextBlock
+                Grid.Column="2"
+                Margin="16"
+                HorizontalAlignment="Right"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                Text="{Binding LastDataTime, StringFormat={}{0} · 消息列表自动滚动, FallbackValue=消息列表自动滚动}" />
+        </Grid>
+    </Grid>
 </UserControl>
