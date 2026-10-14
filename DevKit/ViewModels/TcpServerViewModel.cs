@@ -274,12 +274,8 @@ namespace DevKit.ViewModels
 
         public string UserInputText
         {
-            set
-            {
-                _userInputText = value;
-                RaisePropertyChanged();
-            }
             get => _userInputText;
+            set => SetProperty(ref _userInputText, value);
         }
 
         private bool _isSendHexSelected = true;

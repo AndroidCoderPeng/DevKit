@@ -516,9 +516,6 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!--  未连接  #FFF7F9FC  #FFEEEEF0  -->
-            <!--  连接中  #66F2994A  #1FF2994A  -->
-            <!--  已连接  #5917A95C  #1F17A95C  -->
             <Border
                 Grid.Column="0"
                 Margin="14"
@@ -527,10 +524,6 @@
                 BorderThickness="1"
                 CornerRadius="16">
                 <StackPanel Margin="10,6" Orientation="Horizontal">
-
-                    <!--  未连接  #E7EBF0  #93A0AE  -->
-                    <!--  连接中  #FBE1C9  #F2994A  -->
-                    <!--  已连接  #BEE7D1  #16A34A  -->
                     <Border
                         Width="20"
                         Height="20"
@@ -546,9 +539,6 @@
                             CornerRadius="5" />
                     </Border>
 
-                    <!--  未连接  #5F6B7A  -->
-                    <!--  连接中  #F2994A  -->
-                    <!--  已连接  #16A34A  -->
                     <TextBlock
                         Margin="8,0,4,0"
                         VerticalAlignment="Center"

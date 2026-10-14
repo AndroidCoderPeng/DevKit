@@ -575,12 +575,10 @@
                 <ColumnDefinition Width="2" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!--  未连接  #FFF7F9FC  #FFEEEEF0  -->
-            <!--  连接中  #66F2994A  #1FF2994A  -->
-            <!--  已连接  #5917A95C  #1F17A95C  -->
             <Border
                 Grid.Column="0"
                 Margin="14"
@@ -589,10 +587,6 @@
                 BorderThickness="1"
                 CornerRadius="16">
                 <StackPanel Margin="10,6" Orientation="Horizontal">
-
-                    <!--  未连接  #E7EBF0  #93A0AE  -->
-                    <!--  连接中  #FBE1C9  #F2994A  -->
-                    <!--  已连接  #BEE7D1  #16A34A  -->
                     <Border
                         Width="20"
                         Height="20"
@@ -608,9 +602,6 @@
                             CornerRadius="5" />
                     </Border>
 
-                    <!--  未连接  #5F6B7A  -->
-                    <!--  连接中  #F2994A  -->
-                    <!--  已连接  #16A34A  -->
                     <TextBlock
                         Margin="8,0,4,0"
                         VerticalAlignment="Center"
@@ -648,18 +639,8 @@
                 Margin="14,0"
                 HorizontalContentAlignment="Center"
                 MaxLength="6"
-                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}">
-                <TextBox.Style>
-                    <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsReusePortEnabled}" Value="True">
-                                <Setter Property="IsEnabled" Value="False" />
-                                <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
+                Style="{StaticResource FieldTextBoxStyle}"
+                Text="{Binding LocalPort, UpdateSourceTrigger=PropertyChanged}" />
 
             <Border
                 Grid.Column="5"
@@ -790,7 +771,7 @@
                             <UniformGrid
                                 Margin="0,12,0,4"
                                 Columns="2"
-                                Rows="3">
+                                Rows="2">
                                 <!--  活跃来源 / 未读消息  -->
                                 <Border
                                     Margin="0,0,6,6"
@@ -850,7 +831,7 @@
 
                                 <!--  发送 / 接收  -->
                                 <Border
-                                    Margin="0,6,6,6"
+                                    Margin="0,6,6,0"
                                     Padding="12,10"
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
@@ -878,7 +859,7 @@
                                 </Border>
 
                                 <Border
-                                    Margin="6,6,0,6"
+                                    Margin="6,6,0,0"
                                     Padding="12,10"
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
@@ -905,62 +886,6 @@
                                     </StackPanel>
                                 </Border>
 
-                                <!--  新发现来源 / 发送失败  -->
-                                <Border
-                                    Margin="0,6,6,0"
-                                    Padding="12,10"
-                                    Background="{StaticResource DevKitSurfaceBrush}"
-                                    CornerRadius="8">
-                                    <StackPanel>
-                                        <TextBlock
-                                            FontSize="13"
-                                            Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="新发现来源" />
-
-                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Foreground="Black"
-                                                Text="{Binding ActiveClientCount, FallbackValue=0}" />
-
-                                            <TextBlock
-                                                Margin="6,0,0,0"
-                                                VerticalAlignment="Bottom"
-                                                FontSize="11"
-                                                Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                Text="本次监听" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <Border
-                                    Margin="6,6,0,0"
-                                    Padding="12,10"
-                                    Background="{StaticResource DevKitSurfaceBrush}"
-                                    CornerRadius="8">
-                                    <StackPanel>
-                                        <TextBlock
-                                            FontSize="13"
-                                            Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="发送失败" />
-
-                                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Foreground="{StaticResource DevKitDangerBrush}"
-                                                Text="{Binding UnReadMessageCount, FallbackValue=0}" />
-
-                                            <TextBlock
-                                                Margin="6,0,0,0"
-                                                VerticalAlignment="Bottom"
-                                                FontSize="11"
-                                                Foreground="{StaticResource DevKitTextMutedBrush}"
-                                                Text="端口不可达" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -1573,7 +1498,7 @@
                                             HorizontalAlignment="Center"
                                             FontSize="14"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="在左侧「连接客户端」中点击一个客户端，即可查看它的收发记录；悬浮单条消息可复制。"
+                                            Text="在左侧「已发现客户端」中点击一个客户端，即可查看它的收发记录；悬浮单条消息可复制。"
                                             TextAlignment="Center"
                                             TextWrapping="Wrap" />
                                     </StackPanel>
@@ -1737,7 +1662,7 @@
                                         <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
                                             <Setter Property="IsEnabled" Value="True" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding OnlineClientCount}" Value="0">
+                                                <DataTrigger Binding="{Binding ActiveClientCount}" Value="0">
                                                     <Setter Property="IsEnabled" Value="False" />
                                                 </DataTrigger>
                                             </Style.Triggers>
