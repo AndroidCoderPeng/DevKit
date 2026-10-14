@@ -81,6 +81,7 @@
         btnClear: document.getElementById("btnClear"),
         input: document.getElementById("input"),
         newline: document.getElementById("newline"),
+        btnScript: document.getElementById("btnScript"),
         btnSend: document.getElementById("btnSend"),
         loopSwitch: document.getElementById("loopSwitch"),
         interval: document.getElementById("interval"),
@@ -592,6 +593,10 @@
         }
         renderMessages();
         toast(state.autoScroll ? "已开启自动滚动" : "已暂停自动滚动");
+    });
+
+    el.btnScript.addEventListener("click", function () {
+        toast("打开「指令脚本」对话框");
     });
 
     el.btnSend.addEventListener("click", function () {

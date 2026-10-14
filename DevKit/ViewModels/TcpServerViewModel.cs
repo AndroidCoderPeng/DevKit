@@ -300,7 +300,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        public string PlaceHolderText => IsSendAsciiSelected ? "例如：AT + RST" : "例如：aa550101，点格式化 → AA 55 01 01";
+        public string PlaceHolderText => IsSendAsciiSelected
+            ? "输入要发送的内容：HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
+            : "输入要发送的内容：ASCII 模式下将按 UTF-8 编码发送";
 
         public bool IsSendAsciiSelected
         {

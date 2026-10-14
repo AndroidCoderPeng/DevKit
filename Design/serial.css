@@ -1037,10 +1037,11 @@ kbd {
 }
 
 /* ================= 发送区 ================= */
+/* 发送按钮与输入框同一行：第一列输入框，第二列发送按钮，工具条整行横铺 */
 .composer {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 9px 12px;
     flex: none;
     padding: 11px 12px;
     background: var(--surface);
@@ -1081,11 +1082,45 @@ kbd {
     cursor: not-allowed;
 }
 
+/* 底部参数工具条横跨两列 */
 .composer-bar {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: nowrap;
+}
+
+/* 左侧参数区可压缩，空间不足时只能在自己内部换行 */
+.composer-fields {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    row-gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
     flex-wrap: wrap;
+}
+
+/* 输入框右侧的发送按钮：图标与文字同一行，快捷键另起一行，高度跟随输入框 */
+.btn-send {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 104px;
+    height: auto;
+    padding: 8px 10px;
+    font-size: 12.5px;
+}
+
+.btn-send-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-send kbd {
+    font-size: 10px;
 }
 
 .inline-field {

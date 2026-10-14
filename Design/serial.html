@@ -463,53 +463,65 @@
                         <textarea id="input"
                             placeholder="输入要发送的内容；HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"></textarea>
 
-                        <div class="composer-bar">
-                            <span class="inline-field">
-                                发送编码
-                                <span class="segmented" id="sendSeg">
-                                    <button class="active" data-enc="hex">HEX</button>
-                                    <button data-enc="ascii">ASCII</button>
-                                </span>
-                            </span>
-
-                            <span class="inline-field">
-                                换行
-                                <label class="select-wrap xs">
-                                    <select id="newline">
-                                        <option value="none">无</option>
-                                        <option value="crlf" selected>\r\n</option>
-                                        <option value="lf">\n</option>
-                                        <option value="cr">\r</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </span>
-
-                            <label class="inline-field">
-                                <input type="checkbox" class="switch-input" id="loopSwitch" />
-                                <span class="switch"></span>
-                                循环发送
-                            </label>
-
-                            <span class="inline-field">
-                                <input id="interval" type="text" value="1000" maxlength="5" disabled />
-                                <span class="unit">ms / 次</span>
-                            </span>
-
-                            <span class="spacer"></span>
-
-                            <button class="btn btn-primary" id="btnSend">
-                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <button class="btn btn-primary btn-send" id="btnSend">
+                            <span class="btn-send-main">
+                                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
                                     <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" d="M22 2L11 13" />
                                     <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" d="M22 2l-7 20-4-9-9-4 22-7z" />
                                 </svg>
-                                发送
-                                <kbd>Ctrl + Enter</kbd>
+                                <span>发送</span>
+                            </span>
+                            <kbd>Ctrl + Enter</kbd>
+                        </button>
+
+                        <div class="composer-bar">
+                            <span class="composer-fields">
+                                <span class="inline-field">
+                                    发送编码
+                                    <span class="segmented" id="sendSeg">
+                                        <button class="active" data-enc="hex">HEX</button>
+                                        <button data-enc="ascii">ASCII</button>
+                                    </span>
+                                </span>
+
+                                <span class="inline-field">
+                                    换行
+                                    <label class="select-wrap xs">
+                                        <select id="newline">
+                                            <option value="none">无</option>
+                                            <option value="crlf" selected>\r\n</option>
+                                            <option value="lf">\n</option>
+                                            <option value="cr">\r</option>
+                                        </select>
+                                        <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                        </svg>
+                                    </label>
+                                </span>
+
+                                <label class="inline-field">
+                                    <input type="checkbox" class="switch-input" id="loopSwitch" />
+                                    <span class="switch"></span>
+                                    循环发送
+                                </label>
+
+                                <span class="inline-field">
+                                    <input id="interval" type="text" value="1000" maxlength="5" disabled />
+                                    <span class="unit">ms / 次</span>
+                                </span>
+                            </span>
+
+                            <button class="btn btn-sm" id="btnScript">
+                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                    <polyline points="16 18 22 12 16 6" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <polyline points="8 6 2 12 8 18" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                指令脚本
                             </button>
                         </div>
                     </div>
