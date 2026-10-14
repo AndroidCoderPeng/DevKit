@@ -634,7 +634,7 @@
                             VerticalAlignment="Center"
                             Foreground="{StaticResource DevKitTextMutedBrush}"
                             IsHitTestVisible="False"
-                            Text="/ws，可为空">
+                            Text="/ws，默认值">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed" />

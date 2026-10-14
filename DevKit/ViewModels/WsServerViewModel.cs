@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
+using DevKit.Transports.Enums;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
@@ -31,7 +38,12 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
-            
+            StopLoopSending();
+            StopRunningTimer();
+            _toastTimer?.Stop();
+
+            _server?.Dispose();
+            _server = null;
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -123,7 +135,7 @@ namespace DevKit.ViewModels
             get => _wsPath;
             set => SetProperty(ref _wsPath, value);
         }
-        
+
         private string _listenButtonText = "开始监听";
 
         public string ListenButtonText
@@ -131,7 +143,7 @@ namespace DevKit.ViewModels
             get => _listenButtonText;
             set => SetProperty(ref _listenButtonText, value);
         }
-        
+
         private string _runningTime = "00:00:00";
 
         public string RunningTime
@@ -195,7 +207,7 @@ namespace DevKit.ViewModels
             get => _receiveByteSize;
             set => SetProperty(ref _receiveByteSize, value);
         }
-        
+
         private ObservableCollection<WsServerClient> _clientItems = new ObservableCollection<WsServerClient>();
 
         public ObservableCollection<WsServerClient> ClientItems
@@ -211,8 +223,8 @@ namespace DevKit.ViewModels
             get => _selectedClient;
             set => SetProperty(ref _selectedClient, value);
         }
-        
-        private bool _isLogHexSelected = true;
+
+        private bool _isLogHexSelected;
 
         public bool IsLogHexSelected
         {
@@ -273,7 +285,7 @@ namespace DevKit.ViewModels
             set => SetProperty(ref _userInputText, value);
         }
 
-        private bool _isSendHexSelected = true;
+        private bool _isSendHexSelected;
 
         public bool IsSendHexSelected
         {
@@ -349,12 +361,23 @@ namespace DevKit.ViewModels
             get => _lastDataTime;
             set => SetProperty(ref _lastDataTime, value);
         }
-        
+
         #endregion
 
         #region DelegateCommand
 
-        
+        public DelegateCommand ListenPortCommand { set; get; }
+        public DelegateCommand CopyWsUrlCommand { set; get; }
+        public DelegateCommand DisconnectAllCommand { set; get; }
+        public DelegateCommand<WsServerClient> DisconnectClientCommand { set; get; }
+        public DelegateCommand<WsServerClient> ClientItemSelectedCommand { set; get; }
+        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
+        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
+        public DelegateCommand<string> CopyLogCommand { set; get; }
+        public DelegateCommand SaveLogCommand { set; get; }
+        public DelegateCommand ClearLogCommand { set; get; }
+        public DelegateCommand SendMessageCommand { set; get; }
+        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
 
         #endregion
 
@@ -364,7 +387,7 @@ namespace DevKit.ViewModels
         private DispatcherTimer _toastTimer;
         private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
         private bool _isLoopSendInProgress;
-        
+
         public WsServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
@@ -372,10 +395,169 @@ namespace DevKit.ViewModels
             {
                 SelectedIp = _localHostSource.First();
             }
-            
+
             _logs.CollectionChanged += Logs_CollectionChanged;
+
+            ListenPortCommand = new DelegateCommand(() => _ = StartListeningAsync());
+
+            CopyWsUrlCommand = new DelegateCommand(() =>
+            {
+                var url = BuildWsUrl();
+                Clipboard.SetText(url);
+                ShowToast($"已复制：{url}");
+            });
+
+            DisconnectAllCommand = new DelegateCommand(() =>
+            {
+                if (_server == null || !_server.IsRunning)
+                {
+                    ShowToast("服务未启动");
+                    return;
+                }
+
+                _ = _server.DisconnectAll();
+            });
+
+            DisconnectClientCommand = new DelegateCommand<WsServerClient>(client =>
+            {
+                client = client ?? _selectedClient;
+
+                if (_server == null || !_server.IsRunning)
+                {
+                    ShowToast("服务未启动");
+                    return;
+                }
+
+                if (client == null)
+                {
+                    ShowToast("请先选择一个客户端");
+                    return;
+                }
+
+                _ = _server.DisconnectClient(client.Id);
+            });
+
+            ClientItemSelectedCommand = new DelegateCommand<WsServerClient>(client =>
+            {
+                if (client == null)
+                {
+                    return;
+                }
+
+                if (!client.IsConnected)
+                {
+                    ShowToast($"{client.Ip}:{client.Port} 已断开");
+                    return;
+                }
+
+                SelectedClient = client;
+
+                // 切到该客户端 = 查看，未读清零
+                client.MarkAllRead();
+                Logs = client.Logs;
+                RefreshUnreadMessageCount();
+            });
+
+            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsLogHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsLogHexSelected = false;
+                }
+            });
+
+            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            {
+                if (value == "0")
+                {
+                    IsSendHexSelected = true;
+                }
+                else if (value == "1")
+                {
+                    IsSendHexSelected = false;
+                }
+            });
+
+            CopyLogCommand = new DelegateCommand<string>(log =>
+            {
+                Clipboard.SetText(log);
+                ShowToast("已复制到剪贴板");
+            });
+
+            SaveLogCommand = new DelegateCommand(() =>
+            {
+                if (_selectedClient == null)
+                {
+                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (!_selectedClient.Logs.Any())
+                {
+                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var fileDialog = new SaveFileDialog
+                {
+                    DefaultExt = ".txt",
+                    Filter = "Log文件(*.txt)|*.txt"
+                };
+                if (fileDialog.ShowDialog() != true) return;
+
+                using (var writer = new StreamWriter(fileDialog.FileName))
+                {
+                    foreach (var log in _selectedClient.Logs)
+                    {
+                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                        writer.WriteLine(text);
+                    }
+                }
+            });
+
+            ClearLogCommand = new DelegateCommand(() =>
+            {
+                if (_selectedClient == null)
+                {
+                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (!_selectedClient.Logs.Any())
+                {
+                    MessageBox.Show("没有需要清除的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                if (result != MessageBoxResult.Yes) return;
+
+                _selectedClient.Logs.Clear();
+                RefreshUnreadMessageCount();
+            });
+
+            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+
+            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            {
+                if (!(value is bool isChecked)) return;
+
+                if (isChecked)
+                {
+                    StartLoopSending();
+                }
+                else
+                {
+                    StopLoopSending();
+                }
+            });
         }
-        
+
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             RaiseLogStatisticsChanged();
@@ -388,12 +570,444 @@ namespace DevKit.ViewModels
             RaisePropertyChanged(nameof(ReceiveCount));
             RaisePropertyChanged(nameof(ReceiveByteSize));
         }
-        
+
         private string FormatLogContent(byte[] bytes)
         {
             return IsLogHexSelected
                 ? BitConverter.ToString(bytes).Replace("-", " ")
                 : Encoding.UTF8.GetString(bytes);
+        }
+
+        private async Task StartListeningAsync()
+        {
+            if (_server == null)
+            {
+                _server = new WsServerTransport();
+                _server.ClientConnected += OnClientConnected;
+                _server.ClientClosed += OnClientClosed;
+                _server.FrameReceived += OnClientFrameReceived;
+            }
+
+            if (_server.IsRunning)
+            {
+                await _server.StopAsync();
+                ApplyListenState(ListenState.NotListening);
+                StopRunningTimer();
+
+                // 停止后清掉在线状态（StopAsync 会断开所有客户端）
+                foreach (var item in ClientItems)
+                {
+                    item.IsConnected = false;
+                }
+
+                SelectedClient = null;
+                RefreshUnreadMessageCount();
+                OnlineClientCount = 0;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_selectedIp))
+            {
+                MessageBox.Show("请先选择监听地址", "错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!int.TryParse(_localPort, NumberStyles.None, CultureInfo.InvariantCulture, out var port)
+                || port < 1 || port > 65535)
+            {
+                MessageBox.Show("监听端口必须是 1-65535 的整数", "错误", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                await _server.StartAsync(_selectedIp, port, NormalizePath(_wsPath), CancellationToken.None);
+                ApplyListenState(ListenState.Listening);
+                StartRunningTimer();
+            }
+            catch (Exception ex)
+            {
+                ApplyListenState(ListenState.Error);
+                MessageBox.Show($"监听失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ApplyListenState(ListenState state)
+        {
+            switch (state)
+            {
+                case ListenState.Listening:
+                    StateText = "已监听";
+                    ListenButtonText = "停止监听";
+                    StateOuterBackgroundColor = "#5917A95C";
+                    StateOuterBorderColor = "#1F17A95C";
+                    StateInnerBackgroundColor = "#BEE7D1";
+                    StateInnerBorderColor = "#16A34A";
+                    StateTextColor = "#16A34A";
+                    break;
+
+                case ListenState.Error:
+                    StateText = "监听失败";
+                    ListenButtonText = "开始监听";
+                    StateOuterBackgroundColor = "#66F2994A";
+                    StateOuterBorderColor = "#1FF2994A";
+                    StateInnerBackgroundColor = "#FBE1C9";
+                    StateInnerBorderColor = "#F2994A";
+                    StateTextColor = "#F2994A";
+                    break;
+
+                default:
+                    StateText = "未监听";
+                    ListenButtonText = "开始监听";
+                    StateOuterBackgroundColor = "#FFF7F9FC";
+                    StateOuterBorderColor = "#FFEEEEF0";
+                    StateInnerBackgroundColor = "#E7EBF0";
+                    StateInnerBorderColor = "#93A0AE";
+                    StateTextColor = "#5F6B7A";
+                    break;
+            }
+        }
+
+        private void StartRunningTimer()
+        {
+            StopRunningTimer();
+
+            RunningTime = "00:00:00";
+            _listenStartedAt = DateTime.Now;
+
+            _runningTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _runningTimer.Tick += RunningTimerTick;
+            _runningTimer.Start();
+        }
+
+        private void StopRunningTimer()
+        {
+            if (_runningTimer == null)
+            {
+                return;
+            }
+
+            _runningTimer.Stop();
+            _runningTimer.Tick -= RunningTimerTick;
+            _runningTimer = null;
+        }
+
+        private void RunningTimerTick(object sender, EventArgs e)
+        {
+            var elapsed = DateTime.Now - _listenStartedAt;
+            RunningTime = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
+        }
+
+        private void OnClientConnected(ServerClient info)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                // Id 就是 "IP:Port"，重连时复用已有行，避免出现重复客户端
+                var client = ClientItems.FirstOrDefault(x => x.Id == info.Id);
+                if (client == null)
+                {
+                    client = new WsServerClient
+                    {
+                        Id = info.Id,
+                        Ip = info.Ip,
+                        Port = info.Port
+                    };
+                    ClientItems.Add(client);
+                }
+                
+                client.WsPath = string.IsNullOrWhiteSpace(info.Path) ? "/" : info.Path;
+                client.IsConnected = true;
+
+                ClientCount = ClientItems.Count;
+                OnlineClientCount = ClientItems.Count(x => x.IsConnected);
+            }));
+        }
+
+        private void OnClientClosed(ServerClient info)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var client = ClientItems.FirstOrDefault(x => x.Id == info.Id);
+                if (client != null)
+                {
+                    client.IsConnected = false;
+                }
+
+                OnlineClientCount = ClientItems.Count(x => x.IsConnected);
+            }));
+        }
+
+        private void OnClientFrameReceived(ServerClient info, byte[] bytes, WsFrameKind kind)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                var client = ClientItems.FirstOrDefault(x => x.Id == info.Id);
+                if (client == null)
+                {
+                    return;
+                }
+
+                var isViewing = ReferenceEquals(_selectedClient, client);
+                var time = DateTime.Now.ToString("HH:mm:ss.fff");
+
+                client.Logs.Add(new SocketFrameMessage()
+                {
+                    RawData = bytes,
+                    Content = FormatLogContent(bytes),
+                    Time = time,
+                    IsSend = 0,
+                    IsRead = isViewing,
+                    FrameType = kind == WsFrameKind.Text ? "文本帧" : "二进制帧"
+                });
+                client.MessageCount++;
+
+                ReceiveCount++;
+                ReceiveByteSize += bytes.Length;
+                LastDataTime = time;
+
+                RefreshUnreadMessageCount();
+            }));
+        }
+
+        private void RefreshUnreadMessageCount()
+        {
+            // 面板上的“未读消息” = 所有客户端未读数之和
+            UnReadMessageCount = ClientItems.Sum(x => x.UnreadLogCount);
+        }
+
+        private string BuildWsUrl()
+        {
+            return $"ws://{_selectedIp}:{_localPort}{NormalizePath(_wsPath)}";
+        }
+
+        private static string NormalizePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            var normalized = path.Trim();
+            return normalized.StartsWith("/", StringComparison.Ordinal) ? normalized : "/" + normalized;
+        }
+
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
+
+        private async Task SendInputAsync()
+        {
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var server = _server;
+            if (server == null || !server.IsRunning)
+            {
+                MessageBox.Show("请先启动 WebSocket 服务", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            byte[] payload;
+            WsFrameKind kind;
+            if (_isSendHexSelected)
+            {
+                var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                var bytes = new List<byte>();
+
+                foreach (var token in tokens)
+                {
+                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var parsedByte))
+                    {
+                        MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法发送", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    bytes.Add(parsedByte);
+                }
+
+                payload = bytes.ToArray();
+                kind = WsFrameKind.Binary;
+            }
+            else
+            {
+                payload = Encoding.UTF8.GetBytes(value);
+                kind = WsFrameKind.Text;
+            }
+
+            List<WsServerClient> targets;
+            if (_isMassSendEnabled)
+            {
+                targets = ClientItems.Where(client => client.IsConnected).ToList();
+                if (targets.Count == 0)
+                {
+                    MessageBox.Show("当前没有在线客户端", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                var selectedClient = _selectedClient;
+                if (selectedClient == null || !selectedClient.IsConnected)
+                {
+                    MessageBox.Show("请先选择一个在线客户端，或启用群发全部", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                targets = new List<WsServerClient> { selectedClient };
+            }
+
+            var failures = new List<string>();
+            var successCount = 0;
+            foreach (var client in targets)
+            {
+                try
+                {
+                    await server.SendAsync(client.Id, payload, kind);
+
+                    var time = DateTime.Now.ToString("HH:mm:ss.fff");
+                    client.Logs.Add(new SocketFrameMessage
+                    {
+                        RawData = payload,
+                        Content = FormatLogContent(payload),
+                        Time = time,
+                        IsSend = 1,
+                        IsRead = true,
+                        FrameType = kind == WsFrameKind.Text ? "文本帧" : "二进制帧"
+                    });
+
+                    SendCount++;
+                    SendByteSize += payload.Length;
+                    LastDataTime = time;
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    failures.Add($"{client.Ip}:{client.Port}：{ex.Message}");
+                }
+            }
+
+            if (failures.Count > 0)
+            {
+                var title = successCount == 0 ? "发送失败" : "部分发送失败";
+                var message = string.Join(Environment.NewLine, failures);
+                MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void StartLoopSending()
+        {
+            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+            {
+                MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_server == null || !_server.IsRunning)
+            {
+                MessageBox.Show("请先启动 WebSocket 服务", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_isMassSendEnabled)
+            {
+                if (!ClientItems.Any(client => client.IsConnected))
+                {
+                    MessageBox.Show("当前没有在线客户端", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    IsLoopSendEnabled = false;
+                    return;
+                }
+            }
+            else if (_selectedClient == null || !_selectedClient.IsConnected)
+            {
+                MessageBox.Show("请先选择一个在线客户端，或启用群发全部", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            var value = _userInputText;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                IsLoopSendEnabled = false;
+                return;
+            }
+
+            if (_isSendHexSelected)
+            {
+                var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var token in tokens)
+                {
+                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
+                    {
+                        MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法循环发送", MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        IsLoopSendEnabled = false;
+                        return;
+                    }
+                }
+            }
+
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+            _loopSendCommandTimer.Interval = TimeSpan.FromMilliseconds(ms);
+            _loopSendCommandTimer.Tick += TimerTickEvent_Handler;
+            _loopSendCommandTimer.Start();
+        }
+
+        private void StopLoopSending()
+        {
+            _loopSendCommandTimer.Stop();
+            _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
+        }
+
+        private void TimerTickEvent_Handler(object sender, EventArgs e)
+        {
+            if (_isLoopSendInProgress)
+                return;
+
+            _isLoopSendInProgress = true;
+            _ = SendLoopInputAsync();
+        }
+
+        private async Task SendLoopInputAsync()
+        {
+            try
+            {
+                await SendInputAsync();
+            }
+            catch (Exception ex)
+            {
+                StopLoopSending();
+                IsLoopSendEnabled = false;
+
+                MessageBox.Show($"循环发送失败：{ex.Message}", "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _isLoopSendInProgress = false;
+            }
         }
     }
 }

@@ -46,11 +46,6 @@ namespace DevKit.Transports
         /// </summary>
         public event Action<ServerClient, byte[], WsFrameKind> FrameReceived;
 
-        /// <summary>
-        /// WebSocket 握手路径，例如 "/ws"。为 null 或空时，所有请求都解释为 WebSocket。
-        /// </summary>
-        public string Path { get; set; }
-
         public bool IsRunning => _service != null && _service.ServerState == ServerState.Running;
 
         public Task StartAsync(string address, int port, bool reuseAddress, CancellationToken token)

@@ -38,6 +38,12 @@ namespace DevKit.ViewModels
 
         public void OnDialogClosed()
         {
+            StopLoopSending();
+            StopRunningTimer();
+            _toastTimer?.Stop();
+
+            _server?.Dispose();
+            _server = null;
         }
 
         public void OnDialogOpened(IDialogParameters parameters)
@@ -588,9 +594,14 @@ namespace DevKit.ViewModels
                 StopRunningTimer();
 
                 // 停止后清掉旧的连接记录（StopAsync 会断开所有客户端）
-                OnlineClientCount = 0;
-                UnReadMessageCount = 0;
+                foreach (var item in ClientItems)
+                {
+                    item.IsConnected = false;
+                }
+
                 SelectedClient = null;
+                RefreshUnreadMessageCount();
+                OnlineClientCount = 0;
             }
         }
 
@@ -783,7 +794,7 @@ namespace DevKit.ViewModels
                 var selectedClient = _selectedClient;
                 if (selectedClient == null || !selectedClient.IsConnected)
                 {
-                    MessageBox.Show("请先选择一个在线客户端，或启用广播全部", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("请先选择一个在线客户端，或启用群发全部", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -854,7 +865,7 @@ namespace DevKit.ViewModels
             }
             else if (_selectedClient == null || !_selectedClient.IsConnected)
             {
-                MessageBox.Show("请先选择一个在线客户端，或启用广播全部", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("请先选择一个在线客户端，或启用群发全部", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
                 return;
             }
