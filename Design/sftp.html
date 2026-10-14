@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SFTP 客户端 · 界面重设计稿</title>
+    <link rel="stylesheet" href="sftp.css" />
+</head>
+
+<body>
+
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-status="connected">已连接</button>
+        <button class="demo-btn" data-status="connecting">认证中</button>
+        <button class="demo-btn" data-status="offline">未连接</button>
+        <button class="demo-btn" data-status="empty">空队列</button>
+    </div>
+
+    <div class="app">
+        <!--
+      定位说明：本工具只做「远程文件传输」，不做交互式终端。
+      终端会话交给 Windows Terminal / MobaXterm 这类工具即可，这里专注把 scp 命令替代掉：
+      图形化双栏 + 拖拽上传 + 传输队列 + 进度/断点，因此界面不再有终端面板与命令行输入区。
+    -->
+        <div class="window">
+
+            <!-- ============ 连接工具条 ============ -->
+            <div class="toolbar">
+                <span class="state-pill on" id="statePill">
+                    <span class="dot on" id="stateDot"></span>
+                    <b id="statePillText">已连接</b>
+                </span>
+
+                <span class="toolbar-divider"></span>
+
+                <label class="input-wrap addr" id="hostWrap" title="主机地址">
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path fill="none" stroke="currentColor" stroke-width="2"
+                            d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
+                    </svg>
+                    <input id="host" type="text" value="192.168.1.10" placeholder="主机地址 / 域名" />
+                </label>
+
+                <span class="colon">:</span>
+
+                <label class="input-wrap port" id="portWrap" title="端口号">
+                    <input id="port" type="text" value="22" placeholder="22" maxlength="5" />
+                </label>
+
+                <label class="input-wrap user" id="userWrap" title="登录用户">
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            d="M4 20c0-3.4 3.6-5.5 8-5.5s8 2.1 8 5.5" />
+                    </svg>
+                    <input id="user" type="text" value="root" placeholder="用户名" />
+                </label>
+
+                <span class="toolbar-divider"></span>
+
+                <span class="inline-field">
+                    认证方式
+                    <span class="segmented" id="authSeg">
+                        <button class="active" data-auth="password">密码</button>
+                        <button data-auth="key">私钥</button>
+                    </span>
+                </span>
+
+                <label class="input-wrap keyfile" id="keyWrap" title="私钥文件" hidden>
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <circle cx="7.5" cy="15.5" r="4" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            d="M10.5 12.5L20 3m-3 0h3v3" />
+                    </svg>
+                    <input id="keyfile" type="text" value="C:\Users\pengxh\.ssh\id_ed25519" placeholder="私钥文件路径" />
+                </label>
+
+                <span class="spacer"></span>
+
+                <button class="btn btn-primary" id="btnConnect">
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M9 12h6M8 7H6a5 5 0 0 0 0 10h2m8-10h2a5 5 0 0 1 0 10h-2" />
+                    </svg>
+                    <span id="btnConnectText">断开连接</span>
+                </button>
+            </div>
+
+            <!-- 输入校验提示（有错误时才出现，不占用固定高度） -->
+            <div class="toolbar-hint" id="toolbarHint">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 8v5" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 16.5h.01" />
+                </svg>
+                <span id="toolbarHintText"></span>
+            </div>
+
+            <!-- ============ 主体 ============ -->
+            <div class="layout">
+
+                <!-- ---------- 左栏：传输统计 + 常用目录 + 链路信息 ---------- -->
+                <aside class="sidebar">
+
+                    <section class="card">
+                        <div class="card-head">
+                            <span class="card-title">本次会话</span>
+                            <span class="line"></span>
+                        </div>
+
+                        <div class="session-row">
+                            <span class="stat-label">保持时长</span>
+                            <b id="connTimer">03:12:44</b>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat tx">
+                                <span class="stat-label">上传</span>
+                                <span class="stat-value">
+                                    <b id="statUp">2.4 KB</b>
+                                    <small id="statUpCount">1 个文件</small>
+                                </span>
+                            </div>
+                            <div class="stat rx">
+                                <span class="stat-label">下载</span>
+                                <span class="stat-value">
+                                    <b id="statDown">18.6 KB</b>
+                                    <small id="statDownCount">3 个文件</small>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="session-row">
+                            <span class="stat-label">队列状态</span>
+                            <b id="statQueue">空闲</b>
+                        </div>
+                    </section>
+
+                    <!-- 常用目录：替代手敲路径，一键跳到本地 / 远端高频目录 -->
+                    <section class="card card-flex">
+                        <div class="card-head">
+                            <span class="card-title">常用目录</span>
+                            <span class="count" id="bmCount">6</span>
+                            <span class="line"></span>
+                            <button class="icon-btn" id="btnAddBm" title="新增常用目录">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        d="M12 5v14M5 12h14" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="bm-list" id="bmList"></div>
+
+                        <div class="bm-empty" id="bmEmpty" hidden>
+                            暂无常用目录<br />点击右上角「+」把高频路径固定到这里
+                        </div>
+                    </section>
+
+                    <!-- 链路信息：SFTP 也走 SSH 协商，排障时最常被问到的几项 -->
+                    <section class="card">
+                        <div class="card-head">
+                            <span class="card-title">链路信息</span>
+                            <span class="line"></span>
+                        </div>
+
+                        <div class="kv">
+                            <span class="kv-key">协议版本</span>
+                            <span class="kv-value">SSH-2.0-OpenSSH_9.6p1</span>
+                        </div>
+                        <div class="kv">
+                            <span class="kv-key">SFTP 版本</span>
+                            <span class="kv-value">SFTP v3 子系统</span>
+                        </div>
+                        <div class="kv">
+                            <span class="kv-key">密钥交换</span>
+                            <span class="kv-value">curve25519-sha256</span>
+                        </div>
+                        <div class="kv">
+                            <span class="kv-key">主机密钥</span>
+                            <span class="kv-value" id="infoFingerprint" title="SHA256:9fK2mQ7w1pLzR4tVbY8cN3xH6dEaG5jS0uWiZqPnMk">
+                                SHA256:9fK2…ZqPnMk
+                            </span>
+                        </div>
+                        <div class="kv">
+                            <span class="kv-key">加密算法</span>
+                            <span class="kv-value">chacha20-poly1305</span>
+                        </div>
+                        <div class="kv">
+                            <span class="kv-key">传输策略</span>
+                            <span class="kv-value">并发 3 · 断点续传开</span>
+                        </div>
+                    </section>
+
+                </aside>
+
+                <!-- ---------- 右栏：文件传输主体 ---------- -->
+                <section class="main">
+
+                    <section class="card card-flex">
+                        <div class="card-head">
+                            <span class="card-title">SFTP 文件传输</span>
+                            <span class="line"></span>
+
+                            <label class="inline-field" title="两端目录联动切换">
+                                <input type="checkbox" class="switch-input" id="syncDir" checked />
+                                <span class="switch"></span>
+                                目录同步
+                            </label>
+                            <button class="btn btn-sm" id="btnXferPauseAll">全部暂停</button>
+                            <button class="btn btn-sm btn-danger" id="btnXferClear">清空队列</button>
+                        </div>
+
+                        <!-- 会话标签：SFTP 复用同一条 SSH 连接，支持多台机器并行传文件 -->
+                        <div class="tabbar" id="tabbar">
+                            <div class="session-tab active" data-tab="web-01">
+                                <span class="dot-mini on"></span>
+                                <span class="tab-title">root@web-01</span>
+                                <button class="tab-close" title="关闭会话">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                        <path fill="none" stroke="currentColor" stroke-width="2.4"
+                                            stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="session-tab" data-tab="db-02">
+                                <span class="dot-mini"></span>
+                                <span class="tab-title">root@db-02</span>
+                                <button class="tab-close" title="关闭会话">
+                                    <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                                        <path fill="none" stroke="currentColor" stroke-width="2.4"
+                                            stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <button class="tab-add" id="btnNewTab" title="新建会话">
+                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        d="M12 5v14M5 12h14" />
+                                </svg>
+                            </button>
+
+                            <span class="spacer"></span>
+                            <span class="sftp-meta" id="sftpMeta">SFTP v3 · utf-8</span>
+                        </div>
+
+                        <div class="sftp">
+                            <div class="sftp-panes">
+
+                                <!-- 本地 -->
+                                <section class="pane local" id="localPane">
+                                    <div class="pane-head">
+                                        <span class="pane-tag local">本地</span>
+                                        <div class="crumbs" id="localCrumbs"></div>
+                                        <span class="spacer"></span>
+                                        <button class="icon-btn" data-act="up" title="上级目录">
+                                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 19V5m0 0l-6 6m6-6l6 6" />
+                                            </svg>
+                                        </button>
+                                        <button class="icon-btn" data-act="refresh" title="刷新">
+                                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1M21 4.5V10h-5.5" />
+                                            </svg>
+                                        </button>
+                                        <button class="icon-btn" data-act="mkdir" title="新建文件夹">
+                                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" d="M12 11v6M9 14h6" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="file-list" id="localList"></div>
+
+                                    <div class="drop-hint">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 17V5m0 0l-4 4m4-4l4 4" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+                                        </svg>
+                                        松开鼠标：上传到远端<br />
+                                        <b id="localDropTarget">/root/www</b>
+                                    </div>
+                                </section>
+
+                                <!-- 中间：上传 / 下载 -->
+                                <div class="pane-actions">
+                                    <button class="xfer-btn up" id="btnUpload" title="上传选中项到远端">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 18V6m0 0l-5 5m5-5l5 5" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M5 20h14" />
+                                        </svg>
+                                    </button>
+
+                                    <button class="xfer-btn down" id="btnDownload" title="下载选中项到本地">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 6v12m0 0l5-5m-5 5l-5-5" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M5 20h14" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- 远端 -->
+                                <section class="pane remote" id="remotePane">
+                                    <div class="pane-head">
+                                        <span class="pane-tag remote">远端</span>
+                                        <div class="crumbs" id="remoteCrumbs"></div>
+                                        <span class="spacer"></span>
+                                        <span class="pane-note" id="remoteDisk">可用 52G / 99G</span>
+                                        <button class="icon-btn" data-act="up" title="上级目录">
+                                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M12 19V5m0 0l-6 6m6-6l6 6" />
+                                            </svg>
+                                        </button>
+                                        <button class="icon-btn" data-act="refresh" title="刷新">
+                                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                                <path fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1M21 4.5V10h-5.5" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="file-list" id="remoteList"></div>
+
+                                    <div class="drop-hint">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 7v12m0 0l4-4m-4 4l-4-4" />
+                                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" />
+                                        </svg>
+                                        松开鼠标：下载到本地<br />
+                                        <b id="remoteDropTarget">D:\Work</b>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- 传输队列 -->
+                            <section class="xfer" id="xfer">
+                                <div class="xfer-head">
+                                    <span class="card-title">传输队列</span>
+                                    <span class="count" id="xferCount">0</span>
+                                    <span class="line"></span>
+                                    <span class="xfer-summary" id="xferSummary">空闲</span>
+                                    <button class="btn btn-sm" id="btnXferCollapse">收起</button>
+                                </div>
+
+                                <div class="xfer-list" id="xferList"></div>
+
+                                <div class="xfer-empty" id="xferEmpty">
+                                    拖拽文件到左侧面板即可上传，也可选中文件后点击中间箭头；双击目录进入、双击文件直接传输。
+                                </div>
+                            </section>
+                        </div>
+                    </section>
+
+                </section>
+            </div>
+
+            <!--
+          状态栏只承担「最近一次操作结果 + 最近传输时间」这类“瞬时/过程”信息；
+          连接状态看工具条药丸，主机与用户看输入框，累计量看左栏「本次会话」
+        -->
+            <footer class="statusbar">
+                <span id="statusLeft">就绪 · 已连接到 root@192.168.1.10:22</span>
+                <span id="statusRight">最后传输 12:03:44.201 · 队列自动刷新</span>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- ============ 认证弹窗 ============ -->
+    <div class="mask" id="authMask">
+        <div class="dialog">
+            <div class="dialog-head">
+                <span class="dialog-title" id="authTitle">SSH 认证</span>
+                <button class="icon-btn" id="btnAuthClose" title="关闭">
+                    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                            d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                </button>
+            </div>
+
+            <p class="dialog-desc" id="authDesc">
+                正在连接 root@192.168.1.10:22，请输入登录密码完成认证。密码仅用于本次会话，不会明文保存到磁盘。
+            </p>
+
+            <label class="field">
+                <span class="field-label" id="authLabel">登录密码</span>
+                <span class="input-wrap">
+                    <input id="authPassword" type="password" value="admin@2026" placeholder="请输入密码" />
+                    <button class="icon-btn" id="btnTogglePwd" title="显示 / 隐藏密码">
+                        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                            <path fill="none" stroke="currentColor" stroke-width="2"
+                                d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z" />
+                            <circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                    </button>
+                </span>
+            </label>
+
+            <label class="inline-field">
+                <input type="checkbox" class="switch-input" id="authRemember" checked />
+                <span class="switch"></span>
+                记住凭据（写入系统密钥库）
+            </label>
+
+            <div class="dialog-foot">
+                <button class="btn" id="btnAuthCancel">取消</button>
+                <button class="btn btn-primary" id="btnAuthOk">
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" d="M5 12l5 5L20 7" />
+                    </svg>
+                    认证并连接
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="sftp.js"></script>
+</body>
+
+</html>
