@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="816"
+    Width="834"
     Height="484"
     d:DataContext="{d:DesignInstance Type=vm:ScreenshotExportDialogViewModel}"
     Background="White"

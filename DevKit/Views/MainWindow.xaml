@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="DevKit（开发者工具集）"
-    Width="418"
+    Width="434"
     Height="756"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"

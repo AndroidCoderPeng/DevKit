@@ -11,7 +11,7 @@ namespace DevKit.DataService
         {
             return new List<MainMenu>
             {
-                new MainMenu { MenuIcon = "\ue71c", MenuName = "ADB" },
+                new MainMenu { MenuIcon = "\uea3a", MenuName = "ADB" },
                 new MainMenu { MenuIcon = "\ue700", MenuName = "APK" },
                 new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向" }
             };
@@ -26,7 +26,9 @@ namespace DevKit.DataService
                 new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
                 new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
                 new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
-                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端" }
+                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端" },
+                new MainMenu { MenuIcon = "\ue71c", MenuName = "SSH客户端" },
+                new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信" }
             };
         }
 
