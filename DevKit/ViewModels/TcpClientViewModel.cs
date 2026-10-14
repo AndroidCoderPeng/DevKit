@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Transports;
+using DevKit.Transports.Enums;
 using DevKit.Utils;
 using Microsoft.Win32;
 using Prism.Commands;

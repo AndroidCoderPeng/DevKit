@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
+using DevKit.Transports.Enums;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;

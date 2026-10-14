@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Models;
+using DevKit.Transports.Enums;
 using TouchSocket.Core;
 using TouchSocket.Http;
 using TouchSocket.Http.WebSockets;

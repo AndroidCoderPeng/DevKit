@@ -36,21 +36,18 @@ namespace DevKit.Cache
     {
         public EndpointConfig Server { get; set; } = new EndpointConfig();
         public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
-        public List<EndpointConfig> Clients { get; set; } = new List<EndpointConfig>();
     }
 
     public class UdpConfig
     {
         public EndpointConfig Server { get; set; } = new EndpointConfig();
         public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
-        public List<EndpointConfig> Clients { get; set; } = new List<EndpointConfig>();
     }
 
     public class WebSocketConfig
     {
         public WsEndpointConfig Server { get; set; } = new WsEndpointConfig();
         public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
-        public List<WsEndpointConfig> Clients { get; set; } = new List<WsEndpointConfig>();
     }
 
     // TCP/UDP端点

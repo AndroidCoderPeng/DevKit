@@ -1,4 +1,4 @@
-﻿namespace DevKit.Transports
+﻿namespace DevKit.Transports.Enums
 {
     public enum ListenState
     {

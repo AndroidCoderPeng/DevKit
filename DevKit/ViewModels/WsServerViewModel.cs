@@ -245,9 +245,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<WebSocketMessage> _logs = new ObservableCollection<WebSocketMessage>();
+        private ObservableCollection<SocketFrameMessage> _logs = new ObservableCollection<SocketFrameMessage>();
 
-        public ObservableCollection<WebSocketMessage> Logs
+        public ObservableCollection<SocketFrameMessage> Logs
         {
             get => _logs;
             set

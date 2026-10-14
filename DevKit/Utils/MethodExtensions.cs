@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 
 namespace DevKit.Utils
 {
@@ -45,25 +44,6 @@ namespace DevKit.Utils
             }
 
             return collection;
-        }
-
-        /// <summary>
-        /// 判断是否是Hex
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsHex(this string value)
-        {
-            if (value.Contains(" "))
-            {
-                value = value.Replace(" ", "");
-            }
-
-            return new Regex(@"^[0-9A-Fa-f]{2,}$").IsMatch(value);
-        }
-
-        public static bool IsNumber(this string s)
-        {
-            return new Regex(@"^\d+$").IsMatch(s);
         }
     }
 }

@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Transports;
+using DevKit.Transports.Enums;
 using DevKit.Utils;
 using Microsoft.Win32;
 using Prism.Commands;
@@ -172,9 +173,9 @@ namespace DevKit.ViewModels
             get => _userInputText;
         }
 
-        private ObservableCollection<WebSocketMessage> _logs = new ObservableCollection<WebSocketMessage>();
+        private ObservableCollection<SocketFrameMessage> _logs = new ObservableCollection<SocketFrameMessage>();
 
-        public ObservableCollection<WebSocketMessage> Logs
+        public ObservableCollection<SocketFrameMessage> Logs
         {
             get => _logs;
             set
@@ -622,7 +623,7 @@ namespace DevKit.ViewModels
             var rawData = (byte[])bytes.Clone();
             var time = DateTime.Now.ToString("HH:mm:ss.fff");
 
-            Logs.Add(new WebSocketMessage
+            Logs.Add(new SocketFrameMessage
             {
                 RawData = rawData,
                 Content = FormatLogContent(rawData),
@@ -760,7 +761,7 @@ namespace DevKit.ViewModels
             {
                 await transport.SendAsync(payload);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
-                Logs.Add(new WebSocketMessage
+                Logs.Add(new SocketFrameMessage
                 {
                     RawData = payload,
                     Content = command.Value,

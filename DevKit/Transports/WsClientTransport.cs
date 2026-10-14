@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using DevKit.Transports.Enums;
 using DevKit.Utils;
 using TouchSocket.Core;
 using TouchSocket.Http.WebSockets;
