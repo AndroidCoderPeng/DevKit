@@ -175,7 +175,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
         </Style>
 
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
@@ -673,7 +672,7 @@
                                     Background="{DynamicResource DevKitBorderBrush}" />
                             </Grid>
 
-                            <!--  保持时长  -->
+                            <!--  运行时长  -->
                             <Border
                                 Margin="0,12,0,0"
                                 Padding="12,10"
@@ -702,9 +701,8 @@
                                 </Grid>
                             </Border>
 
-
                             <UniformGrid
-                                Margin="0,12"
+                                Margin="0,12,0,4"
                                 Columns="2"
                                 Rows="2">
                                 <!--  在线客户端 / 未读消息  -->
@@ -890,7 +888,7 @@
                                 </Button>
                             </Grid>
 
-                            <!--  指令列表 + 空态  -->
+                            <!--  客户端列表 + 空态  -->
                             <Grid Margin="0,12,0,0">
                                 <ListBox
                                     x:Name="ClientListBox"

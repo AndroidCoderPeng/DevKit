@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UDP 服务端 · 界面重设计稿</title>
+    <link rel="stylesheet" href="udpserver.css" />
+</head>
+
+<body>
+
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-status="listening">监听中</button>
+        <button class="demo-btn" data-status="binding">绑定中</button>
+        <button class="demo-btn" data-status="stopped">未监听</button>
+        <button class="demo-btn" data-status="empty">未发现客户端</button>
+        <button class="demo-btn" data-status="noselect">未选中客户端</button>
+    </div>
+
+    <div class="app">
+        <!--
+      注意：本窗口为 Prism 对话框，窗口标题（UDP 服务端）由系统默认标题栏提供，
+      因此窗口内容顶部不再放置 logo/标题这类自定义标题栏，改为一条「监听工具条」。
+      工具条首位放「监听状态」，右侧紧跟本机地址/端口/启停操作区——
+      服务端最关键的信息是「绑没绑定、绑在哪」，所以它们占据了工具条最显眼的位置。
+
+      与 TCP 服务端的差异：UDP 无连接，服务端无法感知对端上下线，
+      因此额外提供「空闲超时」——超过该时长没有收到数据报的来源，在列表里被标记为静默。
+      这个值属于监听行为参数，所以同样放在工具条，而不是散落在客户端列表里。
+    -->
+        <div class="window">
+
+            <!-- ============ 监听工具条 ============ -->
+            <div class="toolbar">
+                <span class="state-pill on" id="statePill">
+                    <span class="dot on" id="stateDot"></span>
+                    <b id="statePillText">监听中</b>
+                </span>
+
+                <span class="toolbar-divider"></span>
+
+                <!-- 本机地址（下拉，对应 ComboBox + 本机 IPv4 列表） -->
+                <label class="select-wrap" id="hostWrap">
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                        <path fill="none" stroke="currentColor" stroke-width="2"
+                            d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />
+                    </svg>
+                    <select id="host" title="监听本机地址">
+                        <option value="0.0.0.0">0.0.0.0（全部网卡）</option>
+                        <option value="192.168.3.11" selected>192.168.3.11</option>
+                        <option value="10.0.6.42">10.0.6.42</option>
+                        <option value="127.0.0.1">127.0.0.1</option>
+                    </select>
+                    <svg class="chevron" viewBox="0 0 24 24" width="10" height="10" aria-hidden="true">
+                        <path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                    </svg>
+                </label>
+
+                <span class="colon">:</span>
+
+                <label class="input-wrap port" id="portWrap">
+                    <input id="port" type="text" value="9000" placeholder="端口" maxlength="5" title="监听端口" />
+                </label>
+
+                <span class="toolbar-divider"></span>
+
+                <label class="inline-field" id="idleWrap" title="超过该时长未收到数据报的来源，在列表中标记为「静默」；清空列表后重新计时">
+                    空闲超时
+                    <input id="idleTimeout" type="text" value="60" maxlength="4" />
+                    <span class="unit">s</span>
+                </label>
+
+                <span class="spacer"></span>
+
+                <button class="btn btn-stop" id="btnListen">
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                        <rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+                    <span id="btnListenText">停止监听</span>
+                </button>
+            </div>
+
+            <!-- 输入校验提示（有错误时才出现，不占用固定高度） -->
+            <div class="toolbar-hint" id="toolbarHint">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 8v5" />
+                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 16.5h.01" />
+                </svg>
+                <span id="toolbarHintText"></span>
+            </div>
+
+            <!-- ============ 主体 ============ -->
+            <div class="layout">
+
+                <!-- ---------- 左栏：监听概览 + 已发现客户端 ---------- -->
+                <aside class="sidebar">
+
+                    <section class="card">
+                        <div class="card-head">
+                            <span class="card-title">监听概览</span>
+                            <span class="line"></span>
+                        </div>
+
+                        <div class="session-row">
+                            <span class="stat-label">运行时长</span>
+                            <b id="runTimer">01:02:11</b>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat ok">
+                                <span class="stat-label">活跃来源</span>
+                                <span class="stat-value">
+                                    <b id="statActive">3</b>
+                                    <small id="statTotal">共 4 个</small>
+                                </span>
+                            </div>
+                            <div class="stat warn">
+                                <span class="stat-label">未读消息</span>
+                                <span class="stat-value">
+                                    <b id="statUnread">7</b>
+                                    <small>待查看</small>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat tx">
+                                <span class="stat-label">发送</span>
+                                <span class="stat-value">
+                                    <b id="statTxCount">8</b>
+                                    <small id="statTxBytes">64 B</small>
+                                </span>
+                            </div>
+                            <div class="stat rx">
+                                <span class="stat-label">接收</span>
+                                <span class="stat-value">
+                                    <b id="statRxCount">9</b>
+                                    <small id="statRxBytes">188 B</small>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-grid">
+                            <div class="stat">
+                                <span class="stat-label">新发现来源</span>
+                                <span class="stat-value">
+                                    <b id="statNew">2</b>
+                                    <small>本次监听</small>
+                                </span>
+                            </div>
+                            <div class="stat err">
+                                <span class="stat-label">发送失败</span>
+                                <span class="stat-value">
+                                    <b id="statFail">0</b>
+                                    <small id="statFailHint">端口不可达</small>
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 已发现客户端（UDP 无连接：收到数据报即自动加入列表） -->
+                    <section class="card card-flex">
+                        <div class="card-head">
+                            <span class="card-title">已发现客户端</span>
+                            <span class="count" id="clientCount">4</span>
+                            <span class="line"></span>
+                            <button class="btn btn-xs btn-danger" id="btnClearClients" title="清空已发现来源列表（不影响监听）">
+                                清空列表
+                            </button>
+                        </div>
+
+                        <div class="client-list" id="clientList"></div>
+
+                        <div class="client-empty" id="clientEmpty">
+                            尚未发现客户端<br />启动监听后，收到任意来源的数据报会自动出现在这里
+                        </div>
+                    </section>
+
+                </aside>
+
+                <!-- ---------- 右栏：消息 + 发送 ---------- -->
+                <section class="main">
+
+                    <!-- 消息记录 -->
+                    <section class="card card-flex">
+                        <div class="msg-toolbar">
+                            <span class="card-title">消息记录</span>
+                            <span class="count" id="msgCount">0</span>
+                            <span class="peer none" id="peerTag"><span>未选中客户端</span></span>
+                            <span class="spacer"></span>
+
+                            <span class="label">显示</span>
+                            <div class="segmented" id="viewSeg">
+                                <button class="active" data-view="hex">HEX</button>
+                                <button data-view="ascii">ASCII</button>
+                            </div>
+
+                            <button class="btn btn-sm" id="btnSave">
+                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                                </svg>
+                                保存
+                            </button>
+
+                            <button class="btn btn-sm btn-danger" id="btnClear">
+                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13" />
+                                </svg>
+                                清空
+                            </button>
+                        </div>
+
+                        <!-- 消息列表由 JS 渲染 -->
+                        <div class="msg-scroll" id="msgScroll"></div>
+
+                        <div class="empty" id="msgEmpty">
+                            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                            </svg>
+                            <span class="empty-title" id="msgEmptyTitle">尚未选择客户端</span>
+                            <span class="empty-desc" id="msgEmptyDesc">在左侧「已发现客户端」中点击一个来源，即可查看它的收发记录；悬浮单条消息可复制。</span>
+                        </div>
+                    </section>
+
+                    <!-- 发送区 -->
+                    <div class="composer">
+                        <textarea id="input" placeholder="输入要发送的内容；HEX 模式下使用空格分隔，例如 AA 55 01 01"></textarea>
+
+                        <div class="bcast-hint" id="bcastHint">
+                            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                                <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M3 11l18-8-8 18-2-8-8-2z" />
+                            </svg>
+                            <span id="bcastHintText">广播模式：本次内容将发送给全部活跃客户端</span>
+                        </div>
+
+                        <div class="composer-bar">
+                            <span class="inline-field">
+                                发送编码
+                                <span class="segmented" id="sendSeg">
+                                    <button class="active" data-enc="hex">HEX</button>
+                                    <button data-enc="ascii">ASCII</button>
+                                </span>
+                            </span>
+
+                            <label class="inline-field">
+                                <input type="checkbox" class="switch-input" id="loopSwitch" />
+                                <span class="switch"></span>
+                                循环发送
+                            </label>
+
+                            <span class="inline-field">
+                                <input id="interval" type="text" value="1000" maxlength="5" disabled />
+                                <span class="unit">ms / 次</span>
+                            </span>
+
+                            <label class="inline-field" title="忽略选中项，发送给所有活跃客户端">
+                                <input type="checkbox" class="switch-input" id="bcastSwitch" />
+                                <span class="switch"></span>
+                                广播全部
+                            </label>
+
+                            <span class="spacer"></span>
+
+                            <button class="btn btn-primary" id="btnSend">
+                                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" d="M22 2L11 13" />
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" d="M22 2l-7 20-4-9-9-4 22-7z" />
+                                </svg>
+                                发送
+                                <kbd>Ctrl + Enter</kbd>
+                            </button>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+
+            <!--
+          状态栏只承担「最近一次操作结果 + 最近接收时间」这类“瞬时/过程”信息；
+          监听状态看工具条药丸，监听地址看下拉与端口框，运行时长与收发统计看左栏「监听概览」，状态栏不重复这些
+        -->
+            <footer class="statusbar">
+                <span id="statusLeft">就绪 · 监听 192.168.3.11:9000 · Ctrl + Enter 快速发送</span>
+                <span id="statusRight">最后接收 12:03:44.201 · 消息列表自动滚动</span>
+            </footer>
+
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="udpserver.js"></script>
+</body>
+
+</html>

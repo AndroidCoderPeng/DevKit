@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using DevKit.DataService;
 using DevKit.Models;
 using Prism.Commands;
@@ -35,7 +36,63 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private List<string> _localHostSource;
+        private string _stateOuterBackgroundColor = "#FFF7F9FC";
+
+        public string StateOuterBackgroundColor
+        {
+            get => _stateOuterBackgroundColor;
+            set => SetProperty(ref _stateOuterBackgroundColor, value);
+        }
+
+        private string _stateOuterBorderColor = "#FFEEEEF0";
+
+        public string StateOuterBorderColor
+        {
+            get => _stateOuterBorderColor;
+            set => SetProperty(ref _stateOuterBorderColor, value);
+        }
+
+        private string _stateInnerBackgroundColor = "#E7EBF0";
+
+        public string StateInnerBackgroundColor
+        {
+            get => _stateInnerBackgroundColor;
+            set => SetProperty(ref _stateInnerBackgroundColor, value);
+        }
+
+        private string _stateInnerBorderColor = "#93A0AE";
+
+        public string StateInnerBorderColor
+        {
+            get => _stateInnerBorderColor;
+            set => SetProperty(ref _stateInnerBorderColor, value);
+        }
+
+        private string _stateTextColor = "#5F6B7A";
+
+        public string StateTextColor
+        {
+            get => _stateTextColor;
+            set => SetProperty(ref _stateTextColor, value);
+        }
+
+        private string _stateText = "未监听";
+
+        public string StateText
+        {
+            get => _stateText;
+            set => SetProperty(ref _stateText, value);
+        }
+
+        private string _selectedIp = string.Empty;
+
+        public string SelectedIp
+        {
+            get => _selectedIp;
+            set => SetProperty(ref _selectedIp, value);
+        }
+
+        private List<string> _localHostSource = new List<string>();
 
         public List<string> LocalHostSource
         {
@@ -47,156 +104,29 @@ namespace DevKit.ViewModels
             get => _localHostSource;
         }
 
-        private string _listenPort = "9000";
+        private string _localPort = "21212";
 
-        public string ListenPort
+        public string LocalPort
         {
-            set
-            {
-                _listenPort = value;
-                RaisePropertyChanged();
-            }
-            get => _listenPort;
-        }
-
-        private string _listenStateColor = "LightGray";
-
-        public string ListenStateColor
-        {
-            set
-            {
-                _listenStateColor = value;
-                RaisePropertyChanged();
-            }
-            get => _listenStateColor;
-        }
-
-        private string _listenState = "监听";
-
-        public string ListenState
-        {
-            set
-            {
-                _listenState = value;
-                RaisePropertyChanged();
-            }
-            get => _listenState;
-        }
-
-        private ObservableCollection<UdpClientModel> _clients = new ObservableCollection<UdpClientModel>();
-
-        public ObservableCollection<UdpClientModel> Clients
-        {
-            set
-            {
-                _clients = value;
-                RaisePropertyChanged();
-            }
-            get => _clients;
-        }
-
-        private string _isContentViewVisible = "Collapsed";
-
-        public string IsContentViewVisible
-        {
-            set
-            {
-                _isContentViewVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isContentViewVisible;
-        }
-
-        private string _isEmptyImageVisible = "Visible";
-
-        public string IsEmptyImageVisible
-        {
-            set
-            {
-                _isEmptyImageVisible = value;
-                RaisePropertyChanged();
-            }
-            get => _isEmptyImageVisible;
-        }
-
-        private string _clientAddress = string.Empty;
-
-        public string ClientAddress
-        {
-            set
-            {
-                _clientAddress = value;
-                RaisePropertyChanged();
-            }
-            get => _clientAddress;
-        }
-
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
-
-        public ObservableCollection<SocketMessage> Logs
-        {
-            set
-            {
-                _logs = value;
-                RaisePropertyChanged();
-            }
-            get => _logs;
-        }
-
-        private string _commandInterval = "1000";
-
-        public string CommandInterval
-        {
-            set
-            {
-                _commandInterval = value;
-                RaisePropertyChanged();
-            }
-            get => _commandInterval;
-        }
-
-        private string _userInputText = string.Empty;
-
-        public string UserInputText
-        {
-            set
-            {
-                _userInputText = value;
-                RaisePropertyChanged();
-            }
-            get => _userInputText;
-        }
-
-        private bool _isHexSelected = true;
-
-        public bool IsHexSelected
-        {
-            set
-            {
-                _isHexSelected = value;
-                RaisePropertyChanged();
-            }
-            get => _isHexSelected;
+            get => _localPort;
+            set => SetProperty(ref _localPort, value);
         }
 
         #endregion
 
         #region DelegateCommand
 
-        public DelegateCommand<string> HostSelectedCommand { set; get; }
-        public DelegateCommand ServerListenCommand { set; get; }
-        public DelegateCommand<UdpClientModel> ClientItemClickedCommand { set; get; }
-        public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SendCommand { set; get; }
-        public DelegateCommand TimeCheckedCommand { set; get; }
-        public DelegateCommand TimeUncheckedCommand { set; get; }
-        public DelegateCommand<object> ComboBoxItemSelectedCommand { set; get; }
+        public DelegateCommand ListenPortCommand { set; get; }
 
         #endregion
 
         public UdpServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
+            if (_localHostSource.Any())
+            {
+                SelectedIp = _localHostSource.First();
+            }
         }
     }
 }
