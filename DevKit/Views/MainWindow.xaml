@@ -245,7 +245,7 @@
 
                 <ListBox.ItemContainerStyle>
                     <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <EventSetter Event="PreviewMouseDown" Handler="AndroidToolsListBox_ListBoxItem_PreviewMouseDown" />
+                        <EventSetter Event="PreviewMouseDown" Handler="ToolsListBox_ListBoxItem_PreviewMouseDown" />
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
@@ -347,7 +347,7 @@
 
                 <ListBox.ItemContainerStyle>
                     <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <EventSetter Event="PreviewMouseDown" Handler="SocketToolsListBox_ListBoxItem_PreviewMouseDown" />
+                        <EventSetter Event="PreviewMouseDown" Handler="ToolsListBox_ListBoxItem_PreviewMouseDown" />
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
@@ -446,7 +446,7 @@
 
                 <ListBox.ItemContainerStyle>
                     <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <EventSetter Event="PreviewMouseDown" Handler="OtherToolsListBox_ListBoxItem_PreviewMouseDown" />
+                        <EventSetter Event="PreviewMouseDown" Handler="ToolsListBox_ListBoxItem_PreviewMouseDown" />
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>

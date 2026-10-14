@@ -37,6 +37,7 @@ namespace DevKit
             containerRegistry.RegisterDialog<UdpServerView, UdpServerViewModel>();
             containerRegistry.RegisterDialog<WsClientView, WsClientViewModel>();
             containerRegistry.RegisterDialog<WsServerView, WsServerViewModel>();
+            containerRegistry.RegisterDialog<SerialPortView, SerialPortViewModel>();
             containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
             containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
             

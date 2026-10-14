@@ -19,66 +19,25 @@ namespace DevKit.ViewModels
 
         #region DelegateCommand
 
-        public DelegateCommand<MainMenu> AndroidToolClickedCommand { get; }
-        public DelegateCommand<MainMenu> SocketToolClickedCommand { get; }
-        public DelegateCommand<MainMenu> OtherToolClickedCommand { get; }
+        public DelegateCommand<MainMenu> ToolClickedCommand { get; }
 
         #endregion
 
-        private readonly IDialogService _dialogService;
-
         public MainWindowViewModel(IAppDataService dataService, IDialogService dialogService)
         {
-            _dialogService = dialogService;
-
             AndroidTools = dataService.GetAndroidTools();
             SocketTools = dataService.GetSocketTools();
             OtherTools = dataService.GetOtherTools();
 
-            AndroidToolClickedCommand = new DelegateCommand<MainMenu>(OnAndroidToolClicked);
-            SocketToolClickedCommand = new DelegateCommand<MainMenu>(OnSocketToolClicked);
-            OtherToolClickedCommand = new DelegateCommand<MainMenu>(OnOtherToolClicked);
-        }
+            ToolClickedCommand = new DelegateCommand<MainMenu>(menu =>
+            {
+                if (menu == null || string.IsNullOrWhiteSpace(menu.ViewName))
+                {
+                    return;
+                }
 
-        private readonly Dictionary<string, string> _androidToolMap = new Dictionary<string, string>
-        {
-            { "ADB", "AndroidDebugBridgeView" },
-            { "APK", "ApplicationPackageView" },
-            { "JNI逆向", "JNIReverseView" }
-        };
-
-        private void OnAndroidToolClicked(MainMenu menu)
-        {
-            if (menu == null || !_androidToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
-            _dialogService.Show(viewName);
-        }
-
-        private readonly Dictionary<string, string> _socketToolMap = new Dictionary<string, string>
-        {
-            { "TCP客户端", "TcpClientView" },
-            { "TCP服务端", "TcpServerView" },
-            { "UDP客户端", "UdpClientView" },
-            { "UDP服务端", "UdpServerView" },
-            { "WS客户端", "WsClientView" },
-            { "WS服务端", "WsServerView" }
-        };
-        
-        private void OnSocketToolClicked(MainMenu menu)
-        {
-            if (menu == null || !_socketToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
-            _dialogService.Show(viewName);
-        }
-
-        private readonly Dictionary<string, string> _otherToolMap = new Dictionary<string, string>
-        {
-            { "颜色处理", "ColorResourceView" },
-            { "网络配置", "NetConfigurationView" }
-        };
-        
-        private void OnOtherToolClicked(MainMenu menu)
-        {
-            if (menu == null || !_otherToolMap.TryGetValue(menu.MenuName, out var viewName)) return;
-            _dialogService.Show(viewName);
+                dialogService.Show(menu.ViewName);
+            });
         }
     }
 }

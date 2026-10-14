@@ -4,5 +4,6 @@
     {
         public string MenuName { get; set; }
         public string MenuIcon { get; set; }
+        public string ViewName { get; set; }
     }
 }

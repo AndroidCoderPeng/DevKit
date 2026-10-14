@@ -11,9 +11,9 @@ namespace DevKit.DataService
         {
             return new List<MainMenu>
             {
-                new MainMenu { MenuIcon = "\ue71c", MenuName = "ADB" },
-                new MainMenu { MenuIcon = "\ue700", MenuName = "APK" },
-                new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向" }
+                new MainMenu { MenuIcon = "\ue71c", MenuName = "ADB", ViewName = "AndroidDebugBridgeView" },
+                new MainMenu { MenuIcon = "\ue700", MenuName = "APK", ViewName = "ApplicationPackageView" },
+                new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向", ViewName = "JNIReverseView" }
             };
         }
 
@@ -21,14 +21,14 @@ namespace DevKit.DataService
         {
             return new List<MainMenu>
             {
-                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP客户端" },
-                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP服务端" },
-                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP客户端" },
-                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP服务端" },
-                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端" },
-                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端" },
-                new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信" },
-                new MainMenu { MenuIcon = "\ue795", MenuName = "SFTP" }
+                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP客户端", ViewName = "TcpClientView" },
+                new MainMenu { MenuIcon = "\ue8a9", MenuName = "TCP服务端", ViewName = "TcpServerView" },
+                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP客户端", ViewName = "UdpClientView" },
+                new MainMenu { MenuIcon = "\ue8ab", MenuName = "UDP服务端", ViewName = "UdpServerView" },
+                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端", ViewName = "WsClientView" },
+                new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端", ViewName = "WsServerView" },
+                new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信", ViewName = "SerialPortView" },
+                new MainMenu { MenuIcon = "\ue795", MenuName = "SFTP", ViewName = null }
             };
         }
 
@@ -36,8 +36,8 @@ namespace DevKit.DataService
         {
             return new List<MainMenu>
             {
-                new MainMenu { MenuIcon = "\ue660", MenuName = "颜色处理" },
-                new MainMenu { MenuIcon = "\ue6b4", MenuName = "网络配置" }
+                new MainMenu { MenuIcon = "\ue660", MenuName = "颜色处理", ViewName = "ColorResourceView" },
+                new MainMenu { MenuIcon = "\ue6b4", MenuName = "网络配置", ViewName = "NetConfigurationView" }
             };
         }
 

@@ -244,6 +244,7 @@
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\NetConfigurationViewModel.cs" />
     <Compile Include="ViewModels\ScreenshotExportDialogViewModel.cs" />
+    <Compile Include="ViewModels\SerialPortViewModel.cs" />
     <Compile Include="ViewModels\TcpClientViewModel.cs" />
     <Compile Include="ViewModels\TcpServerViewModel.cs" />
     <Compile Include="ViewModels\UdpClientViewModel.cs" />
@@ -268,6 +269,9 @@
     </Compile>
     <Compile Include="Views\NetConfigurationView.xaml.cs">
       <DependentUpon>NetConfigurationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SerialPortView.xaml.cs">
+      <DependentUpon>SerialPortView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TcpClientView.xaml.cs">
       <DependentUpon>TcpClientView.xaml</DependentUpon>
@@ -322,6 +326,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\NetConfigurationView.xaml" />
+    <Page Include="Views\SerialPortView.xaml" />
     <Page Include="Views\TcpClientView.xaml" />
     <Page Include="Views\TcpServerView.xaml" />
     <Page Include="Views\UdpClientView.xaml" />
