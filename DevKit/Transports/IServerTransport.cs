@@ -12,6 +12,7 @@ namespace DevKit.Transports
         bool IsRunning { get; }
 
         Task StartAsync(string address, int port, bool reuseAddress, CancellationToken token);
+        Task StartAsync(string address, int port, string path, CancellationToken token);
         Task StopAsync();
         Task SendAsync(string clientId, byte[] payload);
         Task DisconnectAll();

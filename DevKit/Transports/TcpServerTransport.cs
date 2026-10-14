@@ -51,7 +51,6 @@ namespace DevKit.Transports
                 var host = new IPHost($"{address.Trim()}:{port}");
                 var config = new TouchSocketConfig().SetListenIPHosts(host).SetReuseAddress(reuseAddress);
                 await service.SetupAsync(config).ConfigureAwait(false);
-
                 await service.StartAsync(token).ConfigureAwait(false);
             }
             catch
@@ -65,6 +64,12 @@ namespace DevKit.Transports
                 service.Dispose();
                 throw;
             }
+        }
+
+        public Task StartAsync(string address, int port, string path, CancellationToken token)
+        {
+            // TcpServerTransport 不支持路径参数，直接忽略
+            return EasyTask.CompletedTask;
         }
 
         private void BindEvents(TcpService service)

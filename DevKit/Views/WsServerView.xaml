@@ -1683,32 +1683,28 @@
                                         Text="ms / 次" />
                                 </StackPanel>
 
-                                <Button
+                                <CheckBox
                                     Grid.Column="4"
-                                    Command="{Binding OpenScriptCommand}"
-                                    Style="{StaticResource CompactButtonStyle}"
-                                    ToolTip="按脚本批量、定时发送指令">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock
-                                            VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="13"
-                                            Text="&#xe676;" />
-
-                                        <TextBlock
-                                            Margin="8,0,0,0"
-                                            VerticalAlignment="Center"
-                                            FontSize="13"
-                                            Text="指令脚本" />
-                                    </StackPanel>
-                                </Button>
+                                    Content="群发全部"
+                                    IsChecked="{Binding IsMassSendEnabled, Mode=TwoWay}"
+                                    Style="{StaticResource ToggleSwitchStyle}" />
 
                                 <Button
                                     Grid.Column="5"
                                     Margin="8,0,0,0"
                                     Command="{Binding SendMessageCommand}"
-                                    Style="{StaticResource PrimaryCompactButtonStyle}"
                                     ToolTip="Ctrl + Enter 快速发送">
+                                    <Button.Style>
+                                        <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                                            <Setter Property="IsEnabled" Value="True" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OnlineClientCount}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="False" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+
                                     <StackPanel Margin="12,0" Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
