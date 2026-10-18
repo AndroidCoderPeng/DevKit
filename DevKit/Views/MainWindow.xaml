@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Title="DevKit（开发者工具集）"
+    Title="DevKit（开发者工具箱）"
     Width="434"
     Height="756"
     d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
