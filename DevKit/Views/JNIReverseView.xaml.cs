@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Views
+﻿namespace DevKit.Views
 {
-    public partial class JNIReverseView : UserControl
+    public partial class JNIReverseView
     {
         public JNIReverseView()
         {

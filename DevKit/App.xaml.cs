@@ -1,48 +1,59 @@
-﻿using System.Windows;
-using DevKit.DataService;
+﻿using System;
+using System.Windows;
 using DevKit.Dialogs;
+using DevKit.Utils;
 using DevKit.ViewModels;
-using DevKit.Views;
-using Prism.DryIoc;
-using Prism.Ioc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DevKit
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : PrismApplication
+    public partial class App : Application
     {
-        protected override Window CreateShell()
-        {
-            return Container.Resolve<MainWindow>();
-        }
+        public static IServiceProvider Services { get; private set; }
 
-        protected override void RegisterTypes(IContainerRegistry containerRegistry)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            //Data
-            containerRegistry.RegisterSingleton<IAppDataService, AppDataServiceImpl>();
+            base.OnStartup(e);
+            var services = new ServiceCollection();
+            
+            // Dialog service registration（对话框 ViewModel 则通常更适合 AddTransient）
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddTransient<ScreenshotExportDialog>();
+            services.AddTransient<ScreenshotExportDialogViewModel>();
+            services.AddTransient<AndroidLogcatDialog>();
+            services.AddTransient<AndroidLogcatDialogViewModel>();
+            services.AddTransient<ExCommandDialog>();
+            services.AddTransient<ExCommandDialogViewModel>();
+            services.AddTransient<CommandScriptDialog>();
+            services.AddTransient<CommandScriptDialogViewModel>();
+            
+            // Window and ViewModel registrations
+            services.AddSingleton<MainWindowViewModel>();
+            services.AddTransient<AndroidDebugBridgeViewModel>();
+            services.AddTransient<ApplicationPackageViewModel>();
+            services.AddTransient<JNIReverseViewModel>();
+            services.AddTransient<TcpClientViewModel>();
+            services.AddTransient<TcpServerViewModel>();
+            services.AddTransient<UdpClientViewModel>();
+            services.AddTransient<UdpServerViewModel>();
+            services.AddTransient<WsClientViewModel>();
+            services.AddTransient<WsServerViewModel>();
+            services.AddTransient<SerialPortViewModel>();
+            services.AddTransient<ColorResourceViewModel>();
+            services.AddTransient<NetConfigurationViewModel>();
+            
+            Services = services.BuildServiceProvider();
 
-            //Dialog
-            containerRegistry.RegisterDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
-            containerRegistry.RegisterDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
-            
-            containerRegistry.RegisterDialog<ApplicationPackageView, ApplicationPackageViewModel>();
-            containerRegistry.RegisterDialog<AndroidLogcatDialog, AndroidLogcatDialogViewModel>();
-            containerRegistry.RegisterDialog<JNIReverseView, JNIReverseViewModel>();
-            
-            containerRegistry.RegisterDialog<TcpClientView, TcpClientViewModel>();
-            containerRegistry.RegisterDialog<TcpServerView, TcpServerViewModel>();
-            containerRegistry.RegisterDialog<UdpClientView, UdpClientViewModel>();
-            containerRegistry.RegisterDialog<UdpServerView, UdpServerViewModel>();
-            containerRegistry.RegisterDialog<WsClientView, WsClientViewModel>();
-            containerRegistry.RegisterDialog<WsServerView, WsServerViewModel>();
-            containerRegistry.RegisterDialog<SerialPortView, SerialPortViewModel>();
-            containerRegistry.RegisterDialog<ExCommandDialog, ExCommandDialogViewModel>();
-            containerRegistry.RegisterDialog<CommandScriptDialog, CommandScriptDialogViewModel>();
-            
-            containerRegistry.RegisterDialog<ColorResourceView, ColorResourceViewModel>();
-            containerRegistry.RegisterDialog<NetConfigurationView, NetConfigurationViewModel>();
+            var mainWindow = new MainWindow
+            {
+                DataContext = Services.GetRequiredService<MainWindowViewModel>()
+            };
+
+            MainWindow = mainWindow;
+            mainWindow.Show();
         }
     }
 }

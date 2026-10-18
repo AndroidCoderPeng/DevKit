@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Views
+﻿namespace DevKit.Views
 {
-    public partial class ApplicationPackageView : UserControl
+    public partial class ApplicationPackageView
     {
         public ApplicationPackageView()
         {

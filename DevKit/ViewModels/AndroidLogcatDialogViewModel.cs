@@ -6,85 +6,39 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Models;
 using DevKit.Utils;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class AndroidLogcatDialogViewModel : BindableBase, IDialogAware
+    public partial class AndroidLogcatDialogViewModel : ObservableObject
     {
-        public string Title => "Logcat";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        #region DelegateCommand
-
-        public DelegateCommand ClearCommand { get; }
-        public DelegateCommand PauseCommand { get; }
-        public DelegateCommand<string> ToggleLevelCommand { get; }
-
-        #endregion
-
         #region VM
 
-        private ObservableCollection<AndroidLog> _logs = new ObservableCollection<AndroidLog>();
-
-        public ObservableCollection<AndroidLog> Logs
-        {
-            get => _logs;
-            set
-            {
-                _logs = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _keyword = string.Empty;
-
-        public string Keyword
-        {
-            get => _keyword;
-            set
-            {
-                _keyword = value;
-                RaisePropertyChanged();
-                _logsView?.Refresh();
-            }
-        }
-
-        private bool _autoScroll = true;
-
-        public bool AutoScroll
-        {
-            get => _autoScroll;
-            set
-            {
-                _autoScroll = value;
-                RaisePropertyChanged();
-            }
-        }
+        [ObservableProperty] private ObservableCollection<AndroidLog> _logs = new();
+        [ObservableProperty] private string _keyword = string.Empty;
+        [ObservableProperty] private bool _autoScroll = true;
 
         public ICollectionView LogsView => _logsView;
 
+        partial void OnKeywordChanged(string value)
+        {
+            _logsView.Refresh();
+        }
+
         #endregion
 
-        private string _device;
         private const int MaxLogCount = 1000;
 
-        private static readonly Regex LogcatLineRegex = new Regex(
+        private static readonly Regex LogcatLineRegex = new(
             @"^(?:\d{4}-)?\d{2}-\d{2}\s+(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(\S+?):\s*(.*)$",
             RegexOptions.Compiled);
 
         private Process _logcatProcess;
         private bool _isPaused;
-        private readonly HashSet<string> _enabledLevels = new HashSet<string> { "D" };
+        private readonly HashSet<string> _enabledLevels = ["D"];
         private readonly ICollectionView _logsView;
 
         public AndroidLogcatDialogViewModel()
@@ -95,47 +49,57 @@ namespace DevKit.ViewModels
                                     && (string.IsNullOrEmpty(_keyword)
                                         || log.Tag.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0
                                         || log.Message.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
 
-            ClearCommand = new DelegateCommand(() => { Logs.Clear(); });
+        [RelayCommand]
+        private void Clear()
+        {
+            Logs.Clear();
+        }
 
-            PauseCommand = new DelegateCommand(() => { _isPaused = !_isPaused; });
+        [RelayCommand]
+        private void Pause()
+        {
+            _isPaused = !_isPaused;
+        }
 
-            ToggleLevelCommand = new DelegateCommand<string>(level =>
+        [RelayCommand]
+        private void ToggleLevel(string level)
+        {
+            if (string.IsNullOrEmpty(level))
             {
-                if (string.IsNullOrEmpty(level)) return;
+                return;
+            }
 
-                if (!_enabledLevels.Add(level))
-                {
-                    _enabledLevels.Remove(level);
-                }
+            if (!_enabledLevels.Add(level))
+            {
+                _enabledLevels.Remove(level);
+            }
 
-                _logsView.Refresh();
-            });
+            _logsView.Refresh();
         }
+        
+        // public void OnDialogClosed()
+        // {
+        //     StopLogcatCapture();
+        // }
 
-        public bool CanCloseDialog() => true;
+        // public void OnDialogOpened(IDialogParameters parameters)
+        // {
+        //     _device = parameters.GetValue<string>("device");
+        //
+        //     // 启动 adb logcat 抓取（Debug 及以上级别）
+        //     StartLogcatCapture();
+        // }
 
-        public void OnDialogClosed()
+        public void StartLogcatCapture(string device)
         {
-            StopLogcatCapture();
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            _device = parameters.GetValue<string>("device");
-
-            // 启动 adb logcat 抓取（Debug 及以上级别）
-            StartLogcatCapture();
-        }
-
-        private void StartLogcatCapture()
-        {
-            if (string.IsNullOrEmpty(_device)) return;
+            if (string.IsNullOrEmpty(device)) return;
 
             // adb -s <device> logcat -v threadtime *:D
             var argument = new ArgumentCreator();
             var cmdStr = argument
-                .Append("-s").Append(_device)
+                .Append("-s").Append(device)
                 .Append("logcat")
                 .Append("-v").Append("threadtime")
                 .Append("*:V")

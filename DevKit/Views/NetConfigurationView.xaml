@@ -1,27 +1,21 @@
-﻿<UserControl
+﻿<Window
     x:Class="DevKit.Views.NetConfigurationView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="960"
     Height="660"
     d:DataContext="{d:DesignInstance Type=vm:NetConfigurationViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
+    ResizeMode="NoResize"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
-    <prism:Dialog.WindowStyle>
-        <Style TargetType="Window">
-            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
-            <Setter Property="SizeToContent" Value="WidthAndHeight" />
-            <Setter Property="ResizeMode" Value="NoResize" />
-        </Style>
-    </prism:Dialog.WindowStyle>
-
-    <UserControl.Resources>
+    <Window.Resources>
         <SolidColorBrush x:Key="TerminalBodyBrush" Color="#0C1016" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#39434F" />
         <SolidColorBrush x:Key="TerminalDimBrush" Color="#9EAAB8" />
@@ -577,7 +571,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -1157,4 +1151,4 @@
             </Grid>
         </Grid>
     </Grid>
-</UserControl>
+</Window>

@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Views
+﻿namespace DevKit.Views
 {
-    public partial class UdpClientView : UserControl
+    public partial class UdpClientView
     {
         public UdpClientView()
         {

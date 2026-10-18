@@ -5,18 +5,16 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Cache;
 using DevKit.Utils;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using DialogResult = System.Windows.Forms.DialogResult;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
-    public class JNIReverseViewModel : BindableBase, IDialogAware
+    public class JNIReverseViewModel : ObservableObject
     {
         public string Title => "JNI逆向";
 
@@ -54,7 +52,7 @@ namespace DevKit.ViewModels
             set
             {
                 _ndkPath = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -66,7 +64,7 @@ namespace DevKit.ViewModels
             set
             {
                 _ndkVersion = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -78,7 +76,7 @@ namespace DevKit.ViewModels
             set
             {
                 _sharedLibPath = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -90,7 +88,7 @@ namespace DevKit.ViewModels
             set
             {
                 _stackAddress = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -102,7 +100,7 @@ namespace DevKit.ViewModels
             set
             {
                 _outputResult = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 

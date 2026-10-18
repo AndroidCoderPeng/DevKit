@@ -10,18 +10,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Transports;
 using DevKit.Utils;
 using Microsoft.Win32;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class UdpClientViewModel : BindableBase, IDialogAware
+    public class UdpClientViewModel : ObservableObject
     {
         public string Title => "UDP客户端";
 
@@ -124,7 +122,7 @@ namespace DevKit.ViewModels
             set
             {
                 _userInputText = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
             get => _userInputText;
         }
@@ -166,7 +164,7 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _isLogHexSelected, value))
                 {
-                    RaisePropertyChanged(nameof(IsLogAsciiSelected));
+                    OnPropertyChanged(nameof(IsLogAsciiSelected));
                     foreach (var log in Logs)
                     {
                         if (log.RawData != null)
@@ -207,8 +205,8 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _isSendHexSelected, value))
                 {
-                    RaisePropertyChanged(nameof(IsSendAsciiSelected));
-                    RaisePropertyChanged(nameof(PlaceHolderText));
+                    OnPropertyChanged(nameof(IsSendAsciiSelected));
+                    OnPropertyChanged(nameof(PlaceHolderText));
                 }
             }
         }
@@ -485,10 +483,10 @@ namespace DevKit.ViewModels
 
         private void RaiseLogStatisticsChanged()
         {
-            RaisePropertyChanged(nameof(SendCount));
-            RaisePropertyChanged(nameof(SendByteSize));
-            RaisePropertyChanged(nameof(ReceiveCount));
-            RaisePropertyChanged(nameof(ReceiveByteSize));
+            OnPropertyChanged(nameof(SendCount));
+            OnPropertyChanged(nameof(SendByteSize));
+            OnPropertyChanged(nameof(ReceiveCount));
+            OnPropertyChanged(nameof(ReceiveByteSize));
         }
 
         private string FormatLogContent(byte[] bytes)

@@ -10,18 +10,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
 using DevKit.Transports.Enums;
 using Microsoft.Win32;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class TcpServerViewModel : BindableBase, IDialogAware
+    public class TcpServerViewModel : ObservableObject
     {
         public string Title => "TCP服务端";
 
@@ -115,7 +113,7 @@ namespace DevKit.ViewModels
             set
             {
                 _localHostSource = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
             get => _localHostSource;
         }
@@ -233,7 +231,7 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _isLogHexSelected, value))
                 {
-                    RaisePropertyChanged(nameof(IsLogAsciiSelected));
+                    OnPropertyChanged(nameof(IsLogAsciiSelected));
                     foreach (var log in SelectedClient?.Logs ?? Enumerable.Empty<SocketMessage>())
                     {
                         if (log.RawData != null)
@@ -294,8 +292,8 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _isSendHexSelected, value))
                 {
-                    RaisePropertyChanged(nameof(IsSendAsciiSelected));
-                    RaisePropertyChanged(nameof(PlaceHolderText));
+                    OnPropertyChanged(nameof(IsSendAsciiSelected));
+                    OnPropertyChanged(nameof(PlaceHolderText));
                 }
             }
         }
@@ -558,10 +556,10 @@ namespace DevKit.ViewModels
 
         private void RaiseLogStatisticsChanged()
         {
-            RaisePropertyChanged(nameof(SendCount));
-            RaisePropertyChanged(nameof(SendByteSize));
-            RaisePropertyChanged(nameof(ReceiveCount));
-            RaisePropertyChanged(nameof(ReceiveByteSize));
+            OnPropertyChanged(nameof(SendCount));
+            OnPropertyChanged(nameof(SendByteSize));
+            OnPropertyChanged(nameof(ReceiveCount));
+            OnPropertyChanged(nameof(ReceiveByteSize));
         }
 
         private async Task StartListeningAsync()

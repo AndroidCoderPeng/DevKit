@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Views
+﻿namespace DevKit.Views
 {
-    public partial class AndroidDebugBridgeView : UserControl
+    public partial class AndroidDebugBridgeView
     {
         public AndroidDebugBridgeView()
         {

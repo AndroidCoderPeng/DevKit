@@ -1,10 +1,9 @@
 ﻿using System;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace DevKit.ViewModels
 {
-    public class SerialPortViewModel: BindableBase, IDialogAware
+    public class SerialPortViewModel: ObservableObject
     {
         public string Title => "串口通信";
 

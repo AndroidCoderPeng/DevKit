@@ -3,14 +3,14 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Forms;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Cache;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
+using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
-    public class ExCommandDialogViewModel : BindableBase, IDialogAware
+    public class ExCommandDialogViewModel : ObservableObject
     {
         public string Title { private set; get; }
 
@@ -27,10 +27,10 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _commandType, value))
                 {
-                    RaisePropertyChanged(nameof(IsHexSelected));
-                    RaisePropertyChanged(nameof(IsAsciiSelected));
-                    RaisePropertyChanged(nameof(Tips));
-                    RaisePropertyChanged(nameof(PlaceHolderText));
+                    OnPropertyChanged(nameof(IsHexSelected));
+                    OnPropertyChanged(nameof(IsAsciiSelected));
+                    OnPropertyChanged(nameof(Tips));
+                    OnPropertyChanged(nameof(PlaceHolderText));
                 }
             }
         }

@@ -2,14 +2,13 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Windows.Forms;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Cache;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class CommandScriptDialogViewModel : BindableBase, IDialogAware
+    public class CommandScriptDialogViewModel : ObservableObject
     {
         public string Title => "指令脚本";
 
@@ -64,7 +63,7 @@ namespace DevKit.ViewModels
 
                 previous.CollectionChanged -= SelectedCommands_CollectionChanged;
                 _selectedCommands.CollectionChanged += SelectedCommands_CollectionChanged;
-                RaisePropertyChanged(nameof(TotalTime));
+                OnPropertyChanged(nameof(TotalTime));
             }
         }
 
@@ -77,7 +76,7 @@ namespace DevKit.ViewModels
             {
                 if (SetProperty(ref _interval, value))
                 {
-                    RaisePropertyChanged(nameof(TotalTime));
+                    OnPropertyChanged(nameof(TotalTime));
                 }
             }
         }
@@ -154,7 +153,7 @@ namespace DevKit.ViewModels
 
         private void SelectedCommands_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            RaisePropertyChanged(nameof(TotalTime));
+            OnPropertyChanged(nameof(TotalTime));
         }
     }
 }

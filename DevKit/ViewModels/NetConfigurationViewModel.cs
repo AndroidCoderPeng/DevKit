@@ -8,16 +8,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 
 namespace DevKit.ViewModels
 {
-    public class NetConfigurationViewModel : BindableBase, IDialogAware
+    public class NetConfigurationViewModel : ObservableObject
     {
         public string Title => "网络信息";
 
@@ -50,7 +48,7 @@ namespace DevKit.ViewModels
             set
             {
                 _addressItems = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -62,7 +60,7 @@ namespace DevKit.ViewModels
             set
             {
                 _ip4 = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -74,7 +72,7 @@ namespace DevKit.ViewModels
             set
             {
                 _subnetMask = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -86,7 +84,7 @@ namespace DevKit.ViewModels
             set
             {
                 _gateway = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -98,7 +96,7 @@ namespace DevKit.ViewModels
             set
             {
                 _deviceMac = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -110,7 +108,7 @@ namespace DevKit.ViewModels
             set
             {
                 _dns = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -122,7 +120,7 @@ namespace DevKit.ViewModels
             set
             {
                 _adapterType = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -134,7 +132,7 @@ namespace DevKit.ViewModels
             set
             {
                 _netSpeed = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -146,7 +144,7 @@ namespace DevKit.ViewModels
             set
             {
                 _dhcp = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -158,7 +156,7 @@ namespace DevKit.ViewModels
             set
             {
                 _connectionState = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -170,7 +168,7 @@ namespace DevKit.ViewModels
             set
             {
                 _connectionStateColor = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -182,7 +180,7 @@ namespace DevKit.ViewModels
             set
             {
                 _toastMessage = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -194,7 +192,7 @@ namespace DevKit.ViewModels
             set
             {
                 _isToastVisible = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -206,7 +204,7 @@ namespace DevKit.ViewModels
             set
             {
                 _commandItems = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -218,7 +216,7 @@ namespace DevKit.ViewModels
             set
             {
                 _commandParam = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -230,7 +228,7 @@ namespace DevKit.ViewModels
             set
             {
                 _outputResult = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -242,8 +240,8 @@ namespace DevKit.ViewModels
             set
             {
                 _isRunning = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(CanRunOrStop));
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanRunOrStop));
             }
         }
 
@@ -260,7 +258,7 @@ namespace DevKit.ViewModels
             set
             {
                 _isAutoScrollBoxChecked = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -271,7 +269,7 @@ namespace DevKit.ViewModels
             set
             {
                 _isLoopBoxChecked = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
             get => _isLoopBoxChecked;
         }
@@ -356,7 +354,7 @@ namespace DevKit.ViewModels
                 if (item == null) return;
 
                 _selectedCommand = item;
-                RaisePropertyChanged(nameof(CanRunOrStop));
+                OnPropertyChanged(nameof(CanRunOrStop));
 
                 if (item.NeedParams)
                 {

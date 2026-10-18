@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Dialogs
+﻿namespace DevKit.Dialogs
 {
-    public partial class AndroidLogcatDialog : UserControl
+    public partial class AndroidLogcatDialog
     {
         public AndroidLogcatDialog()
         {

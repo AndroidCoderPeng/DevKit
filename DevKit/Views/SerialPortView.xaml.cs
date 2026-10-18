@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Views
+﻿namespace DevKit.Views
 {
-    public partial class SerialPortView : UserControl
+    public partial class SerialPortView
     {
         public SerialPortView()
         {

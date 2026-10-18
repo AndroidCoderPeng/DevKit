@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Dialogs
+﻿namespace DevKit.Dialogs
 {
-    public partial class ExCommandDialog : UserControl
+    public partial class ExCommandDialog
     {
         public ExCommandDialog()
         {

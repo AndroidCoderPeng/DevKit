@@ -1,25 +1,20 @@
-﻿<UserControl
+﻿<Window
     x:Class="DevKit.Dialogs.ExCommandDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="472"
     Height="318"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
-    <prism:Dialog.WindowStyle>
-        <Style TargetType="Window">
-            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
-            <Setter Property="SizeToContent" Value="WidthAndHeight" />
-            <Setter Property="ResizeMode" Value="NoResize" />
-        </Style>
-    </prism:Dialog.WindowStyle>
-
-    <UserControl.Resources>
+    <Window.Resources>
         <!--  分段控件内的单选按钮  -->
         <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
             <Setter Property="Height" Value="16" />
@@ -129,7 +124,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -482,4 +477,4 @@
             </Button>
         </UniformGrid>
     </Grid>
-</UserControl>
+</Window>

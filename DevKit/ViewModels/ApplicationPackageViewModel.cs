@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using Application = System.Windows.Application;
 using DialogResult = System.Windows.Forms.DialogResult;
 using MessageBox = System.Windows.MessageBox;
@@ -21,171 +20,25 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
-    public class ApplicationPackageViewModel : BindableBase, IDialogAware
+    public partial class ApplicationPackageViewModel : ObservableObject
     {
-        public string Title => "安装包归档";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Apk, new AppPackageConfig
-            {
-                JdkPath = _jdkPath,
-                KeyPath = _keyFilePath,
-                Alias = _keyAlias,
-                Password = KeyPassword,
-                ApkRootFolder = _apkRootFolderPath
-            });
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
-
         #region VM
 
-        private string _keyFilePath = string.Empty;
+        [ObservableProperty] private string _keyFilePath = string.Empty;
+        [ObservableProperty] private string _keyAlias = string.Empty;
+        [ObservableProperty] private string _keyPassword = string.Empty;
+        [ObservableProperty] private string _jdkPath = string.Empty;
+        [ObservableProperty] private string _outputResult = "配置完成后，点击“查看 SHA1”读取证书信息。";
+        [ObservableProperty] private string _apkRootFolderPath = string.Empty;
+        [ObservableProperty] private string _keyword = string.Empty;
+        [ObservableProperty] private Visibility _scanVisibility = Visibility.Hidden;
+        [ObservableProperty] private double _scanProgress;
+        [ObservableProperty] private ObservableCollection<ApkFile> _apkFileCollection;
 
-        public string KeyFilePath
+        partial void OnKeywordChanged(string value)
         {
-            get => _keyFilePath;
-            set
-            {
-                _keyFilePath = value;
-                RaisePropertyChanged();
-            }
+            ApplyFilter(value);
         }
-
-        private string _keyAlias = string.Empty;
-
-        public string KeyAlias
-        {
-            get => _keyAlias;
-            set
-            {
-                _keyAlias = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _keyPassword = string.Empty;
-
-        public string KeyPassword
-        {
-            get => _keyPassword;
-            set
-            {
-                _keyPassword = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _jdkPath = string.Empty;
-
-        public string JdkPath
-        {
-            get => _jdkPath;
-            set
-            {
-                _jdkPath = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _outputResult = "配置完成后，点击“查看 SHA1”读取证书信息。";
-
-        public string OutputResult
-        {
-            get => _outputResult;
-            set
-            {
-                _outputResult = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _apkRootFolderPath = string.Empty;
-
-        public string ApkRootFolderPath
-        {
-            get => _apkRootFolderPath;
-            set
-            {
-                _apkRootFolderPath = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _keyword = string.Empty;
-
-        public string Keyword
-        {
-            get => _keyword;
-            set
-            {
-                _keyword = value;
-                RaisePropertyChanged();
-                ApplyFilter();
-            }
-        }
-
-        private Visibility _scanVisibility = Visibility.Hidden;
-
-        public Visibility ScanVisibility
-        {
-            get => _scanVisibility;
-            set
-            {
-                _scanVisibility = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private double _scanProgress;
-
-        public double ScanProgress
-        {
-            get => _scanProgress;
-            set
-            {
-                _scanProgress = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<ApkFile> _apkFileCollection;
-
-        public ObservableCollection<ApkFile> ApkFileCollection
-        {
-            get => _apkFileCollection;
-            set
-            {
-                _apkFileCollection = value;
-                RaisePropertyChanged();
-                ApplyFilter(); // 集合重新赋值后，重新应用当前关键字过滤
-            }
-        }
-
-        #endregion
-
-        #region DelegateCommand
-
-        public DelegateCommand SelectKeyCommand { set; get; }
-        public DelegateCommand SelectJdkCommand { set; get; }
-        public DelegateCommand ShowSha1Command { set; get; }
-        public DelegateCommand SelectApkRootFolderCommand { set; get; }
-        public DelegateCommand RefreshApkFilesCommand { set; get; }
-        public DelegateCommand<string> OpenFileFolderCommand { set; get; }
 
         #endregion
 
@@ -197,89 +50,56 @@ namespace DevKit.ViewModels
             KeyAlias = config.Alias;
             KeyPassword = config.Password;
             ApkRootFolderPath = config.ApkRootFolder;
-
-            SelectKeyCommand = new DelegateCommand(() =>
-            {
-                var fileDialog = new OpenFileDialog
-                {
-                    DefaultExt = ".jks",
-                    Filter = "秘钥文件(*.jks)|*.jks"
-                };
-                if (fileDialog.ShowDialog() == true)
-                {
-                    KeyFilePath = fileDialog.FileName;
-                }
-            });
-
-            SelectJdkCommand = new DelegateCommand(() =>
-            {
-                using (var folderDialog = new FolderBrowserDialog())
-                {
-                    if (folderDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        //C:\Program Files\Java\jdk1.8.0_311
-                        //C:\Program Files\Java\jdk1.8.0_311\bin
-                        var selectedPath = folderDialog.SelectedPath;
-                        if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
-                        {
-                            selectedPath = Path.Combine(selectedPath, "bin");
-                        }
-
-                        JdkPath = selectedPath;
-                    }
-                }
-            });
-
-            ShowSha1Command = new DelegateCommand(() => _ = ShowSha1Async());
-
-            SelectApkRootFolderCommand = new DelegateCommand(() =>
-            {
-                using (var folderDialog = new FolderBrowserDialog())
-                {
-                    folderDialog.Description = @"请选择apk安装包归档的根目录";
-                    if (folderDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        ApkRootFolderPath = folderDialog.SelectedPath;
-                        StartScan();
-                    }
-                }
-            });
-
-            RefreshApkFilesCommand = new DelegateCommand(() =>
-            {
-                if (string.IsNullOrWhiteSpace(_apkRootFolderPath))
-                {
-                    MessageBox.Show("Android安装包根目录路径为空", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                StartScan();
-            });
-
-            OpenFileFolderCommand = new DelegateCommand<string>(path =>
-            {
-                var directoryPath = Path.GetDirectoryName(path);
-                if (directoryPath == null) return;
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = directoryPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            });
         }
 
+        [RelayCommand]
+        private void SelectKey()
+        {
+            var fileDialog = new OpenFileDialog
+            {
+                DefaultExt = ".jks",
+                Filter = "秘钥文件(*.jks)|*.jks"
+            };
+
+            if (fileDialog.ShowDialog() == true)
+            {
+                KeyFilePath = fileDialog.FileName;
+            }
+        }
+        
+        [RelayCommand]
+        private void SelectJdk()
+        {
+            using var folderDialog = new FolderBrowserDialog();
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                var selectedPath = folderDialog.SelectedPath;
+                if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
+                {
+                    selectedPath = Path.Combine(selectedPath, "bin");
+                }
+
+                JdkPath = selectedPath;
+            }
+        }
+
+        [RelayCommand]
+        private Task ShowSha1()
+        {
+            return ShowSha1Async();
+        }
+        
         private async Task ShowSha1Async()
         {
-            if (string.IsNullOrWhiteSpace(_keyFilePath) || string.IsNullOrWhiteSpace(_keyAlias) ||
-                string.IsNullOrWhiteSpace(_keyPassword))
+            if (string.IsNullOrWhiteSpace(KeyFilePath) || string.IsNullOrWhiteSpace(KeyAlias) ||
+                string.IsNullOrWhiteSpace(KeyPassword))
             {
                 MessageBox.Show("请完善签名Key配置", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             // keytool 路径检查放在 UI 线程，避免后台线程弹窗
-            var keytoolPath = Path.Combine(_jdkPath, "keytool.exe");
+            var keytoolPath = Path.Combine(JdkPath, "keytool.exe");
             if (!File.Exists(keytoolPath))
             {
                 MessageBox.Show("keytool 未找到，请检查 JDK 路径是否正确。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -287,11 +107,11 @@ namespace DevKit.ViewModels
             }
 
             // 清空输出结果
-            if (!string.IsNullOrEmpty(_outputResult)) OutputResult = string.Empty;
+            if (!string.IsNullOrEmpty(OutputResult)) OutputResult = string.Empty;
 
             try
             {
-                var output = await Task.Run(() => RunKeytool(keytoolPath, _keyAlias, _keyFilePath, _keyPassword));
+                var output = await Task.Run(() => RunKeytool(keytoolPath, KeyAlias, KeyFilePath, KeyPassword));
 
                 // keytool 的错误信息固定以 "keytool error" 开头（走 stdout）
                 if (output.StartsWith("keytool error", StringComparison.OrdinalIgnoreCase))
@@ -308,12 +128,24 @@ namespace DevKit.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void SelectApkRootFolder()
+        {
+            using var folderDialog = new FolderBrowserDialog();
+            folderDialog.Description = @"请选择apk安装包归档的根目录";
+            if (folderDialog.ShowDialog() == DialogResult.OK)
+            {
+                ApkRootFolderPath = folderDialog.SelectedPath;
+                StartScan();
+            }
+        }
+        
         /// <summary>
         /// 统一扫描入口
         /// </summary>
         private void StartScan()
         {
-            ApkFileCollection = new ObservableCollection<ApkFile>();
+            ApkFileCollection = [];
 
             ScanProgress = 0;
             ScanVisibility = Visibility.Visible;
@@ -322,14 +154,14 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    TraverseFolder(_apkRootFolderPath, (apk, processed, total) =>
+                    TraverseFolder(ApkRootFolderPath, (apk, processed, total) =>
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             if (apk != null)
                             {
                                 ApkFileCollection.Add(apk);
-                                ApplyFilter();
+                                ApplyFilter(apk.FileName); // 重新应用过滤器，确保新添加的项符合当前关键字
                             }
 
                             ScanProgress = total == 0 ? 100 : Math.Round(processed * 100.0 / total);
@@ -404,6 +236,36 @@ namespace DevKit.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void RefreshApkFiles()
+        {
+            if (string.IsNullOrWhiteSpace(ApkRootFolderPath))
+            {
+                MessageBox.Show("Android安装包根目录路径为空",
+                    "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            StartScan();
+        }
+
+        [RelayCommand]
+        private void OpenFileFolder(string path)
+        {
+            var directoryPath = Path.GetDirectoryName(path);
+            if (directoryPath == null)
+            {
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = directoryPath,
+                UseShellExecute = true,
+                Verb = "open"
+            });
+        }
+        
         // ---- 私有辅助函数 -----
 
         private string RunKeytool(string keytoolPath, string alias, string keyFile, string password)
@@ -436,19 +298,16 @@ namespace DevKit.ViewModels
                 var error = process.StandardError.ReadToEndAsync();
                 process.WaitForExit();
                 Task.WaitAll(output, error); // 等异步读取结束，确保拿全输出
-                return string.IsNullOrWhiteSpace(output.Result) ? error.Result?.Trim() : output.Result?.Trim();
+                return string.IsNullOrWhiteSpace(output.Result) ? error.Result.Trim() : output.Result?.Trim();
             }
         }
 
         /// <summary>
         /// 按名称或版本过滤 APK 列表
         /// </summary>
-        private void ApplyFilter()
+        private void ApplyFilter(string keyword)
         {
-            if (ApkFileCollection == null) return;
-
             var view = CollectionViewSource.GetDefaultView(ApkFileCollection);
-            var keyword = (Keyword ?? string.Empty).Trim();
 
             // 无关键字：移除过滤，避免空谓词对每项做无谓调用
             if (keyword.Length == 0)
@@ -460,13 +319,25 @@ namespace DevKit.ViewModels
 
             view.Filter = o =>
             {
-                if (!(o is ApkFile apk)) return false;
+                if (o is not ApkFile apk) return false;
 
                 var matchName = apk.FileName?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
                 var matchVersion = apk.Version?.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0;
                 return matchName || matchVersion;
             };
             view.Refresh();
+        }
+        
+        public void SaveConfiguration()
+        {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Apk, new AppPackageConfig
+            {
+                JdkPath = JdkPath,
+                KeyPath = KeyFilePath,
+                Alias = KeyAlias,
+                Password = KeyPassword,
+                ApkRootFolder = ApkRootFolderPath
+            });
         }
     }
 }

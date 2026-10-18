@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<Window
     x:Class="DevKit.Views.AndroidDebugBridgeView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,23 +6,18 @@
     xmlns:cvt="clr-namespace:DevKit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Title="Android Debug Bridge"
     Width="900"
     Height="790"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
+    ResizeMode="NoResize"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
-    <prism:Dialog.WindowStyle>
-        <Style TargetType="Window">
-            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterScreen" />
-            <Setter Property="SizeToContent" Value="WidthAndHeight" />
-            <Setter Property="ResizeMode" Value="NoResize" />
-        </Style>
-    </prism:Dialog.WindowStyle>
-
-    <UserControl.Resources>
+    <Window.Resources>
         <LinearGradientBrush x:Key="GradientForegroundBrush" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Offset="0.0" Color="{StaticResource DevKitAndroidGreenColor}" />
             <GradientStop Offset="1.0" Color="{StaticResource DevKitSuccessColor}" />
@@ -212,7 +207,7 @@
         </Style>
 
         <cvt:FirstCharConverter x:Key="FirstCharConverterKey" />
-    </UserControl.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -1316,4 +1311,4 @@
                 Text="{Binding ToastMessage}" />
         </Border>
     </Grid>
-</UserControl>
+</Window>

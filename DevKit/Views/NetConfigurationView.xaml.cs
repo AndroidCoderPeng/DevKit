@@ -1,9 +1,8 @@
-﻿using System.Windows.Controls;
-using DevKit.ViewModels;
+﻿using DevKit.ViewModels;
 
 namespace DevKit.Views
 {
-    public partial class NetConfigurationView : UserControl
+    public partial class NetConfigurationView
     {
         public NetConfigurationView()
         {

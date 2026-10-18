@@ -7,7 +7,7 @@ using DevKit.Cache;
 
 namespace DevKit.Dialogs
 {
-    public partial class CommandScriptDialog : UserControl
+    public partial class CommandScriptDialog
     {
         private ExCommandConfig _draggedCommand;
         private Point _dragStartPoint;

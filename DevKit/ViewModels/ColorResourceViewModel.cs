@@ -9,45 +9,18 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Cache;
 using DevKit.Models;
 using DevKit.Utils;
 using Newtonsoft.Json;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using Color = System.Windows.Media.Color;
 
 namespace DevKit.ViewModels
 {
-    public class ColorResourceViewModel : BindableBase, IDialogAware
+    public partial class ColorResourceViewModel : ObservableObject
     {
-        public string Title => "颜色处理";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.History, new RecentlyColorConfig
-            {
-                // 只保存最近的9个颜色
-                Colors = _recentlyColors.Take(9).ToList()
-            });
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
-
         // 单一状态源
         private Color _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
 
@@ -57,22 +30,11 @@ namespace DevKit.ViewModels
 
         #region VM
 
-        private bool _isRgbToHexSelected = true;
+        [ObservableProperty] private bool _isRgbToHexSelected = true;
 
-        public bool IsRgbToHexSelected
+        partial void OnIsRgbToHexSelectedChanged(bool value)
         {
-            get => _isRgbToHexSelected;
-            set
-            {
-                if (_isRgbToHexSelected == value)
-                {
-                    return;
-                }
-
-                _isRgbToHexSelected = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(IsHexToRgbSelected));
-            }
+            OnPropertyChanged(nameof(IsHexToRgbSelected));
         }
 
         public bool IsHexToRgbSelected
@@ -80,39 +42,30 @@ namespace DevKit.ViewModels
             get => !IsRgbToHexSelected;
             set
             {
-                if (value == IsHexToRgbSelected) return;
-                IsRgbToHexSelected = !value;
+                if (value != IsHexToRgbSelected)
+                {
+                    IsRgbToHexSelected = !value;
+                }
             }
         }
 
-        private bool _isAlphaBoxChecked = true;
+        [ObservableProperty] private bool _isAlphaBoxChecked = true;
 
-        public bool IsAlphaBoxChecked
+        partial void OnIsAlphaBoxCheckedChanged(bool value)
         {
-            get => _isAlphaBoxChecked;
-            set
+            OnPropertyChanged(nameof(ColorViewBrush));
+
+            var hexValue = FormatHex(_currentColor, value);
+            if (_colorHexValue != hexValue)
             {
-                if (_isAlphaBoxChecked == value)
-                {
-                    return;
-                }
-
-                _isAlphaBoxChecked = value;
-                RaisePropertyChanged();
-
-                // 透明通道开关需要通知依赖它的属性
-                RaisePropertyChanged(nameof(ColorViewBrush));
-                var hexValue = FormatHex(_currentColor, IsAlphaBoxChecked);
-                if (_colorHexValue != hexValue)
-                {
-                    _colorHexValue = hexValue;
-                    RaisePropertyChanged(nameof(ColorHexValue));
-                }
-                RaisePropertyChanged(nameof(CurrentColorHex));
+                _colorHexValue = hexValue;
+                OnPropertyChanged(nameof(ColorHexValue));
             }
+
+            OnPropertyChanged(nameof(CurrentColorHex));
         }
 
-        public SolidColorBrush ColorViewBrush => new SolidColorBrush(DisplayColor);
+        public SolidColorBrush ColorViewBrush => new(DisplayColor);
 
         private string _colorHexValue = "FF2E7CF6";
 
@@ -127,6 +80,7 @@ namespace DevKit.ViewModels
                 }
 
                 _colorHexValue = value;
+                OnPropertyChanged();
                 ApplyHex(value);
             }
         }
@@ -139,7 +93,7 @@ namespace DevKit.ViewModels
             set => UpdateColor(color => Color.FromArgb((byte)Clamp(value), color.R, color.G, color.B));
         }
 
-        public int AlphaRatioValue => (100 - (int)Math.Round(AlphaValue * 100.0 / 255));
+        public int AlphaRatioValue => 100 - (int)Math.Round(AlphaValue * 100.0 / 255);
 
         public double RedColorValue
         {
@@ -159,54 +113,15 @@ namespace DevKit.ViewModels
             set => UpdateColor(color => Color.FromArgb(color.A, color.R, color.G, (byte)Clamp((int)value)));
         }
 
-        private string _toastMessage;
+        [ObservableProperty] private string _toastMessage;
+        [ObservableProperty] private bool _isToastVisible;
+        [ObservableProperty] private ObservableCollection<string> _recentlyColors = new();
+        [ObservableProperty] private ObservableCollection<ColorResource> _colorResources = new();
+        [ObservableProperty] private string _keyword = string.Empty;
 
-        public string ToastMessage
+        partial void OnKeywordChanged(string value)
         {
-            get => _toastMessage;
-            set
-            {
-                _toastMessage = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _isToastVisible;
-
-        public bool IsToastVisible
-        {
-            get => _isToastVisible;
-            set
-            {
-                _isToastVisible = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _recentlyColors = new ObservableCollection<string>();
-
-        public ObservableCollection<string> RecentlyColors
-        {
-            get => _recentlyColors;
-            set
-            {
-                _recentlyColors = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<ColorResource> _colorResources =
-            new ObservableCollection<ColorResource>();
-
-        public ObservableCollection<ColorResource> ColorResources
-        {
-            get => _colorResources;
-            set
-            {
-                _colorResources = value;
-                RaisePropertyChanged();
-                ApplyColorResourceFilter();
-            }
+            ApplyColorResourceFilter(value);
         }
 
         private int _displayColors;
@@ -214,50 +129,13 @@ namespace DevKit.ViewModels
         public int DisplayColors
         {
             get => _displayColors;
-            private set
-            {
-                if (_displayColors == value)
-                {
-                    return;
-                }
-
-                _displayColors = value;
-                RaisePropertyChanged();
-            }
+            private set => SetProperty(ref _displayColors, value);
         }
-
-        private string _keyword = string.Empty;
-
-        public string Keyword
-        {
-            get => _keyword;
-            set
-            {
-                if (_keyword == value)
-                {
-                    return;
-                }
-
-                _keyword = value;
-                RaisePropertyChanged();
-                ApplyColorResourceFilter();
-            }
-        }
-
-        #endregion
-
-        #region DelegateCommand
-
-        public DelegateCommand RandomColorCommand { set; get; }
-        public DelegateCommand ResetCommand { set; get; }
-        public DelegateCommand CopyColorHexValueCommand { set; get; }
-        public DelegateCommand<string> RecentlyColorSelectedCommand { set; get; }
-        public DelegateCommand<ColorResource> ColorItemClickedCommand { set; get; }
 
         #endregion
 
         private DispatcherTimer _toastTimer;
-        private readonly Random _random = new Random();
+        private readonly Random _random = new();
 
         public ColorResourceViewModel()
         {
@@ -269,52 +147,7 @@ namespace DevKit.ViewModels
             _ = LoadColorResourcesAsync();
 
             // 实现 Keyword 颜色筛选
-            ApplyColorResourceFilter();
-
-            RandomColorCommand = new DelegateCommand(() =>
-            {
-                _currentColor = Color.FromArgb(
-                    (byte)_random.Next(0, 256),
-                    (byte)_random.Next(0, 256),
-                    (byte)_random.Next(0, 256),
-                    (byte)_random.Next(0, 256));
-                NotifyColorChanged();
-            });
-
-            ResetCommand = new DelegateCommand(() =>
-            {
-                _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
-                NotifyColorChanged();
-            });
-
-            CopyColorHexValueCommand = new DelegateCommand(() =>
-            {
-                Clipboard.SetText(CurrentColorHex);
-                ShowToast($"{CurrentColorHex} 已复制到剪贴板");
-            });
-
-            RecentlyColorSelectedCommand = new DelegateCommand<string>(value =>
-            {
-                if (ApplyHex(value))
-                {
-                    AddRecentlyColor(value);
-                }
-            });
-
-            ColorItemClickedCommand = new DelegateCommand<ColorResource>(item =>
-            {
-                if (item == null)
-                {
-                    return;
-                }
-
-                if (ApplyHex(item.Hex))
-                {
-                    Clipboard.SetText(CurrentColorHex);
-                    AddRecentlyColor(CurrentColorHex);
-                    ShowToast($"{CurrentColorHex} 已复制到剪贴板");
-                }
-            });
+            ApplyColorResourceFilter(Keyword);
         }
 
         private async Task LoadColorResourcesAsync()
@@ -326,8 +159,9 @@ namespace DevKit.ViewModels
                     var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Colors.json");
                     if (!File.Exists(path))
                     {
-                        return new List<ColorResource>();
+                        return [];
                     }
+
                     var json = File.ReadAllText(path);
                     return JsonConvert.DeserializeObject<List<ColorResource>>(json) ?? new List<ColorResource>();
                 });
@@ -356,11 +190,9 @@ namespace DevKit.ViewModels
             }
         }
 
-        private void ApplyColorResourceFilter()
+        private void ApplyColorResourceFilter(string keyword)
         {
             var view = CollectionViewSource.GetDefaultView(ColorResources);
-            var keyword = (_keyword ?? string.Empty).Trim();
-
             if (keyword.Length == 0)
             {
                 view.Filter = null;
@@ -371,7 +203,7 @@ namespace DevKit.ViewModels
 
             view.Filter = item =>
             {
-                if (!(item is ColorResource color))
+                if (item is not ColorResource color)
                 {
                     return false;
                 }
@@ -403,19 +235,20 @@ namespace DevKit.ViewModels
 
         private void NotifyColorChanged()
         {
-            RaisePropertyChanged(nameof(ColorViewBrush));
+            OnPropertyChanged(nameof(ColorViewBrush));
             var hexValue = FormatHex(_currentColor, IsAlphaBoxChecked);
             if (_colorHexValue != hexValue)
             {
                 _colorHexValue = hexValue;
-                RaisePropertyChanged(nameof(ColorHexValue));
+                OnPropertyChanged(nameof(ColorHexValue));
             }
-            RaisePropertyChanged(nameof(CurrentColorHex));
-            RaisePropertyChanged(nameof(AlphaValue));
-            RaisePropertyChanged(nameof(AlphaRatioValue));
-            RaisePropertyChanged(nameof(RedColorValue));
-            RaisePropertyChanged(nameof(GreenColorValue));
-            RaisePropertyChanged(nameof(BlueColorValue));
+
+            OnPropertyChanged(nameof(CurrentColorHex));
+            OnPropertyChanged(nameof(AlphaValue));
+            OnPropertyChanged(nameof(AlphaRatioValue));
+            OnPropertyChanged(nameof(RedColorValue));
+            OnPropertyChanged(nameof(GreenColorValue));
+            OnPropertyChanged(nameof(BlueColorValue));
         }
 
         private static string FormatHex(Color color, bool includeAlpha)
@@ -478,6 +311,32 @@ namespace DevKit.ViewModels
             return true;
         }
 
+        [RelayCommand]
+        private void RandomColor()
+        {
+            _currentColor = Color.FromArgb(
+                (byte)_random.Next(0, 256),
+                (byte)_random.Next(0, 256),
+                (byte)_random.Next(0, 256),
+                (byte)_random.Next(0, 256));
+
+            NotifyColorChanged();
+        }
+        
+        [RelayCommand]
+        private void Reset()
+        {
+            _currentColor = Color.FromArgb(0xFF, 0x2E, 0x7C, 0xF6);
+            NotifyColorChanged();
+        }
+        
+        [RelayCommand]
+        private void CopyColorHexValue()
+        {
+            Clipboard.SetText(CurrentColorHex);
+            ShowToast($"{CurrentColorHex} 已复制到剪贴板");
+        }
+        
         private void ShowToast(string message)
         {
             ToastMessage = message;
@@ -486,7 +345,7 @@ namespace DevKit.ViewModels
             if (_toastTimer == null)
             {
                 _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
+                _toastTimer.Tick += (_, _) =>
                 {
                     _toastTimer.Stop();
                     IsToastVisible = false;
@@ -497,6 +356,15 @@ namespace DevKit.ViewModels
             _toastTimer.Start();
         }
 
+        [RelayCommand]
+        private void RecentlyColorSelected(string value)
+        {
+            if (ApplyHex(value))
+            {
+                AddRecentlyColor(value);
+            }
+        }
+        
         private void AddRecentlyColor(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -518,6 +386,30 @@ namespace DevKit.ViewModels
             {
                 RecentlyColors.RemoveAt(RecentlyColors.Count - 1);
             }
+        }
+        
+        [RelayCommand]
+        private void ColorItemClicked(ColorResource item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            if (ApplyHex(item.Hex))
+            {
+                Clipboard.SetText(CurrentColorHex);
+                AddRecentlyColor(CurrentColorHex);
+                ShowToast($"{CurrentColorHex} 已复制到剪贴板");
+            }
+        }
+        
+        public void SaveConfiguration()
+        {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.History, new RecentlyColorConfig
+            {
+                Colors = [.. RecentlyColors.Take(9)]
+            });
         }
     }
 }

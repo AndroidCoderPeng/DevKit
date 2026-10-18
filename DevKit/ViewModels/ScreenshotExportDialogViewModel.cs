@@ -12,18 +12,16 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Models;
 using DevKit.Utils;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using Application = System.Windows.Application;
 using DialogResult = System.Windows.Forms.DialogResult;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
-    public class ScreenshotExportDialogViewModel : BindableBase, IDialogAware
+    public class ScreenshotExportDialogViewModel : ObservableObject
     {
         public string Title => "截屏导出";
 
@@ -70,8 +68,8 @@ namespace DevKit.ViewModels
             set
             {
                 _isLoading = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(EmptyVisibility));
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EmptyVisibility));
             }
         }
 
@@ -83,7 +81,7 @@ namespace DevKit.ViewModels
             set
             {
                 _screenshots = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -97,8 +95,8 @@ namespace DevKit.ViewModels
             set
             {
                 _isExporting = value;
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(ExportProgressVisibility));
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ExportProgressVisibility));
             }
         }
 
@@ -110,7 +108,7 @@ namespace DevKit.ViewModels
             set
             {
                 _exportProgress = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -122,7 +120,7 @@ namespace DevKit.ViewModels
             set
             {
                 _selectedCount = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -137,7 +135,7 @@ namespace DevKit.ViewModels
             set
             {
                 _saveDirectory = value;
-                RaisePropertyChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -190,7 +188,7 @@ namespace DevKit.ViewModels
 
                 foreach (var item in selected) _screenshots.Remove(item);
                 RecalcSelectedCount();
-                RaisePropertyChanged(nameof(EmptyVisibility));
+                OnPropertyChanged(nameof(EmptyVisibility));
             });
 
             CaptureCommand = new DelegateCommand(() =>
@@ -231,7 +229,7 @@ namespace DevKit.ViewModels
 
                 _screenshots.Remove(item);
                 RecalcSelectedCount();
-                RaisePropertyChanged(nameof(EmptyVisibility));
+                OnPropertyChanged(nameof(EmptyVisibility));
             });
 
             BrowseCommand = new DelegateCommand(() =>
@@ -312,7 +310,7 @@ namespace DevKit.ViewModels
 
                     RecalcSelectedCount();
                     IsLoading = false;
-                    RaisePropertyChanged(nameof(EmptyVisibility));
+                    OnPropertyChanged(nameof(EmptyVisibility));
                 });
 
                 // 只为新增项加载缩略图

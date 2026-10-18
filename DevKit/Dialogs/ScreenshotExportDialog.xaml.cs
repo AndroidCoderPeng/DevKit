@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
-
-namespace DevKit.Dialogs
+﻿namespace DevKit.Dialogs
 {
-    public partial class ScreenshotExportDialog : UserControl
+    public partial class ScreenshotExportDialog
     {
         public ScreenshotExportDialog()
         {

@@ -1,27 +1,22 @@
-﻿<UserControl
+﻿<Window
     x:Class="DevKit.Dialogs.ScreenshotExportDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:prism="http://prismlibrary.com/"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Width="834"
     Height="484"
     d:DataContext="{d:DesignInstance Type=vm:ScreenshotExportDialogViewModel}"
     Background="White"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
-    <prism:Dialog.WindowStyle>
-        <Style TargetType="Window">
-            <Setter Property="prism:Dialog.WindowStartupLocation" Value="CenterOwner" />
-            <Setter Property="SizeToContent" Value="WidthAndHeight" />
-            <Setter Property="ResizeMode" Value="NoResize" />
-        </Style>
-    </prism:Dialog.WindowStyle>
-
-    <UserControl.Resources>
+    <Window.Resources>
         <LinearGradientBrush x:Key="ExportProgressForegroundBrush" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Offset="0.0" Color="{StaticResource DevKitAccentColor}" />
             <GradientStop Offset="1.0" Color="{StaticResource DevKitAccentLightColor}" />
@@ -239,7 +234,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -584,4 +579,4 @@
             </Button>
         </Grid>
     </Grid>
-</UserControl>
+</Window>

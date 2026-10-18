@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using DevKit.Models;
-using DevKit.ViewModels;
 
-namespace DevKit.Views
+namespace DevKit
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -33,14 +29,6 @@ namespace DevKit.Views
         private void TopmostToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
             Topmost = false;
-        }
-
-        private void ToolsListBox_ListBoxItem_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is ListBoxItem item && item.Content is MainMenu menu && DataContext is MainWindowViewModel vm)
-            {
-                vm.ToolClickedCommand.Execute(menu);
-            }
         }
     }
 }
