@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevKit.Models;
+using DevKit.Utils;
 
 namespace DevKit.ViewModels
 {
@@ -15,8 +16,12 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        public MainWindowViewModel()
+        private readonly IDialogService _dialogService;
+        
+        public MainWindowViewModel(IDialogService dialogService)
         {
+            _dialogService = dialogService;
+            
             AndroidTools = GetAndroidTools();
             SocketTools = GetSocketTools();
             OtherTools = GetOtherTools();
@@ -65,7 +70,7 @@ namespace DevKit.ViewModels
             }
 
             // 显示独立的窗口（Window）——非模态
-            dialogService.Show(menu.ViewName);
+            _dialogService.Show(menu.ViewName);
         }
     }
 }

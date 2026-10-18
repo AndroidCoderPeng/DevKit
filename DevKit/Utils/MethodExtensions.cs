@@ -1,10 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DevKit.Utils
 {
     public static class MethodExtensions
     {
+        public static void AddDialog<TView, TViewModel>(this IServiceCollection services)
+            where TView : FrameworkElement
+            where TViewModel : class
+        {
+            // 对话框 ViewModel 则通常更适合 AddTransient）
+            services.AddSingleton(new DialogRegistration(typeof(TView).Name, typeof(TView), typeof(TViewModel)));
+        }
+
         /// <summary>
         /// 文件大小转换
         /// </summary>

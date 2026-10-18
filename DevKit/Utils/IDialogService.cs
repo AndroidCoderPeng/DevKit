@@ -1,10 +1,8 @@
-﻿using System.Windows;
-
-namespace DevKit.Utils;
+﻿namespace DevKit.Utils;
 
 public interface IDialogService
 {
-    bool? ShowDialog<TView, TViewModel>(object parameter = null)
-        where TView : FrameworkElement
-        where TViewModel : class;
+    void Show(string key, object parameter = null);
+
+    bool? ShowDialog(string key, object parameter = null);
 }
