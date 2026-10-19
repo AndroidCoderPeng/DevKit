@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Cache;
+using DevKit.Dialogs;
 using DevKit.Models;
 using DevKit.Transports;
 using DevKit.Transports.Enums;
@@ -19,151 +21,29 @@ using Microsoft.Win32;
 
 namespace DevKit.ViewModels
 {
-    public class TcpClientViewModel : ObservableObject
+    public partial class TcpClientViewModel : ObservableObject
     {
-        public string Title => "TCP客户端";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            PersistConfig();
-            StopCommandScript();
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
-
         #region VM
 
-        private string _stateOuterBackgroundColor = "#FFF7F9FC";
+        [ObservableProperty] private string _stateOuterBackgroundColor = "#FFF7F9FC";
+        [ObservableProperty] private string _stateOuterBorderColor = "#FFEEEEF0";
+        [ObservableProperty] private string _stateInnerBackgroundColor = "#E7EBF0";
+        [ObservableProperty] private string _stateInnerBorderColor = "#93A0AE";
+        [ObservableProperty] private string _stateTextColor = "#5F6B7A";
+        [ObservableProperty] private string _connectionState = "未连接";
+        [ObservableProperty] private string _remoteAddress = string.Empty;
+        [ObservableProperty] private string _remotePort = "9000";
+        [ObservableProperty] private string _buttonStateText = "连接";
+        [ObservableProperty] private string _sessionDuration = "00:00:00";
+        [ObservableProperty] private ObservableCollection<ExCommandConfig> _exCommandCollection = [];
+        [ObservableProperty] private string _toastMessage;
+        [ObservableProperty] private bool _isToastVisible;
+        [ObservableProperty] private string _userInputText = string.Empty;
+        [ObservableProperty] private string _lastDataTime = string.Empty;
+        [ObservableProperty] private bool _isLoopSendEnabled;
+        [ObservableProperty] private string _interval = "1000";
 
-        public string StateOuterBackgroundColor
-        {
-            get => _stateOuterBackgroundColor;
-            set => SetProperty(ref _stateOuterBackgroundColor, value);
-        }
-
-        private string _stateOuterBorderColor = "#FFEEEEF0";
-
-        public string StateOuterBorderColor
-        {
-            get => _stateOuterBorderColor;
-            set => SetProperty(ref _stateOuterBorderColor, value);
-        }
-
-        private string _stateInnerBackgroundColor = "#E7EBF0";
-
-        public string StateInnerBackgroundColor
-        {
-            get => _stateInnerBackgroundColor;
-            set => SetProperty(ref _stateInnerBackgroundColor, value);
-        }
-
-        private string _stateInnerBorderColor = "#93A0AE";
-
-        public string StateInnerBorderColor
-        {
-            get => _stateInnerBorderColor;
-            set => SetProperty(ref _stateInnerBorderColor, value);
-        }
-
-        private string _stateTextColor = "#5F6B7A";
-
-        public string StateTextColor
-        {
-            get => _stateTextColor;
-            set => SetProperty(ref _stateTextColor, value);
-        }
-
-        private string _connectionState = "未连接";
-
-        public string ConnectionState
-        {
-            get => _connectionState;
-            set => SetProperty(ref _connectionState, value);
-        }
-
-        private string _remoteAddress = string.Empty;
-
-        public string RemoteAddress
-        {
-            get => _remoteAddress;
-            set => SetProperty(ref _remoteAddress, value);
-        }
-
-        private string _remotePort = "9000";
-
-        public string RemotePort
-        {
-            get => _remotePort;
-            set => SetProperty(ref _remotePort, value);
-        }
-
-        private string _buttonStateText = "连接";
-
-        public string ButtonStateText
-        {
-            get => _buttonStateText;
-            set => SetProperty(ref _buttonStateText, value);
-        }
-
-        private string _sessionDuration = "00:00:00";
-
-        public string SessionDuration
-        {
-            get => _sessionDuration;
-            set => SetProperty(ref _sessionDuration, value);
-        }
-
-        private ObservableCollection<ExCommandConfig>
-            _exCommandCollection = new ObservableCollection<ExCommandConfig>();
-
-        public ObservableCollection<ExCommandConfig> ExCommandCollection
-        {
-            get => _exCommandCollection;
-            set => SetProperty(ref _exCommandCollection, value);
-        }
-
-        private string _toastMessage;
-
-        public string ToastMessage
-        {
-            get => _toastMessage;
-            set => SetProperty(ref _toastMessage, value);
-        }
-
-        private bool _isToastVisible;
-
-        public bool IsToastVisible
-        {
-            get => _isToastVisible;
-            set => SetProperty(ref _isToastVisible, value);
-        }
-
-        private string _userInputText = string.Empty;
-
-        public string UserInputText
-        {
-            set
-            {
-                _userInputText = value;
-                OnPropertyChanged();
-            }
-            get => _userInputText;
-        }
-
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
+        private ObservableCollection<SocketMessage> _logs = [];
 
         public ObservableCollection<SocketMessage> Logs
         {
@@ -224,14 +104,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _lastDataTime = string.Empty;
-
-        public string LastDataTime
-        {
-            get => _lastDataTime;
-            set => SetProperty(ref _lastDataTime, value);
-        }
-
         private bool _isSendHexSelected = true;
 
         public bool IsSendHexSelected
@@ -263,41 +135,25 @@ namespace DevKit.ViewModels
             }
         }
 
-        private bool _isLoopSendEnabled;
-
-        public bool IsLoopSendEnabled
-        {
-            get => _isLoopSendEnabled;
-            set => SetProperty(ref _isLoopSendEnabled, value);
-        }
-
-        private string _interval = "1000";
-
-        public string Interval
-        {
-            get => _interval;
-            set => SetProperty(ref _interval, value);
-        }
-
         #endregion
 
-        #region DelegateCommand
+        #region RelayCommand
 
-        public DelegateCommand ConnectServerCommand { set; get; }
-        public DelegateCommand AddExtensionCommand { set; get; }
-        public DelegateCommand<string> ExCommandItemSelectedCommand { set; get; }
-        public DelegateCommand<ExCommandConfig> QuickSendCommand { set; get; }
-        public DelegateCommand<ExCommandConfig> EditExCommand { set; get; }
-        public DelegateCommand<ExCommandConfig> DeleteExCommand { set; get; }
-        public DelegateCommand<string> CopyExCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
-        public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SaveLogCommand { set; get; }
-        public DelegateCommand ClearLogCommand { set; get; }
-        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
-        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
-        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
-        public DelegateCommand OpenScriptCommand { set; get; }
+        public RelayCommand ConnectServerCommand { set; get; }
+        public RelayCommand AddExtensionCommand { set; get; }
+        public RelayCommand<string> ExCommandItemSelectedCommand { set; get; }
+        public RelayCommand<ExCommandConfig> QuickSendCommand { set; get; }
+        public RelayCommand<ExCommandConfig> EditExCommand { set; get; }
+        public RelayCommand<ExCommandConfig> DeleteExCommand { set; get; }
+        public RelayCommand<string> CopyExCommand { set; get; }
+        public RelayCommand SendMessageCommand { set; get; }
+        public RelayCommand<string> CopyLogCommand { set; get; }
+        public RelayCommand SaveLogCommand { set; get; }
+        public RelayCommand ClearLogCommand { set; get; }
+        public RelayCommand<string> DisplayRadioChangedCommand { set; get; }
+        public RelayCommand<string> SendRadioChangedCommand { set; get; }
+        public RelayCommand<object> LoopSendSwitchCommand { set; get; }
+        public RelayCommand OpenScriptCommand { set; get; }
 
         #endregion
 
@@ -307,11 +163,11 @@ namespace DevKit.ViewModels
         private DispatcherTimer _sessionTimer;
         private readonly TcpConfig _config;
         private DispatcherTimer _toastTimer;
-        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _loopSendCommandTimer = new();
         private bool _isLoopSendInProgress;
         private IEnumerator<ExCommandConfig> _commandEnumerator;
         private bool _isScriptCommandInProgress;
-        private readonly DispatcherTimer _scriptTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _scriptTimer = new();
         private object _transportConnectionToken;
 
         public TcpClientViewModel(IDialogService dialogService)
@@ -323,62 +179,47 @@ namespace DevKit.ViewModels
 
             _logs.CollectionChanged += Logs_CollectionChanged;
 
-            ConnectServerCommand = new DelegateCommand(() => _ = ConnectServerAsync());
+            ConnectServerCommand = new RelayCommand(() => _ = ConnectServerAsync());
 
-            AddExtensionCommand = new DelegateCommand(() =>
+            AddExtensionCommand = new RelayCommand(() =>
             {
-                dialogService.ShowDialog("ExCommandDialog", null, delegate(IDialogResult result)
+                var context = new ExCommandDialogContext();
+                if (dialogService.ShowDialog(typeof(ExCommandDialog), context) == true)
                 {
-                    if (result.Result != ButtonResult.OK)
-                    {
-                        return;
-                    }
-
-                    var commandType = result.Parameters.GetValue<string>("Type");
-                    var commandValue = result.Parameters.GetValue<string>("Value");
-                    var commandMemo = result.Parameters.GetValue<string>("Memo");
-
                     _config.ExCommands.Add(new ExCommandConfig
                     {
-                        Type = commandType,
-                        Value = commandValue,
-                        Memo = commandMemo
+                        Type = context.Type,
+                        Value = context.Value,
+                        Memo = context.Memo
                     });
                     PersistConfig();
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
-                });
+                }
             });
 
-            ExCommandItemSelectedCommand = new DelegateCommand<string>(value => { UserInputText = value; });
+            ExCommandItemSelectedCommand = new RelayCommand<string>(value => { UserInputText = value; });
 
-            QuickSendCommand = new DelegateCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
+            QuickSendCommand = new RelayCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
 
-            EditExCommand = new DelegateCommand<ExCommandConfig>(command =>
+            EditExCommand = new RelayCommand<ExCommandConfig>(command =>
             {
-                var dialogParameters = new DialogParameters
+                if (command == null)
                 {
-                    { "ExCommand", command }
-                };
-                dialogService.ShowDialog("ExCommandDialog", dialogParameters, delegate(IDialogResult result)
+                    return;
+                }
+
+                var context = new ExCommandDialogContext(command);
+                if (dialogService.ShowDialog(typeof(ExCommandDialog), context) == true)
                 {
-                    if (result.Result != ButtonResult.OK)
-                    {
-                        return;
-                    }
-
-                    var commandType = result.Parameters.GetValue<string>("Type");
-                    var commandValue = result.Parameters.GetValue<string>("Value");
-                    var commandMemo = result.Parameters.GetValue<string>("Memo");
-
-                    command.Type = commandType;
-                    command.Value = commandValue;
-                    command.Memo = commandMemo;
+                    command.Type = context.Type;
+                    command.Value = context.Value;
+                    command.Memo = context.Memo;
                     PersistConfig();
                     ExCommandCollection = _config.ExCommands.ToObservableCollection();
-                });
+                }
             });
 
-            DeleteExCommand = new DelegateCommand<ExCommandConfig>(command =>
+            DeleteExCommand = new RelayCommand<ExCommandConfig>(command =>
             {
                 if (command == null || !_config.ExCommands.Remove(command))
                 {
@@ -391,21 +232,21 @@ namespace DevKit.ViewModels
                 ShowToast("扩展指令已删除");
             });
 
-            CopyExCommand = new DelegateCommand<string>(value =>
+            CopyExCommand = new RelayCommand<string>(value =>
             {
                 Clipboard.SetText(value);
                 ShowToast("已复制到剪贴板");
             });
 
-            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+            SendMessageCommand = new RelayCommand(() => { _ = SendInputAsync(); });
 
-            CopyLogCommand = new DelegateCommand<string>(log =>
+            CopyLogCommand = new RelayCommand<string>(log =>
             {
                 Clipboard.SetText(log);
                 ShowToast("已复制到剪贴板");
             });
 
-            SaveLogCommand = new DelegateCommand(() =>
+            SaveLogCommand = new RelayCommand(() =>
             {
                 if (!_logs.Any())
                 {
@@ -431,9 +272,9 @@ namespace DevKit.ViewModels
                 }
             });
 
-            ClearLogCommand = new DelegateCommand(() => { Logs.Clear(); });
+            ClearLogCommand = new RelayCommand(() => { Logs.Clear(); });
 
-            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
+            DisplayRadioChangedCommand = new RelayCommand<string>(value =>
             {
                 if (value == "0")
                 {
@@ -445,7 +286,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            SendRadioChangedCommand = new RelayCommand<string>(value =>
             {
                 if (value == "0")
                 {
@@ -457,7 +298,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            LoopSendSwitchCommand = new RelayCommand<object>(value =>
             {
                 if (!(value is bool isChecked)) return;
 
@@ -471,47 +312,41 @@ namespace DevKit.ViewModels
                 }
             });
 
-            OpenScriptCommand = new DelegateCommand(() =>
+            OpenScriptCommand = new RelayCommand(() =>
             {
-                var dialogParameters = new DialogParameters
+                var context = new CommandScriptDialogContext(_exCommandCollection);
+                if (dialogService.ShowDialog(typeof(CommandScriptDialog), context) != true)
                 {
-                    { "ExCommands", _exCommandCollection }
-                };
-                dialogService.ShowDialog("CommandScriptDialog", dialogParameters, delegate(IDialogResult result)
+                    return;
+                }
+
+                var commands = context.Commands;
+                var interval = context.Interval;
+
+                if (commands == null || commands.Count == 0)
                 {
-                    if (result.Result != ButtonResult.OK)
-                    {
-                        return;
-                    }
+                    ShowToast("请先添加脚本指令");
+                    return;
+                }
 
-                    var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
-                    var interval = result.Parameters.GetValue<string>("Interval");
+                if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+                {
+                    ShowToast("时间间隔必须是正整数");
+                    return;
+                }
 
-                    if (commands == null || commands.Count == 0)
-                    {
-                        ShowToast("请先添加脚本指令");
-                        return;
-                    }
+                if (_transport == null || ConnectionState != "已连接")
+                {
+                    ShowToast("请先连接 TCP 服务器");
+                    return;
+                }
 
-                    if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
-                    {
-                        ShowToast("时间间隔必须是正整数");
-                        return;
-                    }
+                StopCommandScript();
 
-                    if (_transport == null || ConnectionState != "已连接")
-                    {
-                        ShowToast("请先连接 TCP 服务器");
-                        return;
-                    }
-
-                    StopCommandScript();
-
-                    _commandEnumerator = commands.GetEnumerator();
-                    _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                    _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                    _scriptTimer.Start();
-                });
+                _commandEnumerator = commands.GetEnumerator();
+                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                _scriptTimer.Start();
             });
         }
 
@@ -934,6 +769,12 @@ namespace DevKit.ViewModels
             {
                 _isScriptCommandInProgress = false;
             }
+        }
+
+        public void OnDialogClosed()
+        {
+            PersistConfig();
+            StopCommandScript();
         }
     }
 }
