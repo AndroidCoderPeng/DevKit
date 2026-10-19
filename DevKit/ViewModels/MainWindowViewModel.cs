@@ -26,7 +26,7 @@ namespace DevKit.ViewModels
             AndroidTools = [
                 new MainMenu { MenuIcon = "\ue71c", MenuName = "ADB", ViewType = typeof(AndroidDebugBridgeView) },
                 new MainMenu { MenuIcon = "\ue700", MenuName = "APK", ViewType = typeof(ApplicationPackageView) },
-                new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向", ViewType = typeof(JNIReverseView) }
+                new MainMenu { MenuIcon = "\ue673", MenuName = "JNI逆向", ViewType = typeof(JniReverseView) }
             ];
             
             SocketTools = [

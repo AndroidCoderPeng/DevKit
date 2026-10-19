@@ -359,22 +359,15 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void AddExtension()
         {
-            // 无参数
-            if (_dialogService.ShowDialog(typeof(ExCommandDialog)) == true)
+            var command = new ExCommandConfig();
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) != true)
             {
-                var commandType = result.Parameters.GetValue<string>("Type");
-                var commandValue = result.Parameters.GetValue<string>("Value");
-                var commandMemo = result.Parameters.GetValue<string>("Memo");
-
-                _config.ExCommands.Add(new ExCommandConfig
-                {
-                    Type = commandType,
-                    Value = commandValue,
-                    Memo = commandMemo
-                });
-                PersistConfig();
-                ExCommandCollection = _config.ExCommands.ToObservableCollection();
+                return;
             }
+
+            _config.ExCommands.Add(command);
+            PersistConfig();
+            ExCommandCollection = _config.ExCommands.ToObservableCollection();
         }
 
         [RelayCommand]
@@ -450,17 +443,11 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void EditEx(ExCommandConfig command)
         {
-            if (command == null)
-            {
-                return;
-            }
+            if (command == null) return;
 
             // 带参数
-            if (_dialogService.ShowDialog(typeof(ExCommandDialog)) == true)
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) == true)
             {
-                command.Type = context.Type;
-                command.Value = context.Value;
-                command.Memo = context.Memo;
                 PersistConfig();
                 ExCommandCollection = _config.ExCommands.ToObservableCollection();
             }
@@ -488,7 +475,7 @@ namespace DevKit.ViewModels
             if (_toastTimer == null)
             {
                 _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
+                _toastTimer.Tick += (_, _) =>
                 {
                     _toastTimer.Stop();
                     IsToastVisible = false;
@@ -666,36 +653,37 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void OpenScript()
         {
+            // TODO 
             // 带参数
-            if (_dialogService.ShowDialog(typeof(CommandScriptDialog)) == true)
+            if (_dialogService.ShowDialog(typeof(CommandScriptDialog), ExCommandCollection) == true)
             {
-                var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
-                var interval = result.Parameters.GetValue<string>("Interval");
-
-                if (commands == null || commands.Count == 0)
-                {
-                    ShowToast("请先添加脚本指令");
-                    return;
-                }
-
-                if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
-                {
-                    ShowToast("时间间隔必须是正整数");
-                    return;
-                }
-
-                if (_transport == null)
-                {
-                    ShowToast("Udp协议尚未初始化，请先点击【应用对端】按钮");
-                    return;
-                }
-
-                StopCommandScript();
-
-                _commandEnumerator = commands.GetEnumerator();
-                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                _scriptTimer.Start();
+                // var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
+                // var interval = result.Parameters.GetValue<string>("Interval");
+                //
+                // if (commands == null || commands.Count == 0)
+                // {
+                //     ShowToast("请先添加脚本指令");
+                //     return;
+                // }
+                //
+                // if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+                // {
+                //     ShowToast("时间间隔必须是正整数");
+                //     return;
+                // }
+                //
+                // if (_transport == null)
+                // {
+                //     ShowToast("Udp协议尚未初始化，请先点击【应用对端】按钮");
+                //     return;
+                // }
+                //
+                // StopCommandScript();
+                //
+                // _commandEnumerator = commands.GetEnumerator();
+                // _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                // _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                // _scriptTimer.Start();
             }
         }
 

@@ -5,13 +5,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Title="{Binding Title}"
     Width="472"
     Height="318"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
+    Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    ShowInTaskbar="False"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>

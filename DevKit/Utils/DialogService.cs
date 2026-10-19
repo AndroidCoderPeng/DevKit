@@ -45,21 +45,31 @@ public sealed class DialogService : IDialogService
             receiver.OnDialogOpened(parameter);
         }
 
-        if (view is Window window)
+        Window window;
+        if (view is Window dialogWindow)
         {
+            window = dialogWindow;
             if (Application.Current.MainWindow is { } mainWindow && !ReferenceEquals(window, mainWindow))
             {
                 window.Owner = mainWindow;
             }
-
-            return window;
+        }
+        else
+        {
+            window = new Window
+            {
+                Owner = Application.Current.MainWindow,
+                Content = view
+            };
         }
 
-
-        return new Window
+        if (viewModel is IDialogCloseRequester closeRequester)
         {
-            Owner = Application.Current.MainWindow,
-            Content = view
-        };
+            Action<bool> closeHandler = result => window.DialogResult = result;
+            closeRequester.CloseRequested += closeHandler;
+            window.Closed += (_, _) => closeRequester.CloseRequested -= closeHandler;
+        }
+
+        return window;
     }
 }
