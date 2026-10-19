@@ -39,6 +39,9 @@ namespace DevKit.ViewModels
 
         #endregion
 
+        [GeneratedRegex(@"^(.+?)(?:_[A-Za-z0-9]+)?_(\d{8})_((?:\d+\.)*\d+)(?:_(.+))?$")]
+        private partial Regex ApkFileRegex();
+
         public ApplicationPackageViewModel()
         {
             var config = SettingsStore.Load<AppPackageConfig>(ConfigSections.FileName, ConfigSections.Apk);
@@ -53,7 +56,7 @@ namespace DevKit.ViewModels
         {
             ApplyFilter(value);
         }
-        
+
         [RelayCommand]
         private void SelectKey()
         {
@@ -63,34 +66,26 @@ namespace DevKit.ViewModels
                 Filter = "秘钥文件(*.jks)|*.jks"
             };
 
-            if (fileDialog.ShowDialog() == true)
-            {
-                KeyFilePath = fileDialog.FileName;
-            }
+            if (fileDialog.ShowDialog() != true) return;
+            KeyFilePath = fileDialog.FileName;
         }
-        
+
         [RelayCommand]
         private void SelectJdk()
         {
             using var folderDialog = new FolderBrowserDialog();
-            if (folderDialog.ShowDialog() == DialogResult.OK)
-            {
-                var selectedPath = folderDialog.SelectedPath;
-                if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
-                {
-                    selectedPath = Path.Combine(selectedPath, "bin");
-                }
+            if (folderDialog.ShowDialog() != DialogResult.OK) return;
 
-                JdkPath = selectedPath;
+            var selectedPath = folderDialog.SelectedPath;
+            if (!selectedPath.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
+            {
+                selectedPath = Path.Combine(selectedPath, "bin");
             }
+
+            JdkPath = selectedPath;
         }
 
         [RelayCommand]
-        private Task ShowSha1()
-        {
-            return ShowSha1Async();
-        }
-        
         private async Task ShowSha1Async()
         {
             if (string.IsNullOrWhiteSpace(KeyFilePath) || string.IsNullOrWhiteSpace(KeyAlias) ||
@@ -135,24 +130,20 @@ namespace DevKit.ViewModels
         {
             using var folderDialog = new FolderBrowserDialog();
             folderDialog.Description = @"请选择apk安装包归档的根目录";
-            if (folderDialog.ShowDialog() == DialogResult.OK)
-            {
-                ApkRootFolderPath = folderDialog.SelectedPath;
-                StartScan();
-            }
+            if (folderDialog.ShowDialog() != DialogResult.OK) return;
+
+            ApkRootFolderPath = folderDialog.SelectedPath;
+            _ = StartScanAsync();
         }
-        
-        /// <summary>
-        /// 统一扫描入口
-        /// </summary>
-        private void StartScan()
+
+        private async Task StartScanAsync()
         {
             ApkFileCollection = [];
 
             ScanProgress = 0;
             ScanVisibility = Visibility.Visible;
 
-            _ = Task.Run(() =>
+            await Task.Run(() =>
             {
                 try
                 {
@@ -163,7 +154,7 @@ namespace DevKit.ViewModels
                             if (apk != null)
                             {
                                 ApkFileCollection.Add(apk);
-                                ApplyFilter(apk.FileName); // 重新应用过滤器，确保新添加的项符合当前关键字
+                                ApplyFilter(Keyword);
                             }
 
                             ScanProgress = total == 0 ? 100 : Math.Round(processed * 100.0 / total);
@@ -209,11 +200,11 @@ namespace DevKit.ViewModels
                 ApkFile apk = null;
                 var fullName = file.FullName;
 
-                if (fullName.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0 && !file.Name.StartsWith("."))
+                if (fullName.IndexOf("debug", StringComparison.OrdinalIgnoreCase) < 0 && !file.Name.StartsWith('.'))
                 {
                     var nameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
                     var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
-                    var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension.Substring(0, index - 1);
+                    var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension[..(index - 1)];
 
                     apk = new ApkFile
                     {
@@ -224,12 +215,11 @@ namespace DevKit.ViewModels
                     };
 
                     // 匹配日期和版本号的正则表达式模式，支持 YYYYMMDD_版本号 或 _XX_YYYYMMDD_版本号 或 YYYYMMDD_版本号_附加信息
-                    const string pattern = @"^(.+?)(?:_[A-Za-z0-9]+)?_(\d{8})_((?:\d+\.)*\d+)(?:_(.+))?$";
-                    var match = Regex.Match(nameWithoutExtension, pattern);
+                    var match = ApkFileRegex().Match(nameWithoutExtension);
                     if (match.Success)
                     {
                         apk.BuildTime = match.Groups[2].Value;
-                        apk.Version = match.Groups[3].Value;
+                        apk.Version = match.Groups[3].Success ? match.Groups[3].Value : "版本未知";
                         apk.ExtraInfo = match.Groups[4].Success ? match.Groups[4].Value : string.Empty;
                     }
                 }
@@ -248,7 +238,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            StartScan();
+            _ = StartScanAsync();
         }
 
         [RelayCommand]
@@ -267,7 +257,7 @@ namespace DevKit.ViewModels
                 Verb = "open"
             });
         }
-        
+
         // ---- 私有辅助函数 -----
 
         private string RunKeytool(string keytoolPath, string alias, string keyFile, string password)
@@ -329,7 +319,7 @@ namespace DevKit.ViewModels
             };
             view.Refresh();
         }
-        
+
         public void SaveConfiguration()
         {
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.Apk, new AppPackageConfig

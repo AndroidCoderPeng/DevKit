@@ -550,12 +550,13 @@
 
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel />
+                                <UniformGrid Columns="2" />
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
+                                <Setter Property="Margin" Value="4,0,4,8" />
                                 <Setter Property="Cursor" Value="Hand" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template">
@@ -604,7 +605,6 @@
                                                 <TextBlock
                                                     FontFamily="Consolas"
                                                     FontSize="16"
-                                                    FontWeight="SemiBold"
                                                     Text="{Binding FileName}"
                                                     TextTrimming="CharacterEllipsis" />
 
