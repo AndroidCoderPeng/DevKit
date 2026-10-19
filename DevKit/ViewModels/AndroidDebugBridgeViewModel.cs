@@ -23,7 +23,7 @@ namespace DevKit.ViewModels
     {
         #region VM
 
-        [ObservableProperty] private string _currentDevice = "未连接任何设备";
+        [ObservableProperty] private string _currentDevice = string.Empty;
         [ObservableProperty] private string _deviceBrand;
         [ObservableProperty] private string _deviceModel;
         [ObservableProperty] private string _connectionType;
@@ -49,15 +49,19 @@ namespace DevKit.ViewModels
         [ObservableProperty] private double _exportProgress;
         [ObservableProperty] private ObservableCollection<string> _applicationPackages = [];
 
-        partial void OnKeywordChanged(string value)
-        {
-            ApplyFilter(value);
-        }
-
         #endregion
 
-        private static readonly Regex InetRegex = new(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})", RegexOptions.Compiled);
-        private static readonly Regex WifiRegex = new(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$", RegexOptions.Compiled);
+        [GeneratedRegex(@"version\s+([\d.]+)")]
+        private partial Regex NumberRegex();
+
+        [GeneratedRegex(@"\s")]
+        private partial Regex SpaceRegex();
+
+        [GeneratedRegex(@"inet\s+(\d{1,3}(?:\.\d{1,3}){3})")]
+        private partial Regex InetRegex();
+
+        [GeneratedRegex(@"^\d{1,3}(?:\.\d{1,3}){3}:\d+$")]
+        private partial Regex WifiRegex();
 
         private readonly IDialogService _dialogService;
         private volatile bool _deviceLoaded;
@@ -77,7 +81,7 @@ namespace DevKit.ViewModels
                 var executor = new CommandExecutor(argument.Append("version").ToCommandLine());
                 executor.OnStandardOutput += delegate(string value)
                 {
-                    var match = Regex.Match(value, @"version\s+([\d.]+)");
+                    var match = NumberRegex().Match(value);
                     if (match.Success)
                     {
                         AdbVision = $"adb {match.Groups[1].Value}";
@@ -108,7 +112,7 @@ namespace DevKit.ViewModels
                     return;
                 }
 
-                var newLine = Regex.Replace(value, @"\s", "*");
+                var newLine = SpaceRegex().Replace(value, "*");
                 var split = newLine.Split(["*"], StringSplitOptions.RemoveEmptyEntries);
                 if (split.Length == 0) return;
 
@@ -123,7 +127,7 @@ namespace DevKit.ViewModels
                     ConnectionType = GetConnectionType(serial);
 
                     // 获取设备应用列表
-                    GetDeviceApplication();
+                    _ = GetDeviceApplication();
 
                     // 获取设备详情
                     _ = LoadDeviceDetails();
@@ -135,7 +139,7 @@ namespace DevKit.ViewModels
         private void InitValueBinding()
         {
             // 清空设备相关绑定，避免切换/刷新设备时残留上一台设备的数据
-            CurrentDevice = "未连接任何设备";
+            CurrentDevice = "no device connected";
             DeviceBrand = string.Empty;
             DeviceModel = string.Empty;
             ConnectionType = string.Empty;
@@ -155,14 +159,14 @@ namespace DevKit.ViewModels
             ApplicationPackages.Clear();
         }
 
-        private void GetDeviceApplication()
+        private async Task GetDeviceApplication()
         {
             if (ApplicationPackages.Any())
             {
                 ApplicationPackages.Clear();
             }
 
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 var argument = new ArgumentCreator();
                 //列出第三方的应用
@@ -258,7 +262,7 @@ namespace DevKit.ViewModels
                             return;
                         }
 
-                        var match = InetRegex.Match(v);
+                        var match = InetRegex().Match(v);
                         if (match.Success) DeviceIp = match.Groups[1].Value;
                     });
 
@@ -279,23 +283,23 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private void AndroidIdLabelClick(string text)
+        private void AndroidIdLabelClick(string id)
         {
-            CopyToClipboard(text);
+            CopyToClipboard(id);
         }
 
-        private void CopyToClipboard(string text)
+        private void CopyToClipboard(string value)
         {
-            var dataObject = new DataObject(DataFormats.UnicodeText, text);
+            var dataObject = new DataObject(DataFormats.UnicodeText, value);
             Clipboard.SetDataObject(dataObject);
 
             ShowToast("参数已复制");
         }
 
         [RelayCommand]
-        private void DeviceIpLabelClick(string text)
+        private void DeviceIpLabelClick(string ip)
         {
-            CopyToClipboard(text);
+            CopyToClipboard(ip);
         }
 
         [RelayCommand]
@@ -400,7 +404,7 @@ namespace DevKit.ViewModels
                         if (success)
                         {
                             MessageBox.Show("安装成功", "安装应用", MessageBoxButton.OK, MessageBoxImage.Information);
-                            GetDeviceApplication();
+                            _ = GetDeviceApplication();
                         }
                         else
                         {
@@ -457,16 +461,9 @@ namespace DevKit.ViewModels
             new CommandExecutor(cmdStr).Execute("adb");
         }
 
-        [RelayCommand]
-        private void SortApplication()
+        partial void OnKeywordChanged(string value)
         {
-            _isAscending = !_isAscending;
-
-            var sorted = _isAscending
-                ? ApplicationPackages.OrderBy(x => x, StringComparer.Ordinal)
-                : ApplicationPackages.OrderByDescending(x => x, StringComparer.Ordinal);
-
-            ApplicationPackages = [.. sorted];
+            ApplyFilter(value);
         }
 
         [RelayCommand]
@@ -619,6 +616,24 @@ namespace DevKit.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void SortApplication()
+        {
+            _isAscending = !_isAscending;
+
+            var sorted = _isAscending
+                ? ApplicationPackages.OrderBy(x => x, StringComparer.Ordinal)
+                : ApplicationPackages.OrderByDescending(x => x, StringComparer.Ordinal);
+
+            ApplicationPackages = [.. sorted];
+        }
+
+        [RelayCommand]
+        private void RefreshApplication()
+        {
+            _ = GetDeviceApplication();
+        }
+
         // ---- 私有辅助函数 -----
 
         /// <summary>
@@ -682,7 +697,7 @@ namespace DevKit.ViewModels
                     break;
 
                 case "temperature":
-                    if (double.TryParse(value, out var temp)) BatteryTemperature = $"{temp * 0.1}℃";
+                    if (double.TryParse(value, out var temp)) BatteryTemperature = $"{(temp * 0.1):F1}℃";
                     break;
             }
         }
@@ -698,36 +713,35 @@ namespace DevKit.ViewModels
 
         private string GetConnectionType(string serial)
         {
-            if (WifiRegex.IsMatch(serial)) return "无线连接";
+            if (WifiRegex().IsMatch(serial)) return "无线连接";
             return serial.StartsWith("emulator-") ? "模拟器" : "有线连接";
         }
 
         /// <summary>
         /// 平台代号 → 芯片通用名映射（找不到时回退显示原始代号）
         /// </summary>
-        private static readonly Dictionary<string, string> CpuPlatformMap =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                // 联发科天玑
-                { "mt6983", "天玑 9000" },
-                { "mt6985", "天玑 9200" },
-                { "mt6989", "天玑 9300" },
-                { "mt6991", "天玑 9400" },
-                { "mt6897", "天玑 8300" },
-                { "mt6896", "天玑 8200" },
-                { "mt6895", "天玑 8100" },
-                { "mt6893", "天玑 1200" },
-                { "mt6891", "天玑 1100" },
+        private static readonly Dictionary<string, string> CpuPlatformMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            // 联发科天玑
+            { "mt6983", "天玑 9000" },
+            { "mt6985", "天玑 9200" },
+            { "mt6989", "天玑 9300" },
+            { "mt6991", "天玑 9400" },
+            { "mt6897", "天玑 8300" },
+            { "mt6896", "天玑 8200" },
+            { "mt6895", "天玑 8100" },
+            { "mt6893", "天玑 1200" },
+            { "mt6891", "天玑 1100" },
 
-                // 高通骁龙
-                { "holi", "骁龙 680" },
-                { "sm8450", "骁龙 8 Gen 1" },
-                { "taro", "骁龙 8 Gen 1" },
-                { "sm8475", "骁龙 8+ Gen 1" },
-                { "sm8550", "骁龙 8 Gen 2" },
-                { "kalama", "骁龙 8 Gen 2" },
-                { "sm8650", "骁龙 8 Gen 3" },
-            };
+            // 高通骁龙
+            { "holi", "骁龙 680" },
+            { "sm8450", "骁龙 8 Gen 1" },
+            { "taro", "骁龙 8 Gen 1" },
+            { "sm8475", "骁龙 8+ Gen 1" },
+            { "sm8550", "骁龙 8 Gen 2" },
+            { "kalama", "骁龙 8 Gen 2" },
+            { "sm8650", "骁龙 8 Gen 3" },
+        };
 
         /// <summary>
         /// 按名称包名列表
@@ -798,7 +812,6 @@ namespace DevKit.ViewModels
                 return string.IsNullOrWhiteSpace(output.Result) ? error.Result.Trim() : output.Result.Trim();
             }
         }
-
 
         private void ResetExportProgress()
         {

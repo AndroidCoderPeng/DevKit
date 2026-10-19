@@ -69,7 +69,7 @@
         </Style>
 
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="72" />
+            <Setter Property="Height" Value="64" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -91,12 +91,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="ActionButtonBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
                                 <Setter TargetName="ActionButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="-2" />
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
                             </Trigger>
 
                             <!--  危险 hover：红色（声明在后，覆盖上面的蓝色）  -->
@@ -107,21 +102,12 @@
                                 </MultiTrigger.Conditions>
                                 <Setter TargetName="ActionButtonBorder" Property="Background" Value="{StaticResource DevKitDangerSoftBrush}" />
                                 <Setter TargetName="ActionButtonBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="-2" />
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
                             </MultiTrigger>
 
                             <!--  按下：复位  -->
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ActionButtonBorder" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="0" />
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="ActionButtonBorder" Property="Opacity" Value="0.75" />
                             </Trigger>
 
                             <!--  禁用：半透明  -->
@@ -264,16 +250,15 @@
                         <TextBlock
                             Margin="8,0,0,0"
                             VerticalAlignment="Center"
-                            FontSize="13"
+                            FontFamily="Consolas"
+                            FontSize="14"
+                            FontWeight="SemiBold"
                             Foreground="{DynamicResource DevKitTextBrush}"
                             TextTrimming="CharacterEllipsis">
-                            <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0} · {1} {2}">
-                                    <Binding Path="CurrentDevice" />
-                                    <Binding Path="DeviceBrand" />
-                                    <Binding Path="DeviceModel" />
-                                </MultiBinding>
-                            </TextBlock.Text>
+                            <Run Text="{Binding CurrentDevice}" />
+                            <Run Text="·" />
+                            <Run Text="{Binding DeviceBrand}" />
+                            <Run Text="{Binding DeviceModel}" />
                         </TextBlock>
                     </StackPanel>
                 </Border>
@@ -352,14 +337,10 @@
                             <TextBlock
                                 Grid.Row="0"
                                 FontSize="16"
-                                FontWeight="Bold"
+                                FontWeight="SemiBold"
                                 Foreground="Black">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} {1}">
-                                        <Binding Path="DeviceBrand" />
-                                        <Binding Path="DeviceModel" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
+                                <Run Text="{Binding DeviceBrand}" />
+                                <Run Text="{Binding DeviceModel}" />
                             </TextBlock>
 
                             <StackPanel
@@ -666,14 +647,14 @@
 
                             <StackPanel Grid.Column="0" Orientation="Horizontal">
                                 <Border
-                                    Width="50"
-                                    Height="20"
-                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                    Width="48"
+                                    VerticalAlignment="Center"
+                                    BorderBrush="{StaticResource DevKitTextMutedBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="4">
+                                    CornerRadius="2">
                                     <ProgressBar
                                         Height="16"
-                                        Margin="2"
+                                        Margin="1"
                                         VerticalAlignment="Center"
                                         Background="White"
                                         BorderThickness="0"
@@ -684,7 +665,7 @@
                                 <Border
                                     Width="3"
                                     Height="10"
-                                    Background="{StaticResource DevKitBorderStrongBrush}" />
+                                    Background="{StaticResource DevKitTextMutedBrush}" />
                             </StackPanel>
 
                             <TextBlock
@@ -704,18 +685,16 @@
                                 BorderBrush="{StaticResource DevKitAndroidGreen35Brush}"
                                 BorderThickness="1"
                                 CornerRadius="12">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,4" Orientation="Horizontal">
                                     <TextBlock
-                                        Margin="12,4,6,4"
-                                        VerticalAlignment="Center"
+                                        Margin="12,0,6,0"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
-                                        FontSize="14"
+                                        FontSize="16"
                                         Foreground="{StaticResource DevKitSuccessBrush}"
                                         Text="&#xe61d;" />
 
                                     <TextBlock
-                                        Margin="0,4,12,4"
-                                        VerticalAlignment="Center"
+                                        Margin="0,0,12,0"
                                         Foreground="{StaticResource DevKitSuccessBrush}"
                                         Text="{Binding BatteryState}" />
                                 </StackPanel>
@@ -727,18 +706,16 @@
                                 BorderBrush="{StaticResource DevKitBorderStrongBrush}"
                                 BorderThickness="1"
                                 CornerRadius="12">
-                                <StackPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,4" Orientation="Horizontal">
                                     <TextBlock
-                                        Margin="12,4,6,4"
-                                        VerticalAlignment="Center"
+                                        Margin="12,0,6,0"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
                                         FontSize="14"
                                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                         Text="&#xe6f8;" />
 
                                     <TextBlock
-                                        Margin="0,4,12,4"
-                                        VerticalAlignment="Center"
+                                        Margin="0,0,12,0"
                                         FontFamily="Consolas"
                                         FontSize="14"
                                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
@@ -1307,7 +1284,7 @@
         <Border
             Grid.Row="0"
             Grid.RowSpan="3"
-            Margin="0,0,0,6"
+            Margin="0,0,0,2"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom"
             Panel.ZIndex="999"
