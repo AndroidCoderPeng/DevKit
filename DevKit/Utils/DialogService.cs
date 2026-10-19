@@ -45,6 +45,17 @@ public sealed class DialogService : IDialogService
             receiver.OnDialogOpened(parameter);
         }
 
+        if (view is Window window)
+        {
+            if (Application.Current.MainWindow is { } mainWindow && !ReferenceEquals(window, mainWindow))
+            {
+                window.Owner = mainWindow;
+            }
+
+            return window;
+        }
+
+
         return new Window
         {
             Owner = Application.Current.MainWindow,

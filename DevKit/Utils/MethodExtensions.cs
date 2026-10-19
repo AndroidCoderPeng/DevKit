@@ -11,7 +11,8 @@ namespace DevKit.Utils
             where TView : FrameworkElement
             where TViewModel : class
         {
-            // 对话框 ViewModel 则通常更适合 AddTransient）
+            services.AddTransient<TView>();
+            services.AddTransient<TViewModel>();
             services.AddSingleton(new ViewModelRegistration(typeof(TView), typeof(TViewModel)));
         }
 
