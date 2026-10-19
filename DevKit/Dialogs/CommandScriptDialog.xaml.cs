@@ -21,21 +21,20 @@ namespace DevKit.Dialogs
         {
             _draggedCommand = null;
 
-            if (!(sender is ListBox listBox) ||
-                !(e.OriginalSource is DependencyObject originalSource))
+            if (sender is not ListBox listBox || e.OriginalSource is not DependencyObject originalSource)
                 return;
 
             var item = ItemsControl.ContainerFromElement(listBox, originalSource) as ListBoxItem;
             _draggedCommand = item?.Content as ExCommandConfig;
             if (_draggedCommand != null)
+            {
                 _dragStartPoint = e.GetPosition(listBox);
+            }
         }
 
         private void SelectedCommandListBox_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (!(sender is ListBox listBox) ||
-                e.LeftButton != MouseButtonState.Pressed ||
-                _draggedCommand == null)
+            if (sender is not ListBox listBox || e.LeftButton != MouseButtonState.Pressed || _draggedCommand == null)
                 return;
 
             var currentPoint = e.GetPosition(listBox);
@@ -78,11 +77,11 @@ namespace DevKit.Dialogs
         {
             e.Handled = true;
 
-            if (!(sender is ListBox listBox) ||
-                !(listBox.ItemsSource is ObservableCollection<ExCommandConfig> items) ||
+            if (sender is not ListBox listBox ||
+                listBox.ItemsSource is not ObservableCollection<ExCommandConfig> items ||
                 !e.Data.GetDataPresent(typeof(ExCommandConfig)) ||
-                !(e.Data.GetData(typeof(ExCommandConfig)) is ExCommandConfig draggedCommand) ||
-                !(e.OriginalSource is DependencyObject targetItem))
+                e.Data.GetData(typeof(ExCommandConfig)) is not ExCommandConfig draggedCommand ||
+                e.OriginalSource is not DependencyObject targetItem)
                 return;
 
             var targetContainer = ItemsControl.ContainerFromElement(listBox, targetItem) as ListBoxItem;

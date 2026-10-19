@@ -7,13 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
+    Title="指令脚本"
     Width="600"
-    ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
-    ShowInTaskbar="False"
     Height="500"
     d:DataContext="{d:DesignInstance Type=vm:CommandScriptDialogViewModel}"
+    Background="{DynamicResource DevKitBackgroundBrush}"
+    ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>

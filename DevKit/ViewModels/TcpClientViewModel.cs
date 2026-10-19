@@ -653,38 +653,46 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void OpenScript()
         {
-            // TODO 
+            // TODO 还是得增加一个类，用来传递参数
+            var selectedCommands = new ObservableCollection<ExCommandConfig>();
+            var interval = "1000";
+
+            var parameter = (
+                AvailableCommands: ExCommandCollection,
+                SelectedCommands: selectedCommands,
+                Interval: interval);
+
             // 带参数
-            if (_dialogService.ShowDialog(typeof(CommandScriptDialog), ExCommandCollection) == true)
+            if (_dialogService.ShowDialog(typeof(CommandScriptDialog), parameter) != true)
             {
-                // var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
-                // var interval = result.Parameters.GetValue<string>("Interval");
-                //
-                // if (commands == null || commands.Count == 0)
-                // {
-                //     ShowToast("请先添加脚本指令");
-                //     return;
-                // }
-                //
-                // if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
-                // {
-                //     ShowToast("时间间隔必须是正整数");
-                //     return;
-                // }
-                //
-                // if (_transport == null)
-                // {
-                //     ShowToast("Udp协议尚未初始化，请先点击【应用对端】按钮");
-                //     return;
-                // }
-                //
-                // StopCommandScript();
-                //
-                // _commandEnumerator = commands.GetEnumerator();
-                // _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                // _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                // _scriptTimer.Start();
+                return;
             }
+
+            if (selectedCommands.Count == 0)
+            {
+                ShowToast("请先添加脚本指令");
+                return;
+            }
+
+            if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var milliseconds) ||
+                milliseconds <= 0)
+            {
+                ShowToast("时间间隔必须是正整数");
+                return;
+            }
+
+            if (_transport == null || ConnectionState != "已连接")
+            {
+                ShowToast("请先连接 TCP 服务器");
+                return;
+            }
+
+            StopCommandScript();
+
+            _commandEnumerator = selectedCommands.GetEnumerator();
+            _scriptTimer.Interval = TimeSpan.FromMilliseconds(milliseconds);
+            _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+            _scriptTimer.Start();
         }
 
         private void StopCommandScript()
