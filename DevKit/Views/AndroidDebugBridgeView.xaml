@@ -1217,11 +1217,6 @@
                 Grid.Column="1"
                 Margin="64,0"
                 VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Hidden" />
@@ -1234,43 +1229,16 @@
                 </Grid.Style>
 
                 <TextBlock
-                    Grid.Column="0"
-                    Margin="0,0,8,0"
+                    HorizontalAlignment="Center"
+                    Panel.ZIndex="999"
                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
                     Text="安装中，请稍后" />
 
                 <ProgressBar
-                    Grid.Column="1"
                     Background="Transparent"
                     BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
-                    BorderThickness="1"
-                    Foreground="{StaticResource GradientForegroundBrush}">
-                    <ProgressBar.Style>
-                        <Style TargetType="ProgressBar">
-                            <Setter Property="Height" Value="12" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ProgressBar">
-                                        <Grid>
-                                            <Border
-                                                x:Name="PART_Track"
-                                                Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="6" />
-                                            <Border
-                                                x:Name="PART_Indicator"
-                                                Margin="2"
-                                                HorizontalAlignment="Left"
-                                                Background="{TemplateBinding Foreground}"
-                                                CornerRadius="4" />
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ProgressBar.Style>
-                </ProgressBar>
+                    Foreground="{StaticResource GradientForegroundBrush}"
+                    IsIndeterminate="True" />
             </Grid>
 
             <TextBlock
