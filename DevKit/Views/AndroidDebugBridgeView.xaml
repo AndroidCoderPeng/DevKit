@@ -8,13 +8,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="Android Debug Bridge"
-    Width="900"
-    Height="790"
+    Width="960"
+    Height="768"
     d:DataContext="{d:DesignInstance Type=vm:AndroidDebugBridgeViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -212,99 +211,98 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="1" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid
+        <Border
             Grid.Row="0"
-            Margin="16"
-            VerticalAlignment="Center">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            BorderBrush="{DynamicResource DevKitBorderBrush}"
+            BorderThickness="0,0,0,1">
+            <Grid Margin="16,12" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <TextBlock
-                Grid.Column="0"
-                VerticalAlignment="Center"
-                Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                Text="当前设备" />
-
-            <Border
-                Grid.Column="1"
-                Height="36"
-                Margin="16,0,8,0"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Center"
-                Background="White"
-                BorderBrush="{StaticResource DevKitBorderStrongBrush}"
-                BorderThickness="1"
-                CornerRadius="8">
-                <StackPanel
-                    Margin="12,0"
+                <TextBlock
+                    Grid.Column="0"
                     VerticalAlignment="Center"
-                    Orientation="Horizontal">
-                    <Border
-                        Width="13"
-                        Height="13"
+                    Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                    Text="当前设备" />
+
+                <Border
+                    Grid.Column="1"
+                    Height="36"
+                    Margin="16,0,8,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Background="White"
+                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <StackPanel
+                        Margin="12,0"
                         VerticalAlignment="Center"
-                        Background="{StaticResource DevKitAndroidGreen18Brush}"
-                        CornerRadius="7">
+                        Orientation="Horizontal">
                         <Border
-                            Width="7"
-                            Height="7"
-                            HorizontalAlignment="Center"
+                            Width="13"
+                            Height="13"
                             VerticalAlignment="Center"
-                            Background="{StaticResource DevKitSuccessBrush}"
-                            CornerRadius="4" />
-                    </Border>
+                            Background="{StaticResource DevKitAndroidGreen18Brush}"
+                            CornerRadius="7">
+                            <Border
+                                Width="7"
+                                Height="7"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource DevKitSuccessBrush}"
+                                CornerRadius="4" />
+                        </Border>
 
-                    <TextBlock
-                        Margin="8,0,0,0"
-                        VerticalAlignment="Center"
-                        FontSize="13"
-                        Foreground="{DynamicResource DevKitTextBrush}"
-                        TextTrimming="CharacterEllipsis">
-                        <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0} · {1} {2}">
-                                <Binding Path="CurrentDevice" />
-                                <Binding Path="DeviceBrand" />
-                                <Binding Path="DeviceModel" />
-                            </MultiBinding>
-                        </TextBlock.Text>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-
-            <Button
-                Grid.Column="2"
-                VerticalAlignment="Center"
-                Command="{Binding RefreshDeviceCommand}"
-                Style="{StaticResource CompactButtonStyle}">
-                <Button.Content>
-                    <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
-                            VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
-                            Text="&#xe602;" />
-                        <TextBlock
-                            Margin="6,0,0,0"
+                            Margin="8,0,0,0"
                             VerticalAlignment="Center"
                             FontSize="13"
                             Foreground="{DynamicResource DevKitTextBrush}"
-                            Text="刷新" />
+                            TextTrimming="CharacterEllipsis">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} · {1} {2}">
+                                    <Binding Path="CurrentDevice" />
+                                    <Binding Path="DeviceBrand" />
+                                    <Binding Path="DeviceModel" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
                     </StackPanel>
-                </Button.Content>
-            </Button>
-        </Grid>
+                </Border>
 
-        <Border Grid.Row="1" Background="{DynamicResource DevKitBorderBrush}" />
+                <Button
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Command="{Binding RefreshDeviceCommand}"
+                    Style="{StaticResource CompactButtonStyle}">
+                    <Button.Content>
+                        <StackPanel Margin="16,0" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16"
+                                Text="&#xe602;" />
+                            <TextBlock
+                                Margin="6,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                Foreground="{DynamicResource DevKitTextBrush}"
+                                Text="刷新" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </Grid>
+        </Border>
 
-        <Grid Grid.Row="2" Margin="16">
+        <Grid Grid.Row="1" Margin="16,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.5*" />
                 <ColumnDefinition Width="*" />
@@ -312,7 +310,7 @@
 
             <Border
                 Grid.Column="0"
-                Margin="0,0,8,0"
+                Margin="0,0,6,0"
                 Background="White"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 BorderThickness="1"
@@ -326,7 +324,7 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="16">
+                    <Grid Grid.Row="0" Margin="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
@@ -388,7 +386,7 @@
                         </Grid>
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="16,0">
+                    <Grid Grid.Row="1" Margin="12,0">
                         <Line
                             SnapsToDevicePixels="True"
                             Stroke="{DynamicResource DevKitBorderBrush}"
@@ -402,19 +400,22 @@
 
                     <UniformGrid
                         Grid.Row="2"
-                        Margin="16"
+                        Margin="12"
                         Columns="2"
                         Rows="4">
                         <Border
                             Margin="0,0,4,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
                             CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="设备品牌" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black"
                                     Text="{Binding DeviceBrand}" />
                             </StackPanel>
@@ -424,19 +425,19 @@
                             Margin="4,0,0,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
                             CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="Android版本" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0}（API {1}）">
-                                            <Binding Path="AndroidVersion" />
-                                            <Binding Path="ApiCode" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
+                                    <Run Text="{Binding AndroidVersion}" />
+                                    <Run Text="· API" />
+                                    <Run Text="{Binding ApiCode}" />
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -445,12 +446,15 @@
                             Margin="0,4,4,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
                             CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="CPU型号" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black"
                                     Text="{Binding CpuType}" />
                             </StackPanel>
@@ -460,12 +464,15 @@
                             Margin="4,4,0,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
                             CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="电池容量" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black"
                                     Text="{Binding BatteryCapacity}" />
                             </StackPanel>
@@ -475,19 +482,19 @@
                             Margin="0,4,4,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
                             CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="屏幕分辨率" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} · {1} dpi">
-                                            <Binding Path="DeviceSize" />
-                                            <Binding Path="DeviceDpi" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
+                                    <Run Text="{Binding DeviceSize}" />
+                                    <Run Text=" · " />
+                                    <Run Text="{Binding DeviceDpi}" />
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -495,15 +502,20 @@
                         <Border
                             Margin="4,4,0,4"
                             Background="{StaticResource DevKitSurfaceBrush}"
-                            CornerRadius="8">
-                            <StackPanel Margin="12" Orientation="Vertical">
+                            CornerRadius="8"
+                            ToolTip="{Binding DeviceAbi}">
+                            <StackPanel
+                                Margin="12"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="ABI架构" />
                                 <TextBlock
                                     Margin="0,8,0,0"
-                                    FontFamily="微软雅黑"
-                                    FontSize="13"
+                                    FontFamily="Consolas"
+                                    FontSize="14"
                                     Foreground="Black"
-                                    Text="{Binding DeviceAbi}" />
+                                    Text="{Binding DeviceAbi}"
+                                    TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </Border>
 
@@ -538,12 +550,15 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <StackPanel
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Vertical">
                                     <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="Android ID" />
                                     <TextBlock
                                         Margin="0,8,0,0"
-                                        FontFamily="微软雅黑"
-                                        FontSize="13"
+                                        FontFamily="Consolas"
+                                        FontSize="14"
                                         Foreground="Black"
                                         Text="{Binding AndroidId}" />
                                 </StackPanel>
@@ -600,12 +615,15 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Orientation="Vertical">
+                                <StackPanel
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Vertical">
                                     <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="本机 IP 地址" />
                                     <TextBlock
                                         Margin="0,8,0,0"
-                                        FontFamily="微软雅黑"
-                                        FontSize="13"
+                                        FontFamily="Consolas"
+                                        FontSize="14"
                                         Foreground="Black"
                                         Text="{Binding DeviceIp}" />
                                 </StackPanel>
@@ -634,11 +652,11 @@
 
                     <Border
                         Grid.Row="3"
-                        Margin="16,0"
+                        Margin="12,0"
                         Background="{StaticResource DevKitSurfaceBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
-                        <Grid Margin="16">
+                        <Grid Margin="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -660,7 +678,6 @@
                                         Background="White"
                                         BorderThickness="0"
                                         Foreground="{StaticResource GradientForegroundBrush}"
-                                        Style="{x:Null}"
                                         Value="{Binding BatteryProgress}" />
                                 </Border>
 
@@ -672,12 +689,11 @@
 
                             <TextBlock
                                 Grid.Column="1"
-                                Margin="16,0"
+                                Margin="8,0"
                                 VerticalAlignment="Center"
-                                FontFamily="微软雅黑"
-                                FontSize="13"
-                                FontWeight="Bold"
-                                Foreground="Black"
+                                FontFamily="Consolas"
+                                FontSize="14"
+                                FontWeight="SemiBold"
                                 Text="{Binding BatteryProgress, StringFormat={}{0}%}" />
 
                             <Border
@@ -723,6 +739,8 @@
                                     <TextBlock
                                         Margin="0,4,12,4"
                                         VerticalAlignment="Center"
+                                        FontFamily="Consolas"
+                                        FontSize="14"
                                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                         Text="{Binding BatteryTemperature}" />
                                 </StackPanel>
@@ -732,17 +750,16 @@
 
                     <UniformGrid
                         Grid.Row="4"
-                        Margin="16"
+                        Margin="12"
                         Columns="3"
                         Rows="2">
-
                         <Button
                             Margin="0,0,4,4"
                             HorizontalAlignment="Stretch"
                             Command="{Binding OutputImageCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -762,7 +779,7 @@
                             Command="{Binding ScreenshotCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -782,7 +799,7 @@
                             Command="{Binding ShowLogcatCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -803,7 +820,7 @@
                             IsEnabled="{Binding CanInstall}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -823,7 +840,7 @@
                             Command="{Binding RebootDeviceCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -844,7 +861,7 @@
                             Style="{StaticResource ActionButtonStyle}"
                             Tag="Danger">
                             <Button.Content>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
                                         HorizontalAlignment="Center"
                                         FontFamily="/DevKit;component/Fonts/#iconfont"
@@ -863,7 +880,7 @@
 
             <Border
                 Grid.Column="1"
-                Margin="8,0,0,0"
+                Margin="6,0,0,0"
                 Background="White"
                 BorderBrush="{DynamicResource DevKitBorderBrush}"
                 BorderThickness="1"
@@ -1041,23 +1058,17 @@
 
                     <Border
                         Grid.Row="2"
-                        Padding="4"
                         Background="{StaticResource DevKitSurfaceBrush}"
                         BorderBrush="{DynamicResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <ListBox
                             x:Name="PackageListBox"
+                            Padding="4"
                             Background="Transparent"
                             BorderThickness="0"
                             ItemsSource="{Binding ApplicationPackages}"
                             ScrollViewer.CanContentScroll="False">
-                            <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
-                                </b:EventTrigger>
-                            </b:Interaction.Triggers>
-
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -1155,6 +1166,12 @@
                                     </MenuItem>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
+
+                            <b:Interaction.Triggers>
+                                <b:EventTrigger EventName="SelectionChanged">
+                                    <b:InvokeCommandAction Command="{Binding PackageSelectedCommand}" CommandParameter="{Binding ElementName=PackageListBox, Path=SelectedItem}" />
+                                </b:EventTrigger>
+                            </b:Interaction.Triggers>
                         </ListBox>
                     </Border>
 
@@ -1163,7 +1180,7 @@
                         Margin="0,12,0,0"
                         Rows="1">
                         <Button
-                            Margin="0,0,4,0"
+                            Margin="0,0,8,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding SortApplicationCommand}"
                             Style="{StaticResource CompactButtonStyle}">
@@ -1183,7 +1200,7 @@
                         </Button>
 
                         <Button
-                            Margin="4,0,0,0"
+                            Margin="8,0,0,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding RefreshApplicationCommand}"
                             Style="{StaticResource CompactButtonStyle}">
@@ -1206,7 +1223,7 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="3" Margin="16,0,16,16">
+        <Grid Grid.Row="2" Margin="16,0,16,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
@@ -1215,6 +1232,7 @@
 
             <TextBlock
                 Grid.Column="0"
+                VerticalAlignment="Center"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="{Binding AdbVision, StringFormat={}{0} · 已就绪, TargetNullValue=adb · 已就绪, FallbackValue=adb · 已就绪}" />
 
@@ -1285,10 +1303,11 @@
                 Text="右键包名可导出安装包 / 卸载应用" />
         </Grid>
 
+        <!--  数值越大，控件越显示在其他兄弟控件的上方。  -->
         <Border
             Grid.Row="0"
-            Grid.RowSpan="4"
-            Margin="16"
+            Grid.RowSpan="3"
+            Margin="0,0,0,6"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom"
             Panel.ZIndex="999"
@@ -1305,8 +1324,8 @@
                 </Style>
             </Border.Style>
             <TextBlock
-                Margin="18,9"
-                FontSize="13"
+                Margin="18,8"
+                FontSize="14"
                 Foreground="White"
                 Text="{Binding ToastMessage}" />
         </Border>
