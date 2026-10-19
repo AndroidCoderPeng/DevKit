@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Versioning;
 using System.Windows;
 using DevKit.DataService;
 using DevKit.Dialogs;
@@ -12,6 +13,7 @@ namespace DevKit
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
+    [SupportedOSPlatform("windows6.1")]
     public partial class App : Application
     {
         public static IServiceProvider ServiceProvider { get; private set; }
