@@ -81,22 +81,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <Style x:Key="ListBoxItemStyleKey" TargetType="ListBoxItem">
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <ContentPresenter />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
     <Grid>
@@ -187,13 +171,21 @@
 
             <ListBox
                 Grid.Row="2"
+                HorizontalContentAlignment="Stretch"
                 Background="Transparent"
                 BorderThickness="0"
-                ItemsSource="{Binding AndroidTools}">
+                ItemsSource="{Binding AndroidTools}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
-                            x:Name="Card"
+                            x:Name="MenuItemBorder"
                             Width="114"
                             Height="104"
                             Margin="4"
@@ -201,12 +193,12 @@
                             BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
-                            <StackPanel VerticalAlignment="Center">
+                            <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                 <Border
                                     Width="48"
                                     Height="48"
                                     HorizontalAlignment="Center"
-                                    Background="{StaticResource DevKitSuccess12Brush}"
+                                    Background="{StaticResource DevKitAndroidGreen12Brush}"
                                     CornerRadius="12">
                                     <TextBlock
                                         HorizontalAlignment="Center"
@@ -218,7 +210,7 @@
                                 </Border>
 
                                 <TextBlock
-                                    x:Name="Name"
+                                    x:Name="NameTextBlock"
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
@@ -228,35 +220,36 @@
                         </Border>
 
                         <DataTemplate.Triggers>
-                            <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitSuccess12Brush}" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitSuccess35Brush}" />
-                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitSuccessBrush}" />
-                                <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
-                            </Trigger>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                <Setter TargetName="MenuItemBorder" Property="Background" Value="{StaticResource DevKitAndroidGreen12Brush}" />
+                                <Setter TargetName="MenuItemBorder" Property="BorderBrush" Value="{StaticResource DevKitAndroidGreen35Brush}" />
+                                <Setter TargetName="NameTextBlock" Property="Foreground" Value="{StaticResource DevKitSuccessBrush}" />
+                                <Setter TargetName="NameTextBlock" Property="FontWeight" Value="SemiBold" />
+                            </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
 
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-
                 <ListBox.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <Setter Property="b:Interaction.Triggers">
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Template">
                             <Setter.Value>
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="PreviewMouseDown">
-                                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="PreviewMouseUp">
+                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
             </ListBox>
 
             <Grid Grid.Row="3" Margin="4,16,4,8">
@@ -300,10 +293,16 @@
                 ItemsSource="{Binding SocketTools}"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
-                            x:Name="Card"
+                            x:Name="CardBorder"
                             Width="114"
                             Height="104"
                             Margin="4"
@@ -311,6 +310,8 @@
                             BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
+
+
                             <StackPanel VerticalAlignment="Center">
                                 <Border
                                     Width="48"
@@ -328,7 +329,7 @@
                                 </Border>
 
                                 <TextBlock
-                                    x:Name="Name"
+                                    x:Name="NameTextBlock"
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
@@ -338,35 +339,36 @@
                         </Border>
 
                         <DataTemplate.Triggers>
-                            <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
-                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
+                            <Trigger SourceName="CardBorder" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource DevKitAccent12Brush}" />
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource DevKitAccent35Brush}" />
+                                <Setter TargetName="NameTextBlock" Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="NameTextBlock" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
 
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-
                 <ListBox.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <Setter Property="b:Interaction.Triggers">
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Template">
                             <Setter.Value>
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="PreviewMouseDown">
-                                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="PreviewMouseUp">
+                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
             </ListBox>
 
             <Grid Grid.Row="5" Margin="4,16,4,8">
@@ -404,13 +406,21 @@
 
             <ListBox
                 Grid.Row="6"
+                HorizontalContentAlignment="Stretch"
                 Background="Transparent"
                 BorderThickness="0"
-                ItemsSource="{Binding OtherTools}">
+                ItemsSource="{Binding OtherTools}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border
-                            x:Name="Card"
+                            x:Name="CardBorder"
                             Width="114"
                             Height="104"
                             Margin="4"
@@ -435,7 +445,7 @@
                                 </Border>
 
                                 <TextBlock
-                                    x:Name="Name"
+                                    x:Name="NameTextBlock"
                                     Margin="0,8,0,0"
                                     HorizontalAlignment="Center"
                                     FontSize="12"
@@ -445,35 +455,36 @@
                         </Border>
 
                         <DataTemplate.Triggers>
-                            <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="{StaticResource DevKitPurple12Brush}" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource DevKitPurple35Brush}" />
-                                <Setter TargetName="Name" Property="Foreground" Value="{StaticResource DevKitPurpleBrush}" />
-                                <Setter TargetName="Name" Property="FontWeight" Value="SemiBold" />
+                            <Trigger SourceName="CardBorder" Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource DevKitPurple12Brush}" />
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource DevKitPurple35Brush}" />
+                                <Setter TargetName="NameTextBlock" Property="Foreground" Value="{StaticResource DevKitPurpleBrush}" />
+                                <Setter TargetName="NameTextBlock" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
 
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-
                 <ListBox.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListBoxItemStyleKey}" TargetType="ListBoxItem">
-                        <Setter Property="b:Interaction.Triggers">
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Template">
                             <Setter.Value>
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="PreviewMouseDown">
-                                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
+
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="PreviewMouseUp">
+                        <b:InvokeCommandAction Command="{Binding DataContext.ToolItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
             </ListBox>
         </Grid>
 
