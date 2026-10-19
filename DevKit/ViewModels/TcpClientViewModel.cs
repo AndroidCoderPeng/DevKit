@@ -42,59 +42,19 @@ namespace DevKit.ViewModels
         [ObservableProperty] private string _lastDataTime = string.Empty;
         [ObservableProperty] private bool _isLoopSendEnabled;
         [ObservableProperty] private string _interval = "1000";
+        [ObservableProperty] private ObservableCollection<SocketMessage> _logs = [];
 
-        private ObservableCollection<SocketMessage> _logs = [];
+        public long SendCount => Logs.Count(x => x.IsSend == 1);
+        public long SendByteSize => Logs.Where(x => x.IsSend == 1).Sum(x => x.RawData?.Length ?? 0);
+        public long ReceiveCount => Logs.Count(x => x.IsSend == 0);
+        public long ReceiveByteSize => Logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
 
-        public ObservableCollection<SocketMessage> Logs
-        {
-            get => _logs;
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                var previous = _logs;
-                if (!SetProperty(ref _logs, value))
-                    return;
-
-                previous.CollectionChanged -= Logs_CollectionChanged;
-                _logs.CollectionChanged += Logs_CollectionChanged;
-                RaiseLogStatisticsChanged();
-            }
-        }
-
-        public long SendCount => _logs.Count(x => x.IsSend == 1);
-
-        public long SendByteSize => _logs.Where(x => x.IsSend == 1).Sum(x => x.RawData?.Length ?? 0);
-
-        public long ReceiveCount => _logs.Count(x => x.IsSend == 0);
-
-        public long ReceiveByteSize => _logs.Where(x => x.IsSend == 0).Sum(x => x.RawData?.Length ?? 0);
-
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsLogAsciiSelected))]
         private bool _isLogHexSelected = true;
-
-        public bool IsLogHexSelected
-        {
-            get => _isLogHexSelected;
-            set
-            {
-                if (SetProperty(ref _isLogHexSelected, value))
-                {
-                    OnPropertyChanged(nameof(IsLogAsciiSelected));
-                    foreach (var log in Logs)
-                    {
-                        if (log.RawData != null)
-                        {
-                            log.Content = FormatLogContent(log.RawData);
-                        }
-                    }
-                }
-            }
-        }
 
         public bool IsLogAsciiSelected
         {
-            get => !_isLogHexSelected;
+            get => !IsLogHexSelected;
             set
             {
                 if (value)
@@ -104,28 +64,14 @@ namespace DevKit.ViewModels
             }
         }
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsSendAsciiSelected))]
+        [NotifyPropertyChangedFor(nameof(PlaceHolderText))]
         private bool _isSendHexSelected = true;
-
-        public bool IsSendHexSelected
-        {
-            get => _isSendHexSelected;
-            set
-            {
-                if (SetProperty(ref _isSendHexSelected, value))
-                {
-                    OnPropertyChanged(nameof(IsSendAsciiSelected));
-                    OnPropertyChanged(nameof(PlaceHolderText));
-                }
-            }
-        }
-
-        public string PlaceHolderText => IsSendAsciiSelected
-            ? "输入要发送的内容：HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
-            : "输入要发送的内容：ASCII 模式下将按 UTF-8 编码发送";
 
         public bool IsSendAsciiSelected
         {
-            get => !_isSendHexSelected;
+            get => !IsSendHexSelected;
             set
             {
                 if (value)
@@ -134,6 +80,10 @@ namespace DevKit.ViewModels
                 }
             }
         }
+        
+        public string PlaceHolderText => IsSendAsciiSelected
+            ? "输入要发送的内容：HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
+            : "输入要发送的内容：ASCII 模式下将按 UTF-8 编码发送";
 
         #endregion
 
@@ -350,6 +300,21 @@ namespace DevKit.ViewModels
             });
         }
 
+        partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
+        {
+            ArgumentNullException.ThrowIfNull(newValue);
+            oldValue.CollectionChanged -= Logs_CollectionChanged;
+        }
+
+        partial void OnLogsChanged(ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
+        {
+            _ = oldValue;
+            newValue.CollectionChanged += Logs_CollectionChanged;
+            RaiseLogStatisticsChanged();
+        }
+
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             RaiseLogStatisticsChanged();
@@ -361,6 +326,18 @@ namespace DevKit.ViewModels
             OnPropertyChanged(nameof(SendByteSize));
             OnPropertyChanged(nameof(ReceiveCount));
             OnPropertyChanged(nameof(ReceiveByteSize));
+        }
+
+        partial void OnIsLogHexSelectedChanged(bool value)
+        {
+            _ = value;
+            foreach (var log in Logs)
+            {
+                if (log.RawData != null)
+                {
+                    log.Content = FormatLogContent(log.RawData);
+                }
+            }
         }
 
         private async Task ConnectServerAsync()
