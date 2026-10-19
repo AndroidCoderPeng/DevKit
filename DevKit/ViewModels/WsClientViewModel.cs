@@ -421,7 +421,7 @@ namespace DevKit.ViewModels
             if (_toastTimer == null)
             {
                 _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
+                _toastTimer.Tick += (_, _) =>
                 {
                     _toastTimer.Stop();
                     IsToastVisible = false;
