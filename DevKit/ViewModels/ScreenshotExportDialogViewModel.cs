@@ -40,44 +40,26 @@ namespace DevKit.ViewModels
 
         #region VM
 
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(EmptyVisibility))]
         private bool _isLoading;
 
-        public bool IsLoading
-        {
-            get => _isLoading;
-            set
-            {
-                _isLoading = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(EmptyVisibility));
-            }
-        }
-
-        [ObservableProperty] private ObservableCollection<ScreenshotFile> _screenshots = [];
-
-        public Visibility ExportProgressVisibility => IsExporting ? Visibility.Visible : Visibility.Collapsed;
-
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(ExportProgressVisibility))]
         private bool _isExporting;
 
-        public bool IsExporting
-        {
-            get => _isExporting;
-            set
-            {
-                _isExporting = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(ExportProgressVisibility));
-            }
-        }
-
+        [ObservableProperty] private ObservableCollection<ScreenshotFile> _screenshots = [];
         [ObservableProperty] private double _exportProgress;
         [ObservableProperty] private int _selectedCount;
 
-        public Visibility EmptyVisibility =>
-            Screenshots.Count == 0 && !_isLoading ? Visibility.Visible : Visibility.Collapsed;
-
         [ObservableProperty]
         private string _saveDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        public Visibility EmptyVisibility => Screenshots.Count == 0 && !IsLoading
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        public Visibility ExportProgressVisibility => IsExporting
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         #endregion
 
@@ -87,6 +69,11 @@ namespace DevKit.ViewModels
 
         [GeneratedRegex(@"(\d{4})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})")]
         private partial Regex ScreenshotNameRegex();
+
+        public ScreenshotExportDialogViewModel()
+        {
+            Screenshots.CollectionChanged += (_, _) => OnPropertyChanged(nameof(EmptyVisibility));
+        }
 
         public void OnDialogOpened(object parameter)
         {

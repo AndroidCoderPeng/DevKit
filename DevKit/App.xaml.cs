@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using DevKit.DataService;
 using DevKit.Dialogs;
 using DevKit.Utils;
 using DevKit.ViewModels;
@@ -22,6 +23,7 @@ namespace DevKit
 
             // Register services
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IAppDataService, AppDataServiceImpl>();
 
             // 
             // none module dialog registrations

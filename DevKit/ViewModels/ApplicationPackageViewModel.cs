@@ -37,11 +37,6 @@ namespace DevKit.ViewModels
         [ObservableProperty] private double _scanProgress;
         [ObservableProperty] private ObservableCollection<ApkFile> _apkFileCollection;
 
-        partial void OnKeywordChanged(string value)
-        {
-            ApplyFilter(value);
-        }
-
         #endregion
 
         public ApplicationPackageViewModel()
@@ -54,6 +49,11 @@ namespace DevKit.ViewModels
             ApkRootFolderPath = config.ApkRootFolder;
         }
 
+        partial void OnKeywordChanged(string value)
+        {
+            ApplyFilter(value);
+        }
+        
         [RelayCommand]
         private void SelectKey()
         {
