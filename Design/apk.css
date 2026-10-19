@@ -119,14 +119,22 @@ input {
     overflow: hidden;
 }
 
-/* ================= 内容：左归档 / 右签名 ================= */
+/* ================= 内容：上两栏 + 底部通栏终端 ================= */
 .content {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     flex: 1;
+    gap: 12px;
+    min-height: 0;
+    padding: 14px;
+}
+
+.content-main {
+    display: grid;
+    flex: 2.2;
     grid-template-columns: minmax(0, 1.45fr) minmax(320px, .85fr);
     gap: 14px;
     min-height: 0;
-    padding: 14px;
 }
 
 .panel {
@@ -689,13 +697,12 @@ input:focus {
     margin-top: 10px;
 }
 
-/* ---------- 终端：占据剩余高度 ---------- */
+/* ---------- 终端：通栏横跨窗口底部 ---------- */
 .terminal {
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 0;
-    margin-top: 10px;
+    min-height: 150px;
     overflow: hidden;
     border: 1px solid #1e1e1e;
     border-radius: 9px;
@@ -732,13 +739,13 @@ input:focus {
     min-height: 0;
     margin: 0;
     padding: 10px;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     color: #7ee2a0;
     font-family: var(--mono);
     font-size: 10px;
     line-height: 1.6;
-    white-space: pre-wrap;
-    word-break: break-all;
+    white-space: pre;
 }
 
 .terminal pre::-webkit-scrollbar {
@@ -832,8 +839,11 @@ input:focus {
 
 @media (max-width: 760px) {
     .content {
-        grid-template-columns: 1fr;
         overflow-y: auto;
+    }
+
+    .content-main {
+        grid-template-columns: 1fr;
     }
 
     .apk-grid {
@@ -844,8 +854,14 @@ input:focus {
         flex: none;
     }
 
+    .terminal {
+        flex: none;
+    }
+
     .terminal pre {
         min-height: 120px;
         max-height: 180px;
+        white-space: pre-wrap;
+        word-break: break-all;
     }
 }

@@ -19,7 +19,8 @@
     <div class="app">
         <div class="window">
             <main class="content">
-                <section class="workspace panel-apk">
+                <div class="content-main">
+                    <section class="workspace panel-apk">
                     <div class="workspace-heading">
                         <div>
                             <div class="eyebrow">ARCHIVE WORKSPACE</div>
@@ -59,9 +60,11 @@
                             <div class="field full-width"><label class="field-label">JDK 路径</label><div class="input-row"><input type="text" id="jdkPath" value="C:\Program Files\Java\jdk-17\bin" /><button class="btn btn-ghost" id="btnJdk">选择</button></div></div>
                         </div>
                         <button class="btn btn-primary sha-button" id="btnSha1"><span>⌘</span>查看 SHA1</button>
-                        <div class="terminal" id="terminal"><div class="terminal-bar"><span class="terminal-title">keytool -list -v</span><span class="terminal-state">待执行</span></div><pre id="terminalText">配置完成后，点击“查看 SHA1”读取证书信息。</pre></div>
                     </section>
                 </aside>
+                </div>
+
+                <div class="terminal" id="terminal"><div class="terminal-bar"><span class="terminal-title">keytool -list -v</span><span class="terminal-state">待执行</span></div><pre id="terminalText">配置完成后，点击“查看 SHA1”读取证书信息。</pre></div>
             </main>
 
             <footer class="statusbar"><span><span class="status-dot"></span> APK 工具 · 已就绪</span><span class="statusbar-right" id="footerStatus">等待扫描</span></footer>
