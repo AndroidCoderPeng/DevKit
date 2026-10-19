@@ -2,7 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Cache;
 using DevKit.Utils;
 
@@ -71,51 +73,77 @@ namespace DevKit.ViewModels
         #endregion
 
         public event Action<bool> CloseRequested;
+        private CommandScriptDialogContext _dialogContext;
 
         public void OnDialogOpened(object parameter)
         {
-            
+            _dialogContext = parameter as CommandScriptDialogContext ?? throw new ArgumentException(
+                @"指令脚本对话框需要 CommandScriptDialogContext 参数。", nameof(parameter));
+
+            ExCommandCollection = _dialogContext.ExCommands;
+            SelectedCommands = _dialogContext.SelectedCommands;
+            Interval = _dialogContext.Interval;
         }
 
         public CommandScriptDialogViewModel()
         {
             _selectedCommands.CollectionChanged += SelectedCommands_CollectionChanged;
-
-            ExCommandDoubleClickCommand = new RelayCommand<ExCommandConfig>(item =>
-            {
-                if (item == null || SelectedCommands.Contains(item))
-                {
-                    return;
-                }
-
-                SelectedCommands.Add(item);
-            });
-
-            ClearSelectedCommand = new RelayCommand(() => { SelectedCommands.Clear(); });
-
-            DeleteSelectedCommand = new RelayCommand<ExCommandConfig>(item =>
-            {
-                if (item == null)
-                {
-                    return;
-                }
-
-                SelectedCommands.Remove(item);
-            });
-
-            CancelDialogCommand = new RelayCommand(() => { CloseRequested?.Invoke(false); });
-
-            ConfirmDialogCommand = new RelayCommand(() =>
-            {
-                // _dialogContext.Commands = new ObservableCollection<ExCommandConfig>(_selectedCommands);
-                // _dialogContext.Interval = _interval;
-                CloseRequested?.Invoke(true);
-            });
         }
-        
+
         private void SelectedCommands_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(nameof(TotalTime));
+        }
+
+        [RelayCommand]
+        private void ExCommandDoubleClick(ExCommandConfig command)
+        {
+            if (command == null || SelectedCommands.Contains(command))
+            {
+                return;
+            }
+
+            SelectedCommands.Add(command);
+        }
+
+        [RelayCommand]
+        private void ClearSelected()
+        {
+            SelectedCommands.Clear();
+        }
+
+        [RelayCommand]
+        private void DeleteSelected(ExCommandConfig command)
+        {
+            if (command == null)
+            {
+                return;
+            }
+
+            SelectedCommands.Remove(command);
+        }
+
+        [RelayCommand]
+        private void CancelDialog()
+        {
+            _selectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
+            CloseRequested?.Invoke(false);
+        }
+
+        [RelayCommand]
+        private void ConfirmDialog()
+        {
+            var selectedCommands = SelectedCommands.ToList();
+            
+            _dialogContext.SelectedCommands.Clear();
+            foreach (var command in selectedCommands)
+            {
+                _dialogContext.SelectedCommands.Add(command);
+            }
+
+            _dialogContext.Interval = Interval;
+            _selectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
+            CloseRequested?.Invoke(true);
         }
     }
 }

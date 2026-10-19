@@ -8,8 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="指令脚本"
-    Width="600"
-    Height="500"
+    Width="680"
+    Height="540"
     d:DataContext="{d:DesignInstance Type=vm:CommandScriptDialogViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
@@ -214,7 +214,6 @@
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="1" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -281,7 +280,7 @@
                             Text="双击加入队列" />
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="8,0">
+                    <Grid Grid.Row="1" Margin="8,0,8,8">
                         <ListBox
                             x:Name="ExCommandListBox"
                             Background="Transparent"
@@ -451,7 +450,7 @@
                             Style="{StaticResource DangerOutlineButtonStyle}" />
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="8,0">
+                    <Grid Grid.Row="1" Margin="8,0,8,8">
                         <ListBox
                             AllowDrop="True"
                             AlternationCount="{Binding SelectedCommands.Count}"
@@ -638,60 +637,57 @@
 
         <Border
             Grid.Row="2"
-            BorderBrush="{StaticResource DevKitBorderBrush}"
-            BorderThickness="1" />
-
-        <UniformGrid
-            Grid.Row="3"
             Background="White"
-            Columns="2"
-            Rows="1">
-            <Button
-                Margin="16,16,8,16"
-                Command="{Binding CancelDialogCommand}"
-                Style="{StaticResource CompactButtonStyle}">
-                <Button.Content>
-                    <StackPanel Margin="12,0" Orientation="Horizontal">
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
-                            Text="&#xe668;" />
-                        <TextBlock
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            Text="取消" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+            BorderBrush="{StaticResource DevKitBorderBrush}"
+            BorderThickness="0,1,0,0">
+            <UniformGrid Columns="2" Rows="1">
+                <Button
+                    Margin="16,16,8,16"
+                    Command="{Binding CancelDialogCommand}"
+                    Style="{StaticResource CompactButtonStyle}">
+                    <Button.Content>
+                        <StackPanel Margin="12,0" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16"
+                                Text="&#xe668;" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                Text="取消" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
 
-            <Button Margin="8,16,16,16" Command="{Binding ConfirmDialogCommand}">
-                <Button.Style>
-                    <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
-                        <Setter Property="IsEnabled" Value="True" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedCommands.Count}" Value="0">
-                                <Setter Property="IsEnabled" Value="False" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <Button.Content>
-                    <StackPanel Margin="12,0" Orientation="Horizontal">
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
-                            Text="&#xe67b;" />
-                        <TextBlock
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            Text="确定" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </UniformGrid>
+                <Button Margin="8,16,16,16" Command="{Binding ConfirmDialogCommand}">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedCommands.Count}" Value="0">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.Content>
+                        <StackPanel Margin="12,0" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16"
+                                Text="&#xe67b;" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                Text="确定" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </UniformGrid>
+        </Border>
     </Grid>
 </Window>

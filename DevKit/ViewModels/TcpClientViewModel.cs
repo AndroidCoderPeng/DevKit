@@ -116,6 +116,7 @@ namespace DevKit.ViewModels
         partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
             ObservableCollection<SocketMessage> newValue)
         {
+            _ = oldValue;
             ArgumentNullException.ThrowIfNull(newValue);
             oldValue.CollectionChanged -= Logs_CollectionChanged;
         }
@@ -360,10 +361,7 @@ namespace DevKit.ViewModels
         private void AddExtension()
         {
             var command = new ExCommandConfig();
-            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) != true)
-            {
-                return;
-            }
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) != true) return;
 
             _config.ExCommands.Add(command);
             PersistConfig();
@@ -446,11 +444,10 @@ namespace DevKit.ViewModels
             if (command == null) return;
 
             // 带参数
-            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) == true)
-            {
-                PersistConfig();
-                ExCommandCollection = _config.ExCommands.ToObservableCollection();
-            }
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog), command) != true) return;
+
+            PersistConfig();
+            ExCommandCollection = _config.ExCommands.ToObservableCollection();
         }
 
         [RelayCommand]
@@ -653,27 +650,21 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void OpenScript()
         {
-            // TODO 还是得增加一个类，用来传递参数
-            var selectedCommands = new ObservableCollection<ExCommandConfig>();
-            var interval = "1000";
-
-            var parameter = (
-                AvailableCommands: ExCommandCollection,
-                SelectedCommands: selectedCommands,
-                Interval: interval);
-
             // 带参数
-            if (_dialogService.ShowDialog(typeof(CommandScriptDialog), parameter) != true)
+            var context = new CommandScriptDialogContext(ExCommandCollection);
+            if (_dialogService.ShowDialog(typeof(CommandScriptDialog), context) != true)
             {
                 return;
             }
 
+            var selectedCommands = context.SelectedCommands;
             if (selectedCommands.Count == 0)
             {
                 ShowToast("请先添加脚本指令");
                 return;
             }
 
+            var interval = context.Interval;
             if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var milliseconds) ||
                 milliseconds <= 0)
             {
