@@ -124,13 +124,12 @@
     $('#btnRefresh').addEventListener('click', function () {
         const root = $('#apkRoot').value.trim() || 'D:\\APK\\release';
         toast('正在扫描目录：' + root);
-        $('#headerStatus').textContent = '扫描中';
+        setDemoSwitch('ready');
         startScanProgress();
 
         setTimeout(function () {
             render();
             finishScanProgress();
-            $('#headerStatus').textContent = '已就绪';
             toast('扫描完成：已遍历 ' + root);
         }, 1600);
     });
@@ -180,6 +179,44 @@
         const card = e.target.closest('.apk-card');
         if (!card) return;
         toast('演示：打开目录 ' + card.dataset.path);
+    });
+
+    /* ---------------- 演示状态切换（仅设计稿） ---------------- */
+    const demoButtons = $$('.demo-btn');
+
+    function setDemoSwitch(state) {
+        demoButtons.forEach(function (b) {
+            b.classList.toggle('active', b.dataset.state === state);
+        });
+    }
+
+    function setDemoState(state) {
+        const panel = $('#scanProgress');
+        const btn = $('#btnRefresh');
+        clearInterval(scanTimer);
+        if (btn) btn.disabled = false;
+
+        if (state === 'scanning') {
+            render();
+            startScanProgress();
+        } else {
+            if (panel) panel.classList.add('hidden');
+            if (state === 'empty') {
+                $('#apkGrid').innerHTML = '';
+                $('#apkCount').textContent = '0';
+                $('#emptyState').classList.add('show');
+                $('#footerStatus').textContent = '目录为空或无匹配结果';
+            } else {
+                render();
+            }
+        }
+    }
+
+    demoButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            setDemoSwitch(btn.dataset.state);
+            setDemoState(btn.dataset.state);
+        });
     });
 
     /* ---------------- 启动 ---------------- */

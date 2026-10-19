@@ -7,16 +7,17 @@
     <link rel="stylesheet" href="apk.css" />
 </head>
 <body>
-    <div class="app-shell">
-        <div class="window">
-            <header class="titlebar">
-                <div class="brand">
-                    <span class="logo"><span>APK</span></span>
-                    <div><h1>APK 应用包</h1><p>归档检索与签名指纹工具</p></div>
-                </div>
-                <div class="titlebar-status"><span class="status-dot"></span><span id="headerStatus">已就绪</span></div>
-            </header>
 
+    <!-- ============ 演示用：状态切换器（仅设计稿） ============ -->
+    <div class="demo-switch">
+        <span class="demo-title">演示状态</span>
+        <button class="demo-btn active" data-state="ready">已扫描</button>
+        <button class="demo-btn" data-state="scanning">扫描中</button>
+        <button class="demo-btn" data-state="empty">空目录</button>
+    </div>
+
+    <div class="app">
+        <div class="window">
             <main class="content">
                 <section class="workspace panel-apk">
                     <div class="workspace-heading">

@@ -1005,6 +1005,7 @@
                             <Grid Grid.Column="1">
                                 <TextBox
                                     x:Name="PkgSearchTextBox"
+                                    Margin="6,0,0,0"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     Background="Transparent"
@@ -1013,7 +1014,7 @@
                                     Foreground="{DynamicResource DevKitTextBrush}"
                                     Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock
-                                    Margin="8,0,0,0"
+                                    Margin="10,0,0,0"
                                     VerticalAlignment="Center"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     IsHitTestVisible="False"
