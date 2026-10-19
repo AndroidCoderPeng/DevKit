@@ -23,18 +23,13 @@ namespace DevKit.ViewModels
 
         public ICollectionView LogsView { get; }
 
-        partial void OnKeywordChanged(string value)
-        {
-            LogsView.Refresh();
-        }
-
         #endregion
 
         private const int MaxLogCount = 1000;
 
-        private static readonly Regex LogcatLineRegex = new(
-            @"^(?:\d{4}-)?\d{2}-\d{2}\s+(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(\S+?):\s*(.*)$",
-            RegexOptions.Compiled);
+        [GeneratedRegex(
+            @"^(?:\d{4}-)?\d{2}-\d{2}\s+(\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(\S+?):\s*(.*)$")]
+        private partial Regex LogcatLineRegex();
 
         private Process _logcatProcess;
         private bool _isPaused;
@@ -43,11 +38,26 @@ namespace DevKit.ViewModels
         public AndroidLogcatDialogViewModel()
         {
             LogsView = CollectionViewSource.GetDefaultView(Logs);
-            LogsView.Filter = o => o is AndroidLog log
-                                   && _enabledLevels.Contains(log.Level)
-                                   && (string.IsNullOrEmpty(_keyword)
-                                       || log.Tag.Contains(_keyword, StringComparison.OrdinalIgnoreCase)
-                                       || log.Message.Contains(_keyword, StringComparison.OrdinalIgnoreCase));
+            LogsView.Filter = FilterLog;
+        }
+
+        partial void OnKeywordChanged(string value)
+        {
+            _ = value; // Suppress unused parameter warning
+
+            LogsView.Refresh();
+        }
+
+        private bool FilterLog(object item)
+        {
+            if (item is not AndroidLog log || !_enabledLevels.Contains(log.Level))
+            {
+                return false;
+            }
+
+            return string.IsNullOrWhiteSpace(Keyword)
+                   || log.Tag.Contains(Keyword, StringComparison.OrdinalIgnoreCase)
+                   || log.Message.Contains(Keyword, StringComparison.OrdinalIgnoreCase);
         }
 
         [RelayCommand]
@@ -87,11 +97,6 @@ namespace DevKit.ViewModels
             }
         }
 
-        // public void OnDialogClosed()
-        // {
-        //     StopLogcatCapture();
-        // }
-
         private void StartLogcatCapture(string device)
         {
             if (string.IsNullOrEmpty(device)) return;
@@ -113,11 +118,10 @@ namespace DevKit.ViewModels
         private void ParseLogcatLine(string line)
         {
             if (_isPaused) return;
-            if (string.IsNullOrEmpty(line)) return;
 
             if (string.IsNullOrEmpty(line)) return;
 
-            var match = LogcatLineRegex.Match(line);
+            var match = LogcatLineRegex().Match(line);
             if (!match.Success) return;
 
             var log = new AndroidLog
@@ -139,7 +143,7 @@ namespace DevKit.ViewModels
             }));
         }
 
-        private void StopLogcatCapture()
+        public void StopLogcatCapture()
         {
             if (_logcatProcess == null) return;
 

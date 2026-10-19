@@ -15,8 +15,7 @@
     Background="White"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -395,7 +394,7 @@
             CornerRadius="8">
             <Grid>
                 <ListBox
-                    Padding="6"
+                    Padding="4"
                     Background="Transparent"
                     BorderThickness="0"
                     ItemsSource="{Binding LogsView}"
@@ -413,7 +412,7 @@
                                     <ControlTemplate TargetType="ListBoxItem">
                                         <Border
                                             x:Name="ItemBorder"
-                                            Padding="8,3"
+                                            Padding="6,4"
                                             Background="Transparent"
                                             CornerRadius="6">
                                             <ContentPresenter />
@@ -448,7 +447,7 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontFamily="微软雅黑"
+                                    FontFamily="Consolas"
                                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="{Binding Time}" />
 
@@ -470,19 +469,21 @@
                                 <!--  进程 / 线程  -->
                                 <TextBlock
                                     Grid.Column="2"
+                                    Width="60"
                                     Margin="16,0,0,0"
                                     VerticalAlignment="Center"
-                                    FontFamily="微软雅黑"
+                                    FontFamily="Consolas"
                                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                                    Text="{Binding Pid}" />
+                                    Text="{Binding Pid}"
+                                    TextTrimming="CharacterEllipsis" />
 
                                 <!--  Tag  -->
                                 <TextBlock
                                     Grid.Column="3"
-                                    MaxWidth="180"
+                                    Width="180"
                                     Margin="16,0,0,0"
                                     VerticalAlignment="Center"
-                                    FontFamily="微软雅黑"
+                                    FontFamily="Consolas"
                                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                     Text="{Binding Tag}"
                                     TextTrimming="CharacterEllipsis" />
@@ -492,7 +493,7 @@
                                     Grid.Column="4"
                                     Margin="16,0,0,0"
                                     VerticalAlignment="Center"
-                                    FontFamily="微软雅黑"
+                                    FontFamily="Consolas"
                                     Foreground="Black"
                                     Text="{Binding Message}"
                                     TextTrimming="CharacterEllipsis"
