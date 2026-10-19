@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Cache;
 using DevKit.Utils;
 using DialogResult = System.Windows.Forms.DialogResult;
@@ -14,158 +16,73 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
-    public class JNIReverseViewModel : ObservableObject
+    [SupportedOSPlatform("windows6.1")]
+    public partial class JniReverseViewModel : ObservableObject
     {
-        public string Title => "JNI逆向";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Jni, new JniReverseConfig
-            {
-                NdkPath = _ndkPath,
-                SharedLibPath = _sharedLibPath
-            });
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
-
         #region VM
 
-        private string _ndkPath = string.Empty;
-
-        public string NdkPath
-        {
-            get => _ndkPath;
-            set
-            {
-                _ndkPath = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _ndkVersion = string.Empty;
-
-        public string NdkVersion
-        {
-            get => _ndkVersion;
-            set
-            {
-                _ndkVersion = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _sharedLibPath = string.Empty;
-
-        public string SharedLibPath
-        {
-            get => _sharedLibPath;
-            set
-            {
-                _sharedLibPath = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _stackAddress = string.Empty;
-
-        public string StackAddress
-        {
-            get => _stackAddress;
-            set
-            {
-                _stackAddress = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _outputResult = string.Empty;
-
-        public string OutputResult
-        {
-            get => _outputResult;
-            set
-            {
-                _outputResult = value;
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty] private string _ndkPath = string.Empty;
+        [ObservableProperty] private string _ndkVersion = string.Empty;
+        [ObservableProperty] private string _sharedLibPath = string.Empty;
+        [ObservableProperty] private string _stackAddress = string.Empty;
+        [ObservableProperty] private string _outputResult = string.Empty;
 
         #endregion
 
-        #region DelegateCommand
-
-        public DelegateCommand SelectNdkCommand { set; get; }
-        public DelegateCommand SelectSharedLibCommand { set; get; }
-        public DelegateCommand ReverseAddressCommand { set; get; }
-
-        #endregion
-
-        public JNIReverseViewModel()
+        [GeneratedRegex(@"r\d+\w*")]
+        private partial Regex NdkVersionRegex();
+        
+        public JniReverseViewModel()
         {
             var config = SettingsStore.Load<JniReverseConfig>(ConfigSections.FileName, ConfigSections.Jni);
             NdkPath = config.NdkPath;
             SharedLibPath = config.SharedLibPath;
             NdkVersion = $"{GetNdkVersion()} · {GetNdkArchitecture()}";
-
-            SelectNdkCommand = new DelegateCommand(() =>
-            {
-                using (var folderDialog = new FolderBrowserDialog())
-                {
-                    if (folderDialog.ShowDialog() != DialogResult.OK) return;
-                    NdkPath = folderDialog.SelectedPath;
-                }
-            });
-
-            SelectSharedLibCommand = new DelegateCommand(() =>
-            {
-                var fileDialog = new OpenFileDialog
-                {
-                    // 设置默认格式
-                    DefaultExt = ".so",
-                    Filter = "动态库文件(*.so)|*.so"
-                };
-                if (fileDialog.ShowDialog() != true) return;
-                SharedLibPath = fileDialog.FileName;
-
-                NdkVersion = $"{GetNdkVersion()} · {GetNdkArchitecture()}";
-            });
-
-            ReverseAddressCommand = new DelegateCommand(() => _ = ReverseAddressAsync());
         }
 
+        [RelayCommand]
+        private void SelectNdk()
+        {
+            using var folderDialog = new FolderBrowserDialog();
+            if (folderDialog.ShowDialog() != DialogResult.OK) return;
+            NdkPath = folderDialog.SelectedPath;
+        }
+
+        [RelayCommand]
+        private void SelectSharedLib()
+        {
+            var fileDialog = new OpenFileDialog
+            {
+                // 设置默认格式
+                DefaultExt = ".so",
+                Filter = "动态库文件(*.so)|*.so"
+            };
+            if (fileDialog.ShowDialog() != true) return;
+            SharedLibPath = fileDialog.FileName;
+
+            NdkVersion = $"{GetNdkVersion()} · {GetNdkArchitecture()}";
+        }
+
+        [RelayCommand]
         private async Task ReverseAddressAsync()
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(_ndkPath) || string.IsNullOrWhiteSpace(_sharedLibPath) ||
-                    string.IsNullOrWhiteSpace(_stackAddress))
+                if (string.IsNullOrWhiteSpace(NdkPath) || string.IsNullOrWhiteSpace(SharedLibPath) ||
+                    string.IsNullOrWhiteSpace(StackAddress))
                 {
                     MessageBox.Show("请完善缺少的参数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                var path = ResolveAddr2LinePath(_ndkPath);
+                var path = ResolveAddr2LinePath(NdkPath);
                 if (!File.Exists(path))
                 {
                     MessageBox.Show("请检查 NDK 是否完整。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                if (!string.IsNullOrEmpty(_outputResult))
+                if (!string.IsNullOrEmpty(OutputResult))
                 {
                     OutputResult = string.Empty;
                 }
@@ -178,10 +95,10 @@ namespace DevKit.ViewModels
                 }
 
                 argument.Append("-e")
-                    .Append(_sharedLibPath)
+                    .Append(SharedLibPath)
                     .Append("-f")
                     .Append("-C")
-                    .Append(_stackAddress);
+                    .Append(StackAddress);
 
                 var result = await ExecuteAsync(path, argument.ToCommandLine());
                 if (result.ExitCode != 0)
@@ -219,14 +136,14 @@ namespace DevKit.ViewModels
             // NDK 根目录的 source.properties 记录了版本号，形如 Pkg.Revision = 21.4.7075529
             try
             {
-                var sourceProps = Path.Combine(_ndkPath, "source.properties");
+                var sourceProps = Path.Combine(NdkPath, "source.properties");
                 if (File.Exists(sourceProps))
                 {
                     foreach (var line in File.ReadAllLines(sourceProps))
                     {
                         if (line.StartsWith("Pkg.Revision", StringComparison.OrdinalIgnoreCase))
                         {
-                            var revision = line.Substring(line.IndexOf('=') + 1).Trim();
+                            var revision = line[(line.IndexOf('=') + 1)..].Trim();
                             if (!string.IsNullOrEmpty(revision))
                             {
                                 // 输出形如 "r21 (21.4.7075529)"
@@ -238,8 +155,8 @@ namespace DevKit.ViewModels
                 }
 
                 // 兜底：从安装目录名解析，形如 android-ndk-r21d
-                var dirName = new DirectoryInfo(_ndkPath).Name;
-                var match = Regex.Match(dirName, @"r\d+\w*");
+                var dirName = new DirectoryInfo(NdkPath).Name;
+                var match = NdkVersionRegex().Match(dirName);
                 return match.Success ? match.Value : "未知版本";
             }
             catch
@@ -247,42 +164,40 @@ namespace DevKit.ViewModels
                 return "未知版本";
             }
         }
-        
+
         private string GetNdkArchitecture()
         {
             // 读取 ELF 头里的 e_machine 字段，识别所选 .so 的目标 ABI
             try
             {
-                if (string.IsNullOrWhiteSpace(_sharedLibPath) || !File.Exists(_sharedLibPath))
+                if (string.IsNullOrWhiteSpace(SharedLibPath) || !File.Exists(SharedLibPath))
                 {
                     return "未知架构";
                 }
 
-                using (var fs = new FileStream(_sharedLibPath, FileMode.Open, FileAccess.Read))
+                using var fs = new FileStream(SharedLibPath, FileMode.Open, FileAccess.Read);
+                var header = new byte[20];
+                if (fs.Read(header, 0, header.Length) < 20)
                 {
-                    var header = new byte[20];
-                    if (fs.Read(header, 0, header.Length) < 20)
-                    {
-                        return "未知架构";
-                    }
-
-                    // 校验 ELF 魔数 0x7F 'E' 'L' 'F'
-                    if (header[0] != 0x7F || header[1] != 'E' || header[2] != 'L' || header[3] != 'F')
-                    {
-                        return "非 ELF 文件";
-                    }
-
-                    // e_machine 位于偏移 18，小端 2 字节（Android 均为小端）
-                    var machine = (ushort)(header[18] | (header[19] << 8));
-                    switch (machine)
-                    {
-                        case 3: return "x86";
-                        case 40: return "armeabi-v7a";
-                        case 62: return "x86_64";
-                        case 183: return "arm64-v8a";
-                        default: return $"unknown (0x{machine:X})";
-                    }
+                    return "未知架构";
                 }
+
+                // 校验 ELF 魔数 0x7F 'E' 'L' 'F'
+                if (header[0] != 0x7F || header[1] != 'E' || header[2] != 'L' || header[3] != 'F')
+                {
+                    return "非 ELF 文件";
+                }
+
+                // e_machine 位于偏移 18，小端 2 字节（Android 均为小端）
+                var machine = (ushort)(header[18] | (header[19] << 8));
+                return machine switch
+                {
+                    3 => "x86",
+                    40 => "armeabi-v7a",
+                    62 => "x86_64",
+                    183 => "arm64-v8a",
+                    _ => $"unknown (0x{machine:X})"
+                };
             }
             catch
             {
@@ -335,6 +250,15 @@ namespace DevKit.ViewModels
             }
 
             return null;
+        }
+
+        public void SaveConfiguration()
+        {
+            SettingsStore.Save(ConfigSections.FileName, ConfigSections.Jni, new JniReverseConfig
+            {
+                NdkPath = NdkPath,
+                SharedLibPath = SharedLibPath
+            });
         }
     }
 }

@@ -1,10 +1,21 @@
-﻿namespace DevKit.Views
+﻿using System.Runtime.Versioning;
+using DevKit.ViewModels;
+
+namespace DevKit.Views
 {
-    public partial class JNIReverseView
+    [SupportedOSPlatform("windows6.1")]
+    public partial class JniReverseView
     {
-        public JNIReverseView()
+        public JniReverseView()
         {
             InitializeComponent();
+            Closed += delegate
+            {
+                if (DataContext is JniReverseViewModel viewModel)
+                {
+                    viewModel.SaveConfiguration();
+                }
+            };
         }
     }
 }
