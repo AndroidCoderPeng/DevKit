@@ -6,14 +6,14 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="834"
-    Height="484"
+    Title="截屏导出"
+    Width="850"
+    Height="520"
     d:DataContext="{d:DesignInstance Type=vm:ScreenshotExportDialogViewModel}"
     Background="White"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -257,7 +257,7 @@
 
             <Button
                 Grid.Column="0"
-                Command="{Binding RefreshCommand}"
+                Command="{Binding ReLoadScreenshotsCommand}"
                 Style="{StaticResource CompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
@@ -277,7 +277,7 @@
             <Button
                 Grid.Column="1"
                 Margin="8,0"
-                Command="{Binding SortCommand}"
+                Command="{Binding SortScreenshotsCommand}"
                 Style="{StaticResource CompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
@@ -328,7 +328,7 @@
 
             <Button
                 Grid.Column="5"
-                Command="{Binding CaptureCommand}"
+                Command="{Binding CaptureScreenCommand}"
                 Style="{StaticResource PrimaryCompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
@@ -360,13 +360,12 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ToggleButton
-                                Command="{Binding DataContext.ItemClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                CommandParameter="{Binding}"
+                                Command="{Binding DataContext.ImageItemClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                 Style="{StaticResource ShotCardStyle}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
-                                        <i:InvokeCommandAction Command="{Binding DataContext.ItemDoubleClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                        <i:InvokeCommandAction Command="{Binding DataContext.ImageItemDoubleClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <StackPanel>
@@ -402,7 +401,7 @@
                                                 HorizontalAlignment="Center"
                                                 Orientation="Horizontal">
                                                 <Button
-                                                    Command="{Binding DataContext.ItemDoubleClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    Command="{Binding DataContext.ImageItemDoubleClickedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource HoverActionButtonStyle}">
                                                     <Button.Content>
@@ -410,7 +409,7 @@
                                                     </Button.Content>
                                                 </Button>
                                                 <Button
-                                                    Command="{Binding DataContext.DeleteSingleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    Command="{Binding DataContext.DeleteSingleImageCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"
                                                     Style="{StaticResource HoverActionButtonStyle}"
                                                     Tag="Danger">
@@ -515,7 +514,7 @@
                         Text="{Binding SaveDirectory}" />
                 </Border>
 
-                <Button Command="{Binding BrowseCommand}" Style="{StaticResource CompactButtonStyle}">
+                <Button Command="{Binding FolderBrowserCommand}" Style="{StaticResource CompactButtonStyle}">
                     <Button.Content>
                         <TextBlock Margin="16,0" Text="浏览" />
                     </Button.Content>
@@ -571,7 +570,7 @@
 
             <Button
                 Grid.Column="2"
-                Command="{Binding ExportCommand}"
+                Command="{Binding ExportScreenshotsCommand}"
                 Style="{StaticResource PrimaryCompactButtonStyle}">
                 <Button.Content>
                     <TextBlock Margin="16,0" Text="导出选中" />

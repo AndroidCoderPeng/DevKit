@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.Models;
 using DevKit.Utils;
 using Application = System.Windows.Application;
@@ -21,42 +23,20 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
-    public class ScreenshotExportDialogViewModel : ObservableObject
+    [SupportedOSPlatform("windows6.1")]
+    public partial class ScreenshotExportDialogViewModel : ObservableObject, IDialogParameterReceiver
     {
-        public string Title => "截屏导出";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
         private static readonly string CacheDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "DevKit", "Cache", "Screenshots");
 
         private static readonly string[] ScanDirectories =
-        {
+        [
             "/sdcard/DCIM/Screenshots",
             "/sdcard/Pictures/Screenshots",
             "/sdcard/ScreenShots",
             "/sdcard"
-        };
-
-        #region DelegateCommand
-
-        public DelegateCommand RefreshCommand { set; get; }
-        public DelegateCommand SortCommand { set; get; }
-        public DelegateCommand SelectAllCommand { set; get; }
-        public DelegateCommand DeleteSelectedCommand { set; get; }
-        public DelegateCommand CaptureCommand { set; get; }
-        public DelegateCommand<ScreenshotFile> ItemClickedCommand { set; get; }
-        public DelegateCommand<ScreenshotFile> ItemDoubleClickedCommand { set; get; }
-        public DelegateCommand<ScreenshotFile> DeleteSingleCommand { set; get; }
-        public DelegateCommand BrowseCommand { set; get; }
-        public DelegateCommand ExportCommand { set; get; }
-
-        #endregion
+        ];
 
         #region VM
 
@@ -73,17 +53,7 @@ namespace DevKit.ViewModels
             }
         }
 
-        private ObservableCollection<ScreenshotFile> _screenshots = new ObservableCollection<ScreenshotFile>();
-
-        public ObservableCollection<ScreenshotFile> Screenshots
-        {
-            get => _screenshots;
-            set
-            {
-                _screenshots = value;
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty] private ObservableCollection<ScreenshotFile> _screenshots = [];
 
         public Visibility ExportProgressVisibility => IsExporting ? Visibility.Visible : Visibility.Collapsed;
 
@@ -100,44 +70,14 @@ namespace DevKit.ViewModels
             }
         }
 
-        private double _exportProgress;
-
-        public double ExportProgress
-        {
-            get => _exportProgress;
-            set
-            {
-                _exportProgress = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private int _selectedCount;
-
-        public int SelectedCount
-        {
-            get => _selectedCount;
-            set
-            {
-                _selectedCount = value;
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty] private double _exportProgress;
+        [ObservableProperty] private int _selectedCount;
 
         public Visibility EmptyVisibility =>
-            _screenshots.Count == 0 && !_isLoading ? Visibility.Visible : Visibility.Collapsed;
+            Screenshots.Count == 0 && !_isLoading ? Visibility.Visible : Visibility.Collapsed;
 
+        [ObservableProperty]
         private string _saveDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
-        public string SaveDirectory
-        {
-            get => _saveDirectory;
-            set
-            {
-                _saveDirectory = value;
-                OnPropertyChanged();
-            }
-        }
 
         #endregion
 
@@ -145,138 +85,26 @@ namespace DevKit.ViewModels
         private ListCollectionView _view;
         private bool _ascending;
 
-        public ScreenshotExportDialogViewModel()
-        {
-            RefreshCommand = new DelegateCommand(LoadScreenshots);
+        [GeneratedRegex(@"(\d{4})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})")]
+        private partial Regex ScreenshotNameRegex();
 
-            SortCommand = new DelegateCommand(() =>
+        public void OnDialogOpened(object parameter)
+        {
+            if (parameter is string device)
             {
-                _ascending = !_ascending;
+                _device = device;
+                _view = (ListCollectionView)CollectionViewSource.GetDefaultView(Screenshots);
+
+                // 排序只设置一次，之后集合增删由 ListCollectionView 自动重排
                 _view.SortDescriptions.Clear();
-                _view.SortDescriptions.Add(new SortDescription("Time",
-                    _ascending ? ListSortDirection.Ascending : ListSortDirection.Descending));
-            });
-
-            SelectAllCommand = new DelegateCommand(() =>
-            {
-                var allSelected = _screenshots.Count > 0 && _screenshots.All(s => s.IsSelected);
-                foreach (var s in _screenshots) s.IsSelected = !allSelected;
-                RecalcSelectedCount();
-            });
-
-            DeleteSelectedCommand = new DelegateCommand(() =>
-            {
-                var selected = _screenshots.Where(s => s.IsSelected).ToList();
-                if (selected.Count == 0)
-                {
-                    MessageBox.Show("请先选择要删除的截屏", "删除截屏",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var result = MessageBox.Show($"确定从设备上删除这 {selected.Count} 张截屏吗？此操作不可撤销。", "删除截屏",
-                    MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                if (result != MessageBoxResult.OK) return;
-
-                foreach (var item in selected)
-                {
-                    var argument = new ArgumentCreator();
-                    var cmdStr = argument.Append("-s").Append(_device).Append("shell")
-                        .Append("rm").Append(item.FilePath).ToCommandLine();
-                    new CommandExecutor(cmdStr).Execute("adb");
-                }
-
-                foreach (var item in selected) _screenshots.Remove(item);
-                RecalcSelectedCount();
-                OnPropertyChanged(nameof(EmptyVisibility));
-            });
-
-            CaptureCommand = new DelegateCommand(() =>
-            {
-                var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
-                var argument = new ArgumentCreator();
-                var cmdStr = argument.Append("-s").Append(_device).Append("shell")
-                    .Append("screencap").Append("-p").Append($"/sdcard/{fileName}").ToCommandLine();
-                new CommandExecutor(cmdStr).Execute("adb");
+                _view.SortDescriptions.Add(new SortDescription("Time", ListSortDirection.Descending));
                 LoadScreenshots();
-            });
-
-            ItemClickedCommand = new DelegateCommand<ScreenshotFile>(_ => RecalcSelectedCount());
-
-            ItemDoubleClickedCommand = new DelegateCommand<ScreenshotFile>(item =>
-            {
-                if (item == null) return;
-                Task.Run(() =>
-                {
-                    var cache = EnsureCached(item);
-                    if (File.Exists(cache))
-                    {
-                        Process.Start(cache);
-                    }
-                });
-            });
-
-            DeleteSingleCommand = new DelegateCommand<ScreenshotFile>(item =>
-            {
-                var result = MessageBox.Show($"确定从设备上删除这张截屏吗？此操作不可撤销。", "删除截屏",
-                    MessageBoxButton.OKCancel, MessageBoxImage.Question);
-                if (result != MessageBoxResult.OK) return;
-
-                var argument = new ArgumentCreator();
-                var cmdStr = argument.Append("-s").Append(_device).Append("shell")
-                    .Append("rm").Append(item.FilePath).ToCommandLine();
-                new CommandExecutor(cmdStr).Execute("adb");
-
-                _screenshots.Remove(item);
-                RecalcSelectedCount();
-                OnPropertyChanged(nameof(EmptyVisibility));
-            });
-
-            BrowseCommand = new DelegateCommand(() =>
-            {
-                using (var dialog = new FolderBrowserDialog())
-                {
-                    dialog.SelectedPath = SaveDirectory;
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                    {
-                        SaveDirectory = dialog.SelectedPath;
-                    }
-                }
-            });
-
-            ExportCommand = new DelegateCommand(() =>
-            {
-                var selected = _screenshots.Where(s => s.IsSelected).Select(s => s.FilePath).ToList();
-                if (selected.Count == 0)
-                {
-                    MessageBox.Show("请先选择要导出的截屏", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(SaveDirectory))
-                {
-                    MessageBox.Show("请选择保存目录", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                _ = ExportAsync(selected, SaveDirectory);
-            });
+            }
         }
 
-        public bool CanCloseDialog() => !IsExporting;
-
-        public void OnDialogClosed()
+        [RelayCommand]
+        private void ReLoadScreenshots()
         {
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            _device = parameters.GetValue<string>("device");
-            _view = (ListCollectionView)CollectionViewSource.GetDefaultView(_screenshots);
-
-            // 排序只设置一次，之后集合增删由 ListCollectionView 自动重排
-            _view.SortDescriptions.Clear();
-            _view.SortDescriptions.Add(new SortDescription("Time", ListSortDirection.Descending));
             LoadScreenshots();
         }
 
@@ -298,15 +126,15 @@ namespace DevKit.ViewModels
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var existing = new HashSet<string>(
-                        _screenshots.Select(s => s.FilePath), StringComparer.OrdinalIgnoreCase);
+                        Screenshots.Select(s => s.FilePath), StringComparer.OrdinalIgnoreCase);
                     var remoteSet = new HashSet<string>(
                         remote.Select(m => m.FilePath), StringComparer.OrdinalIgnoreCase);
 
-                    var removed = _screenshots.Where(s => !remoteSet.Contains(s.FilePath)).ToList();
+                    var removed = Screenshots.Where(s => !remoteSet.Contains(s.FilePath)).ToList();
                     added = remote.Where(m => !existing.Contains(m.FilePath)).ToList();
 
-                    foreach (var m in removed) _screenshots.Remove(m);
-                    foreach (var m in added) _screenshots.Add(m);
+                    foreach (var m in removed) Screenshots.Remove(m);
+                    foreach (var m in added) Screenshots.Add(m);
 
                     RecalcSelectedCount();
                     IsLoading = false;
@@ -326,8 +154,11 @@ namespace DevKit.ViewModels
             foreach (var dir in ScanDirectories)
             {
                 var argument = new ArgumentCreator();
-                var cmdStr = argument.Append("-s").Append(_device).Append("shell")
-                    .Append("ls").Append($"{dir}/*.png").ToCommandLine();
+                var cmdStr = argument.Append("-s").Append(_device)
+                    .Append("shell")
+                    .Append("ls")
+                    .Append($"{dir}/*.png")
+                    .ToCommandLine();
 
                 var executor = new CommandExecutor(cmdStr);
                 executor.OnStandardOutput += line =>
@@ -350,9 +181,9 @@ namespace DevKit.ViewModels
         /// <summary>
         /// 重新统计当前被选中的截图数量，并同步到界面
         /// </summary>
-        private void RecalcSelectedCount() => SelectedCount = _screenshots.Count(s => s.IsSelected);
+        private void RecalcSelectedCount() => SelectedCount = Screenshots.Count(s => s.IsSelected);
 
-        private static ScreenshotFile ParseScreenshot(string path)
+        private ScreenshotFile ParseScreenshot(string path)
         {
             return new ScreenshotFile
             {
@@ -361,17 +192,19 @@ namespace DevKit.ViewModels
             };
         }
 
-        private static DateTime ParseTimeFromName(string path)
+        private DateTime ParseTimeFromName(string path)
         {
             var stem = Path.GetFileNameWithoutExtension(path);
-            var match = Regex.Match(stem,
-                @"(\d{4})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})[-_]?(\d{2})");
+            var match = ScreenshotNameRegex().Match(stem);
             if (match.Success)
             {
                 var text = match.Groups[1].Value + match.Groups[2].Value + match.Groups[3].Value
                            + match.Groups[4].Value + match.Groups[5].Value + match.Groups[6].Value;
-                if (DateTime.TryParseExact(text, "yyyyMMddHHmmss",
-                        CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+                if (DateTime.TryParseExact(text,
+                        "yyyyMMddHHmmss",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out var dt))
                 {
                     return dt;
                 }
@@ -418,15 +251,168 @@ namespace DevKit.ViewModels
                 return item.CachePath;
             }
 
-            var local = Path.Combine(CacheDirectory, Path.GetFileName(item.FilePath));
+            var fileName = Path.GetFileName(item.FilePath);
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                throw new InvalidOperationException($"截图路径无效：{item.FilePath}");
+            }
+
+            var local = Path.Combine(CacheDirectory, fileName);
             item.CachePath = local;
             if (File.Exists(local)) return local;
 
             var argument = new ArgumentCreator();
             var cmdStr = argument.Append("-s").Append(_device)
-                .Append("pull").Append(item.FilePath).Append(local).ToCommandLine();
+                .Append("pull")
+                .Append(item.FilePath)
+                .Append(local)
+                .ToCommandLine();
             new CommandExecutor(cmdStr).Execute("adb");
             return local;
+        }
+
+        [RelayCommand]
+        private void SortScreenshots()
+        {
+            _ascending = !_ascending;
+            _view.SortDescriptions.Clear();
+            _view.SortDescriptions.Add(new SortDescription("Time",
+                _ascending ? ListSortDirection.Ascending : ListSortDirection.Descending));
+        }
+
+        [RelayCommand]
+        private void SelectAll()
+        {
+            var allSelected = Screenshots.Count > 0 && Screenshots.All(s => s.IsSelected);
+            foreach (var s in Screenshots) s.IsSelected = !allSelected;
+            RecalcSelectedCount();
+        }
+
+        [RelayCommand]
+        private void DeleteSelected()
+        {
+            var selected = Screenshots.Where(s => s.IsSelected).ToList();
+            if (selected.Count == 0)
+            {
+                MessageBox.Show("请先选择要删除的截屏", "删除截屏", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show($"确定从设备上删除这 {selected.Count} 张截屏吗？此操作不可撤销。", "删除截屏",
+                MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (result != MessageBoxResult.OK) return;
+
+            foreach (var item in selected)
+            {
+                var argument = new ArgumentCreator();
+                var cmdStr = argument.Append("-s").Append(_device)
+                    .Append("shell")
+                    .Append("rm")
+                    .Append(item.FilePath)
+                    .ToCommandLine();
+                new CommandExecutor(cmdStr).Execute("adb");
+            }
+
+            foreach (var item in selected) Screenshots.Remove(item);
+            RecalcSelectedCount();
+            OnPropertyChanged(nameof(EmptyVisibility));
+        }
+
+        [RelayCommand]
+        private void CaptureScreen()
+        {
+            var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
+            var argument = new ArgumentCreator();
+            var cmdStr = argument.Append("-s").Append(_device)
+                .Append("shell")
+                .Append("screencap")
+                .Append("-p")
+                .Append($"/sdcard/{fileName}")
+                .ToCommandLine();
+            new CommandExecutor(cmdStr).Execute("adb");
+            LoadScreenshots();
+        }
+
+        [RelayCommand]
+        private void ImageItemClicked()
+        {
+            RecalcSelectedCount();
+        }
+
+        /// <summary>
+        /// 双击和按钮均走这个Command
+        /// </summary>
+        /// <param name="file"></param>
+        [RelayCommand]
+        private void ImageItemDoubleClicked(ScreenshotFile file)
+        {
+            if (file == null) return;
+            Task.Run(() =>
+            {
+                var cache = EnsureCached(file);
+                if (File.Exists(cache))
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(cache)
+                        {
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Win32Exception exception)
+                    {
+                        MessageBox.Show($"无法使用系统默认程序打开该文件。\n\n{exception.Message}",
+                            "无法打开文件", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            });
+        }
+
+        [RelayCommand]
+        private void DeleteSingleImage(ScreenshotFile file)
+        {
+            var result = MessageBox.Show($"确定从设备上删除这张截屏吗？此操作不可撤销。", "删除截屏",
+                MessageBoxButton.OKCancel, MessageBoxImage.Question);
+            if (result != MessageBoxResult.OK) return;
+
+            var argument = new ArgumentCreator();
+            var cmdStr = argument.Append("-s").Append(_device).Append("shell")
+                .Append("rm").Append(file.FilePath).ToCommandLine();
+            new CommandExecutor(cmdStr).Execute("adb");
+
+            Screenshots.Remove(file);
+            RecalcSelectedCount();
+            OnPropertyChanged(nameof(EmptyVisibility));
+        }
+
+        [RelayCommand]
+        private void FolderBrowser()
+        {
+            using var dialog = new FolderBrowserDialog();
+            dialog.SelectedPath = SaveDirectory;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                SaveDirectory = dialog.SelectedPath;
+            }
+        }
+
+        [RelayCommand]
+        private void ExportScreenshots()
+        {
+            var selected = Screenshots.Where(s => s.IsSelected).Select(s => s.FilePath).ToList();
+            if (selected.Count == 0)
+            {
+                MessageBox.Show("请先选择要导出的截屏", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(SaveDirectory))
+            {
+                MessageBox.Show("请选择保存目录", "截屏导出", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            _ = ExportAsync(selected, SaveDirectory);
         }
 
         private async Task ExportAsync(List<string> remotePaths, string saveDirectory)
@@ -450,7 +436,10 @@ namespace DevKit.ViewModels
                     var localPath = GetUniqueFilePath(Path.Combine(saveDirectory, fileName));
                     var argument = new ArgumentCreator();
                     var cmdStr = argument.Append("-s").Append(_device)
-                        .Append("pull").Append(remotePath).Append(localPath).ToCommandLine();
+                        .Append("pull")
+                        .Append(remotePath)
+                        .Append(localPath)
+                        .ToCommandLine();
 
                     var exitCode = await Task.Run(() => new CommandExecutor(cmdStr).Execute("adb"));
                     if (exitCode != 0 || !File.Exists(localPath)) failed++;
