@@ -127,10 +127,10 @@ namespace DevKit.ViewModels
                     ConnectionType = GetConnectionType(serial);
 
                     // 获取设备应用列表
-                    _ = GetDeviceApplication();
+                    _ = GetDeviceApplicationAsync();
 
                     // 获取设备详情
-                    _ = LoadDeviceDetails();
+                    _ = LoadDeviceDetailsAsync();
                 }));
             };
             Task.Run(() => { executor.Execute("adb"); });
@@ -159,7 +159,7 @@ namespace DevKit.ViewModels
             ApplicationPackages.Clear();
         }
 
-        private async Task GetDeviceApplication()
+        private async Task GetDeviceApplicationAsync()
         {
             if (ApplicationPackages.Any())
             {
@@ -193,7 +193,7 @@ namespace DevKit.ViewModels
             });
         }
 
-        private async Task LoadDeviceDetails()
+        private async Task LoadDeviceDetailsAsync()
         {
             // 记录本次选中的设备，用于竞态守卫
             var device = CurrentDevice;
@@ -343,11 +343,6 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private Task Install()
-        {
-            return InstallApplicationAsync();
-        }
-
         private async Task InstallApplicationAsync()
         {
             if (CurrentDevice == "未连接任何设备")
@@ -404,7 +399,7 @@ namespace DevKit.ViewModels
                         if (success)
                         {
                             MessageBox.Show("安装成功", "安装应用", MessageBoxButton.OK, MessageBoxImage.Information);
-                            _ = GetDeviceApplication();
+                            _ = GetDeviceApplicationAsync();
                         }
                         else
                         {
@@ -473,11 +468,6 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private Task ExportPackage()
-        {
-            return ExportPackageAsync();
-        }
-
         private async Task ExportPackageAsync()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
@@ -559,11 +549,6 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private Task Uninstall()
-        {
-            return UninstallApplicationAsync();
-        }
-
         private async Task UninstallApplicationAsync()
         {
             if (string.IsNullOrEmpty(_selectedPackage))
@@ -631,7 +616,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void RefreshApplication()
         {
-            _ = GetDeviceApplication();
+            _ = GetDeviceApplicationAsync();
         }
 
         // ---- 私有辅助函数 -----

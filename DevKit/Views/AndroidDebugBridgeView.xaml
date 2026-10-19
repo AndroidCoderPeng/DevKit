@@ -793,7 +793,7 @@
                         <Button
                             Margin="0,4,4,0"
                             HorizontalAlignment="Stretch"
-                            Command="{Binding InstallCommand}"
+                            Command="{Binding InstallApplicationCommand}"
                             IsEnabled="{Binding CanInstall}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
@@ -1130,7 +1130,7 @@
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem
-                                        Command="{Binding UninstallCommand}"
+                                        Command="{Binding UninstallApplicationCommand}"
                                         Header="卸载应用"
                                         Style="{StaticResource PkgMenuItemStyle}"
                                         Tag="Danger">
