@@ -751,43 +751,6 @@ input:focus {
     background: #2c3a2f;
 }
 
-/* ---------- 提示卡片 ---------- */
-.tip-card {
-    display: flex;
-    align-items: center;
-    flex: none;
-    gap: 10px;
-    padding: 11px 14px;
-    border: 1px solid #dceee5;
-    border-radius: 10px;
-    background: #f2fbf6;
-}
-
-.tip-mark {
-    display: grid;
-    place-items: center;
-    width: 20px;
-    height: 20px;
-    flex: none;
-    border-radius: 50%;
-    color: #21875a;
-    background: #d8f2e3;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.tip-card strong {
-    color: #267453;
-    font-size: 11px;
-}
-
-.tip-card p {
-    margin: 3px 0 0;
-    color: #6f9683;
-    font-size: 10px;
-    line-height: 1.45;
-}
-
 /* ================= 状态栏 / Toast ================= */
 .statusbar {
     display: flex;
