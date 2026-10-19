@@ -29,7 +29,7 @@ namespace DevKit
             // none module dialog registrations
             services.AddDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             services.AddDialog<ApplicationPackageView, ApplicationPackageViewModel>();
-            services.AddDialog<JNIReverseView, JNIReverseViewModel>();
+            services.AddDialog<JniReverseView, JniReverseViewModel>();
             services.AddDialog<TcpClientView, TcpClientViewModel>();
             services.AddDialog<TcpServerView, TcpServerViewModel>();
             services.AddDialog<UdpClientView, UdpClientViewModel>();
