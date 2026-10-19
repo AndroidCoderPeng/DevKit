@@ -1,8 +1,10 @@
-﻿namespace DevKit.Utils;
+﻿using System;
+
+namespace DevKit.Utils;
 
 public interface IDialogService
 {
-    void Show(string key, object parameter = null);
+    void Show(Type viewType, object parameter = null);
 
-    bool? ShowDialog(string key, object parameter = null);
+    bool? ShowDialog(Type viewType, object parameter = null);
 }

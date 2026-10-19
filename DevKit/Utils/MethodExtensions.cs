@@ -12,7 +12,7 @@ namespace DevKit.Utils
             where TViewModel : class
         {
             // 对话框 ViewModel 则通常更适合 AddTransient）
-            services.AddSingleton(new DialogRegistration(typeof(TView).Name, typeof(TView), typeof(TViewModel)));
+            services.AddSingleton(new ViewModelRegistration(typeof(TView), typeof(TViewModel)));
         }
 
         /// <summary>
