@@ -7,7 +7,7 @@
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="{Binding Title}"
     Width="472"
-    Height="318"
+    Height="342"
     d:DataContext="{d:DesignInstance Type=vm:ExCommandDialogViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
@@ -140,7 +140,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="16,24,16,8">
+            <Grid Grid.Row="0" Margin="16,12,16,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -424,57 +424,59 @@
             </TextBox>
         </Grid>
 
-        <UniformGrid
+        <Border
             Grid.Row="1"
             Background="White"
-            Columns="2"
-            Rows="1">
-            <Button
-                Margin="16,16,8,16"
-                Command="{Binding CancelDialogCommand}"
-                Style="{StaticResource CompactButtonStyle}">
-                <Button.Content>
-                    <StackPanel Margin="12,0" Orientation="Horizontal">
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
-                            Text="&#xe668;" />
-                        <TextBlock
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            Text="取消" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+            BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+            BorderThickness="0,1,0,0">
+            <UniformGrid Columns="2" Rows="1">
+                <Button
+                    Margin="16,16,8,16"
+                    Command="{Binding CancelDialogCommand}"
+                    Style="{StaticResource CompactButtonStyle}">
+                    <Button.Content>
+                        <StackPanel Margin="12,0" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16"
+                                Text="&#xe668;" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                Text="取消" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
 
-            <Button Margin="8,16,16,16" Command="{Binding CommandSaveCommand}">
-                <Button.Style>
-                    <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
-                        <Setter Property="IsEnabled" Value="True" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ExCommandValue.Length}" Value="0">
-                                <Setter Property="IsEnabled" Value="False" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <Button.Content>
-                    <StackPanel Margin="12,0" Orientation="Horizontal">
-                        <TextBlock
-                            VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
-                            Text="&#xe648;" />
-                        <TextBlock
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            Text="保存" />
-                    </StackPanel>
-                </Button.Content>
-            </Button>
-        </UniformGrid>
+                <Button Margin="8,16,16,16" Command="{Binding CommandSaveCommand}">
+                    <Button.Style>
+                        <Style BasedOn="{StaticResource PrimaryCompactButtonStyle}" TargetType="Button">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ExCommandValue.Length}" Value="0">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.Content>
+                        <StackPanel Margin="12,0" Orientation="Horizontal">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                FontFamily="/DevKit;component/Fonts/#iconfont"
+                                FontSize="16"
+                                Text="&#xe648;" />
+                            <TextBlock
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                FontSize="13"
+                                Text="保存" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </UniformGrid>
+        </Border>
     </Grid>
 </Window>
