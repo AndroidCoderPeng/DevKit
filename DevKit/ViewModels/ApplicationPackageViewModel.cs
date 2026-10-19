@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,7 @@ using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DevKit.ViewModels
 {
+    [SupportedOSPlatform("windows6.1")]
     public partial class ApplicationPackageViewModel : ObservableObject
     {
         #region VM
@@ -298,7 +300,7 @@ namespace DevKit.ViewModels
                 var error = process.StandardError.ReadToEndAsync();
                 process.WaitForExit();
                 Task.WaitAll(output, error); // 等异步读取结束，确保拿全输出
-                return string.IsNullOrWhiteSpace(output.Result) ? error.Result.Trim() : output.Result?.Trim();
+                return string.IsNullOrWhiteSpace(output.Result) ? error.Result.Trim() : output.Result.Trim();
             }
         }
 

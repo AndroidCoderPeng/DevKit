@@ -13,19 +13,19 @@ using DevKit.Utils;
 
 namespace DevKit.ViewModels
 {
-    public partial class AndroidLogcatDialogViewModel : ObservableObject
+    public partial class AndroidLogcatDialogViewModel : ObservableObject, IDialogParameterReceiver
     {
         #region VM
 
-        [ObservableProperty] private ObservableCollection<AndroidLog> _logs = new();
+        [ObservableProperty] private ObservableCollection<AndroidLog> _logs = [];
         [ObservableProperty] private string _keyword = string.Empty;
         [ObservableProperty] private bool _autoScroll = true;
 
-        public ICollectionView LogsView => _logsView;
+        public ICollectionView LogsView { get; }
 
         partial void OnKeywordChanged(string value)
         {
-            _logsView.Refresh();
+            LogsView.Refresh();
         }
 
         #endregion
@@ -39,16 +39,15 @@ namespace DevKit.ViewModels
         private Process _logcatProcess;
         private bool _isPaused;
         private readonly HashSet<string> _enabledLevels = ["D"];
-        private readonly ICollectionView _logsView;
 
         public AndroidLogcatDialogViewModel()
         {
-            _logsView = CollectionViewSource.GetDefaultView(Logs);
-            _logsView.Filter = o => o is AndroidLog log
-                                    && _enabledLevels.Contains(log.Level)
-                                    && (string.IsNullOrEmpty(_keyword)
-                                        || log.Tag.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0
-                                        || log.Message.IndexOf(_keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+            LogsView = CollectionViewSource.GetDefaultView(Logs);
+            LogsView.Filter = o => o is AndroidLog log
+                                   && _enabledLevels.Contains(log.Level)
+                                   && (string.IsNullOrEmpty(_keyword)
+                                       || log.Tag.Contains(_keyword, StringComparison.OrdinalIgnoreCase)
+                                       || log.Message.Contains(_keyword, StringComparison.OrdinalIgnoreCase));
         }
 
         [RelayCommand]
@@ -76,23 +75,24 @@ namespace DevKit.ViewModels
                 _enabledLevels.Remove(level);
             }
 
-            _logsView.Refresh();
+            LogsView.Refresh();
         }
-        
+
+        public void OnDialogOpened(object parameter)
+        {
+            if (parameter is string device)
+            {
+                // 启动 adb logcat 抓取（Debug 及以上级别）
+                StartLogcatCapture(device);
+            }
+        }
+
         // public void OnDialogClosed()
         // {
         //     StopLogcatCapture();
         // }
 
-        // public void OnDialogOpened(IDialogParameters parameters)
-        // {
-        //     _device = parameters.GetValue<string>("device");
-        //
-        //     // 启动 adb logcat 抓取（Debug 及以上级别）
-        //     StartLogcatCapture();
-        // }
-
-        public void StartLogcatCapture(string device)
+        private void StartLogcatCapture(string device)
         {
             if (string.IsNullOrEmpty(device)) return;
 

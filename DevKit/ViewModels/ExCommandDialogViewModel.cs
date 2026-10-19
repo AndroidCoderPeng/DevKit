@@ -6,15 +6,14 @@ using System.Windows;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DevKit.Cache;
+using DevKit.Utils;
 using MessageBox = System.Windows.MessageBox;
 
 namespace DevKit.ViewModels
 {
-    public class ExCommandDialogViewModel : ObservableObject
+    public class ExCommandDialogViewModel : ObservableObject, IDialogParameterReceiver
     {
         public string Title { private set; get; }
-
-        public event Action<IDialogResult> RequestClose;
 
         #region VM
 
@@ -84,31 +83,22 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        private static readonly Regex HexTokenRegex = new Regex("^[0-9a-fA-F]{1,2}$", RegexOptions.Compiled);
+        private static readonly Regex HexTokenRegex = new("^[0-9a-fA-F]{1,2}$", RegexOptions.Compiled);
 
-        public bool CanCloseDialog()
+        public void OnDialogOpened(object parameter)
         {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-            if (parameters.Keys.Any())
-            {
-                Title = "编辑扩展指令";
-                var command = parameters.GetValue<ExCommandConfig>("ExCommand");
-                CommandType = command.Type;
-                ExCommandValue = command.Value;
-                CommandMemo = command.Memo;
-            }
-            else
-            {
-                Title = "添加扩展指令";
-            }
+            // if (parameters.Keys.Any())
+            // {
+            //     Title = "编辑扩展指令";
+            //     var command = parameters.GetValue<ExCommandConfig>("ExCommand");
+            //     CommandType = command.Type;
+            //     ExCommandValue = command.Value;
+            //     CommandMemo = command.Memo;
+            // }
+            // else
+            // {
+            //     Title = "添加扩展指令";
+            // }
         }
 
         public ExCommandDialogViewModel()

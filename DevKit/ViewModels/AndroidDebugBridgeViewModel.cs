@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DevKit.Dialogs;
 using DevKit.Utils;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
@@ -306,13 +307,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // TODO: 2024-06-10 17:00:00 暂时屏蔽截图导出功能，后续改
-            // var dialogParameters = new DialogParameters
-            // {
-            //     { "device", CurrentDevice }
-            // };
-            //
-            // _dialogService.ShowDialog("ScreenshotExportDialog", dialogParameters, _ => { });
+            _dialogService.ShowDialog(typeof(ScreenshotExportDialog), CurrentDevice);
         }
 
         [RelayCommand]
@@ -340,13 +335,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            // TODO: 2024-06-10 17:00:00 暂时屏蔽日志查看功能，后续改
-            // var dialogParameters = new DialogParameters
-            // {
-            //     { "device", CurrentDevice }
-            // };
-            //
-            // _dialogService.ShowDialog("AndroidLogcatDialog", dialogParameters, _ => { });
+            _dialogService.ShowDialog(typeof(AndroidLogcatDialog), CurrentDevice);
         }
 
         [RelayCommand]
