@@ -80,33 +80,14 @@ namespace DevKit.ViewModels
                 }
             }
         }
-        
+
         public string PlaceHolderText => IsSendAsciiSelected
             ? "输入要发送的内容：HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
             : "输入要发送的内容：ASCII 模式下将按 UTF-8 编码发送";
 
         #endregion
 
-        #region RelayCommand
-
-        public RelayCommand ConnectServerCommand { set; get; }
-        public RelayCommand AddExtensionCommand { set; get; }
-        public RelayCommand<string> ExCommandItemSelectedCommand { set; get; }
-        public RelayCommand<ExCommandConfig> QuickSendCommand { set; get; }
-        public RelayCommand<ExCommandConfig> EditExCommand { set; get; }
-        public RelayCommand<ExCommandConfig> DeleteExCommand { set; get; }
-        public RelayCommand<string> CopyExCommand { set; get; }
-        public RelayCommand SendMessageCommand { set; get; }
-        public RelayCommand<string> CopyLogCommand { set; get; }
-        public RelayCommand SaveLogCommand { set; get; }
-        public RelayCommand ClearLogCommand { set; get; }
-        public RelayCommand<string> DisplayRadioChangedCommand { set; get; }
-        public RelayCommand<string> SendRadioChangedCommand { set; get; }
-        public RelayCommand<object> LoopSendSwitchCommand { set; get; }
-        public RelayCommand OpenScriptCommand { set; get; }
-
-        #endregion
-
+        private readonly IDialogService _dialogService;
         private TcpClientTransport _transport;
         private bool _isConnecting;
         private DateTime _sessionStartedAt;
@@ -122,182 +103,14 @@ namespace DevKit.ViewModels
 
         public TcpClientViewModel(IDialogService dialogService)
         {
+            _dialogService = dialogService;
+
             _config = SettingsStore.Load<TcpConfig>(ConfigSections.FileName, ConfigSections.Tcp);
             RemoteAddress = _config.Server.Ip;
             RemotePort = _config.Server.Port;
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
 
             _logs.CollectionChanged += Logs_CollectionChanged;
-
-            ConnectServerCommand = new RelayCommand(() => _ = ConnectServerAsync());
-
-            AddExtensionCommand = new RelayCommand(() =>
-            {
-                var context = new ExCommandDialogContext();
-                if (dialogService.ShowDialog(typeof(ExCommandDialog), context) == true)
-                {
-                    _config.ExCommands.Add(new ExCommandConfig
-                    {
-                        Type = context.Type,
-                        Value = context.Value,
-                        Memo = context.Memo
-                    });
-                    PersistConfig();
-                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
-                }
-            });
-
-            ExCommandItemSelectedCommand = new RelayCommand<string>(value => { UserInputText = value; });
-
-            QuickSendCommand = new RelayCommand<ExCommandConfig>(command => { _ = QuickSendAsync(command); });
-
-            EditExCommand = new RelayCommand<ExCommandConfig>(command =>
-            {
-                if (command == null)
-                {
-                    return;
-                }
-
-                var context = new ExCommandDialogContext(command);
-                if (dialogService.ShowDialog(typeof(ExCommandDialog), context) == true)
-                {
-                    command.Type = context.Type;
-                    command.Value = context.Value;
-                    command.Memo = context.Memo;
-                    PersistConfig();
-                    ExCommandCollection = _config.ExCommands.ToObservableCollection();
-                }
-            });
-
-            DeleteExCommand = new RelayCommand<ExCommandConfig>(command =>
-            {
-                if (command == null || !_config.ExCommands.Remove(command))
-                {
-                    ShowToast("未找到要删除的扩展指令");
-                    return;
-                }
-
-                ExCommandCollection.Remove(command);
-                PersistConfig();
-                ShowToast("扩展指令已删除");
-            });
-
-            CopyExCommand = new RelayCommand<string>(value =>
-            {
-                Clipboard.SetText(value);
-                ShowToast("已复制到剪贴板");
-            });
-
-            SendMessageCommand = new RelayCommand(() => { _ = SendInputAsync(); });
-
-            CopyLogCommand = new RelayCommand<string>(log =>
-            {
-                Clipboard.SetText(log);
-                ShowToast("已复制到剪贴板");
-            });
-
-            SaveLogCommand = new RelayCommand(() =>
-            {
-                if (!_logs.Any())
-                {
-                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                var fileDialog = new SaveFileDialog
-                {
-                    DefaultExt = ".txt",
-                    Filter = "Log文件(*.txt)|*.txt"
-                };
-                if (fileDialog.ShowDialog() != true) return;
-
-                var savePath = fileDialog.FileName;
-                using (var writer = new StreamWriter(savePath))
-                {
-                    foreach (var log in _logs)
-                    {
-                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
-                        writer.WriteLine(text);
-                    }
-                }
-            });
-
-            ClearLogCommand = new RelayCommand(() => { Logs.Clear(); });
-
-            DisplayRadioChangedCommand = new RelayCommand<string>(value =>
-            {
-                if (value == "0")
-                {
-                    IsLogHexSelected = true;
-                }
-                else if (value == "1")
-                {
-                    IsLogHexSelected = false;
-                }
-            });
-
-            SendRadioChangedCommand = new RelayCommand<string>(value =>
-            {
-                if (value == "0")
-                {
-                    IsSendHexSelected = true;
-                }
-                else if (value == "1")
-                {
-                    IsSendHexSelected = false;
-                }
-            });
-
-            LoopSendSwitchCommand = new RelayCommand<object>(value =>
-            {
-                if (!(value is bool isChecked)) return;
-
-                if (isChecked)
-                {
-                    StartLoopSending();
-                }
-                else
-                {
-                    StopLoopSending();
-                }
-            });
-
-            OpenScriptCommand = new RelayCommand(() =>
-            {
-                var context = new CommandScriptDialogContext(_exCommandCollection);
-                if (dialogService.ShowDialog(typeof(CommandScriptDialog), context) != true)
-                {
-                    return;
-                }
-
-                var commands = context.Commands;
-                var interval = context.Interval;
-
-                if (commands == null || commands.Count == 0)
-                {
-                    ShowToast("请先添加脚本指令");
-                    return;
-                }
-
-                if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
-                {
-                    ShowToast("时间间隔必须是正整数");
-                    return;
-                }
-
-                if (_transport == null || ConnectionState != "已连接")
-                {
-                    ShowToast("请先连接 TCP 服务器");
-                    return;
-                }
-
-                StopCommandScript();
-
-                _commandEnumerator = commands.GetEnumerator();
-                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
-                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
-                _scriptTimer.Start();
-            });
         }
 
         partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
@@ -340,6 +153,7 @@ namespace DevKit.ViewModels
             }
         }
 
+        [RelayCommand]
         private async Task ConnectServerAsync()
         {
             if (_isConnecting)
@@ -367,7 +181,7 @@ namespace DevKit.ViewModels
 
             _isConnecting = true;
 
-            var transport = new TcpClientTransport(_remoteAddress, Convert.ToInt32(_remotePort));
+            var transport = new TcpClientTransport(RemoteAddress, Convert.ToInt32(RemotePort));
             var token = new object();
             _transport = transport;
             _transportConnectionToken = token;
@@ -461,7 +275,7 @@ namespace DevKit.ViewModels
 
         private string FormatLogContent(byte[] bytes)
         {
-            return _isLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
+            return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
 
         private void SetConnectionState(string state)
@@ -537,30 +351,39 @@ namespace DevKit.ViewModels
 
         private void PersistConfig()
         {
-            _config.Server.Ip = _remoteAddress;
-            _config.Server.Port = _remotePort;
+            _config.Server.Ip = RemoteAddress;
+            _config.Server.Port = RemotePort;
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.Tcp, _config);
         }
 
-        private void ShowToast(string message)
+        [RelayCommand]
+        private void AddExtension()
         {
-            ToastMessage = message;
-            IsToastVisible = true;
-
-            if (_toastTimer == null)
+            // 无参数
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog)) == true)
             {
-                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
-                {
-                    _toastTimer.Stop();
-                    IsToastVisible = false;
-                };
-            }
+                var commandType = result.Parameters.GetValue<string>("Type");
+                var commandValue = result.Parameters.GetValue<string>("Value");
+                var commandMemo = result.Parameters.GetValue<string>("Memo");
 
-            _toastTimer.Stop();
-            _toastTimer.Start();
+                _config.ExCommands.Add(new ExCommandConfig
+                {
+                    Type = commandType,
+                    Value = commandValue,
+                    Memo = commandMemo
+                });
+                PersistConfig();
+                ExCommandCollection = _config.ExCommands.ToObservableCollection();
+            }
         }
 
+        [RelayCommand]
+        private void ExCommandItemSelected(string value)
+        {
+            UserInputText = value;
+        }
+
+        [RelayCommand]
         private async Task QuickSendAsync(ExCommandConfig command)
         {
             if (command == null || string.IsNullOrWhiteSpace(command.Value))
@@ -577,31 +400,32 @@ namespace DevKit.ViewModels
             }
 
             byte[] payload;
-            if (command.Type == "HEX")
+            switch (command.Type)
             {
-                var tokens = command.Value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-                var bytes = new List<byte>();
-                foreach (var token in tokens)
+                case "HEX":
                 {
-                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
+                    var tokens = command.Value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                    var bytes = new List<byte>();
+                    foreach (var token in tokens)
                     {
-                        MessageBox.Show("HEX 指令格式无效", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
+                        if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var value))
+                        {
+                            MessageBox.Show("HEX 指令格式无效", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+
+                        bytes.Add(value);
                     }
 
-                    bytes.Add(value);
+                    payload = [.. bytes];
+                    break;
                 }
-
-                payload = bytes.ToArray();
-            }
-            else if (command.Type == "ASCII")
-            {
-                payload = Encoding.UTF8.GetBytes(command.Value);
-            }
-            else
-            {
-                MessageBox.Show($"不支持的指令类型：{command.Type}", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                case "ASCII":
+                    payload = Encoding.UTF8.GetBytes(command.Value);
+                    break;
+                default:
+                    MessageBox.Show($"不支持的指令类型：{command.Type}", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
             }
 
             try
@@ -623,9 +447,69 @@ namespace DevKit.ViewModels
             }
         }
 
-        private async Task SendInputAsync()
+        [RelayCommand]
+        private void EditEx(ExCommandConfig command)
         {
-            var value = _userInputText;
+            if (command == null)
+            {
+                return;
+            }
+
+            // 带参数
+            if (_dialogService.ShowDialog(typeof(ExCommandDialog)) == true)
+            {
+                command.Type = context.Type;
+                command.Value = context.Value;
+                command.Memo = context.Memo;
+                PersistConfig();
+                ExCommandCollection = _config.ExCommands.ToObservableCollection();
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteEx(ExCommandConfig command)
+        {
+            if (command == null || !_config.ExCommands.Remove(command))
+            {
+                ShowToast("未找到要删除的扩展指令");
+                return;
+            }
+
+            ExCommandCollection.Remove(command);
+            PersistConfig();
+            ShowToast("扩展指令已删除");
+        }
+
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
+
+            if (_toastTimer == null)
+            {
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (s, e) =>
+                {
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
+
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
+
+        [RelayCommand]
+        private void CopyEx(string value)
+        {
+            Clipboard.SetText(value);
+            ShowToast("已复制到剪贴板");
+        }
+
+        [RelayCommand]
+        private async Task SendMessageAsync()
+        {
+            var value = UserInputText;
             if (string.IsNullOrWhiteSpace(value))
             {
                 MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -634,15 +518,90 @@ namespace DevKit.ViewModels
 
             await QuickSendAsync(new ExCommandConfig
             {
-                Type = _isSendHexSelected ? "HEX" : "ASCII",
+                Type = IsSendHexSelected ? "HEX" : "ASCII",
                 Value = value,
                 Memo = "用户输入"
             });
         }
 
+        [RelayCommand]
+        private void CopyLog(string log)
+        {
+            Clipboard.SetText(log);
+            ShowToast("已复制到剪贴板");
+        }
+
+        [RelayCommand]
+        private void SaveLog()
+        {
+            if (!Logs.Any())
+            {
+                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var fileDialog = new SaveFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Log文件(*.txt)|*.txt"
+            };
+            if (fileDialog.ShowDialog() != true) return;
+
+            var savePath = fileDialog.FileName;
+            using var writer = new StreamWriter(savePath);
+            foreach (var log in Logs)
+            {
+                var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                writer.WriteLine(text);
+            }
+        }
+
+        [RelayCommand]
+        private void ClearLog()
+        {
+            Logs.Clear();
+        }
+
+        [RelayCommand]
+        private void DisplayRadioChanged(string value)
+        {
+            IsLogHexSelected = value switch
+            {
+                "0" => true,
+                "1" => false,
+                _ => IsLogHexSelected
+            };
+        }
+
+        [RelayCommand]
+        private void SendRadioChanged(string value)
+        {
+            IsSendHexSelected = value switch
+            {
+                "0" => true,
+                "1" => false,
+                _ => IsSendHexSelected
+            };
+        }
+
+        [RelayCommand]
+        private void LoopSendSwitch(object value)
+        {
+            if (value is not bool isChecked) return;
+
+            if (isChecked)
+            {
+                StartLoopSending();
+            }
+            else
+            {
+                StopLoopSending();
+            }
+        }
+
         private void StartLoopSending()
         {
-            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+            if (!int.TryParse(Interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
             {
                 MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
@@ -656,7 +615,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(_userInputText))
+            if (string.IsNullOrWhiteSpace(UserInputText))
             {
                 MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
@@ -689,7 +648,7 @@ namespace DevKit.ViewModels
         {
             try
             {
-                await SendInputAsync();
+                await SendMessageAsync();
             }
             catch (Exception ex)
             {
@@ -701,6 +660,42 @@ namespace DevKit.ViewModels
             finally
             {
                 _isLoopSendInProgress = false;
+            }
+        }
+
+        [RelayCommand]
+        private void OpenScript()
+        {
+            // 带参数
+            if (_dialogService.ShowDialog(typeof(CommandScriptDialog)) == true)
+            {
+                var commands = result.Parameters.GetValue<ObservableCollection<ExCommandConfig>>("Commands");
+                var interval = result.Parameters.GetValue<string>("Interval");
+
+                if (commands == null || commands.Count == 0)
+                {
+                    ShowToast("请先添加脚本指令");
+                    return;
+                }
+
+                if (!int.TryParse(interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+                {
+                    ShowToast("时间间隔必须是正整数");
+                    return;
+                }
+
+                if (_transport == null)
+                {
+                    ShowToast("Udp协议尚未初始化，请先点击【应用对端】按钮");
+                    return;
+                }
+
+                StopCommandScript();
+
+                _commandEnumerator = commands.GetEnumerator();
+                _scriptTimer.Interval = TimeSpan.FromMilliseconds(Convert.ToDouble(interval));
+                _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
+                _scriptTimer.Start();
             }
         }
 
