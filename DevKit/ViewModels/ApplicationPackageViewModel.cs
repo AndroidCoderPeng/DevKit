@@ -204,7 +204,7 @@ namespace DevKit.ViewModels
                 {
                     var nameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
                     var index = nameWithoutExtension.IndexOf("20", StringComparison.Ordinal);
-                    var fileName = index < 0 ? nameWithoutExtension : nameWithoutExtension[..(index - 1)];
+                    var fileName = index > 0 ? nameWithoutExtension[..(index - 1)] : nameWithoutExtension;
 
                     apk = new ApkFile
                     {

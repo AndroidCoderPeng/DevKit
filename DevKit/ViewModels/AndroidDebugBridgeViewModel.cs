@@ -181,14 +181,21 @@ namespace DevKit.ViewModels
                 var executor = new CommandExecutor(cmdStr);
                 executor.OnStandardOutput += delegate(string value)
                 {
-                    var package = value.Split([":"], StringSplitOptions.None)[1];
-                    if (!ApplicationPackages.Contains(package))
+                    var line = value.Trim();
+                    const string prefix = "package:";
+
+                    if (!line.StartsWith(prefix, StringComparison.Ordinal)) return;
+
+                    var package = line[prefix.Length..].Trim();
+                    if (package.Length == 0) return;
+
+                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        if (!ApplicationPackages.Contains(package))
                         {
                             ApplicationPackages.Add(package);
-                        }));
-                    }
+                        }
+                    }));
                 };
                 executor.Execute("adb");
             });
