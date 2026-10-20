@@ -23,7 +23,7 @@ namespace DevKit.ViewModels
     {
         #region VM
 
-        [ObservableProperty] private string _currentDevice = string.Empty;
+        [ObservableProperty] private string _currentDevice = Flags;
         [ObservableProperty] private string _deviceBrand;
         [ObservableProperty] private string _deviceModel;
         [ObservableProperty] private string _connectionType;
@@ -64,6 +64,7 @@ namespace DevKit.ViewModels
         private partial Regex WifiRegex();
 
         private readonly IDialogService _dialogService;
+        private const string Flags = "no device connected";
         private volatile bool _deviceLoaded;
         private DispatcherTimer _toastTimer;
         private long _chargeCounterUah;
@@ -139,7 +140,7 @@ namespace DevKit.ViewModels
         private void InitValueBinding()
         {
             // 清空设备相关绑定，避免切换/刷新设备时残留上一台设备的数据
-            CurrentDevice = "no device connected";
+            CurrentDevice = Flags;
             DeviceBrand = string.Empty;
             DeviceModel = string.Empty;
             ConnectionType = string.Empty;
@@ -305,7 +306,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void OutputImage()
         {
-            if (CurrentDevice == "未连接任何设备")
+            if (CurrentDevice == Flags)
             {
                 ShowToast("请先刷新并连接设备");
                 return;
@@ -317,6 +318,12 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void Screenshot()
         {
+            if (CurrentDevice == Flags)
+            {
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+            
             var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
             var argument = new ArgumentCreator();
             var cmdStr = argument.Append("-s").Append(CurrentDevice)
@@ -333,7 +340,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void ShowLogcat()
         {
-            if (CurrentDevice == "未连接任何设备")
+            if (CurrentDevice == Flags)
             {
                 ShowToast("请先刷新并连接设备");
                 return;
@@ -345,7 +352,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private async Task InstallApplicationAsync()
         {
-            if (CurrentDevice == "未连接任何设备")
+            if (CurrentDevice == Flags)
             {
                 ShowToast("请先刷新并连接设备");
                 return;
@@ -557,7 +564,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (CurrentDevice == "未连接任何设备")
+            if (CurrentDevice == Flags)
             {
                 ShowToast("请先刷新并连接设备");
                 return;
