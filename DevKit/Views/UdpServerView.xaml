@@ -7,13 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="1024"
-    Height="760"
+    Title="UDP服务端"
+    Width="1066"
+    Height="768"
     d:DataContext="{d:DesignInstance Type=vm:UdpServerViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -1015,12 +1015,9 @@
                                                         FontSize="14"
                                                         FontWeight="SemiBold"
                                                         Foreground="{DynamicResource DevKitTextBrush}">
-                                                        <TextBlock.Text>
-                                                            <MultiBinding StringFormat="{}{0}:{1}">
-                                                                <Binding Path="Ip" />
-                                                                <Binding Path="Port" />
-                                                            </MultiBinding>
-                                                        </TextBlock.Text>
+                                                        <Run Text="{Binding Ip}" />
+                                                        <Run Text=":" />
+                                                        <Run Text="{Binding Port}" />
                                                     </TextBlock>
 
                                                     <TextBlock Margin="0,4,0,0">
@@ -1229,12 +1226,9 @@
                                         VerticalAlignment="Center"
                                         FontWeight="SemiBold"
                                         Foreground="#7C5CFF">
-                                        <TextBlock.Text>
-                                            <MultiBinding StringFormat="{}{0}:{1}">
-                                                <Binding Path="SelectedClient.Ip" />
-                                                <Binding Path="SelectedClient.Port" />
-                                            </MultiBinding>
-                                        </TextBlock.Text>
+                                        <Run Text="{Binding SelectedClient.Ip, FallbackValue=-}" />
+                                        <Run Text=":" />
+                                        <Run Text="{Binding SelectedClient.Port, FallbackValue=-}" />
                                     </TextBlock>
                                 </Border>
 
@@ -1707,13 +1701,11 @@
                 Grid.Column="0"
                 Margin="16"
                 Foreground="{Binding StateTextColor}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0} {1}:{2}">
-                        <Binding Path="StateText" />
-                        <Binding Path="SelectedIp" />
-                        <Binding Path="LocalPort" />
-                    </MultiBinding>
-                </TextBlock.Text>
+                <Run Text="{Binding StateText}" />
+                <Run Text=" " />
+                <Run Text="{Binding SelectedIp}" />
+                <Run Text=":" />
+                <Run Text="{Binding LocalPort}" />
             </TextBlock>
 
             <Border

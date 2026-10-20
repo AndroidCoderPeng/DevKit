@@ -12,10 +12,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
 using DevKit.Transports.Enums;
+using DevKit.Utils;
 using Microsoft.Win32;
 
 namespace DevKit.ViewModels
@@ -23,31 +25,6 @@ namespace DevKit.ViewModels
     public class UdpServerViewModel : ObservableObject
     {
         public string Title => "UDP服务端";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-            StopLoopSending();
-            StopRunningTimer();
-            _toastTimer?.Stop();
-
-            _server?.Dispose();
-            _server = null;
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
 
         #region VM
 
@@ -365,20 +342,20 @@ namespace DevKit.ViewModels
 
         #endregion
 
-        #region DelegateCommand
+        #region RelayCommand
 
-        public DelegateCommand ListenPortCommand { set; get; }
-        public DelegateCommand ClearAllClientCommand { set; get; }
-        public DelegateCommand<UdpServerClient> CopyAddressCommand { set; get; }
-        public DelegateCommand<UdpServerClient> RemoveClientCommand { set; get; }
-        public DelegateCommand<UdpServerClient> ClientItemSelectedCommand { set; get; }
-        public DelegateCommand<string> DisplayRadioChangedCommand { set; get; }
-        public DelegateCommand SaveLogCommand { set; get; }
-        public DelegateCommand ClearLogCommand { set; get; }
-        public DelegateCommand<string> CopyLogCommand { set; get; }
-        public DelegateCommand SendMessageCommand { set; get; }
-        public DelegateCommand<string> SendRadioChangedCommand { set; get; }
-        public DelegateCommand<object> LoopSendSwitchCommand { set; get; }
+        public RelayCommand ListenPortCommand { set; get; }
+        public RelayCommand ClearAllClientCommand { set; get; }
+        public RelayCommand<UdpServerClient> CopyAddressCommand { set; get; }
+        public RelayCommand<UdpServerClient> RemoveClientCommand { set; get; }
+        public RelayCommand<UdpServerClient> ClientItemSelectedCommand { set; get; }
+        public RelayCommand<string> DisplayRadioChangedCommand { set; get; }
+        public RelayCommand SaveLogCommand { set; get; }
+        public RelayCommand ClearLogCommand { set; get; }
+        public RelayCommand<string> CopyLogCommand { set; get; }
+        public RelayCommand SendMessageCommand { set; get; }
+        public RelayCommand<string> SendRadioChangedCommand { set; get; }
+        public RelayCommand<object> LoopSendSwitchCommand { set; get; }
 
         #endregion
 
@@ -399,9 +376,9 @@ namespace DevKit.ViewModels
 
             _logs.CollectionChanged += Logs_CollectionChanged;
 
-            ListenPortCommand = new DelegateCommand(() => _ = StartListeningAsync());
+            ListenPortCommand = new RelayCommand(() => _ = StartListeningAsync());
 
-            ClearAllClientCommand = new DelegateCommand(() =>
+            ClearAllClientCommand = new RelayCommand(() =>
             {
                 // 清空来源列表是纯界面操作，不需要服务处于监听中
                 ClientItems.Clear();
@@ -412,7 +389,7 @@ namespace DevKit.ViewModels
                 Logs = new ObservableCollection<SocketMessage>();
             });
 
-            CopyAddressCommand = new DelegateCommand<UdpServerClient>(client =>
+            CopyAddressCommand = new RelayCommand<UdpServerClient>(client =>
             {
                 if (client == null)
                 {
@@ -424,7 +401,7 @@ namespace DevKit.ViewModels
                 ShowToast($"已复制 {address}");
             });
 
-            RemoveClientCommand = new DelegateCommand<UdpServerClient>(client =>
+            RemoveClientCommand = new RelayCommand<UdpServerClient>(client =>
             {
                 if (client == null)
                 {
@@ -450,7 +427,7 @@ namespace DevKit.ViewModels
                 RefreshUnreadMessageCount();
             });
 
-            ClientItemSelectedCommand = new DelegateCommand<UdpServerClient>(client =>
+            ClientItemSelectedCommand = new RelayCommand<UdpServerClient>(client =>
             {
                 if (client == null)
                 {
@@ -471,7 +448,7 @@ namespace DevKit.ViewModels
                 RefreshUnreadMessageCount();
             });
 
-            DisplayRadioChangedCommand = new DelegateCommand<string>(value =>
+            DisplayRadioChangedCommand = new RelayCommand<string>(value =>
             {
                 if (value == "0")
                 {
@@ -483,7 +460,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            SaveLogCommand = new DelegateCommand(() =>
+            SaveLogCommand = new RelayCommand(() =>
             {
                 if (_selectedClient == null)
                 {
@@ -515,7 +492,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            ClearLogCommand = new DelegateCommand(() =>
+            ClearLogCommand = new RelayCommand(() =>
             {
                 if (_selectedClient == null)
                 {
@@ -537,15 +514,15 @@ namespace DevKit.ViewModels
                 RefreshUnreadMessageCount();
             });
 
-            CopyLogCommand = new DelegateCommand<string>(log =>
+            CopyLogCommand = new RelayCommand<string>(log =>
             {
                 Clipboard.SetText(log);
                 ShowToast("已复制到剪贴板");
             });
 
-            SendMessageCommand = new DelegateCommand(() => { _ = SendInputAsync(); });
+            SendMessageCommand = new RelayCommand(() => { _ = SendInputAsync(); });
 
-            SendRadioChangedCommand = new DelegateCommand<string>(value =>
+            SendRadioChangedCommand = new RelayCommand<string>(value =>
             {
                 if (value == "0")
                 {
@@ -557,7 +534,7 @@ namespace DevKit.ViewModels
                 }
             });
 
-            LoopSendSwitchCommand = new DelegateCommand<object>(value =>
+            LoopSendSwitchCommand = new RelayCommand<object>(value =>
             {
                 if (!(value is bool isChecked)) return;
 
@@ -1001,6 +978,16 @@ namespace DevKit.ViewModels
             {
                 _isLoopSendInProgress = false;
             }
+        }
+        
+        public void OnDialogClosed()
+        {
+            StopLoopSending();
+            StopRunningTimer();
+            _toastTimer?.Stop();
+
+            _server?.Dispose();
+            _server = null;
         }
     }
 }

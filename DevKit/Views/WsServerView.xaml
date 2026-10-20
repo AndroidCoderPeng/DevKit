@@ -1013,12 +1013,9 @@
                                                         FontSize="14"
                                                         FontWeight="SemiBold"
                                                         Foreground="{DynamicResource DevKitTextBrush}">
-                                                        <TextBlock.Text>
-                                                            <MultiBinding StringFormat="{}{0}:{1}">
-                                                                <Binding Path="Ip" />
-                                                                <Binding Path="Port" />
-                                                            </MultiBinding>
-                                                        </TextBlock.Text>
+                                                        <Run Text="{Binding Ip}" />
+                                                        <Run Text=":" />
+                                                        <Run Text="{Binding Port}" />
                                                     </TextBlock>
 
                                                     <TextBlock Margin="0,4,0,0">
@@ -1743,13 +1740,11 @@
                 Grid.Column="0"
                 Margin="16"
                 Foreground="{Binding StateTextColor}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0} {1}:{2}">
-                        <Binding Path="StateText" />
-                        <Binding Path="SelectedIp" />
-                        <Binding Path="LocalPort" />
-                    </MultiBinding>
-                </TextBlock.Text>
+                <Run Text="{Binding StateText}" />
+                <Run Text=" " />
+                <Run Text="{Binding SelectedIp}" />
+                <Run Text=":" />
+                <Run Text="{Binding LocalPort}" />
             </TextBlock>
 
             <Border
