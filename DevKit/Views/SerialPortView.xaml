@@ -5,13 +5,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="1024"
-    Height="760"
+    Title="串口通信"
+    Width="1066"
+    Height="768"
     d:DataContext="{d:DesignInstance Type=vm:SerialPortViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Grid />

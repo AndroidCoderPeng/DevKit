@@ -7,13 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DevKit.ViewModels"
-    Width="1024"
-    Height="760"
+    Title="WebSocket服务端"
+    Width="1066"
+    Height="768"
     d:DataContext="{d:DesignInstance Type=vm:WsServerViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -669,7 +669,7 @@
                 Grid.Column="7"
                 Margin="14,0"
                 HorizontalAlignment="Right"
-                Command="{Binding ListenPortCommand}"
+                Command="{Binding StartListeningCommand}"
                 Style="{StaticResource PrimaryCompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="12,0" Orientation="Horizontal">
