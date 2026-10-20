@@ -76,6 +76,8 @@ namespace DevKit.Models
 
         private void SubscribeToChangedLogs(IList logs)
         {
+            if (logs is null) return;
+            
             foreach (SocketMessage log in logs)
             {
                 SubscribeToLogs([log]);
@@ -94,6 +96,8 @@ namespace DevKit.Models
 
         private void UnsubscribeFromChangedLogs(IList logs)
         {
+            if (logs is null) return;
+            
             foreach (SocketMessage log in logs)
             {
                 if (_subscribedLogs.Remove(log))

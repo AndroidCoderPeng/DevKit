@@ -742,6 +742,9 @@ namespace DevKit.ViewModels
         {
             PersistConfig();
             StopCommandScript();
+            _ = _transport?.DisconnectAsync();
+            _transport?.Dispose();
+            _transport = null;
         }
     }
 }

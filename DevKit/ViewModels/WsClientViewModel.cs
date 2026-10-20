@@ -137,7 +137,7 @@ namespace DevKit.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            
+
             if (_isConnecting)
             {
                 return;
@@ -238,7 +238,7 @@ namespace DevKit.ViewModels
                 StateTextColor = "#5F6B7A";
             }
         }
-        
+
         private void StartSessionTimer()
         {
             StopSessionTimer();
@@ -253,7 +253,7 @@ namespace DevKit.ViewModels
             _sessionTimer.Tick += SessionTickEvent;
             _sessionTimer.Start();
         }
-        
+
         private void StopSessionTimer()
         {
             if (_sessionTimer == null)
@@ -267,18 +267,18 @@ namespace DevKit.ViewModels
 
             UpdateSessionDuration();
         }
-        
+
         private void SessionTickEvent(object sender, EventArgs e)
         {
             UpdateSessionDuration();
         }
-        
+
         private void UpdateSessionDuration()
         {
             var elapsed = DateTime.Now - _sessionStartedAt;
             SessionDuration = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
-        
+
         private void UpdateTransportMessage(byte[] bytes, WsFrameKind kind)
         {
             if (bytes == null || bytes.Length == 0)
@@ -300,12 +300,12 @@ namespace DevKit.ViewModels
 
             LastDataTime = time;
         }
-        
+
         private string FormatLogContent(byte[] bytes)
         {
             return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
-        
+
         [RelayCommand]
         private void AddExtension()
         {
@@ -406,7 +406,7 @@ namespace DevKit.ViewModels
             _config.Server.Path = WsPath;
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.WebSocket, _config);
         }
-        
+
         [RelayCommand]
         private void DeleteEx(ExCommandConfig command)
         {
@@ -420,7 +420,7 @@ namespace DevKit.ViewModels
             PersistConfig();
             ShowToast("扩展指令已删除");
         }
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;
@@ -446,7 +446,7 @@ namespace DevKit.ViewModels
             Clipboard.SetText(value);
             ShowToast("已复制到剪贴板");
         }
-        
+
         [RelayCommand]
         private async Task SendMessageAsync()
         {
@@ -502,7 +502,7 @@ namespace DevKit.ViewModels
         {
             Logs.Clear();
         }
-        
+
         [RelayCommand]
         private void DisplayRadioChanged(string value)
         {
@@ -524,7 +524,7 @@ namespace DevKit.ViewModels
                 _ => IsSendHexSelected
             };
         }
-        
+
         [RelayCommand]
         private void LoopSendSwitch(object value)
         {
@@ -539,7 +539,7 @@ namespace DevKit.ViewModels
                 StopLoopSending();
             }
         }
-        
+
         private void StartLoopSending()
         {
             if (!int.TryParse(Interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
@@ -642,7 +642,7 @@ namespace DevKit.ViewModels
             _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
             _scriptTimer.Start();
         }
-        
+
         private void StopCommandScript()
         {
             _scriptTimer.Stop();
@@ -691,6 +691,9 @@ namespace DevKit.ViewModels
         {
             PersistConfig();
             StopCommandScript();
+            _ = _transport?.DisconnectAsync();
+            _transport?.Dispose();
+            _transport = null;
         }
     }
 }
