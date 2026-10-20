@@ -1,0 +1,26 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!--  ===== 字体族（中英文混排基线）=====  -->
+    <!--  英文/数字走 Segoe UI，中文自动 fallback 微软雅黑  -->
+    <FontFamily x:Key="DevKitFontFamily">Segoe UI, Microsoft YaHei</FontFamily>
+    <!--  代码/日志：Consolas 优先，混入的中文落微软雅黑  -->
+    <FontFamily x:Key="DevKitCodeFontFamily">Consolas, Microsoft YaHei</FontFamily>
+    <!--  图标专用  -->
+    <FontFamily x:Key="DevKitIconFontFamily">/DevKit;component/Fonts/#iconfont</FontFamily>
+
+    <!--  ===== 字号刻度（与现有取值一一等值对应）=====  -->
+    <sys:Double x:Key="DevKitFontSizeCaptionSmall">10</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeCaption">11</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeSmall">12</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeBody">13</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeBodyLarge">14</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeSubtitle">15</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeTitle">16</sys:Double>
+    <sys:Double x:Key="DevKitFontSizeIcon">24</sys:Double>
+
+    <!--  ===== 字重 =====  -->
+    <FontWeight x:Key="DevKitFontWeightNormal">Normal</FontWeight>
+    <FontWeight x:Key="DevKitFontWeightSemiBold">SemiBold</FontWeight>
+</ResourceDictionary>
