@@ -8,12 +8,11 @@
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="颜色处理"
     Width="1080"
-    Height="800"
+    Height="768"
     d:DataContext="{d:DesignInstance Type=vm:ColorResourceViewModel}"
     Background="{DynamicResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterOwner"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Window.Resources>
@@ -500,19 +499,19 @@
             </Button>
         </Grid>
 
-        <Grid Grid.Row="1" Margin="16">
+        <Grid Grid.Row="1" Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="1.5*" />
+                <ColumnDefinition Width="2.5*" />
             </Grid.ColumnDefinitions>
 
             <Border
                 Grid.Column="0"
-                Padding="16"
+                Padding="12"
                 Background="White"
                 BorderBrush="{StaticResource DevKitBorderBrush}"
                 BorderThickness="1"
-                CornerRadius="16">
+                CornerRadius="12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -525,9 +524,9 @@
                     <!--  ========== 预览色块 ==========  -->
                     <Border
                         Grid.Row="0"
-                        Height="192"
+                        Height="128"
                         Background="{StaticResource CheckerBrush}"
-                        CornerRadius="16"
+                        CornerRadius="12"
                         Cursor="Hand"
                         SnapsToDevicePixels="True"
                         ToolTip="点击复制当前颜色">
@@ -537,13 +536,13 @@
 
                         <Grid>
                             <!--  当前颜色：含 Alpha，可透出下层棋盘格  -->
-                            <Border Background="{Binding ColorViewBrush}" CornerRadius="16" />
+                            <Border Background="{Binding ColorViewBrush}" CornerRadius="12" />
 
                             <!--  1px 内描边  -->
                             <Border
                                 BorderBrush="#1413223D"
                                 BorderThickness="1"
-                                CornerRadius="16"
+                                CornerRadius="12"
                                 IsHitTestVisible="False" />
 
                             <!--  Alpha 徽章  -->
@@ -964,16 +963,15 @@
 
             <Border
                 Grid.Column="1"
-                Margin="16,0,0,0"
+                Margin="12,0,0,0"
                 Background="White"
                 BorderBrush="{StaticResource DevKitBorderBrush}"
                 BorderThickness="1"
-                CornerRadius="16">
+                CornerRadius="12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition />
-                        <RowDefinition Height="1" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
@@ -1008,7 +1006,6 @@
 
                         <Border
                             Grid.Column="2"
-                            Width="256"
                             Height="34"
                             HorizontalAlignment="Right"
                             Background="{StaticResource DevKitSurfaceBrush}"
@@ -1086,7 +1083,6 @@
                     <ListBox
                         Grid.Row="1"
                         Padding="8,0,0,0"
-                        HorizontalAlignment="Left"
                         Background="Transparent"
                         BorderThickness="0"
                         ItemsSource="{Binding ColorResources}"
@@ -1118,7 +1114,7 @@
                                 <Button Command="{Binding DataContext.ColorItemClickedCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}">
                                     <Button.Style>
                                         <Style TargetType="Button">
-                                            <Setter Property="Width" Value="136" />
+                                            <Setter Property="Width" Value="132" />
                                             <Setter Property="Background" Value="{Binding Hex}" />
                                             <Setter Property="BorderBrush" Value="Transparent" />
                                             <Setter Property="BorderThickness" Value="0" />
@@ -1182,13 +1178,15 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
 
-                    <Border Grid.Row="2" Background="{StaticResource DevKitBorderBrush}" />
-
-                    <TextBlock
-                        Grid.Row="3"
-                        Margin="16,18"
-                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                        Text="单击色板 → 复制 HEX 并回填到左侧通道； RGB → HEX 模式下左侧色值由通道自动计算。" />
+                    <Border
+                        Grid.Row="2"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
+                        BorderThickness="1">
+                        <TextBlock
+                            Margin="12"
+                            Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                            Text="单击色板 → 复制 HEX 并回填到左侧通道； RGB → HEX 模式下左侧色值由通道自动计算。" />
+                    </Border>
                 </Grid>
             </Border>
         </Grid>
