@@ -10,7 +10,7 @@
     Width="960"
     Height="768"
     d:DataContext="{d:DesignInstance Type=vm:ApplicationPackageViewModel}"
-    Background="{DynamicResource DevKitBackgroundBrush}"
+    Background="{StaticResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -26,81 +26,10 @@
             <GradientStop Offset="1.0" Color="{StaticResource DevKitSuccessColor}" />
         </LinearGradientBrush>
 
-        <!--  普通按钮：白底灰框，hover 蓝  -->
-        <Style x:Key="CompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="34" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!--  主按钮：蓝底白字  -->
-        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <!--  APK 卡片按钮：点击打开所在文件夹  -->
         <Style x:Key="ApkCardButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -129,7 +58,7 @@
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="34" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -159,7 +88,7 @@
         <Style x:Key="FieldPasswordBoxStyle" TargetType="PasswordBox">
             <Setter Property="Height" Value="34" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -203,7 +132,7 @@
                 Grid.Column="0"
                 Padding="16,12"
                 Background="White"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
                 <Grid>
@@ -226,16 +155,16 @@
 
                             <StackPanel Grid.Column="0" Orientation="Vertical">
                                 <TextBlock
-                                    FontFamily="Consolas"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     FontWeight="SemiBold"
                                     Foreground="{StaticResource DevKitAccentBrush}"
                                     Text="ARCHIVE WORKSPACE" />
 
                                 <TextBlock
                                     Margin="0,2"
-                                    FontSize="18"
+                                    FontSize="{StaticResource DevKitFontSize18}"
                                     FontWeight="SemiBold"
-                                    Foreground="Black"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="安装包归档" />
 
                                 <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="检索目录中的APK，排除debug与隐藏文件" />
@@ -254,7 +183,7 @@
 
                                     <TextBlock
                                         Grid.Row="0"
-                                        FontSize="18"
+                                        FontSize="{StaticResource DevKitFontSize18}"
                                         FontWeight="SemiBold"
                                         Foreground="{StaticResource DevKitSuccessBrush}"
                                         Text="{Binding ApkFileCollection.Count, FallbackValue=0}" />
@@ -262,7 +191,7 @@
                                     <TextBlock
                                         Grid.Row="1"
                                         Margin="0,2"
-                                        FontSize="10"
+                                        FontSize="{StaticResource DevKitFontSize10}"
                                         Foreground="{StaticResource DevKitSuccessBrush}"
                                         Text="个安装包" />
                                 </Grid>
@@ -288,8 +217,8 @@
                             <TextBlock
                                 Grid.Column="0"
                                 VerticalAlignment="Center"
-                                FontFamily="/DevKit;component/Fonts/#iconfont"
-                                FontSize="18"
+                                FontFamily="{StaticResource DevKitIconFontFamily}"
+                                FontSize="{StaticResource DevKitFontSize18}"
                                 Foreground="{StaticResource DevKitAccentBrush}"
                                 Text="&#xe680;" />
 
@@ -298,7 +227,7 @@
                                     <Style TargetType="TextBox">
                                         <Setter Property="Height" Value="34" />
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        <Setter Property="FontSize" Value="13" />
+                                        <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
                                         <Setter Property="Background" Value="Transparent" />
                                         <Setter Property="BorderThickness" Value="0" />
                                         <Setter Property="Template">
@@ -316,11 +245,11 @@
                                 Grid.Column="2"
                                 Margin="8,0"
                                 Command="{Binding SelectApkRootFolderCommand}"
-                                Style="{StaticResource CompactButtonStyle}">
+                                Style="{StaticResource DevKitButtonStyle}">
                                 <Button.Content>
                                     <TextBlock
                                         Margin="16,0"
-                                        FontSize="13"
+                                        FontSize="{StaticResource DevKitFontSize13}"
                                         Text="选择目录" />
                                 </Button.Content>
                             </Button>
@@ -328,18 +257,18 @@
                             <Button
                                 Grid.Column="3"
                                 Command="{Binding RefreshApkFilesCommand}"
-                                Style="{StaticResource PrimaryCompactButtonStyle}">
+                                Style="{StaticResource DevKitPrimaryButtonStyle}">
                                 <Button.Content>
                                     <StackPanel Margin="12,0" Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="16"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize16}"
                                             Text="&#xe602;" />
                                         <TextBlock
                                             Margin="6,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="扫描目录" />
                                     </StackPanel>
                                 </Button.Content>
@@ -361,7 +290,7 @@
                             CornerRadius="8">
                             <Border.Style>
                                 <Style TargetType="Border">
-                                    <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                    <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=ApkSearchTextBox}" Value="True">
                                             <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
@@ -388,8 +317,8 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="18"
+                                    FontFamily="{StaticResource DevKitIconFontFamily}"
+                                    FontSize="{StaticResource DevKitFontSize18}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="&#xe6cc;" />
 
@@ -401,8 +330,8 @@
                                         VerticalContentAlignment="Center"
                                         Background="Transparent"
                                         BorderThickness="0"
-                                        FontSize="13"
-                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        FontSize="{StaticResource DevKitFontSize13}"
+                                        Foreground="{StaticResource DevKitTextBrush}"
                                         Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" />
                                     <TextBlock
                                         Margin="10,0,0,0"
@@ -468,7 +397,7 @@
                                         <Setter Property="Height" Value="6" />
                                         <Setter Property="Width" Value="80" />
                                         <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                                        <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
                                         <Setter Property="Foreground" Value="{StaticResource ScanProgressForegroundBrush}" />
                                         <Setter Property="BorderThickness" Value="1" />
                                         <Setter Property="Template">
@@ -527,14 +456,14 @@
                                         Visibility="Collapsed">
                                         <TextBlock
                                             HorizontalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="40"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize40}"
                                             Foreground="{StaticResource DevKitIconMutedBrush}"
                                             Text="&#xe700;" />
                                         <TextBlock
                                             Margin="0,10,0,0"
                                             HorizontalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
                                             Text="暂无安装包，请先选择 APK 归档目录" />
                                     </StackPanel>
@@ -555,7 +484,7 @@
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Margin" Value="4,0,4,8" />
+                                <Setter Property="Margin" Value="0,0,8,8" />
                                 <Setter Property="Cursor" Value="Hand" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template">
@@ -583,16 +512,16 @@
 
                                             <!--  图标  -->
                                             <Border
-                                                Width="48"
-                                                Height="48"
+                                                Width="44"
+                                                Height="44"
                                                 Background="{StaticResource ApkIconBackgroundBrush}"
                                                 CornerRadius="8">
                                                 <TextBlock
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                    FontSize="24"
-                                                    Foreground="White"
+                                                    FontFamily="{StaticResource DevKitIconFontFamily}"
+                                                    FontSize="{StaticResource DevKitFontSize24}"
+                                                    Foreground="{StaticResource DevKitOnAccentBrush}"
                                                     Text="&#xe700;" />
                                             </Border>
 
@@ -602,8 +531,7 @@
                                                 Margin="8,0,0,0"
                                                 VerticalAlignment="Center">
                                                 <TextBlock
-                                                    FontFamily="Consolas"
-                                                    FontSize="16"
+                                                    FontSize="{StaticResource DevKitFontSize14}"
                                                     Text="{Binding FileName}"
                                                     TextTrimming="CharacterEllipsis" />
 
@@ -611,25 +539,24 @@
                                                     <Border
                                                         Padding="4,2"
                                                         Background="{StaticResource DevKitAccent12Brush}"
-                                                        CornerRadius="10">
+                                                        CornerRadius="8">
                                                         <TextBlock
-                                                            Margin="4,2"
-                                                            FontFamily="Consolas"
+                                                            Margin="4,0"
                                                             FontWeight="SemiBold"
                                                             Foreground="{StaticResource DevKitAccentBrush}"
                                                             Text="{Binding Version}" />
                                                     </Border>
 
                                                     <TextBlock
-                                                        Margin="12,0"
+                                                        Margin="8,0"
                                                         VerticalAlignment="Center"
-                                                        FontFamily="Consolas"
+                                                        FontSize="{StaticResource DevKitFontSize11}"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                                         Text="{Binding FileSize}" />
 
                                                     <TextBlock
                                                         VerticalAlignment="Center"
-                                                        FontFamily="Consolas"
+                                                        FontSize="{StaticResource DevKitFontSize11}"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                                         Text="{Binding ModifyTime}" />
                                                 </StackPanel>
@@ -649,7 +576,7 @@
                 Margin="12,0,0,0"
                 Padding="16"
                 Background="White"
-                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8">
                 <Grid>
@@ -662,9 +589,9 @@
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontSize="14"
+                            FontSize="{StaticResource DevKitFontSize14}"
                             FontWeight="SemiBold"
-                            Foreground="Black"
+                            Foreground="{StaticResource DevKitTextBrush}"
                             Text="签名配置" />
 
                         <TextBlock
@@ -676,7 +603,7 @@
 
                     <StackPanel
                         Grid.Row="1"
-                        Margin="0,16,0,0"
+                        Margin="0,12,0,0"
                         Orientation="Vertical">
                         <StackPanel>
                             <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="证书路径" />
@@ -697,18 +624,18 @@
                                     Grid.Column="1"
                                     Margin="8,0,0,0"
                                     Command="{Binding SelectKeyCommand}"
-                                    Style="{StaticResource CompactButtonStyle}">
+                                    Style="{StaticResource DevKitButtonStyle}">
                                     <Button.Content>
                                         <TextBlock
                                             Margin="16,0"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="选择" />
                                     </Button.Content>
                                 </Button>
                             </Grid>
                         </StackPanel>
 
-                        <StackPanel Margin="0,16,0,0">
+                        <StackPanel Margin="0,12,0,0">
                             <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="签名别名" />
 
                             <TextBox
@@ -724,11 +651,11 @@
                                 Margin="0,4,0,0"
                                 utils:PasswordAttachAttribute.Attach="True"
                                 utils:PasswordAttachAttribute.Password="{Binding KeyPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                FontSize="14"
+                                FontSize="{StaticResource DevKitFontSize14}"
                                 Style="{StaticResource FieldPasswordBoxStyle}" />
                         </StackPanel>
 
-                        <StackPanel Margin="0,16,0,0">
+                        <StackPanel Margin="0,12">
                             <TextBlock Foreground="{StaticResource DevKitTextSecondaryBrush}" Text="JDK路径" />
 
                             <Grid Margin="0,4,0,0">
@@ -747,11 +674,11 @@
                                     Grid.Column="1"
                                     Margin="8,0,0,0"
                                     Command="{Binding SelectJdkCommand}"
-                                    Style="{StaticResource CompactButtonStyle}">
+                                    Style="{StaticResource DevKitButtonStyle}">
                                     <Button.Content>
                                         <TextBlock
                                             Margin="16,0"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="选择" />
                                     </Button.Content>
                                 </Button>
@@ -762,21 +689,21 @@
                     <!--  查看 SHA1  -->
                     <Button
                         Grid.Row="2"
-                        Margin="0,16,0,0"
+                        VerticalAlignment="Top"
                         Command="{Binding ShowSha1Command}"
-                        Style="{StaticResource PrimaryCompactButtonStyle}">
+                        Style="{StaticResource DevKitPrimaryButtonStyle}">
                         <Button.Content>
                             <StackPanel Margin="16,0" Orientation="Horizontal">
                                 <TextBlock
                                     VerticalAlignment="Center"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="16"
+                                    FontFamily="{StaticResource DevKitIconFontFamily}"
+                                    FontSize="{StaticResource DevKitFontSize16}"
                                     Text="&#xe80f;" />
                                 <TextBlock
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Center"
-                                    FontSize="13"
-                                    Foreground="White"
+                                    FontSize="{StaticResource DevKitFontSize13}"
+                                    Foreground="{StaticResource DevKitOnAccentBrush}"
                                     Text="查看 SHA1" />
                             </StackPanel>
                         </Button.Content>
@@ -788,7 +715,7 @@
         <!--  终端  -->
         <Border
             Grid.Row="1"
-            Height="300"
+            Height="310"
             Margin="0,12,0,0"
             Background="{StaticResource DevKitTerminalBackgroundBrush}"
             CornerRadius="8">
@@ -798,7 +725,7 @@
                     BorderThickness="0,0,0,1"
                     DockPanel.Dock="Top">
                     <StackPanel
-                        Margin="12"
+                        Margin="8"
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
                         <Ellipse
@@ -818,13 +745,12 @@
                 </Border>
 
                 <TextBox
-                    Margin="4,8"
+                    Margin="6"
                     VerticalAlignment="Top"
                     Background="Transparent"
                     BorderThickness="0"
                     DockPanel.Dock="Bottom"
-                    FontFamily="Consolas"
-                    FontSize="14"
+                    FontSize="{StaticResource DevKitFontSize14}"
                     Foreground="{StaticResource DevKitAndroidGreenBrush}"
                     IsReadOnly="True"
                     Text="{Binding OutputResult}" />

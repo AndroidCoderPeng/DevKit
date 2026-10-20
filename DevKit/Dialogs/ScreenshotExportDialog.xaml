@@ -22,115 +22,8 @@
             <GradientStop Offset="1.0" Color="{StaticResource DevKitAccentLightColor}" />
         </LinearGradientBrush>
 
-        <!--  普通按钮：白底灰框，hover 蓝（对应设计稿 .btn）  -->
-        <Style x:Key="CompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="32" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentSoftBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedSoftBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
-        <!--  主按钮：蓝底白字，hover 深蓝  -->
-        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="32" />
-            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
-        <!--  危险按钮：红字红框，hover 红底白字  -->
-        <Style x:Key="DangerCompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="32" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitDangerBorderBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter Property="TextElement.Foreground" Value="White" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitDangerPressedBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <Style x:Key="ShotCardStyle" TargetType="ToggleButton">
             <Setter Property="Cursor" Value="Hand" />
@@ -143,7 +36,7 @@
                                 Margin="4"
                                 Padding="8"
                                 Background="White"
-                                BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                BorderBrush="{StaticResource DevKitBorderBrush}"
                                 BorderThickness="2"
                                 CornerRadius="8">
                                 <ContentPresenter />
@@ -203,8 +96,8 @@
             <Setter Property="Background" Value="#2EFFFFFF" />
             <Setter Property="BorderBrush" Value="#59FFFFFF" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitOnAccentBrush}" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize11}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -258,13 +151,13 @@
             <Button
                 Grid.Column="0"
                 Command="{Binding ReLoadScreenshotsCommand}"
-                Style="{StaticResource CompactButtonStyle}">
+                Style="{StaticResource DevKitButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe602;" />
                         <TextBlock
                             Margin="6,0,0,0"
@@ -278,13 +171,13 @@
                 Grid.Column="1"
                 Margin="8,0"
                 Command="{Binding SortScreenshotsCommand}"
-                Style="{StaticResource CompactButtonStyle}">
+                Style="{StaticResource DevKitButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe614;" />
                         <TextBlock
                             Margin="6,0,0,0"
@@ -297,13 +190,13 @@
             <Button
                 Grid.Column="2"
                 Command="{Binding SelectAllCommand}"
-                Style="{StaticResource CompactButtonStyle}">
+                Style="{StaticResource DevKitButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe602;" />
                         <TextBlock
                             Margin="6,0,0,0"
@@ -317,7 +210,7 @@
                 Grid.Column="3"
                 Margin="8,0"
                 Command="{Binding DeleteSelectedCommand}"
-                Style="{StaticResource DangerCompactButtonStyle}">
+                Style="{StaticResource DevKitDangerButtonStyle}">
                 <Button.Content>
                     <TextBlock
                         Margin="16,0"
@@ -329,19 +222,19 @@
             <Button
                 Grid.Column="5"
                 Command="{Binding CaptureScreenCommand}"
-                Style="{StaticResource PrimaryCompactButtonStyle}">
+                Style="{StaticResource DevKitPrimaryButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="16,0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe635;" />
                         <TextBlock
                             Margin="8,0,0,0"
                             VerticalAlignment="Center"
-                            FontSize="13"
-                            Foreground="White"
+                            FontSize="{StaticResource DevKitFontSize13}"
+                            Foreground="{StaticResource DevKitOnAccentBrush}"
                             Text="截取屏幕" />
                     </StackPanel>
                 </Button.Content>
@@ -423,13 +316,14 @@
 
                                     <TextBlock
                                         Margin="0,8,0,0"
-                                        FontSize="11"
+                                        FontSize="{StaticResource DevKitFontSize11}"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="{Binding TimeText}"
                                         TextTrimming="CharacterEllipsis" />
 
                                     <TextBlock
-                                        FontSize="11"
-                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        FontSize="{StaticResource DevKitFontSize11}"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="{Binding SizeText}" />
                                 </StackPanel>
                             </ToggleButton>
@@ -457,7 +351,9 @@
             <TextBlock
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                FontSize="14"
+                FontSize="{StaticResource DevKitFontSize14}"
+                FontWeight="SemiBold"
+                Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="设备上还没有截屏，点「截取屏幕」试试"
                 Visibility="{Binding EmptyVisibility}" />
         </Grid>
@@ -509,12 +405,12 @@
                         VerticalContentAlignment="Center"
                         Background="Transparent"
                         BorderThickness="0"
-                        FontSize="12"
-                        Foreground="{DynamicResource DevKitTextBrush}"
+                        FontSize="{StaticResource DevKitFontSize14}"
+                        Foreground="{StaticResource DevKitTextBrush}"
                         Text="{Binding SaveDirectory}" />
                 </Border>
 
-                <Button Command="{Binding FolderBrowserCommand}" Style="{StaticResource CompactButtonStyle}">
+                <Button Command="{Binding FolderBrowserCommand}" Style="{StaticResource DevKitButtonStyle}">
                     <Button.Content>
                         <TextBlock Margin="16,0" Text="浏览" />
                     </Button.Content>
@@ -536,7 +432,7 @@
                             <Setter Property="Height" Value="6" />
                             <Setter Property="Width" Value="92" />
                             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
                             <Setter Property="Foreground" Value="{StaticResource ExportProgressForegroundBrush}" />
                             <Setter Property="BorderThickness" Value="1" />
                             <Setter Property="Template">
@@ -571,7 +467,7 @@
             <Button
                 Grid.Column="2"
                 Command="{Binding ExportScreenshotsCommand}"
-                Style="{StaticResource PrimaryCompactButtonStyle}">
+                Style="{StaticResource DevKitPrimaryButtonStyle}">
                 <Button.Content>
                     <TextBlock Margin="16,0" Text="导出选中" />
                 </Button.Content>

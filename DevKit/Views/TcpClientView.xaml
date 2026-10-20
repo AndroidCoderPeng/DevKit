@@ -12,7 +12,7 @@
     Width="1066"
     Height="768"
     d:DataContext="{d:DesignInstance Type=vm:TcpClientViewModel}"
-    Background="{DynamicResource DevKitBackgroundBrush}"
+    Background="{StaticResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -20,7 +20,7 @@
     <Window.Resources>
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -46,47 +46,13 @@
             </Setter>
         </Style>
 
-        <!--  主按钮：蓝底白字  -->
-        <Style x:Key="PrimaryCompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="36" />
-            <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="ButtonContainerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentHoverBrush}" />
-                                <Setter TargetName="ButtonContainerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentHoverBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonContainerBorder" Property="Background" Value="{StaticResource DevKitAccentPressedBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.45" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!--  小方形图标按钮：卡片头部的「+」新增  -->
         <Style x:Key="MiniSquareButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="28" />
             <Setter Property="Height" Value="28" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -122,8 +88,8 @@
             <Setter Property="Width" Value="24" />
             <Setter Property="Height" Value="24" />
             <Setter Property="Margin" Value="4,0,0,0" />
-            <Setter Property="FontFamily" Value="/DevKit;component/Fonts/#iconfont" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontFamily" Value="{StaticResource DevKitIconFontFamily}" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
@@ -159,7 +125,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
                     <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Foreground" Value="{StaticResource DevKitOnAccentBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -187,7 +153,7 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource DevKitDangerBrush}" />
                     <Setter Property="BorderThickness" Value="0" />
-                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Foreground" Value="{StaticResource DevKitOnAccentBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -252,95 +218,14 @@
             </Setter>
         </Style>
 
-        <!--  紧凑按钮：白底灰框、悬浮蓝  -->
-        <Style x:Key="CompactButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="36" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="CompactBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
-                            TextElement.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter
-                                Margin="{TemplateBinding Padding}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CompactBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="CompactBorder" Property="Opacity" Value="0.75" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
-        <!--  危险操作按钮：默认红字红框、悬浮红底白字  -->
-        <Style x:Key="DangerOutlineButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="36" />
-            <Setter Property="Padding" Value="12,0" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="{StaticResource DevKitDanger40Brush}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{StaticResource DevKitDangerBrush}" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border
-                            x:Name="DangerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
-                            TextBlock.Foreground="{TemplateBinding Foreground}">
-                            <ContentPresenter
-                                Margin="{TemplateBinding Padding}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="DangerBorder" Property="Background" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter TargetName="DangerBorder" Property="BorderBrush" Value="{StaticResource DevKitDangerBrush}" />
-                                <Setter Property="Foreground" Value="White" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="DangerBorder" Property="Opacity" Value="0.75" />
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!--  分段控件内的单选按钮  -->
         <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
             <Setter Property="Height" Value="28" />
             <Setter Property="Padding" Value="16,0" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize11}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -361,7 +246,7 @@
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="SegmentBorder" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitOnAccentBrush}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.5" />
@@ -374,7 +259,7 @@
 
         <!--  开关样式复选框  -->
         <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -445,7 +330,7 @@
 
         <!--  发送区输入框：多行、可换行  -->
         <Style x:Key="ComposerTextBoxStyle" TargetType="TextBox">
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="AcceptsReturn" Value="True" />
             <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="VerticalContentAlignment" Value="Top" />
@@ -480,7 +365,7 @@
         <!--  消息条上的「复制」小按钮：默认透明、悬浮出现  -->
         <Style x:Key="CopyMiniButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="6,3" />
-            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize10}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
@@ -564,7 +449,7 @@
                     <TextBlock
                         Margin="8,0,4,0"
                         VerticalAlignment="Center"
-                        FontSize="15"
+                        FontSize="{StaticResource DevKitFontSize14}"
                         FontWeight="SemiBold"
                         Foreground="{Binding StateTextColor}"
                         Text="{Binding ConnectionState, FallbackValue=未连接}" />
@@ -585,7 +470,7 @@
                 CornerRadius="8">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+                        <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsKeyboardFocused, ElementName=IpTextBox}" Value="True">
                                 <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
@@ -612,8 +497,8 @@
                     <TextBlock
                         Grid.Column="0"
                         VerticalAlignment="Center"
-                        FontFamily="/DevKit;component/Fonts/#iconfont"
-                        FontSize="18"
+                        FontFamily="{StaticResource DevKitIconFontFamily}"
+                        FontSize="{StaticResource DevKitFontSize18}"
                         Foreground="{StaticResource DevKitTextMutedBrush}"
                         Text="&#xe8b2;" />
 
@@ -625,8 +510,8 @@
                             VerticalContentAlignment="Center"
                             Background="Transparent"
                             BorderThickness="0"
-                            FontSize="13"
-                            Foreground="{DynamicResource DevKitTextBrush}"
+                            FontSize="{StaticResource DevKitFontSize14}"
+                            Foreground="{StaticResource DevKitTextBrush}"
                             Text="{Binding RemoteAddress, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock
                             Margin="8,0,0,0"
@@ -652,9 +537,8 @@
             <TextBlock
                 Grid.Column="3"
                 VerticalAlignment="Center"
-                FontSize="16"
-                FontWeight="Bold"
-                Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                FontSize="{StaticResource DevKitFontSize14}"
+                Foreground="{StaticResource DevKitTextMutedBrush}"
                 Text=":" />
 
             <TextBox
@@ -671,18 +555,18 @@
                 Grid.Column="5"
                 Margin="0,0,14,0"
                 Command="{Binding ConnectServerCommand}"
-                Style="{StaticResource PrimaryCompactButtonStyle}">
+                Style="{StaticResource DevKitPrimaryButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="12,0" Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe667;" />
                         <TextBlock
                             Margin="6,0,0,0"
                             VerticalAlignment="Center"
-                            FontSize="13"
+                            FontSize="{StaticResource DevKitFontSize14}"
                             Text="{Binding ButtonStateText}" />
                     </StackPanel>
                 </Button.Content>
@@ -706,7 +590,7 @@
                     <Border
                         Grid.Row="0"
                         Background="White"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <StackPanel Margin="14,12">
@@ -720,9 +604,9 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="15"
+                                    FontSize="{StaticResource DevKitFontSize13}"
                                     FontWeight="SemiBold"
-                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="会话统计" />
 
                                 <Border
@@ -730,7 +614,7 @@
                                     Height="1"
                                     Margin="8,0,0,0"
                                     VerticalAlignment="Center"
-                                    Background="{DynamicResource DevKitBorderBrush}" />
+                                    Background="{StaticResource DevKitBorderBrush}" />
                             </Grid>
 
                             <!--  保持时长  -->
@@ -748,16 +632,15 @@
                                     <TextBlock
                                         Grid.Column="0"
                                         VerticalAlignment="Center"
-                                        FontSize="13"
                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="保持时长" />
 
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        FontSize="13"
+                                        FontSize="{StaticResource DevKitFontSize14}"
                                         FontWeight="SemiBold"
-                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        Foreground="{StaticResource DevKitTextBrush}"
                                         Text="{Binding SessionDuration, FallbackValue=--:--:--}" />
                                 </Grid>
                             </Border>
@@ -773,14 +656,11 @@
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
                                     <StackPanel>
-                                        <TextBlock
-                                            FontSize="13"
-                                            Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="发送" />
+                                        <TextBlock Foreground="{StaticResource DevKitTextMutedBrush}" Text="发送" />
 
                                         <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
                                             <TextBlock
-                                                FontSize="16"
+                                                FontSize="{StaticResource DevKitFontSize14}"
                                                 FontWeight="SemiBold"
                                                 Foreground="{StaticResource DevKitAccentBrush}"
                                                 Text="{Binding SendCount, FallbackValue=0}" />
@@ -788,7 +668,7 @@
                                             <TextBlock
                                                 Margin="6,0,0,0"
                                                 VerticalAlignment="Bottom"
-                                                FontSize="11"
+                                                FontSize="{StaticResource DevKitFontSize10}"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
                                                 Text="{Binding SendByteSize, StringFormat={}共 {0} B}" />
                                         </StackPanel>
@@ -801,14 +681,11 @@
                                     Background="{StaticResource DevKitSurfaceBrush}"
                                     CornerRadius="8">
                                     <StackPanel>
-                                        <TextBlock
-                                            FontSize="13"
-                                            Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="接收" />
+                                        <TextBlock Foreground="{StaticResource DevKitTextMutedBrush}" Text="接收" />
 
                                         <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
                                             <TextBlock
-                                                FontSize="16"
+                                                FontSize="{StaticResource DevKitFontSize14}"
                                                 FontWeight="SemiBold"
                                                 Foreground="{StaticResource DevKitSuccessBrush}"
                                                 Text="{Binding ReceiveCount, FallbackValue=0}" />
@@ -816,7 +693,7 @@
                                             <TextBlock
                                                 Margin="6,0,0,0"
                                                 VerticalAlignment="Bottom"
-                                                FontSize="11"
+                                                FontSize="{StaticResource DevKitFontSize10}"
                                                 Foreground="{StaticResource DevKitTextMutedBrush}"
                                                 Text="{Binding ReceiveByteSize, StringFormat={}共 {0} B}" />
                                         </StackPanel>
@@ -831,7 +708,7 @@
                         Grid.Row="1"
                         Margin="0,16,0,0"
                         Background="White"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <DockPanel Margin="14,12">
@@ -847,9 +724,9 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="15"
+                                    FontSize="{StaticResource DevKitFontSize13}"
                                     FontWeight="SemiBold"
-                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="扩展指令" />
 
                                 <Border
@@ -860,7 +737,6 @@
                                     Background="{StaticResource DevKitAccent12Brush}"
                                     CornerRadius="10">
                                     <TextBlock
-                                        FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="{StaticResource DevKitAccentBrush}"
                                         Text="{Binding ExCommandCollection.Count}" />
@@ -871,14 +747,14 @@
                                     Height="1"
                                     Margin="8,0"
                                     VerticalAlignment="Center"
-                                    Background="{DynamicResource DevKitBorderBrush}" />
+                                    Background="{StaticResource DevKitBorderBrush}" />
 
                                 <Button
                                     Grid.Column="3"
                                     Command="{Binding AddExtensionCommand}"
                                     Content="&#xe6aa;"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="14"
+                                    FontFamily="{StaticResource DevKitIconFontFamily}"
+                                    FontSize="{StaticResource DevKitFontSize14}"
                                     Style="{StaticResource MiniSquareButtonStyle}"
                                     ToolTip="新增指令" />
                             </Grid>
@@ -904,14 +780,14 @@
                                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                                     <TextBlock
                                                         x:Name="ValueTextBlock"
-                                                        FontSize="13"
-                                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                                        FontSize="{StaticResource DevKitFontSize14}"
+                                                        Foreground="{StaticResource DevKitTextBrush}"
                                                         Text="{Binding Value}" />
 
                                                     <TextBlock
                                                         x:Name="MemoTextBlock"
                                                         Margin="0,4,0,0"
-                                                        FontSize="11"
+                                                        FontSize="{StaticResource DevKitFontSize11}"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                                         Text="{Binding Memo}" />
                                                 </StackPanel>
@@ -999,8 +875,8 @@
                                                 Style="{StaticResource CmdMenuItemStyle}">
                                                 <MenuItem.Icon>
                                                     <TextBlock
-                                                        FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                        FontSize="16"
+                                                        FontFamily="{StaticResource DevKitIconFontFamily}"
+                                                        FontSize="{StaticResource DevKitFontSize16}"
                                                         Text="&#xe66c;" />
                                                 </MenuItem.Icon>
                                             </MenuItem>
@@ -1031,14 +907,14 @@
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock
                                             HorizontalAlignment="Center"
-                                            FontSize="14"
+                                            FontSize="{StaticResource DevKitFontSize11}"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
                                             Text="暂无扩展指令" />
 
                                         <TextBlock
                                             Margin="0,8,0,0"
                                             HorizontalAlignment="Center"
-                                            FontSize="14"
+                                            FontSize="{StaticResource DevKitFontSize11}"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
                                             Text="点击右上角「+」新增常用指令" />
                                     </StackPanel>
@@ -1060,7 +936,7 @@
                     <Border
                         Grid.Row="0"
                         Background="White"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <DockPanel Margin="12">
@@ -1079,9 +955,9 @@
                                 <TextBlock
                                     Grid.Column="0"
                                     VerticalAlignment="Center"
-                                    FontSize="15"
+                                    FontSize="{StaticResource DevKitFontSize13}"
                                     FontWeight="SemiBold"
-                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="消息记录" />
 
                                 <Border
@@ -1092,7 +968,6 @@
                                     Background="{StaticResource DevKitAccent12Brush}"
                                     CornerRadius="10">
                                     <TextBlock
-                                        FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="{StaticResource DevKitAccentBrush}"
                                         Text="{Binding Logs.Count}" />
@@ -1101,7 +976,7 @@
                                 <TextBlock
                                     Grid.Column="3"
                                     VerticalAlignment="Center"
-                                    FontSize="12"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="显示" />
 
@@ -1111,7 +986,7 @@
                                     Padding="2"
                                     VerticalAlignment="Center"
                                     Background="{StaticResource DevKitSurfaceBrush}"
-                                    BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
                                     BorderThickness="1"
                                     CornerRadius="16">
                                     <StackPanel Orientation="Horizontal">
@@ -1138,19 +1013,19 @@
                                 <Button
                                     Grid.Column="5"
                                     Command="{Binding SaveLogCommand}"
-                                    Style="{StaticResource CompactButtonStyle}"
+                                    Style="{StaticResource DevKitButtonStyle}"
                                     ToolTip="保存消息记录到文件">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="13"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="&#xe60c;" />
 
                                         <TextBlock
                                             Margin="8,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="保存" />
                                     </StackPanel>
                                 </Button>
@@ -1159,19 +1034,19 @@
                                     Grid.Column="6"
                                     Margin="8,0,0,0"
                                     Command="{Binding ClearLogCommand}"
-                                    Style="{StaticResource DangerOutlineButtonStyle}"
+                                    Style="{StaticResource DevKitDangerButtonStyle}"
                                     ToolTip="清空消息记录">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="13"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="&#xe666;" />
 
                                         <TextBlock
                                             Margin="8,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="清空" />
                                     </StackPanel>
                                 </Button>
@@ -1213,7 +1088,7 @@
                                                         <TextBlock
                                                             x:Name="TagText"
                                                             VerticalAlignment="Center"
-                                                            FontSize="10"
+                                                            FontSize="{StaticResource DevKitFontSize10}"
                                                             FontWeight="SemiBold"
                                                             Foreground="{StaticResource DevKitSuccessBrush}">
                                                             <TextBlock.Style>
@@ -1234,7 +1109,7 @@
                                                         Grid.Column="1"
                                                         Margin="8,0"
                                                         VerticalAlignment="Center"
-                                                        FontFamily="Consolas"
+                                                        FontSize="{StaticResource DevKitFontSize11}"
                                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                                         Text="{Binding Time}" />
 
@@ -1249,7 +1124,7 @@
                                                             <StackPanel Orientation="Horizontal">
                                                                 <TextBlock
                                                                     VerticalAlignment="Center"
-                                                                    FontFamily="/DevKit;component/Fonts/#iconfont"
+                                                                    FontFamily="{StaticResource DevKitIconFontFamily}"
                                                                     Text="&#xe66c;" />
                                                                 <TextBlock Margin="4,0,0,0" Text="复制" />
                                                             </StackPanel>
@@ -1263,13 +1138,12 @@
                                                     Margin="0,4,0,0"
                                                     Padding="12,8"
                                                     Background="White"
-                                                    BorderBrush="{DynamicResource DevKitBorderBrush}"
+                                                    BorderBrush="{StaticResource DevKitBorderBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="12 12 12 2">
                                                     <TextBlock
-                                                        FontFamily="Consolas"
-                                                        FontSize="13"
-                                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                                        FontSize="{StaticResource DevKitFontSize14}"
+                                                        Foreground="{StaticResource DevKitTextBrush}"
                                                         Text="{Binding Content}"
                                                         TextWrapping="Wrap" />
                                                 </Border>
@@ -1342,7 +1216,7 @@
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock
                                             HorizontalAlignment="Center"
-                                            FontSize="14"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             FontWeight="SemiBold"
                                             Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                             Text="还没有消息记录" />
@@ -1350,7 +1224,7 @@
                                         <TextBlock
                                             Margin="0,8,0,0"
                                             HorizontalAlignment="Center"
-                                            FontSize="14"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
                                             Text="连接成功后即可收发数据，收发内容会显示在这里；悬浮单条消息可复制。"
                                             TextAlignment="Center"
@@ -1366,7 +1240,7 @@
                         Grid.Row="1"
                         Margin="0,16,0,0"
                         Background="White"
-                        BorderBrush="{DynamicResource DevKitBorderBrush}"
+                        BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="8">
                         <Grid Margin="12">
@@ -1393,7 +1267,7 @@
                                 <TextBlock
                                     Margin="10,8,10,0"
                                     VerticalAlignment="Top"
-                                    FontSize="12"
+                                    FontSize="{StaticResource DevKitFontSize14}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     IsHitTestVisible="False"
                                     Text="{Binding PlaceHolderText}">
@@ -1427,7 +1301,7 @@
                                     Orientation="Horizontal">
                                     <TextBlock
                                         VerticalAlignment="Center"
-                                        FontSize="12"
+                                        FontSize="{StaticResource DevKitFontSize11}"
                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="发送" />
 
@@ -1435,7 +1309,7 @@
                                         Margin="8,0,0,0"
                                         Padding="2"
                                         Background="{StaticResource DevKitSurfaceBrush}"
-                                        BorderBrush="{DynamicResource DevKitBorderStrongBrush}"
+                                        BorderBrush="{StaticResource DevKitBorderStrongBrush}"
                                         BorderThickness="1"
                                         CornerRadius="16">
                                         <StackPanel Orientation="Horizontal">
@@ -1496,7 +1370,7 @@
                                     <TextBlock
                                         Margin="4,0,0,0"
                                         VerticalAlignment="Center"
-                                        FontSize="12"
+                                        FontSize="{StaticResource DevKitFontSize11}"
                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="ms / 次" />
                                 </StackPanel>
@@ -1504,19 +1378,19 @@
                                 <Button
                                     Grid.Column="4"
                                     Command="{Binding OpenScriptCommand}"
-                                    Style="{StaticResource CompactButtonStyle}"
+                                    Style="{StaticResource DevKitButtonStyle}"
                                     ToolTip="按脚本批量、定时发送指令">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="13"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Text="&#xe676;" />
 
                                         <TextBlock
                                             Margin="8,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="指令脚本" />
                                     </StackPanel>
                                 </Button>
@@ -1525,19 +1399,19 @@
                                     Grid.Column="5"
                                     Margin="8,0,0,0"
                                     Command="{Binding SendMessageCommand}"
-                                    Style="{StaticResource PrimaryCompactButtonStyle}"
+                                    Style="{StaticResource DevKitPrimaryButtonStyle}"
                                     ToolTip="Ctrl + Enter 快速发送">
                                     <StackPanel Margin="12,0" Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="14"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="&#xe6cd;" />
 
                                         <TextBlock
                                             Margin="6,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="发送" />
 
                                         <Border
@@ -1547,8 +1421,8 @@
                                             Background="#33FFFFFF"
                                             CornerRadius="5">
                                             <TextBlock
-                                                FontSize="10"
-                                                Foreground="#D9FFFFFF"
+                                                FontSize="{StaticResource DevKitFontSize10}"
+                                                Foreground="{StaticResource DevKitTerminalTextDimBrush}"
                                                 Text="Ctrl + Enter" />
                                         </Border>
                                     </StackPanel>
@@ -1597,8 +1471,8 @@
                 </Border.Style>
                 <TextBlock
                     Margin="18,9"
-                    FontSize="13"
-                    Foreground="White"
+                    FontSize="{StaticResource DevKitFontSize14}"
+                    Foreground="{StaticResource DevKitOnAccentBrush}"
                     Text="{Binding ToastMessage}" />
             </Border>
 

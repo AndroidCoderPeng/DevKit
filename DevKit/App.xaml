@@ -10,6 +10,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Colors/ColorBrushes.xaml" />
                 <ResourceDictionary Source="Styles/Typography.xaml" />
+                <ResourceDictionary Source="Styles/DevKitStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

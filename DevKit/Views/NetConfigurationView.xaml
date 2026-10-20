@@ -10,7 +10,7 @@
     Width="960"
     Height="660"
     d:DataContext="{d:DesignInstance Type=vm:NetConfigurationViewModel}"
-    Background="{DynamicResource DevKitBackgroundBrush}"
+    Background="{StaticResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -18,14 +18,14 @@
     <Window.Resources>
         <SolidColorBrush x:Key="TerminalBodyBrush" Color="#0C1016" />
         <SolidColorBrush x:Key="TerminalBorderBrush" Color="#39434F" />
-        <SolidColorBrush x:Key="TerminalDimBrush" Color="#9EAAB8" />
+        <StaticResource x:Key="TerminalDimBrush" ResourceKey="DevKitTerminalDimBrush" />
 
         <!--  ========== 下拉项 ==========  -->
         <Style x:Key="FieldComboBoxItemStyle" TargetType="ComboBoxItem">
             <Setter Property="Padding" Value="8" />
             <Setter Property="Margin" Value="0,2" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -54,9 +54,9 @@
         <!--  ========== 输入框（下拉框） ==========  -->
         <Style x:Key="FieldComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="Cursor" Value="Hand" />
@@ -103,6 +103,7 @@
                                 <ToggleButton.Style>
                                     <Style TargetType="ToggleButton">
                                         <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
                                         <Setter Property="BorderThickness" Value="0" />
                                         <Setter Property="ClickMode" Value="Press" />
                                         <Setter Property="Focusable" Value="False" />
@@ -111,10 +112,7 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ToggleButton">
-                                                    <Border
-                                                        Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}" />
+                                                    <Border Background="Transparent" BorderThickness="0" />
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -182,11 +180,11 @@
         <Style x:Key="ToolButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="34" />
             <Setter Property="Padding" Value="14,0" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
             <Setter Property="Background" Value="White" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -221,7 +219,7 @@
         <!--  ========== 卡片 ==========  -->
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="16" />
         </Style>
@@ -255,16 +253,14 @@
 
                                 <StackPanel Grid.Column="0">
                                     <TextBlock
-                                        FontSize="11"
+                                        FontSize="{StaticResource DevKitFontSize11}"
                                         Foreground="{StaticResource DevKitTextMutedBrush}"
                                         Text="{TemplateBinding Tag}"
                                         TextTrimming="CharacterEllipsis" />
                                     <TextBlock
                                         Margin="0,8,0,0"
-                                        FontFamily="Consolas"
-                                        FontSize="16"
-                                        FontWeight="SemiBold"
-                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        FontSize="{StaticResource DevKitFontSize14}"
+                                        Foreground="{StaticResource DevKitTextBrush}"
                                         Text="{TemplateBinding Content}"
                                         TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
@@ -273,8 +269,8 @@
                                     x:Name="InfoItemCopyIcon"
                                     Grid.Column="1"
                                     VerticalAlignment="Center"
-                                    FontFamily="/DevKit;component/Fonts/#iconfont"
-                                    FontSize="16"
+                                    FontFamily="{StaticResource DevKitIconFontFamily}"
+                                    FontSize="{StaticResource DevKitFontSize16}"
                                     Foreground="{StaticResource DevKitAccentBrush}"
                                     Opacity="0"
                                     Text="&#xe66c;" />
@@ -303,7 +299,7 @@
                             x:Name="CommandItemBorder"
                             Padding="12,10"
                             Background="{StaticResource DevKitSurfaceBrush}"
-                            BorderBrush="{DynamicResource DevKitBorderBrush}"
+                            BorderBrush="{StaticResource DevKitBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="8">
                             <ContentPresenter />
@@ -325,7 +321,7 @@
 
         <!--  ========== 开关 ==========  -->
         <Style x:Key="SwitchStyle" TargetType="CheckBox">
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -400,20 +396,20 @@
             <Setter Property="Padding" Value="12,0,0,0" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource DevKitBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="18" />
         </Style>
 
         <!--  执行 / 停止 双态按钮：运行中变红，hover / 按下红蓝不串色  -->
         <Style x:Key="RunOrStopButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="34" />
+            <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="16,0" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
             <Setter Property="Background" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitOnAccentBrush}" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -478,7 +474,7 @@
         <Style x:Key="TerminalButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="26" />
             <Setter Property="Padding" Value="10,0" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="{StaticResource TerminalBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
@@ -511,19 +507,82 @@
             </Setter>
         </Style>
 
-        <!--  终端内的深色开关  -->
-        <Style
-            x:Key="TerminalSwitchStyle"
-            BasedOn="{StaticResource SwitchStyle}"
-            TargetType="CheckBox">
-            <Setter Property="Background" Value="#4A5462" />
+        <!--  终端内的深色开关（完整独立样式，不使用 BasedOn）  -->
+        <Style x:Key="TerminalSwitchStyle" TargetType="CheckBox">
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal">
+                            <Border
+                                x:Name="SwitchTrack"
+                                Width="36"
+                                Height="24"
+                                Background="{StaticResource DevKitBorderStrongBrush}"
+                                CornerRadius="12">
+                                <Ellipse
+                                    x:Name="SwitchThumb"
+                                    Width="18"
+                                    Height="18"
+                                    Margin="3,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Fill="White"
+                                    RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="0" />
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect
+                                            BlurRadius="4"
+                                            Direction="270"
+                                            Opacity="0.25"
+                                            ShadowDepth="1"
+                                            Color="{StaticResource DevKitShadowColor}" />
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="12"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="0"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!--  ========== 输入框（带水印） ==========  -->
         <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="34" />
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="Foreground" Value="{DynamicResource DevKitTextBrush}" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
             <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
             <Setter Property="CaretBrush" Value="{StaticResource DevKitAccentBrush}" />
@@ -542,7 +601,7 @@
                                     x:Name="PlaceholderText"
                                     Margin="4,0"
                                     VerticalAlignment="Center"
-                                    FontSize="13"
+                                    FontSize="{StaticResource DevKitFontSize14}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     IsHitTestVisible="False"
                                     Text="IP或域名，如 8.8.8.8 / www.baidu.com"
@@ -592,7 +651,7 @@
             <TextBlock
                 Grid.Column="0"
                 VerticalAlignment="Center"
-                FontSize="13"
+                FontSize="{StaticResource DevKitFontSize13}"
                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
                 Text="网络适配器" />
 
@@ -622,19 +681,19 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock
                             VerticalAlignment="Center"
-                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                            FontSize="16"
+                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                            FontSize="{StaticResource DevKitFontSize16}"
                             Text="&#xe602;" />
                         <TextBlock
                             Margin="8,0,0,0"
-                            FontSize="13"
+                            FontSize="{StaticResource DevKitFontSize13}"
                             Text="刷新" />
                     </StackPanel>
                 </Button.Content>
             </Button>
         </Grid>
 
-        <Border Grid.Row="1" Background="{DynamicResource DevKitBorderBrush}" />
+        <Border Grid.Row="1" Background="{StaticResource DevKitBorderBrush}" />
 
         <!--  ============================================================ 内容  ============================================================  -->
         <Grid Grid.Row="2" Margin="16">
@@ -688,18 +747,18 @@
                             CornerRadius="10">
                             <StackPanel Orientation="Vertical">
                                 <TextBlock
-                                    FontSize="11"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="适配器类型" />
 
                                 <TextBlock
                                     Margin="0,8,0,0"
                                     VerticalAlignment="Center"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource DevKitTextBrush}">
+                                    FontSize="{StaticResource DevKitFontSize13}"
+                                    Foreground="{StaticResource DevKitTextBrush}">
                                     <Run Text="{Binding AdapterType}" />
                                     <Run Text=" · " />
-                                    <Run FontWeight="SemiBold" Text="{Binding NetSpeed, StringFormat={}{0} Mbps}" />
+                                    <Run Text="{Binding NetSpeed, StringFormat={}{0} Mbps}" />
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -713,15 +772,15 @@
                             CornerRadius="10">
                             <StackPanel Orientation="Vertical">
                                 <TextBlock
-                                    FontSize="11"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="DHCP" />
 
                                 <TextBlock
                                     Margin="0,8,0,0"
                                     VerticalAlignment="Center"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource DevKitTextBrush}"
+                                    FontSize="{StaticResource DevKitFontSize13}"
+                                    Foreground="{StaticResource DevKitTextBrush}"
                                     Text="{Binding Dhcp}" />
                             </StackPanel>
                         </Border>
@@ -735,7 +794,7 @@
                             CornerRadius="10">
                             <StackPanel>
                                 <TextBlock
-                                    FontSize="11"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     Foreground="{StaticResource DevKitTextMutedBrush}"
                                     Text="连接状态" />
                                 <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
@@ -747,8 +806,8 @@
                                     <TextBlock
                                         Margin="8,0,0,0"
                                         VerticalAlignment="Center"
-                                        FontSize="13"
-                                        Foreground="{DynamicResource DevKitTextBrush}"
+                                        FontSize="{StaticResource DevKitFontSize13}"
+                                        Foreground="{StaticResource DevKitTextBrush}"
                                         Text="{Binding ConnectionState, FallbackValue=未连接}" />
                                 </StackPanel>
                             </StackPanel>
@@ -774,8 +833,8 @@
                         </Border.Style>
                         <TextBlock
                             Margin="18,9"
-                            FontSize="13"
-                            Foreground="White"
+                            FontSize="{StaticResource DevKitFontSize13}"
+                            Foreground="{StaticResource DevKitOnAccentBrush}"
                             Text="{Binding ToastMessage}" />
                     </Border>
                 </Grid>
@@ -803,9 +862,9 @@
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <TextBlock
                                 VerticalAlignment="Center"
-                                FontSize="14"
+                                FontSize="{StaticResource DevKitFontSize14}"
                                 FontWeight="SemiBold"
-                                Foreground="{DynamicResource DevKitTextBrush}"
+                                Foreground="{StaticResource DevKitTextBrush}"
                                 Text="常用命令" />
 
                             <Border
@@ -817,7 +876,7 @@
                                 <TextBlock
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    FontSize="12"
+                                    FontSize="{StaticResource DevKitFontSize11}"
                                     FontWeight="SemiBold"
                                     Foreground="{StaticResource DevKitAccentBrush}"
                                     Text="{Binding CommandItems.Count}" />
@@ -847,8 +906,7 @@
                                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                                             <TextBlock
                                                 x:Name="CommandText"
-                                                FontFamily="Consolas"
-                                                FontSize="15"
+                                                FontSize="{StaticResource DevKitFontSize14}"
                                                 Foreground="{StaticResource DevKitTextBrush}"
                                                 Text="{Binding Command}"
                                                 TextTrimming="CharacterEllipsis" />
@@ -856,8 +914,8 @@
                                             <TextBlock
                                                 x:Name="ParamFlagTextBlock"
                                                 Margin="4,0,0,0"
-                                                FontSize="15"
-                                                FontWeight="Bold"
+                                                FontSize="{StaticResource DevKitFontSize14}"
+                                                FontWeight="SemiBold"
                                                 Foreground="{StaticResource DevKitAccentBrush}"
                                                 Text="@">
                                                 <TextBlock.Style>
@@ -901,7 +959,7 @@
                             <Grid Margin="0,0,0,8">
                                 <Line
                                     SnapsToDevicePixels="True"
-                                    Stroke="{DynamicResource DevKitBorderBrush}"
+                                    Stroke="{StaticResource DevKitBorderBrush}"
                                     StrokeDashArray="2,2"
                                     StrokeThickness="1.5"
                                     X1="0"
@@ -912,7 +970,7 @@
 
                             <TextBlock
                                 Margin="0,0,0,6"
-                                FontSize="13"
+                                FontSize="{StaticResource DevKitFontSize13}"
                                 Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                 Text="参数" />
 
@@ -932,7 +990,7 @@
                                         <TextBlock
                                             Margin="0,0,7,0"
                                             VerticalAlignment="Center"
-                                            FontSize="13"
+                                            FontSize="{StaticResource DevKitFontSize13}"
                                             Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                             Text="循环" />
                                         <CheckBox IsChecked="{Binding IsLoopBoxChecked}" Style="{StaticResource SwitchStyle}" />
@@ -950,8 +1008,8 @@
                                             <!--  执行：play 三角  -->
                                             <TextBlock
                                                 VerticalAlignment="Center"
-                                                FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                FontSize="16"
+                                                FontFamily="{StaticResource DevKitIconFontFamily}"
+                                                FontSize="{StaticResource DevKitFontSize16}"
                                                 Text="&#xe877;">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
@@ -969,8 +1027,8 @@
                                             <!--  停止：方块  -->
                                             <TextBlock
                                                 VerticalAlignment="Center"
-                                                FontFamily="/DevKit;component/Fonts/#iconfont"
-                                                FontSize="16"
+                                                FontFamily="{StaticResource DevKitIconFontFamily}"
+                                                FontSize="{StaticResource DevKitFontSize16}"
                                                 Text="&#xe8c8;">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
@@ -987,7 +1045,7 @@
                                             <TextBlock
                                                 Margin="8,0,0,0"
                                                 VerticalAlignment="Center"
-                                                FontSize="13">
+                                                FontSize="{StaticResource DevKitFontSize13}">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Text" Value="执行" />
@@ -1054,17 +1112,13 @@
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
                                 <TextBlock
-                                    FontFamily="Consolas"
-                                    FontSize="12"
+                                    FontSize="{StaticResource DevKitFontSize14}"
                                     Foreground="{StaticResource TerminalDimBrush}"
                                     Text="cmd.exe" />
-                                <TextBlock
-                                    FontFamily="Consolas"
-                                    FontSize="12"
-                                    Text="{Binding ElementName=CommandListBox, Path=SelectedItem.Command, StringFormat={}&#160;—&#160;{0}}">
+                                <TextBlock FontSize="{StaticResource DevKitFontSize14}" Text="{Binding ElementName=CommandListBox, Path=SelectedItem.Command, StringFormat={}&#160;—&#160;{0}}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="#9EAAB8" />
+                                            <Setter Property="Foreground" Value="{StaticResource DevKitTerminalDimBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="">
                                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -1078,19 +1132,20 @@
                             <StackPanel
                                 Grid.Column="2"
                                 Margin="0,8"
-                                Orientation="Horizontal">
+                                Orientation="Horizontal"
+                                Visibility="Collapsed">
                                 <Button Command="{Binding ClearTerminalCommand}" Style="{StaticResource TerminalButtonStyle}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="16"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize16}"
                                             Text="&#xe666;" />
 
                                         <TextBlock
                                             Margin="5,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="清空" />
                                     </StackPanel>
                                 </Button>
@@ -1102,14 +1157,14 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock
                                             VerticalAlignment="Center"
-                                            FontFamily="/DevKit;component/Fonts/#iconfont"
-                                            FontSize="16"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize16}"
                                             Text="&#xe66c;" />
 
                                         <TextBlock
                                             Margin="5,0,0,0"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
+                                            FontSize="{StaticResource DevKitFontSize14}"
                                             Text="复制" />
                                     </StackPanel>
                                 </Button>
@@ -1119,7 +1174,7 @@
                                         <TextBlock
                                             Margin="0,0,7,0"
                                             VerticalAlignment="Center"
-                                            FontSize="12"
+                                            FontSize="{StaticResource DevKitFontSize11}"
                                             Foreground="{StaticResource TerminalDimBrush}"
                                             Text="自动滚动" />
                                         <CheckBox IsChecked="{Binding IsAutoScrollBoxChecked}" Style="{StaticResource TerminalSwitchStyle}" />
@@ -1139,9 +1194,8 @@
                             AcceptsReturn="True"
                             Background="{StaticResource TerminalBodyBrush}"
                             BorderThickness="0"
-                            FontFamily="Consolas"
-                            FontSize="14"
-                            Foreground="#C9D1D9"
+                            FontSize="{StaticResource DevKitFontSize14}"
+                            Foreground="{StaticResource DevKitTerminalTextBrush}"
                             HorizontalScrollBarVisibility="Auto"
                             IsReadOnly="True"
                             Text="{Binding OutputResult}"

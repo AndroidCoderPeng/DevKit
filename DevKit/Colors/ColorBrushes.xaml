@@ -63,6 +63,10 @@
         x:Key="DevKitTextMutedBrush"
         o:Freeze="True"
         Color="#93A0AE" />
+    <SolidColorBrush
+        x:Key="DevKitOnAccentBrush"
+        o:Freeze="True"
+        Color="#FFFFFF" />
 
     <!--  ===== 成功 / 绿 =====  -->
     <SolidColorBrush
@@ -181,6 +185,10 @@
         x:Key="DevKitTerminalTextDimBrush"
         o:Freeze="True"
         Color="#D9FFFFFF" />
+    <SolidColorBrush
+        x:Key="DevKitTerminalDimBrush"
+        o:Freeze="True"
+        Color="#9EAAB8" />
     <SolidColorBrush
         x:Key="DevKitTrafficRedBrush"
         o:Freeze="True"

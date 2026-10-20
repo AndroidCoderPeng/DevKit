@@ -9,7 +9,7 @@
     Width="1066"
     Height="768"
     d:DataContext="{d:DesignInstance Type=vm:SerialPortViewModel}"
-    Background="{DynamicResource DevKitBackgroundBrush}"
+    Background="{StaticResource DevKitBackgroundBrush}"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">

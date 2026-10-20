@@ -27,7 +27,6 @@ namespace DevKit
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IAppDataService, AppDataServiceImpl>();
 
-            // 
             // none module dialog registrations
             services.AddDialog<AndroidDebugBridgeView, AndroidDebugBridgeViewModel>();
             services.AddDialog<ApplicationPackageView, ApplicationPackageViewModel>();
