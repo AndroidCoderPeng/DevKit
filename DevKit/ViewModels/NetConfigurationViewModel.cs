@@ -4,290 +4,54 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Utils;
 
 namespace DevKit.ViewModels
 {
-    public class NetConfigurationViewModel : ObservableObject
+    [SupportedOSPlatform("windows6.1")]
+    public partial class NetConfigurationViewModel : ObservableObject
     {
-        public string Title => "网络信息";
-
-        public event Action<IDialogResult> RequestClose
-        {
-            add { }
-            remove { }
-        }
-
-        public bool CanCloseDialog()
-        {
-            return true;
-        }
-
-        public void OnDialogClosed()
-        {
-        }
-
-        public void OnDialogOpened(IDialogParameters parameters)
-        {
-        }
-
         #region VM
 
-        private ObservableCollection<string> _addressItems = new ObservableCollection<string>();
+        [ObservableProperty] private ObservableCollection<string> _addressItems = [];
+        [ObservableProperty] private string _ip4 = string.Empty;
+        [ObservableProperty] private string _subnetMask = string.Empty;
+        [ObservableProperty] private string _gateway = string.Empty;
+        [ObservableProperty] private string _deviceMac = string.Empty;
+        [ObservableProperty] private string _dns = string.Empty;
+        [ObservableProperty] private string _adapterType = string.Empty;
+        [ObservableProperty] private long _netSpeed;
+        [ObservableProperty] private string _dhcp = string.Empty;
+        [ObservableProperty] private string _connectionState = "未连接";
+        [ObservableProperty] private SolidColorBrush _connectionStateColor = new(Colors.LightGray);
+        [ObservableProperty] private string _toastMessage;
+        [ObservableProperty] private bool _isToastVisible;
+        [ObservableProperty] private ObservableCollection<CmdCommand> _commandItems = [];
+        [ObservableProperty] private string _commandParam = string.Empty;
+        [ObservableProperty] private string _outputResult = string.Empty;
+        [ObservableProperty] private bool _isAutoScrollBoxChecked;
+        [ObservableProperty] private bool _isLoopBoxChecked;
 
-        public ObservableCollection<string> AddressItems
-        {
-            get => _addressItems;
-            set
-            {
-                _addressItems = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _ip4 = string.Empty;
-
-        public string Ip4
-        {
-            get => _ip4;
-            set
-            {
-                _ip4 = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _subnetMask = string.Empty;
-
-        public string SubnetMask
-        {
-            get => _subnetMask;
-            set
-            {
-                _subnetMask = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _gateway = string.Empty;
-
-        public string Gateway
-        {
-            get => _gateway;
-            set
-            {
-                _gateway = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _deviceMac = string.Empty;
-
-        public string DeviceMac
-        {
-            get => _deviceMac;
-            set
-            {
-                _deviceMac = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _dns = string.Empty;
-
-        public string Dns
-        {
-            get => _dns;
-            set
-            {
-                _dns = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _adapterType = string.Empty;
-
-        public string AdapterType
-        {
-            get => _adapterType;
-            set
-            {
-                _adapterType = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private long _netSpeed;
-
-        public long NetSpeed
-        {
-            get => _netSpeed;
-            set
-            {
-                _netSpeed = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _dhcp = string.Empty;
-
-        public string Dhcp
-        {
-            get => _dhcp;
-            set
-            {
-                _dhcp = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _connectionState = "未连接";
-
-        public string ConnectionState
-        {
-            get => _connectionState;
-            set
-            {
-                _connectionState = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private SolidColorBrush _connectionStateColor = new SolidColorBrush(Colors.LightGray);
-
-        public SolidColorBrush ConnectionStateColor
-        {
-            get => _connectionStateColor;
-            set
-            {
-                _connectionStateColor = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _toastMessage;
-
-        public string ToastMessage
-        {
-            get => _toastMessage;
-            set
-            {
-                _toastMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isToastVisible;
-
-        public bool IsToastVisible
-        {
-            get => _isToastVisible;
-            set
-            {
-                _isToastVisible = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private ObservableCollection<CmdCommand> _commandItems = new ObservableCollection<CmdCommand>();
-
-        public ObservableCollection<CmdCommand> CommandItems
-        {
-            get => _commandItems;
-            set
-            {
-                _commandItems = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _commandParam = string.Empty;
-
-        public string CommandParam
-        {
-            get => _commandParam;
-            set
-            {
-                _commandParam = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _outputResult = string.Empty;
-
-        public string OutputResult
-        {
-            get => _outputResult;
-            set
-            {
-                _outputResult = value;
-                OnPropertyChanged();
-            }
-        }
-
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRunOrStop))]
         private bool _isRunning;
-
-        public bool IsRunning
-        {
-            get => _isRunning;
-            set
-            {
-                _isRunning = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(CanRunOrStop));
-            }
-        }
 
         /// <summary>
         /// 「执行 / 停止」按钮是否可用：运行中必须能停下来
         /// </summary>
-        public bool CanRunOrStop => IsRunning || (_selectedCommand != null && _selectedCommand.NeedParams);
-
-        private bool _isAutoScrollBoxChecked;
-
-        public bool IsAutoScrollBoxChecked
-        {
-            get => _isAutoScrollBoxChecked;
-            set
-            {
-                _isAutoScrollBoxChecked = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isLoopBoxChecked;
-
-        public bool IsLoopBoxChecked
-        {
-            set
-            {
-                _isLoopBoxChecked = value;
-                OnPropertyChanged();
-            }
-            get => _isLoopBoxChecked;
-        }
+        public bool CanRunOrStop => IsRunning || _selectedCommand is { NeedParams: true };
 
         #endregion
 
-        #region DelegateCommand
-
-        public DelegateCommand RefreshIpAddressCommand { set; get; }
-        public DelegateCommand<string> AddressItemSelectedCommand { set; get; }
-        public DelegateCommand<string> InfoItemCopyCommand { set; get; }
-        public DelegateCommand<CmdCommand> CommandItemSelectedCommand { set; get; }
-        public DelegateCommand ExecuteOrStopCommand { set; get; }
-        public DelegateCommand ClearTerminalCommand { set; get; }
-        public DelegateCommand CopyTerminalCommand { set; get; }
-
-        #endregion
-
+        private readonly IAppDataService _appDataService;
         private DispatcherTimer _toastTimer;
         private CmdCommand _selectedCommand;
         private Process _runningProcess;
@@ -295,9 +59,12 @@ namespace DevKit.ViewModels
 
         public NetConfigurationViewModel(IAppDataService appDataService)
         {
-            AddressItems.AddRange(appDataService.GetIPv4Address());
-            CommandItems = new ObservableCollection<CmdCommand>
-            {
+            _appDataService = appDataService;
+
+            LoadIpAddresses();
+
+            CommandItems =
+            [
                 new CmdCommand { Command = "ipconfig /all", Description = "查看完整网卡信息", NeedParams = false },
                 new CmdCommand { Command = "ping", Description = "测试网络连通性", NeedParams = true },
                 new CmdCommand { Command = "tracert", Description = "查看网络路由路径", NeedParams = true },
@@ -307,128 +74,142 @@ namespace DevKit.ViewModels
                 new CmdCommand { Command = "netstat -ano", Description = "查看端口和进程 PID", NeedParams = false },
                 new CmdCommand { Command = "hostname", Description = "查看计算机名", NeedParams = false },
                 new CmdCommand { Command = "getmac", Description = "查看网卡 MAC 地址", NeedParams = false }
-            };
+            ];
+        }
 
-            AddressItemSelectedCommand = new DelegateCommand<string>(ip =>
+        [RelayCommand]
+        private void AddressItemSelected(string ip)
+        {
+            // 获取该 IP 的网络信息
+            Ip4 = ip;
+            SubnetMask = GetSubnetMask(ip);
+            Gateway = GetGateway(ip);
+            DeviceMac = GetDeviceMac(ip);
+            Dns = GetDns(ip);
+
+            // 网络适配器类型以及带宽
+            var adapterType = GetAdapterType(ip);
+            AdapterType = adapterType.Item1;
+            NetSpeed = adapterType.Item2;
+
+            Dhcp = GetDhcp(ip);
+
+            // 连接状态
+            var state = GetConnectionState(ip);
+            ConnectionState = state.Item1;
+            ConnectionStateColor = state.Item2;
+        }
+
+        [RelayCommand]
+        private void RefreshIpAddress()
+        {
+            LoadIpAddresses();
+        }
+
+        private void LoadIpAddresses()
+        {
+            AddressItems.Clear();
+            foreach (var address in _appDataService.GetIPv4Address())
             {
-                // 获取该 IP 的网络信息
-                Ip4 = ip;
-                SubnetMask = GetSubnetMask(ip);
-                Gateway = GetGateway(ip);
-                DeviceMac = GetDeviceMac(ip);
-                Dns = GetDns(ip);
+                AddressItems.Add(address);
+            }
+        }
 
-                // 网络适配器类型以及带宽
-                var adapterType = GetAdapterType(ip);
-                AdapterType = adapterType.Item1;
-                NetSpeed = adapterType.Item2;
+        [RelayCommand]
+        private void InfoItemCopy(string item)
+        {
+            var dataObject = new DataObject(DataFormats.UnicodeText, item);
+            Clipboard.SetDataObject(dataObject);
 
-                Dhcp = GetDhcp(ip);
+            ShowToast("参数已复制");
+        }
 
-                // 连接状态
-                var state = GetConnectionState(ip);
-                ConnectionState = state.Item1;
-                ConnectionStateColor = state.Item2;
-            });
+        private void ShowToast(string message)
+        {
+            ToastMessage = message;
+            IsToastVisible = true;
 
-            RefreshIpAddressCommand = new DelegateCommand(() =>
+            if (_toastTimer == null)
             {
-                if (_addressItems.Any())
+                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                _toastTimer.Tick += (_, _) =>
                 {
-                    AddressItems.Clear();
-                }
+                    _toastTimer.Stop();
+                    IsToastVisible = false;
+                };
+            }
 
-                AddressItems.AddRange(appDataService.GetIPv4Address());
-            });
+            _toastTimer.Stop();
+            _toastTimer.Start();
+        }
 
-            InfoItemCopyCommand = new DelegateCommand<string>(item =>
+        [RelayCommand]
+        private void CommandItemSelected(CmdCommand item)
+        {
+            if (item == null) return;
+
+            _selectedCommand = item;
+            OnPropertyChanged(nameof(CanRunOrStop));
+
+            if (item.NeedParams)
             {
-                var dataObject = new DataObject(DataFormats.UnicodeText, item);
-                Clipboard.SetDataObject(dataObject);
-
-                ShowToast("参数已复制");
-            });
-
-            CommandItemSelectedCommand = new DelegateCommand<CmdCommand>(item =>
+                // 需要参数的命令：这里只提示，参数填好后点「执行」才真正运行
+                CommandParam = string.Empty;
+            }
+            else
             {
-                if (item == null) return;
+                // 不需要参数的命令，选中即执行
+                ExecuteCommand(item.Command);
+            }
+        }
 
-                _selectedCommand = item;
-                OnPropertyChanged(nameof(CanRunOrStop));
-
-                if (item.NeedParams)
-                {
-                    // 需要参数的命令：这里只提示，参数填好后点「执行」才真正运行
-                    CommandParam = string.Empty;
-                }
-                else
-                {
-                    // 不需要参数的命令，选中即执行
-                    ExecuteCommand(item.Command);
-                }
-            });
-
-            ExecuteOrStopCommand = new DelegateCommand(() =>
+        [RelayCommand]
+        private void ExecuteOrStop()
+        {
+            if (IsRunning)
             {
-                if (IsRunning)
-                {
-                    StopRunningCommand();
-                    ShowToast("[已停止当前命令]");
-                    return;
-                }
+                StopRunningCommand();
+                ShowToast("[已停止当前命令]");
+                return;
+            }
 
-                var item = _selectedCommand;
-                if (item == null)
-                {
-                    ShowToast("请先选择命令");
-                    return;
-                }
-
-                if (!item.NeedParams)
-                {
-                    // 不需要参数的命令，选中时已经跑过了，这里再点就再跑一次
-                    ExecuteCommand(item.Command);
-                    return;
-                }
-
-                var param = (CommandParam ?? string.Empty).Trim();
-                if (string.IsNullOrEmpty(param))
-                {
-                    ShowToast("请先输入参数");
-                    return;
-                }
-
-                var command = $"{item.Command} {param}";
-
-                // 只有 ping 有 -t 循环开关，其它命令不接受该参数
-                if (string.Equals(item.Command, "ping", StringComparison.OrdinalIgnoreCase) && IsLoopBoxChecked)
-                {
-                    command += " -t";
-                }
-
-                ExecuteCommand(command);
-            });
-
-            ClearTerminalCommand = new DelegateCommand(() => OutputResult = string.Empty);
-
-            CopyTerminalCommand = new DelegateCommand(() =>
+            var item = _selectedCommand;
+            if (item == null)
             {
-                if (string.IsNullOrEmpty(OutputResult))
-                {
-                    ShowToast("暂无可复制的输出");
-                    return;
-                }
+                ShowToast("请先选择命令");
+                return;
+            }
 
-                Clipboard.SetDataObject(new DataObject(DataFormats.UnicodeText, OutputResult));
-                ShowToast("输出已复制");
-            });
+            if (!item.NeedParams)
+            {
+                // 不需要参数的命令，选中时已经跑过了，这里再点就再跑一次
+                ExecuteCommand(item.Command);
+                return;
+            }
+
+            var param = CommandParam.Trim();
+            if (string.IsNullOrEmpty(param))
+            {
+                ShowToast("请先输入参数");
+                return;
+            }
+
+            var command = $"{item.Command} {param}";
+
+            // 只有 ping 有 -t 循环开关，其它命令不接受该参数
+            if (string.Equals(item.Command, "ping", StringComparison.OrdinalIgnoreCase) && IsLoopBoxChecked)
+            {
+                command += " -t";
+            }
+
+            ExecuteCommand(command);
         }
 
         private void ExecuteCommand(string command)
         {
             if (string.IsNullOrWhiteSpace(command)) return;
 
-            if (_isRunning)
+            if (IsRunning)
             {
                 StopRunningCommand();
             }
@@ -528,23 +309,32 @@ namespace DevKit.ViewModels
             }
         }
 
-        // ---- 私有辅助函数 -----
-
-        private NetworkInterface FindNetworkInterface(string ip)
+        [RelayCommand]
+        private void ClearTerminal()
         {
-            return NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(network =>
-                network.OperationalStatus == OperationalStatus.Up &&
-                network.GetIPProperties().UnicastAddresses.Any(address =>
-                    address.Address.AddressFamily == AddressFamily.InterNetwork && address.Address.ToString() == ip)
-            );
+            OutputResult = string.Empty;
         }
 
+        [RelayCommand]
+        private void CopyTerminal()
+        {
+            if (string.IsNullOrEmpty(OutputResult))
+            {
+                ShowToast("暂无可复制的输出");
+                return;
+            }
+
+            Clipboard.SetDataObject(new DataObject(DataFormats.UnicodeText, OutputResult));
+            ShowToast("输出已复制");
+        }
+
+        // ---- 私有辅助函数 -----
         private string GetSubnetMask(string ip)
         {
             var network = FindNetworkInterface(ip);
             var address = network?.GetIPProperties().UnicastAddresses
                 .FirstOrDefault(item => item.Address.ToString() == ip);
-            return address?.IPv4Mask?.ToString() ?? string.Empty;
+            return address?.IPv4Mask.ToString() ?? string.Empty;
         }
 
         private string GetGateway(string ip)
@@ -583,25 +373,14 @@ namespace DevKit.ViewModels
                 return ("未知", 0);
             }
 
-            string type;
-            switch (network.NetworkInterfaceType)
+            var type = network.NetworkInterfaceType switch
             {
-                case NetworkInterfaceType.Ethernet:
-                    type = "以太网";
-                    break;
-                case NetworkInterfaceType.Wireless80211:
-                    type = "Wi-Fi";
-                    break;
-                case NetworkInterfaceType.Loopback:
-                    type = "回环网卡";
-                    break;
-                case NetworkInterfaceType.Tunnel:
-                    type = "隧道网卡";
-                    break;
-                default:
-                    type = "未知";
-                    break;
-            }
+                NetworkInterfaceType.Ethernet => "以太网",
+                NetworkInterfaceType.Wireless80211 => "Wi-Fi",
+                NetworkInterfaceType.Loopback => "回环网卡",
+                NetworkInterfaceType.Tunnel => "隧道网卡",
+                _ => "未知"
+            };
 
             // NetworkInterface.Speed 单位是 bit/s，除以 1000000 得到 Mbps
             var speedMbps = Math.Max(0L, network.Speed / 1000000L);
@@ -617,9 +396,7 @@ namespace DevKit.ViewModels
             }
 
             var ipv4Properties = network.GetIPProperties().GetIPv4Properties();
-            return ipv4Properties != null && ipv4Properties.IsDhcpEnabled
-                ? "已启用"
-                : "未启用";
+            return ipv4Properties.IsDhcpEnabled ? "已启用" : "未启用";
         }
 
         private (string, SolidColorBrush) GetConnectionState(string ip)
@@ -631,31 +408,18 @@ namespace DevKit.ViewModels
                 return ("未连接", new SolidColorBrush(Colors.LightGray));
             }
 
-            if (network.OperationalStatus == OperationalStatus.Up)
-            {
-                return ("已连接", new SolidColorBrush(Colors.LimeGreen));
-            }
-
-            return ("未连接", new SolidColorBrush(Colors.LightGray));
+            return network.OperationalStatus == OperationalStatus.Up
+                ? ("已连接", new SolidColorBrush(Colors.LimeGreen))
+                : ("未连接", new SolidColorBrush(Colors.LightGray));
         }
 
-        private void ShowToast(string message)
+        private NetworkInterface FindNetworkInterface(string ip)
         {
-            ToastMessage = message;
-            IsToastVisible = true;
-
-            if (_toastTimer == null)
-            {
-                _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
-                {
-                    _toastTimer.Stop();
-                    IsToastVisible = false;
-                };
-            }
-
-            _toastTimer.Stop();
-            _toastTimer.Start();
+            return NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(network =>
+                network.OperationalStatus == OperationalStatus.Up &&
+                network.GetIPProperties().UnicastAddresses.Any(address =>
+                    address.Address.AddressFamily == AddressFamily.InterNetwork && address.Address.ToString() == ip)
+            );
         }
 
         /// <summary>
@@ -665,16 +429,14 @@ namespace DevKit.ViewModels
         {
             try
             {
-                using (var killer = Process.Start(new ProcessStartInfo
-                       {
-                           FileName = "taskkill",
-                           Arguments = $"/T /F /PID {processId}",
-                           UseShellExecute = false,
-                           CreateNoWindow = true
-                       }))
+                using var killer = Process.Start(new ProcessStartInfo
                 {
-                    killer?.WaitForExit(2000);
-                }
+                    FileName = "taskkill",
+                    Arguments = $"/T /F /PID {processId}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+                killer?.WaitForExit(2000);
             }
             catch (Exception ex)
             {
