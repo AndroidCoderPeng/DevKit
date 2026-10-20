@@ -44,6 +44,7 @@ namespace DevKit.ViewModels
         [ObservableProperty] private int _receiveCount;
         [ObservableProperty] private int _receiveByteSize;
         [ObservableProperty] private ObservableCollection<TcpServerClient> _clientItems = [];
+        [ObservableProperty] private ObservableCollection<SocketMessage> _logs = [];
 #nullable enable annotations
         [ObservableProperty] private TcpServerClient? _selectedClient;
 #nullable restore annotations
@@ -69,8 +70,6 @@ namespace DevKit.ViewModels
                 }
             }
         }
-
-        [ObservableProperty] private ObservableCollection<SocketMessage> _logs = [];
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsSendAsciiSelected))]
@@ -125,6 +124,11 @@ namespace DevKit.ViewModels
             }
         }
 
+        private string FormatLogContent(byte[] bytes)
+        {
+            return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
+        }
+        
         partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
             ObservableCollection<SocketMessage> newValue)
         {
@@ -256,11 +260,6 @@ namespace DevKit.ViewModels
 
                 RefreshUnreadMessageCount();
             }));
-        }
-
-        private string FormatLogContent(byte[] bytes)
-        {
-            return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
 
         private void RefreshUnreadMessageCount()

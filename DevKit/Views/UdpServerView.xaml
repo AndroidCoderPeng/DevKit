@@ -670,7 +670,7 @@
                 Grid.Column="9"
                 Margin="14,0"
                 HorizontalAlignment="Right"
-                Command="{Binding ListenPortCommand}"
+                Command="{Binding StartListeningCommand}"
                 Style="{StaticResource PrimaryCompactButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="12,0" Orientation="Horizontal">

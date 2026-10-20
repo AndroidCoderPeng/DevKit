@@ -17,233 +17,52 @@ using DevKit.DataService;
 using DevKit.Models;
 using DevKit.Transports;
 using DevKit.Transports.Enums;
-using DevKit.Utils;
 using Microsoft.Win32;
 
 namespace DevKit.ViewModels
 {
-    public class UdpServerViewModel : ObservableObject
+    public partial class UdpServerViewModel : ObservableObject
     {
-        public string Title => "UDP服务端";
-
         #region VM
 
-        private string _stateOuterBackgroundColor = "#FFF7F9FC";
+        [ObservableProperty] private string _stateOuterBackgroundColor = "#FFF7F9FC";
+        [ObservableProperty] private string _stateOuterBorderColor = "#FFEEEEF0";
+        [ObservableProperty] private string _stateInnerBackgroundColor = "#E7EBF0";
+        [ObservableProperty] private string _stateInnerBorderColor = "#93A0AE";
+        [ObservableProperty] private string _stateTextColor = "#5F6B7A";
+        [ObservableProperty] private string _stateText = "未监听";
+        [ObservableProperty] private string _selectedIp = string.Empty;
+        [ObservableProperty] private List<string> _localHostSource = [];
+        [ObservableProperty] private string _localPort = "21212";
+        [ObservableProperty] private string _idleTimeout = "60";
+        [ObservableProperty] private string _listenButtonText = "开始监听";
+        [ObservableProperty] private string _runningTime = "00:00:00";
+        [ObservableProperty] private int _activeClientCount;
+        [ObservableProperty] private int _clientCount;
+        [ObservableProperty] private int _unReadMessageCount;
+        [ObservableProperty] private int _sendCount;
+        [ObservableProperty] private int _sendByteSize;
+        [ObservableProperty] private int _receiveCount;
+        [ObservableProperty] private int _receiveByteSize;
+        [ObservableProperty] private ObservableCollection<UdpServerClient> _clientItems = [];
+        [ObservableProperty] private ObservableCollection<SocketMessage> _logs = [];
+#nullable enable annotations
+        [ObservableProperty] private UdpServerClient? _selectedClient;
+#nullable restore annotations
+        [ObservableProperty] private string _userInputText = string.Empty;
+        [ObservableProperty] private bool _isLoopSendEnabled;
+        [ObservableProperty] private string _interval = "1000";
+        [ObservableProperty] private bool _isBroadcastAllEnabled;
+        [ObservableProperty] private string _toastMessage;
+        [ObservableProperty] private bool _isToastVisible;
+        [ObservableProperty] private string _lastDataTime = string.Empty;
 
-        public string StateOuterBackgroundColor
-        {
-            get => _stateOuterBackgroundColor;
-            set => SetProperty(ref _stateOuterBackgroundColor, value);
-        }
-
-        private string _stateOuterBorderColor = "#FFEEEEF0";
-
-        public string StateOuterBorderColor
-        {
-            get => _stateOuterBorderColor;
-            set => SetProperty(ref _stateOuterBorderColor, value);
-        }
-
-        private string _stateInnerBackgroundColor = "#E7EBF0";
-
-        public string StateInnerBackgroundColor
-        {
-            get => _stateInnerBackgroundColor;
-            set => SetProperty(ref _stateInnerBackgroundColor, value);
-        }
-
-        private string _stateInnerBorderColor = "#93A0AE";
-
-        public string StateInnerBorderColor
-        {
-            get => _stateInnerBorderColor;
-            set => SetProperty(ref _stateInnerBorderColor, value);
-        }
-
-        private string _stateTextColor = "#5F6B7A";
-
-        public string StateTextColor
-        {
-            get => _stateTextColor;
-            set => SetProperty(ref _stateTextColor, value);
-        }
-
-        private string _stateText = "未监听";
-
-        public string StateText
-        {
-            get => _stateText;
-            set => SetProperty(ref _stateText, value);
-        }
-
-        private string _selectedIp = string.Empty;
-
-        public string SelectedIp
-        {
-            get => _selectedIp;
-            set => SetProperty(ref _selectedIp, value);
-        }
-
-        private List<string> _localHostSource = new List<string>();
-
-        public List<string> LocalHostSource
-        {
-            set
-            {
-                _localHostSource = value;
-                OnPropertyChanged();
-            }
-            get => _localHostSource;
-        }
-
-        private string _localPort = "21212";
-
-        public string LocalPort
-        {
-            get => _localPort;
-            set => SetProperty(ref _localPort, value);
-        }
-
-        private string _idleTimeout = "60";
-
-        public string IdleTimeout
-        {
-            get => _idleTimeout;
-            set => SetProperty(ref _idleTimeout, value);
-        }
-
-        private string _listenButtonText = "开始监听";
-
-        public string ListenButtonText
-        {
-            get => _listenButtonText;
-            set => SetProperty(ref _listenButtonText, value);
-        }
-
-        private string _runningTime = "00:00:00";
-
-        public string RunningTime
-        {
-            get => _runningTime;
-            set => SetProperty(ref _runningTime, value);
-        }
-
-        private int _activeClientCount;
-
-        public int ActiveClientCount
-        {
-            get => _activeClientCount;
-            set => SetProperty(ref _activeClientCount, value);
-        }
-
-        private int _clientCount;
-
-        public int ClientCount
-        {
-            get => _clientCount;
-            set => SetProperty(ref _clientCount, value);
-        }
-
-        private int _unReadMessageCount;
-
-        public int UnReadMessageCount
-        {
-            get => _unReadMessageCount;
-            set => SetProperty(ref _unReadMessageCount, value);
-        }
-
-        private int _sendCount;
-
-        public int SendCount
-        {
-            get => _sendCount;
-            set => SetProperty(ref _sendCount, value);
-        }
-
-        private int _sendByteSize;
-
-        public int SendByteSize
-        {
-            get => _sendByteSize;
-            set => SetProperty(ref _sendByteSize, value);
-        }
-
-        private int _receiveCount;
-
-        public int ReceiveCount
-        {
-            get => _receiveCount;
-            set => SetProperty(ref _receiveCount, value);
-        }
-
-        private int _receiveByteSize;
-
-        public int ReceiveByteSize
-        {
-            get => _receiveByteSize;
-            set => SetProperty(ref _receiveByteSize, value);
-        }
-
-        private ObservableCollection<UdpServerClient> _clientItems = new ObservableCollection<UdpServerClient>();
-
-        public ObservableCollection<UdpServerClient> ClientItems
-        {
-            get => _clientItems;
-            set => SetProperty(ref _clientItems, value);
-        }
-
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
-
-        public ObservableCollection<SocketMessage> Logs
-        {
-            get => _logs;
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-
-                var previous = _logs;
-                if (!SetProperty(ref _logs, value))
-                    return;
-
-                previous.CollectionChanged -= Logs_CollectionChanged;
-                _logs.CollectionChanged += Logs_CollectionChanged;
-                RaiseLogStatisticsChanged();
-            }
-        }
-
-        private UdpServerClient _selectedClient;
-
-        public UdpServerClient SelectedClient
-        {
-            get => _selectedClient;
-            set => SetProperty(ref _selectedClient, value);
-        }
-
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsLogAsciiSelected))]
         private bool _isLogHexSelected = true;
-
-        public bool IsLogHexSelected
-        {
-            get => _isLogHexSelected;
-            set
-            {
-                if (SetProperty(ref _isLogHexSelected, value))
-                {
-                    OnPropertyChanged(nameof(IsLogAsciiSelected));
-                    foreach (var log in SelectedClient?.Logs ?? Enumerable.Empty<SocketMessage>())
-                    {
-                        if (log.RawData != null)
-                        {
-                            log.Content = FormatLogContent(log.RawData);
-                        }
-                    }
-                }
-            }
-        }
 
         public bool IsLogAsciiSelected
         {
-            get => !_isLogHexSelected;
+            get => !IsLogHexSelected;
             set
             {
                 if (value)
@@ -253,25 +72,19 @@ namespace DevKit.ViewModels
             }
         }
 
-        private string _userInputText = string.Empty;
-
-        public string UserInputText
-        {
-            get => _userInputText;
-            set => SetProperty(ref _userInputText, value);
-        }
-
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsSendAsciiSelected))]
+        [NotifyPropertyChangedFor(nameof(PlaceHolderText))]
         private bool _isSendHexSelected = true;
 
-        public bool IsSendHexSelected
+        public bool IsSendAsciiSelected
         {
-            get => _isSendHexSelected;
+            get => !IsSendHexSelected;
             set
             {
-                if (SetProperty(ref _isSendHexSelected, value))
+                if (value)
                 {
-                    OnPropertyChanged(nameof(IsSendAsciiSelected));
-                    OnPropertyChanged(nameof(PlaceHolderText));
+                    IsSendHexSelected = false;
                 }
             }
         }
@@ -280,273 +93,56 @@ namespace DevKit.ViewModels
             ? "输入要发送的内容：HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
             : "输入要发送的内容：ASCII 模式下将按 UTF-8 编码发送";
 
-        public bool IsSendAsciiSelected
-        {
-            get => !_isSendHexSelected;
-            set
-            {
-                if (value)
-                {
-                    IsSendHexSelected = false;
-                }
-            }
-        }
-
-        private bool _isLoopSendEnabled;
-
-        public bool IsLoopSendEnabled
-        {
-            get => _isLoopSendEnabled;
-            set => SetProperty(ref _isLoopSendEnabled, value);
-        }
-
-        private string _interval = "1000";
-
-        public string Interval
-        {
-            get => _interval;
-            set => SetProperty(ref _interval, value);
-        }
-
-        private bool _isBroadcastAllEnabled;
-
-        public bool IsBroadcastAllEnabled
-        {
-            get => _isBroadcastAllEnabled;
-            set => SetProperty(ref _isBroadcastAllEnabled, value);
-        }
-
-        private string _toastMessage;
-
-        public string ToastMessage
-        {
-            get => _toastMessage;
-            set => SetProperty(ref _toastMessage, value);
-        }
-
-        private bool _isToastVisible;
-
-        public bool IsToastVisible
-        {
-            get => _isToastVisible;
-            set => SetProperty(ref _isToastVisible, value);
-        }
-
-        private string _lastDataTime = string.Empty;
-
-        public string LastDataTime
-        {
-            get => _lastDataTime;
-            set => SetProperty(ref _lastDataTime, value);
-        }
-
-        #endregion
-
-        #region RelayCommand
-
-        public RelayCommand ListenPortCommand { set; get; }
-        public RelayCommand ClearAllClientCommand { set; get; }
-        public RelayCommand<UdpServerClient> CopyAddressCommand { set; get; }
-        public RelayCommand<UdpServerClient> RemoveClientCommand { set; get; }
-        public RelayCommand<UdpServerClient> ClientItemSelectedCommand { set; get; }
-        public RelayCommand<string> DisplayRadioChangedCommand { set; get; }
-        public RelayCommand SaveLogCommand { set; get; }
-        public RelayCommand ClearLogCommand { set; get; }
-        public RelayCommand<string> CopyLogCommand { set; get; }
-        public RelayCommand SendMessageCommand { set; get; }
-        public RelayCommand<string> SendRadioChangedCommand { set; get; }
-        public RelayCommand<object> LoopSendSwitchCommand { set; get; }
-
         #endregion
 
         private UdpServerTransport _server;
         private DispatcherTimer _runningTimer;
         private DateTime _listenStartedAt;
         private DispatcherTimer _toastTimer;
-        private readonly DispatcherTimer _loopSendCommandTimer = new DispatcherTimer();
+        private readonly DispatcherTimer _loopSendCommandTimer = new();
         private bool _isLoopSendInProgress;
 
         public UdpServerViewModel(IAppDataService dataService)
         {
             LocalHostSource = dataService.GetIPv4Address();
-            if (_localHostSource.Any())
+            if (LocalHostSource.Count != 0)
             {
-                SelectedIp = _localHostSource.First();
+                SelectedIp = LocalHostSource.First();
             }
 
             _logs.CollectionChanged += Logs_CollectionChanged;
+        }
 
-            ListenPortCommand = new RelayCommand(() => _ = StartListeningAsync());
-
-            ClearAllClientCommand = new RelayCommand(() =>
+        partial void OnIsLogHexSelectedChanged(bool value)
+        {
+            _ = value;
+            foreach (var log in SelectedClient?.Logs ?? Enumerable.Empty<SocketMessage>())
             {
-                // 清空来源列表是纯界面操作，不需要服务处于监听中
-                ClientItems.Clear();
-                ClientCount = 0;
-                ActiveClientCount = 0;
-                UnReadMessageCount = 0;
-                SelectedClient = null;
-                Logs = new ObservableCollection<SocketMessage>();
-            });
-
-            CopyAddressCommand = new RelayCommand<UdpServerClient>(client =>
-            {
-                if (client == null)
+                if (log.RawData != null)
                 {
-                    return;
+                    log.Content = FormatLogContent(log.RawData);
                 }
+            }
+        }
 
-                var address = $"{client.Ip}:{client.Port}";
-                Clipboard.SetText(address);
-                ShowToast($"已复制 {address}");
-            });
+        private string FormatLogContent(byte[] bytes)
+        {
+            return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
+        }
 
-            RemoveClientCommand = new RelayCommand<UdpServerClient>(client =>
-            {
-                if (client == null)
-                {
-                    return;
-                }
+        partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
+        {
+            ArgumentNullException.ThrowIfNull(newValue);
+            oldValue.CollectionChanged -= Logs_CollectionChanged;
+        }
 
-                var wasSelected = ReferenceEquals(_selectedClient, client);
-                if (!ClientItems.Remove(client))
-                {
-                    return;
-                }
-
-                ClientCount = ClientItems.Count;
-                ActiveClientCount = ClientItems.Count(x => x.IsActive);
-
-                if (wasSelected)
-                {
-                    // 已被移除的来源不能再当发送/查看目标
-                    SelectedClient = null;
-                    Logs = new ObservableCollection<SocketMessage>();
-                }
-
-                RefreshUnreadMessageCount();
-            });
-
-            ClientItemSelectedCommand = new RelayCommand<UdpServerClient>(client =>
-            {
-                if (client == null)
-                {
-                    return;
-                }
-
-                if (!client.IsActive)
-                {
-                    ShowToast($"{client.Ip}:{client.Port} 已静默");
-                    return;
-                }
-
-                SelectedClient = client;
-
-                // 切到该客户端 = 查看，未读清零
-                client.MarkAllRead();
-                Logs = client.Logs;
-                RefreshUnreadMessageCount();
-            });
-
-            DisplayRadioChangedCommand = new RelayCommand<string>(value =>
-            {
-                if (value == "0")
-                {
-                    IsLogHexSelected = true;
-                }
-                else if (value == "1")
-                {
-                    IsLogHexSelected = false;
-                }
-            });
-
-            SaveLogCommand = new RelayCommand(() =>
-            {
-                if (_selectedClient == null)
-                {
-                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                if (!_selectedClient.Logs.Any())
-                {
-                    MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                var fileDialog = new SaveFileDialog
-                {
-                    DefaultExt = ".txt",
-                    Filter = "Log文件(*.txt)|*.txt"
-                };
-                if (fileDialog.ShowDialog() != true) return;
-
-                var savePath = fileDialog.FileName;
-                using (var writer = new StreamWriter(savePath))
-                {
-                    foreach (var log in _selectedClient.Logs)
-                    {
-                        var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
-                        writer.WriteLine(text);
-                    }
-                }
-            });
-
-            ClearLogCommand = new RelayCommand(() =>
-            {
-                if (_selectedClient == null)
-                {
-                    MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                if (!_selectedClient.Logs.Any())
-                {
-                    MessageBox.Show("没有需要清除的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-                if (result != MessageBoxResult.Yes) return;
-
-                _selectedClient.Logs.Clear();
-                RefreshUnreadMessageCount();
-            });
-
-            CopyLogCommand = new RelayCommand<string>(log =>
-            {
-                Clipboard.SetText(log);
-                ShowToast("已复制到剪贴板");
-            });
-
-            SendMessageCommand = new RelayCommand(() => { _ = SendInputAsync(); });
-
-            SendRadioChangedCommand = new RelayCommand<string>(value =>
-            {
-                if (value == "0")
-                {
-                    IsSendHexSelected = true;
-                }
-                else if (value == "1")
-                {
-                    IsSendHexSelected = false;
-                }
-            });
-
-            LoopSendSwitchCommand = new RelayCommand<object>(value =>
-            {
-                if (!(value is bool isChecked)) return;
-
-                if (isChecked)
-                {
-                    StartLoopSending();
-                }
-                else
-                {
-                    StopLoopSending();
-                }
-            });
+        partial void OnLogsChanged(ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
+        {
+            _ = oldValue;
+            newValue.CollectionChanged += Logs_CollectionChanged;
+            RaiseLogStatisticsChanged();
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -562,13 +158,7 @@ namespace DevKit.ViewModels
             OnPropertyChanged(nameof(ReceiveByteSize));
         }
 
-        private string FormatLogContent(byte[] bytes)
-        {
-            return IsLogHexSelected
-                ? BitConverter.ToString(bytes).Replace("-", " ")
-                : Encoding.UTF8.GetString(bytes);
-        }
-
+        [RelayCommand]
         private async Task StartListeningAsync()
         {
             if (_server == null)
@@ -616,7 +206,7 @@ namespace DevKit.ViewModels
                 ActiveClientCount = 0;
                 UnReadMessageCount = 0;
                 SelectedClient = null;
-                Logs = new ObservableCollection<SocketMessage>();
+                Logs = [];
             }
         }
 
@@ -636,7 +226,7 @@ namespace DevKit.ViewModels
                 client.LastReceivedAt = DateTime.Now;
                 client.IsActive = true; // 收到的瞬间算活跃，静默由空闲超时 Timer 判定
 
-                var isViewing = ReferenceEquals(_selectedClient, client);
+                var isViewing = ReferenceEquals(SelectedClient, client);
                 var time = DateTime.Now.ToString("HH:mm:ss.fff");
                 client.Logs.Add(new SocketMessage
                 {
@@ -687,6 +277,7 @@ namespace DevKit.ViewModels
                     StateTextColor = "#F2994A";
                     break;
 
+                case ListenState.NotListening:
                 default: // NotListening
                     StateText = "未监听";
                     ListenButtonText = "开始监听";
@@ -723,20 +314,6 @@ namespace DevKit.ViewModels
             _runningTimer = null;
         }
 
-        /// <summary>
-        /// XAML 的空闲超时是 MaxLength=3，合法值 1~999；非法输入按 1 秒兜底
-        /// </summary>
-        private int GetIdleTimeoutSeconds()
-        {
-            if (!int.TryParse(_idleTimeout, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds)
-                || seconds < 1)
-            {
-                seconds = 1;
-            }
-
-            return seconds;
-        }
-
         private void RunningTimerTick(object sender, EventArgs e)
         {
             var elapsed = DateTime.Now - _listenStartedAt;
@@ -751,16 +328,55 @@ namespace DevKit.ViewModels
                 if (seconds <= idleSeconds)
                 {
                     client.IsActive = true;
-                    client.LastMessageTime = (int)seconds;        // 活跃 · N 秒前收到的数据
+                    client.LastMessageTime = (int)seconds; // 活跃 · N 秒前收到的数据
                 }
                 else
                 {
                     client.IsActive = false;
-                    client.LastActiveTime = (int)(seconds / 60);  // 静默 · N 分钟前收到的数据
+                    client.LastActiveTime = (int)(seconds / 60); // 静默 · N 分钟前收到的数据
                 }
             }
 
             ActiveClientCount = ClientItems.Count(x => x.IsActive);
+        }
+
+        /// <summary>
+        /// XAML 的空闲超时是 MaxLength=3，合法值 1~999；非法输入按 1 秒兜底
+        /// </summary>
+        private int GetIdleTimeoutSeconds()
+        {
+            if (!int.TryParse(IdleTimeout, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds)
+                || seconds < 1)
+            {
+                seconds = 1;
+            }
+
+            return seconds;
+        }
+
+        [RelayCommand]
+        private void ClearAllClient()
+        {
+            // 清空来源列表是纯界面操作，不需要服务处于监听中
+            ClientItems.Clear();
+            ClientCount = 0;
+            ActiveClientCount = 0;
+            UnReadMessageCount = 0;
+            SelectedClient = null;
+            Logs = [];
+        }
+
+        [RelayCommand]
+        private void CopyAddress(UdpServerClient client)
+        {
+            if (client == null)
+            {
+                return;
+            }
+
+            var address = $"{client.Ip}:{client.Port}";
+            Clipboard.SetText(address);
+            ShowToast($"已复制 {address}");
         }
 
         private void ShowToast(string message)
@@ -771,7 +387,7 @@ namespace DevKit.ViewModels
             if (_toastTimer == null)
             {
                 _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                _toastTimer.Tick += (s, e) =>
+                _toastTimer.Tick += (_, _) =>
                 {
                     _toastTimer.Stop();
                     IsToastVisible = false;
@@ -782,9 +398,131 @@ namespace DevKit.ViewModels
             _toastTimer.Start();
         }
 
-        private async Task SendInputAsync()
+        [RelayCommand]
+        private void RemoveClient(UdpServerClient client)
         {
-            var value = _userInputText;
+            if (client == null)
+            {
+                return;
+            }
+
+            var wasSelected = ReferenceEquals(SelectedClient, client);
+            if (!ClientItems.Remove(client))
+            {
+                return;
+            }
+
+            ClientCount = ClientItems.Count;
+            ActiveClientCount = ClientItems.Count(x => x.IsActive);
+
+            if (wasSelected)
+            {
+                // 已被移除的来源不能再当发送/查看目标
+                SelectedClient = null;
+                Logs = [];
+            }
+
+            RefreshUnreadMessageCount();
+        }
+
+        [RelayCommand]
+        private void ClientItemSelected(UdpServerClient client)
+        {
+            if (client == null)
+            {
+                return;
+            }
+
+            if (!client.IsActive)
+            {
+                ShowToast($"{client.Ip}:{client.Port} 已静默");
+                return;
+            }
+
+            SelectedClient = client;
+
+            // 切到该客户端 = 查看，未读清零
+            client.MarkAllRead();
+            Logs = client.Logs;
+            RefreshUnreadMessageCount();
+        }
+
+        [RelayCommand]
+        private void DisplayRadioChanged(string value)
+        {
+            IsLogHexSelected = value switch
+            {
+                "0" => true,
+                "1" => false,
+                _ => IsLogHexSelected
+            };
+        }
+
+        [RelayCommand]
+        private void SaveLog()
+        {
+            if (SelectedClient == null)
+            {
+                MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!SelectedClient.Logs.Any())
+            {
+                MessageBox.Show("没有需要保存的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var fileDialog = new SaveFileDialog
+            {
+                DefaultExt = ".txt",
+                Filter = "Log文件(*.txt)|*.txt"
+            };
+            if (fileDialog.ShowDialog() != true) return;
+
+            var savePath = fileDialog.FileName;
+            using var writer = new StreamWriter(savePath);
+            foreach (var log in SelectedClient.Logs)
+            {
+                var text = log.IsSend == 1 ? $"{log.Time}【发送】{log.Content}" : $"{log.Time}【接收】{log.Content}";
+                writer.WriteLine(text);
+            }
+        }
+
+        [RelayCommand]
+        private void ClearLog()
+        {
+            if (SelectedClient == null)
+            {
+                MessageBox.Show("请先选择一个客户端", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!SelectedClient.Logs.Any())
+            {
+                MessageBox.Show("没有需要清除的日志", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var result = MessageBox.Show("确定要清除该客户端的所有日志吗？", "温馨提示", MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            SelectedClient.Logs.Clear();
+            RefreshUnreadMessageCount();
+        }
+
+        [RelayCommand]
+        private void CopyLog(string log)
+        {
+            Clipboard.SetText(log);
+            ShowToast("已复制到剪贴板");
+        }
+
+        [RelayCommand]
+        private async Task SendMessageAsync()
+        {
+            var value = UserInputText;
             if (string.IsNullOrWhiteSpace(value))
             {
                 MessageBox.Show("请输入要发送的内容", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -792,14 +530,14 @@ namespace DevKit.ViewModels
             }
 
             var server = _server;
-            if (server == null || !server.IsRunning)
+            if (server is not { IsRunning: true })
             {
                 MessageBox.Show("请先启动 UDP 服务", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             byte[] payload;
-            if (_isSendHexSelected)
+            if (IsSendHexSelected)
             {
                 var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
                 var bytes = new List<byte>();
@@ -816,7 +554,7 @@ namespace DevKit.ViewModels
                     bytes.Add(parsedByte);
                 }
 
-                payload = bytes.ToArray();
+                payload = [.. bytes];
             }
             else
             {
@@ -824,9 +562,9 @@ namespace DevKit.ViewModels
             }
 
             List<UdpServerClient> targets;
-            if (_isBroadcastAllEnabled)
+            if (IsBroadcastAllEnabled)
             {
-                targets = ClientItems.Where(client => client.IsActive).ToList();
+                targets = [.. ClientItems.Where(client => client.IsActive)];
                 if (targets.Count == 0)
                 {
                     MessageBox.Show("当前没有活跃客户端", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -835,14 +573,14 @@ namespace DevKit.ViewModels
             }
             else
             {
-                var selectedClient = _selectedClient;
-                if (selectedClient == null || !selectedClient.IsActive)
+                var selectedClient = SelectedClient;
+                if (selectedClient is not { IsActive: true })
                 {
                     MessageBox.Show("请先选择一个活跃客户端，或启用广播全部", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                targets = new List<UdpServerClient> { selectedClient };
+                targets = [selectedClient];
             }
 
             var failures = new List<string>();
@@ -884,23 +622,49 @@ namespace DevKit.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void SendRadioChanged(string value)
+        {
+            IsSendHexSelected = value switch
+            {
+                "0" => true,
+                "1" => false,
+                _ => IsSendHexSelected
+            };
+        }
+
+        [RelayCommand]
+        private void LoopSendSwitch(object value)
+        {
+            if (value is not bool isChecked) return;
+
+            if (isChecked)
+            {
+                StartLoopSending();
+            }
+            else
+            {
+                StopLoopSending();
+            }
+        }
+
         private void StartLoopSending()
         {
-            if (!int.TryParse(_interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
+            if (!int.TryParse(Interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
             {
                 MessageBox.Show("时间间隔必须是正整数", "温馨提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
                 return;
             }
 
-            if (_server == null || !_server.IsRunning)
+            if (_server is not { IsRunning: true })
             {
                 MessageBox.Show("请先启动 UDP 服务", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
                 return;
             }
 
-            if (_isBroadcastAllEnabled)
+            if (IsBroadcastAllEnabled)
             {
                 if (!ClientItems.Any(client => client.IsActive))
                 {
@@ -909,14 +673,14 @@ namespace DevKit.ViewModels
                     return;
                 }
             }
-            else if (_selectedClient == null || !_selectedClient.IsActive)
+            else if (SelectedClient is not { IsActive: true })
             {
                 MessageBox.Show("请先选择一个活跃客户端，或启用广播全部", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
                 IsLoopSendEnabled = false;
                 return;
             }
 
-            var value = _userInputText;
+            var value = UserInputText;
             if (string.IsNullOrWhiteSpace(value))
             {
                 MessageBox.Show("请输入要发送的内容", "无法循环发送", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -924,18 +688,17 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            if (_isSendHexSelected)
+            if (IsSendHexSelected)
             {
                 var tokens = value.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var token in tokens)
                 {
-                    if (!byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _))
-                    {
-                        MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法循环发送", MessageBoxButton.OK,
-                            MessageBoxImage.Warning);
-                        IsLoopSendEnabled = false;
-                        return;
-                    }
+                    if (byte.TryParse(token, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out _)) continue;
+
+                    MessageBox.Show("HEX 格式无效，请使用空格分隔字节，例如：AA 55 01 01", "无法循环发送", MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    IsLoopSendEnabled = false;
+                    return;
                 }
             }
 
@@ -965,7 +728,7 @@ namespace DevKit.ViewModels
         {
             try
             {
-                await SendInputAsync();
+                await SendMessageAsync();
             }
             catch (Exception ex)
             {
@@ -979,7 +742,7 @@ namespace DevKit.ViewModels
                 _isLoopSendInProgress = false;
             }
         }
-        
+
         public void OnDialogClosed()
         {
             StopLoopSending();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -6,6 +7,7 @@ using Microsoft.Xaml.Behaviors;
 
 namespace DevKit.Behaviors
 {
+    [SupportedOSPlatform("windows6.1")]
     public class AutoScrollToBottomBehavior : Behavior<ListBox>
     {
         public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(
