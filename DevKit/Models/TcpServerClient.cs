@@ -1,70 +1,118 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace DevKit.Models
 {
-    public class TcpServerClient : INotifyPropertyChanged
+    public partial class TcpServerClient : ObservableObject
     {
+        /// <summary>
+        /// 生命周期内不变，用 init 属性
+        /// </summary>
+        public required string Id { get; init; }
+
+        public required string Ip { get; init; }
+        public required int Port { get; init; }
+
+        [ObservableProperty] private bool _isConnected;
+
+        [ObservableProperty] private ObservableCollection<SocketMessage> _logs = [];
+
+        private readonly HashSet<SocketMessage> _subscribedLogs = [];
+
         public TcpServerClient()
         {
             _logs.CollectionChanged += Logs_CollectionChanged;
         }
 
-        public string Id { get; set; }
-        public string Ip { get; set; }
-        public int Port { get; set; }
-
-        private bool _isConnected;
-
-        public bool IsConnected
+        partial void OnLogsChanging(
+            ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
         {
-            get => _isConnected;
-            set
-            {
-                _isConnected = value;
-                OnPropertyChanged(nameof(IsConnected));
-            }
+            _ = newValue;
+            oldValue.CollectionChanged -= Logs_CollectionChanged;
+            UnsubscribeFromLogs();
         }
 
-        private ObservableCollection<SocketMessage> _logs = new ObservableCollection<SocketMessage>();
-
-        public ObservableCollection<SocketMessage> Logs
+        partial void OnLogsChanged(
+            ObservableCollection<SocketMessage> oldValue,
+            ObservableCollection<SocketMessage> newValue)
         {
-            get => _logs;
-            set
-            {
-                if (ReferenceEquals(_logs, value))
-                {
-                    return;
-                }
-
-                _logs.CollectionChanged -= Logs_CollectionChanged;
-                _logs = value;
-                _logs.CollectionChanged += Logs_CollectionChanged;
-
-                OnPropertyChanged(nameof(Logs));
-                OnPropertyChanged(nameof(UnreadLogCount));
-            }
+            _ = oldValue;
+            newValue.CollectionChanged += Logs_CollectionChanged;
+            SubscribeToLogs(newValue);
+            OnPropertyChanged(nameof(UnreadLogCount));
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                UnsubscribeFromLogs();
+            }
+            else
+            {
+                UnsubscribeFromChangedLogs(e.OldItems);
+                SubscribeToChangedLogs(e.NewItems);
+            }
+
             // 增删消息后，未读数要跟着刷新（XAML 里的红色角标）
             OnPropertyChanged(nameof(UnreadLogCount));
         }
 
-        private int _messageCount;
-
-        public int MessageCount
+        private void SubscribeToLogs(IEnumerable<SocketMessage> logs)
         {
-            get => _messageCount;
-            set
+            foreach (var log in logs)
             {
-                _messageCount = value;
-                OnPropertyChanged(nameof(MessageCount));
+                if (_subscribedLogs.Add(log))
+                {
+                    log.PropertyChanged += Log_PropertyChanged;
+                }
             }
         }
+
+        private void SubscribeToChangedLogs(IList logs)
+        {
+            foreach (SocketMessage log in logs)
+            {
+                SubscribeToLogs([log]);
+            }
+        }
+
+        private void UnsubscribeFromLogs()
+        {
+            foreach (var log in _subscribedLogs)
+            {
+                log.PropertyChanged -= Log_PropertyChanged;
+            }
+
+            _subscribedLogs.Clear();
+        }
+
+        private void UnsubscribeFromChangedLogs(IList logs)
+        {
+            foreach (SocketMessage log in logs)
+            {
+                if (_subscribedLogs.Remove(log))
+                {
+                    log.PropertyChanged -= Log_PropertyChanged;
+                }
+            }
+        }
+
+        private void Log_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SocketMessage.IsRead) ||
+                e.PropertyName == nameof(SocketMessage.IsSend))
+            {
+                OnPropertyChanged(nameof(UnreadLogCount));
+            }
+        }
+
+        [ObservableProperty] private int _messageCount;
 
         public int UnreadLogCount
         {
@@ -87,31 +135,13 @@ namespace DevKit.Models
         /// <summary>
         /// 把该客户端所有消息标记为已读，返回本次清零的条数
         /// </summary>
-        public int MarkAllRead()
+        public void MarkAllRead()
         {
-            var changed = 0;
             foreach (var log in Logs)
             {
-                if (!log.IsRead)
-                {
-                    log.IsRead = true;
-                    changed++;
-                }
+                if (log.IsRead) continue;
+                log.IsRead = true;
             }
-
-            if (changed > 0)
-            {
-                OnPropertyChanged(nameof(UnreadLogCount));
-            }
-
-            return changed;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

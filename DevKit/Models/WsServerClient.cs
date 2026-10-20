@@ -1,85 +1,119 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace DevKit.Models
 {
-    public class WsServerClient : INotifyPropertyChanged
+    public partial class WsServerClient : ObservableObject
     {
         public WsServerClient()
         {
             _logs.CollectionChanged += Logs_CollectionChanged;
         }
 
-        public string Id { get; set; }
-        public string Ip { get; set; }
-        public int Port { get; set; }
+        public required string Id { get; init; }
+        public required string Ip { get; init; }
+        public int Port { get; init; }
 
         /// <summary>
         /// 该连接握手时使用的 URL 路径，例如 /ws。
         /// </summary>
-        private string _wsPath;
+        [ObservableProperty] private string _wsPath;
 
-        public string WsPath
+        [ObservableProperty] private bool _isConnected;
+
+        [ObservableProperty] private ObservableCollection<SocketFrameMessage> _logs = [];
+
+        private readonly HashSet<SocketFrameMessage> _subscribedLogs = [];
+
+        partial void OnLogsChanging(
+            ObservableCollection<SocketFrameMessage> oldValue,
+            ObservableCollection<SocketFrameMessage> newValue)
         {
-            get => _wsPath;
-            set
-            {
-                _wsPath = value;
-                OnPropertyChanged(nameof(WsPath));
-            }
+            _ = newValue;
+            oldValue.CollectionChanged -= Logs_CollectionChanged;
+            UnsubscribeFromLogs();
         }
 
-        private bool _isConnected;
-
-        public bool IsConnected
+        partial void OnLogsChanged(
+            ObservableCollection<SocketFrameMessage> oldValue,
+            ObservableCollection<SocketFrameMessage> newValue)
         {
-            get => _isConnected;
-            set
-            {
-                _isConnected = value;
-                OnPropertyChanged(nameof(IsConnected));
-            }
-        }
-
-        private ObservableCollection<SocketFrameMessage> _logs = new ObservableCollection<SocketFrameMessage>();
-
-        public ObservableCollection<SocketFrameMessage> Logs
-        {
-            get => _logs;
-            set
-            {
-                if (ReferenceEquals(_logs, value))
-                {
-                    return;
-                }
-
-                _logs.CollectionChanged -= Logs_CollectionChanged;
-                _logs = value;
-                _logs.CollectionChanged += Logs_CollectionChanged;
-
-                OnPropertyChanged(nameof(Logs));
-                OnPropertyChanged(nameof(UnreadLogCount));
-            }
+            _ = oldValue;
+            newValue.CollectionChanged += Logs_CollectionChanged;
+            SubscribeToLogs(newValue);
+            OnPropertyChanged(nameof(UnreadLogCount));
         }
 
         private void Logs_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                UnsubscribeFromLogs();
+            }
+            else
+            {
+                UnsubscribeFromChangedLogs(e.OldItems);
+                SubscribeToChangedLogs(e.NewItems);
+            }
+
             // 增删消息后，未读数要跟着刷新（XAML 里的红色角标）
             OnPropertyChanged(nameof(UnreadLogCount));
         }
 
-        private int _messageCount;
-
-        public int MessageCount
+        private void SubscribeToLogs(IEnumerable<SocketFrameMessage> logs)
         {
-            get => _messageCount;
-            set
+            foreach (var log in logs)
             {
-                _messageCount = value;
-                OnPropertyChanged(nameof(MessageCount));
+                if (_subscribedLogs.Add(log))
+                {
+                    log.PropertyChanged += Log_PropertyChanged;
+                }
             }
         }
+
+        private void SubscribeToChangedLogs(IList logs)
+        {
+            foreach (SocketFrameMessage log in logs)
+            {
+                SubscribeToLogs([log]);
+            }
+        }
+
+        private void UnsubscribeFromLogs()
+        {
+            foreach (var log in _subscribedLogs)
+            {
+                log.PropertyChanged -= Log_PropertyChanged;
+            }
+
+            _subscribedLogs.Clear();
+        }
+
+        private void UnsubscribeFromChangedLogs(IList logs)
+        {
+            foreach (SocketFrameMessage log in logs)
+            {
+                if (_subscribedLogs.Remove(log))
+                {
+                    log.PropertyChanged -= Log_PropertyChanged;
+                }
+            }
+        }
+
+        private void Log_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SocketMessage.IsRead) ||
+                e.PropertyName == nameof(SocketMessage.IsSend))
+            {
+                OnPropertyChanged(nameof(UnreadLogCount));
+            }
+        }
+
+        [ObservableProperty] private int _messageCount;
 
         public int UnreadLogCount
         {
@@ -102,31 +136,13 @@ namespace DevKit.Models
         /// <summary>
         /// 把该客户端所有消息标记为已读，返回本次清零的条数
         /// </summary>
-        public int MarkAllRead()
+        public void MarkAllRead()
         {
-            var changed = 0;
             foreach (var log in Logs)
             {
-                if (!log.IsRead)
-                {
-                    log.IsRead = true;
-                    changed++;
-                }
+                if (log.IsRead) continue;
+                log.IsRead = true;
             }
-
-            if (changed > 0)
-            {
-                OnPropertyChanged(nameof(UnreadLogCount));
-            }
-
-            return changed;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
