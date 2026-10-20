@@ -1659,13 +1659,11 @@
                 Grid.Column="0"
                 Margin="16"
                 Foreground="{Binding StateTextColor}">
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0} {1}:{2}">
-                        <Binding Path="ConnectionState" />
-                        <Binding Path="RemoteAddress" />
-                        <Binding Path="RemotePort" />
-                    </MultiBinding>
-                </TextBlock.Text>
+                <Run Text="{Binding ConnectionState}" />
+                <Run Text=" " />
+                <Run Text="{Binding RemoteAddress}" />
+                <Run Text=":" />
+                <Run Text="{Binding RemotePort}" />
             </TextBlock>
 
             <Border

@@ -16,53 +16,19 @@ namespace DevKit.ViewModels
         #region VM
 
         [ObservableProperty] private ObservableCollection<ExCommandConfig> _exCommandCollection = [];
+        [ObservableProperty] private ObservableCollection<ExCommandConfig> _selectedCommands = [];
 
-        private ObservableCollection<ExCommandConfig> _selectedCommands = new ObservableCollection<ExCommandConfig>();
-
-        public ObservableCollection<ExCommandConfig> SelectedCommands
-        {
-            get => _selectedCommands;
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                var previous = _selectedCommands;
-                if (!SetProperty(ref _selectedCommands, value))
-                {
-                    return;
-                }
-
-                previous.CollectionChanged -= SelectedCommands_CollectionChanged;
-                _selectedCommands.CollectionChanged += SelectedCommands_CollectionChanged;
-                OnPropertyChanged(nameof(TotalTime));
-            }
-        }
-
+        [ObservableProperty] [NotifyPropertyChangedFor(nameof(TotalTime))]
         private string _interval = "1000";
-
-        public string Interval
-        {
-            get => _interval;
-            set
-            {
-                if (SetProperty(ref _interval, value))
-                {
-                    OnPropertyChanged(nameof(TotalTime));
-                }
-            }
-        }
 
         public string TotalTime
         {
             get
             {
-                if (int.TryParse(_interval, NumberStyles.Integer, CultureInfo.CurrentCulture, out var interval) &&
+                if (int.TryParse(Interval, NumberStyles.Integer, CultureInfo.CurrentCulture, out var interval) &&
                     interval > 0)
                 {
-                    var totalSeconds = interval * (double)_selectedCommands.Count / 1000;
+                    var totalSeconds = interval * (double)SelectedCommands.Count / 1000;
                     return totalSeconds.ToString("0.##", CultureInfo.CurrentCulture);
                 }
 
@@ -83,6 +49,23 @@ namespace DevKit.ViewModels
             ExCommandCollection = _dialogContext.ExCommands;
             SelectedCommands = _dialogContext.SelectedCommands;
             Interval = _dialogContext.Interval;
+        }
+
+        partial void OnSelectedCommandsChanging(
+            ObservableCollection<ExCommandConfig> oldValue,
+            ObservableCollection<ExCommandConfig> newValue)
+        {
+            ArgumentNullException.ThrowIfNull(newValue);
+            oldValue.CollectionChanged -= SelectedCommands_CollectionChanged;
+        }
+
+        partial void OnSelectedCommandsChanged(
+            ObservableCollection<ExCommandConfig> oldValue,
+            ObservableCollection<ExCommandConfig> newValue)
+        {
+            _ = oldValue;
+            newValue.CollectionChanged += SelectedCommands_CollectionChanged;
+            OnPropertyChanged(nameof(TotalTime));
         }
 
         public CommandScriptDialogViewModel()
@@ -126,7 +109,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void CancelDialog()
         {
-            _selectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
+            SelectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
             CloseRequested?.Invoke(false);
         }
 
@@ -134,7 +117,7 @@ namespace DevKit.ViewModels
         private void ConfirmDialog()
         {
             var selectedCommands = SelectedCommands.ToList();
-            
+
             _dialogContext.SelectedCommands.Clear();
             foreach (var command in selectedCommands)
             {
@@ -142,7 +125,7 @@ namespace DevKit.ViewModels
             }
 
             _dialogContext.Interval = Interval;
-            _selectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
+            SelectedCommands.CollectionChanged -= SelectedCommands_CollectionChanged;
             CloseRequested?.Invoke(true);
         }
     }
