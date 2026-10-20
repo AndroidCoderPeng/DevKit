@@ -160,6 +160,14 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private async Task StartListeningAsync()
         {
+            if (!int.TryParse(LocalPort, NumberStyles.None, CultureInfo.InvariantCulture, out var port) ||
+                port < 1 || port > 65535)
+            {
+                MessageBox.Show("端口必须是 1 到 65535 之间的正整数", "温馨提示",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
             if (_server == null)
             {
                 _server = new TcpServerTransport();
@@ -172,8 +180,7 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    await _server.StartAsync(SelectedIp, int.Parse(LocalPort), IsReusePortEnabled,
-                        CancellationToken.None);
+                    await _server.StartAsync(SelectedIp, port, IsReusePortEnabled, CancellationToken.None);
                     ApplyListenState(ListenState.Listening);
                     StartRunningTimer();
                 }

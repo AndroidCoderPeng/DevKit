@@ -157,6 +157,14 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private async Task ConnectServerAsync()
         {
+            if (!int.TryParse(RemotePort, NumberStyles.None, CultureInfo.InvariantCulture, out var port) ||
+                port < 1 || port > 65535)
+            {
+                MessageBox.Show("端口必须是 1 到 65535 之间的正整数", "温馨提示",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
             if (_isConnecting)
             {
                 return;
@@ -181,8 +189,8 @@ namespace DevKit.ViewModels
             }
 
             _isConnecting = true;
-
-            var transport = new TcpClientTransport(RemoteAddress, Convert.ToInt32(RemotePort));
+            
+            var transport = new TcpClientTransport(RemoteAddress, port);
             var token = new object();
             _transport = transport;
             _transportConnectionToken = token;
