@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -589,8 +590,13 @@ namespace DevKit.ViewModels
             {
                 try
                 {
-                    // UDP 的发送目标就是来源端点本身，Id 只是列表项的 key
-                    var remote = new IPEndPoint(IPAddress.Parse(client.Ip), client.Port);
+                    if (!IPAddress.TryParse(client.Ip, out var ipAddress) || ipAddress.AddressFamily != AddressFamily.InterNetwork)
+                    {
+                        failures.Add($"{client.Ip}:{client.Port}：IP 地址无效");
+                        continue;
+                    }
+
+                    var remote = new IPEndPoint(ipAddress, client.Port);
                     await server.SendAsync(remote, payload);
 
                     var time = DateTime.Now.ToString("HH:mm:ss.fff");
