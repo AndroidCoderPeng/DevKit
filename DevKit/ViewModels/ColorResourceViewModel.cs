@@ -280,9 +280,10 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void RecentlyColorSelected(string value)
         {
-            if (ApplyHex(value))
+            var color = value.ToUpperInvariant();
+            if (ApplyHex(color))
             {
-                AddRecentlyColor(value);
+                AddRecentlyColor(color);
             }
         }
 

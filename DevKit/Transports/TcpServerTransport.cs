@@ -136,7 +136,14 @@ namespace DevKit.Transports
         {
             foreach (var client in _clients.Values)
             {
-                await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
+                try
+                {
+                    await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(@"WebSocket 断开客户端异常：{0}", e);
+                }
             }
         }
 
@@ -144,7 +151,14 @@ namespace DevKit.Transports
         {
             if (_clients.TryGetValue(clientId, out var client))
             {
-                await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
+                try
+                {
+                    await client.CloseAsync("服务端主动断开", CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(@"WebSocket 断开客户端异常：{0}", e);
+                }
             }
         }
 
