@@ -742,6 +742,8 @@ namespace DevKit.ViewModels
         {
             PersistConfig();
             StopCommandScript();
+            StopLoopSending();
+            StopSessionTimer();
             _ = _transport?.DisconnectAsync();
             _transport?.Dispose();
             _transport = null;
