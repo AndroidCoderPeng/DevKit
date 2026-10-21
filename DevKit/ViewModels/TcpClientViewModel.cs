@@ -164,7 +164,7 @@ namespace DevKit.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            
+
             if (_isConnecting)
             {
                 return;
@@ -189,7 +189,7 @@ namespace DevKit.ViewModels
             }
 
             _isConnecting = true;
-            
+
             var transport = new TcpClientTransport(RemoteAddress, port);
             var token = new object();
             _transport = transport;
@@ -204,28 +204,28 @@ namespace DevKit.ViewModels
                         return;
                     }
 
-                    if (state == TransportState.Connecting)
+                    switch (state)
                     {
-                        SetConnectionState("连接中");
-                    }
-                    else if (state == TransportState.Connected)
-                    {
-                        SetConnectionState("已连接");
-                        StartSessionTimer();
-                    }
-                    else if (state == TransportState.Disconnected || state == TransportState.Error)
-                    {
-                        SetConnectionState("未连接");
-                        StopSessionTimer();
+                        case TransportState.Connecting:
+                            SetConnectionState("连接中");
+                            break;
+                        case TransportState.Connected:
+                            SetConnectionState("已连接");
+                            StartSessionTimer();
+                            break;
+                        case TransportState.Disconnected or TransportState.Error:
+                            SetConnectionState("未连接");
+                            StopSessionTimer();
 
-                        var failedTransport = _transport;
-                        _transport = null;
-                        _transportConnectionToken = null;
-                        failedTransport?.Dispose();
+                            var failedTransport = _transport;
+                            _transport = null;
+                            _transportConnectionToken = null;
+                            failedTransport?.Dispose();
 
-                        StopLoopSending();
-                        IsLoopSendEnabled = false;
-                        StopCommandScript();
+                            StopLoopSending();
+                            IsLoopSendEnabled = false;
+                            StopCommandScript();
+                            break;
                     }
                 }));
             };

@@ -142,7 +142,7 @@ namespace DevKit.Transports
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(@"WebSocket 断开客户端异常：{0}", e);
+                    Console.WriteLine(@"TCP 服务端断开客户端异常：{0}", e);
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace DevKit.Transports
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(@"WebSocket 断开客户端异常：{0}", e);
+                    Console.WriteLine(@"TCP 服务端断开客户端异常：{0}", e);
                 }
             }
         }

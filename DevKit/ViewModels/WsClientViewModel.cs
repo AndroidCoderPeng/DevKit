@@ -159,28 +159,27 @@ namespace DevKit.ViewModels
             {
                 Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    if (state == TransportState.Connecting)
+                    switch (state)
                     {
-                        SetConnectionState("连接中");
-                    }
-                    else if (state == TransportState.Connected)
-                    {
-                        SetConnectionState("已连接");
+                        case TransportState.Connecting:
+                            SetConnectionState("连接中");
+                            break;
+                        case TransportState.Connected:
+                            SetConnectionState("已连接");
+                            StartSessionTimer();
+                            break;
+                        case TransportState.Disconnected or TransportState.Error:
+                            SetConnectionState("未连接");
+                            StopSessionTimer();
+                            
+                            var failedTransport = _transport;
+                            _transport = null;
+                            failedTransport?.Dispose();
 
-                        // 开始计时
-                        StartSessionTimer();
-                    }
-                    else if (state == TransportState.Disconnected)
-                    {
-                        SetConnectionState("未连接");
-
-                        // 停止计时
-                        StopSessionTimer();
-                    }
-                    else if (state == TransportState.Error)
-                    {
-                        SetConnectionState("未连接");
-                        StopSessionTimer();
+                            StopLoopSending();
+                            IsLoopSendEnabled = false;
+                            StopCommandScript();
+                            break;
                     }
                 }));
             };
