@@ -170,7 +170,7 @@ namespace DevKit.ViewModels
 
             if (!_server.IsRunning)
             {
-                if (!int.TryParse(LocalPort, out var port) || port < 1 || port > 65535)
+                if (!int.TryParse(LocalPort, NumberStyles.None, CultureInfo.InvariantCulture, out var port) || port < 1 || port > 65535)
                 {
                     ApplyListenState(ListenState.Error);
                     MessageBox.Show("端口必须是 1 到 65535 之间的整数", "端口无效", MessageBoxButton.OK,
