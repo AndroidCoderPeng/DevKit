@@ -128,7 +128,7 @@ namespace DevKit.ViewModels
         {
             return IsLogHexSelected ? BitConverter.ToString(bytes).Replace("-", " ") : Encoding.UTF8.GetString(bytes);
         }
-        
+
         partial void OnLogsChanging(ObservableCollection<SocketMessage> oldValue,
             ObservableCollection<SocketMessage> newValue)
         {
@@ -167,7 +167,7 @@ namespace DevKit.ViewModels
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            
+
             if (_server == null)
             {
                 _server = new TcpServerTransport();
@@ -343,7 +343,7 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private void DisconnectAll()
+        private async Task DisconnectAll()
         {
             if (_server is not { IsRunning: true })
             {
@@ -351,11 +351,11 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            _ = _server.DisconnectAll();
+            await _server.DisconnectAll();
         }
 
         [RelayCommand]
-        private void DisconnectClient()
+        private async Task DisconnectClient()
         {
             if (_server is not { IsRunning: true })
             {
@@ -369,7 +369,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            _ = _server.DisconnectClient(SelectedClient.Id);
+            await _server.DisconnectClient(SelectedClient.Id);
         }
 
         private void ShowToast(string message)
