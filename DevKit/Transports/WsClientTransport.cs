@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Transports.Enums;
-using DevKit.Utils;
 using TouchSocket.Core;
 using TouchSocket.Http.WebSockets;
 using TouchSocket.Sockets;
@@ -15,8 +14,8 @@ namespace DevKit.Transports
     {
         private const int MaxMessageBytes = 4 * 1024 * 1024;
 
-        private readonly object _receiveLock = new object();
-        private readonly List<byte> _pending = new List<byte>();
+        private readonly object _receiveLock = new();
+        private readonly List<byte> _pending = [];
 
         private Uri _remoteUri;
         private WebSocketClient _client;
@@ -46,7 +45,7 @@ namespace DevKit.Transports
                 throw new ArgumentException(@"服务端地址不能为空", nameof(address));
             }
 
-            if (port < 1 || port > 65535)
+            if (port is < 1 or > 65535)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
             }
@@ -124,20 +123,20 @@ namespace DevKit.Transports
 
         private void BindEvents(WebSocketClient client, TaskCompletionSource<bool> closedTcs)
         {
-            client.Received = (c, e) =>
+            client.Received = (_, e) =>
             {
                 AppendFrame(e.DataFrame);
                 return EasyTask.CompletedTask;
             };
             
             // Closing 仅主动断开时触发
-            client.Closing = (c, e) =>
+            client.Closing = (_, _) =>
             {
                 _activeClose = true;
                 return EasyTask.CompletedTask;
             };
             
-            client.Closed = (c, e) =>
+            client.Closed = (c, _) =>
             {
                 var isCurrent = ReferenceEquals(_client, c);
                 if (isCurrent)
@@ -155,10 +154,7 @@ namespace DevKit.Transports
 
         public async Task SendAsync(byte[] payload)
         {
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             if (_disposed)
             {
@@ -238,7 +234,7 @@ namespace DevKit.Transports
             var completeKind = WsFrameKind.Binary;
             lock (_receiveLock)
             {
-                var isMessageStart = frame.Opcode == WSDataType.Binary || frame.Opcode == WSDataType.Text;
+                var isMessageStart = frame.Opcode is WSDataType.Binary or WSDataType.Text;
                 if (isMessageStart)
                 {
                     _pending.Clear();

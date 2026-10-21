@@ -10,8 +10,7 @@ namespace DevKit.Transports
 {
     public class TcpServerTransport : IServerTransport
     {
-        private readonly ConcurrentDictionary<string, TcpSessionClient> _clients =
-            new ConcurrentDictionary<string, TcpSessionClient>();
+        private readonly ConcurrentDictionary<string, TcpSessionClient> _clients = new();
 
         private TcpService _service;
         private bool _disposed;
@@ -20,7 +19,7 @@ namespace DevKit.Transports
         public event Action<ServerClient> ClientClosed;
         public event Action<ServerClient, byte[]> DataReceived;
 
-        public bool IsRunning => _service != null && _service.ServerState == ServerState.Running;
+        public bool IsRunning => _service is { ServerState: ServerState.Running };
 
         public async Task StartAsync(string address, int port, bool reuseAddress, CancellationToken token)
         {
@@ -31,7 +30,7 @@ namespace DevKit.Transports
                 throw new ArgumentException(@"监听地址不能为空", nameof(address));
             }
 
-            if (port < 1 || port > 65535)
+            if (port is < 1 or > 65535)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
             }
@@ -74,7 +73,7 @@ namespace DevKit.Transports
 
         private void BindEvents(TcpService service)
         {
-            service.Connected = (client, e) =>
+            service.Connected = (client, _) =>
             {
                 _clients[client.Id] = client;
                 ClientConnected?.Invoke(new ServerClient(client.Id, client.IP, client.Port));
@@ -123,10 +122,7 @@ namespace DevKit.Transports
 
         public async Task SendAsync(string clientId, byte[] payload)
         {
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             if (!_clients.TryGetValue(clientId, out var client))
             {
@@ -170,10 +166,8 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(TcpServerTransport));
-            }
+            if (!_disposed) return;
+            throw new ObjectDisposedException(nameof(TcpServerTransport));
         }
     }
 }

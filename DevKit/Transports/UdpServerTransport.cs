@@ -31,7 +31,7 @@ namespace DevKit.Transports
                 throw new ArgumentException(@"监听地址不能为空", nameof(address));
             }
 
-            if (port < 1 || port > 65535)
+            if (port is < 1 or > 65535)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
             }
@@ -50,7 +50,7 @@ namespace DevKit.Transports
                 // 复用地址：允许同机多开监听同一端口，与 TCP 服务端保持一致的默认行为
                 var config = new TouchSocketConfig().SetBindIPHost(host).SetReuseAddress(true);
 
-                session.Received = (s, e) =>
+                session.Received = (_, e) =>
                 {
                     if (e.EndPoint is IPEndPoint remote)
                     {
@@ -82,15 +82,9 @@ namespace DevKit.Transports
         {
             ThrowIfDisposed();
 
-            if (remote == null)
-            {
-                throw new ArgumentNullException(nameof(remote));
-            }
+            ArgumentNullException.ThrowIfNull(remote);
 
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             var session = _session;
             if (session == null || !_running)
@@ -143,10 +137,8 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(UdpServerTransport));
-            }
+            if (!_disposed) return;
+            throw new ObjectDisposedException(nameof(UdpServerTransport));
         }
     }
 }

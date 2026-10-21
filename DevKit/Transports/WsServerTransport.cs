@@ -20,19 +20,17 @@ namespace DevKit.Transports
         /// </summary>
         private sealed class FrameBuffer
         {
-            public readonly object SyncRoot = new object();
-            public readonly List<byte> Buffer = new List<byte>();
+            public readonly object SyncRoot = new();
+            public readonly List<byte> Buffer = [];
             public WsFrameKind Kind = WsFrameKind.Binary;
         }
 
         private const int MaxMessageBytes = 4 * 1024 * 1024;
 
-        private readonly ConcurrentDictionary<string, IWebSocket> _clients =
-            new ConcurrentDictionary<string, IWebSocket>();
+        private readonly ConcurrentDictionary<string, IWebSocket> _clients = new();
 
         // Received 插件按“帧”触发，中继帧(Cont)要拼到 FIN 才是完整消息，所以每个会话各留一份缓存
-        private readonly ConcurrentDictionary<string, FrameBuffer> _buffers =
-            new ConcurrentDictionary<string, FrameBuffer>();
+        private readonly ConcurrentDictionary<string, FrameBuffer> _buffers = new();
 
         private HttpService _service;
         private bool _disposed;
@@ -206,7 +204,7 @@ namespace DevKit.Transports
                 return;
             }
 
-            var buffer = _buffers.GetOrAdd(clientId, id => new FrameBuffer());
+            var buffer = _buffers.GetOrAdd(clientId, _ => new FrameBuffer());
             byte[] complete;
             WsFrameKind kind;
 
@@ -232,7 +230,7 @@ namespace DevKit.Transports
                     return;
                 }
 
-                complete = buffer.Buffer.ToArray();
+                complete = [.. buffer.Buffer];
                 kind = buffer.Kind;
                 buffer.Buffer.Clear();
             }
@@ -261,10 +259,7 @@ namespace DevKit.Transports
         /// </summary>
         public async Task SendAsync(string clientId, byte[] payload, WsFrameKind kind)
         {
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             if (!_clients.TryGetValue(clientId, out var webSocket))
             {
@@ -327,10 +322,8 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(WsServerTransport));
-            }
+            if (!_disposed) return;
+            throw new ObjectDisposedException(nameof(WsServerTransport));
         }
     }
 }

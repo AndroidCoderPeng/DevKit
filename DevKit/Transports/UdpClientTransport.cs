@@ -10,7 +10,7 @@ namespace DevKit.Transports
 {
     public class UdpClientTransport : IClientTransport
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private UdpSession _session;
         private IPEndPoint _remoteEndPoint;
         private AddressFamily _boundAddressFamily;
@@ -30,7 +30,7 @@ namespace DevKit.Transports
                 throw new ArgumentException(@"对端地址不能为空", nameof(address));
             }
 
-            if (port < 1 || port > 65535)
+            if (port is < 1 or > 65535)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
             }
@@ -88,7 +88,7 @@ namespace DevKit.Transports
                 // 客户端必须绑定本地地址（0 端口由系统分配），否则收不到数据
                 var host = new IPHost(anyAddress, 0);
                 await session.SetupAsync(new TouchSocketConfig().SetBindIPHost(host)).ConfigureAwait(false);
-                session.Received = (c, e) =>
+                session.Received = (_, e) =>
                 {
                     IPEndPoint current;
                     lock (_lock)
@@ -124,10 +124,7 @@ namespace DevKit.Transports
 
         public async Task SendAsync(byte[] payload)
         {
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             UdpSession session;
             IPEndPoint endPoint;
@@ -208,10 +205,8 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(UdpClientTransport));
-            }
+            if (!_disposed) return;
+            throw new ObjectDisposedException(nameof(UdpClientTransport));
         }
     }
 }

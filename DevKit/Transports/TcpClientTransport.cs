@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using DevKit.Transports.Enums;
-using DevKit.Utils;
 using TouchSocket.Core;
 using TouchSocket.Sockets;
 using TouchTcpClient = TouchSocket.Sockets.TcpClient;
@@ -35,7 +34,7 @@ namespace DevKit.Transports
                 throw new ArgumentException(@"服务端地址不能为空", nameof(address));
             }
 
-            if (port < 1 || port > 65535)
+            if (port is < 1 or > 65535)
             {
                 throw new ArgumentOutOfRangeException(nameof(port));
             }
@@ -104,13 +103,10 @@ namespace DevKit.Transports
         {
             ThrowIfDisposed();
 
-            if (payload == null)
-            {
-                throw new ArgumentNullException(nameof(payload));
-            }
+            ArgumentNullException.ThrowIfNull(payload);
 
             var client = _client;
-            if (client == null || !client.Online)
+            if (client is not { Online: true })
             {
                 throw new InvalidOperationException("TCP 客户端尚未连接");
             }
@@ -161,20 +157,20 @@ namespace DevKit.Transports
 
         private void BindEvents(TouchTcpClient client, TaskCompletionSource<bool> closedTcs)
         {
-            client.Received = (c, e) =>
+            client.Received = (_, e) =>
             {
                 DataReceived?.Invoke(e.Memory.ToArray());
                 return EasyTask.CompletedTask;
             };
 
             // Closing 仅在主动断开时触发，用它区分主动/被动断开
-            client.Closing = (c, e) =>
+            client.Closing = (_, _) =>
             {
                 _activeClose = true;
                 return EasyTask.CompletedTask;
             };
 
-            client.Closed = (c, e) =>
+            client.Closed = (c, _) =>
             {
                 var isCurrent = ReferenceEquals(_client, c);
                 if (isCurrent)
@@ -192,10 +188,8 @@ namespace DevKit.Transports
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(TcpClientTransport));
-            }
+            if (!_disposed) return;
+            throw new ObjectDisposedException(nameof(TcpClientTransport));
         }
     }
 }

@@ -178,7 +178,7 @@ namespace DevKit.ViewModels
             }
 
             var normalized = path.Trim();
-            return normalized.StartsWith("/", StringComparison.Ordinal) ? normalized : "/" + normalized;
+            return normalized.StartsWith('/') ? normalized : "/" + normalized;
         }
 
         private void ShowToast(string message)
