@@ -162,7 +162,7 @@ namespace DevKit.Transports
             }
 
             var client = _client;
-            if (client == null || !client.Online)
+            if (client is not { Online: true })
             {
                 throw new InvalidOperationException("WebSocket 客户端尚未连接");
             }
@@ -195,7 +195,7 @@ namespace DevKit.Transports
 
             if (closedTcs != null)
             {
-                await closedTcs.Task.ConfigureAwait(false);
+                await closedTcs.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             }
         }
 

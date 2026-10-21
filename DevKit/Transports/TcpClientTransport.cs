@@ -135,7 +135,7 @@ namespace DevKit.Transports
 
             if (closedTcs != null)
             {
-                await closedTcs.Task.ConfigureAwait(false);
+                await closedTcs.Task.WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             }
         }
 
