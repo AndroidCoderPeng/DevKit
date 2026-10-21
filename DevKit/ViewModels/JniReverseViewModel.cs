@@ -46,6 +46,7 @@ namespace DevKit.ViewModels
             using var folderDialog = new FolderBrowserDialog();
             if (folderDialog.ShowDialog() != DialogResult.OK) return;
             NdkPath = folderDialog.SelectedPath;
+            NdkVersion = $"{GetNdkVersion()} · {GetNdkArchitecture()}";
         }
 
         [RelayCommand]
