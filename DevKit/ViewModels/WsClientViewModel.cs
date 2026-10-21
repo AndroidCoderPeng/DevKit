@@ -335,8 +335,8 @@ namespace DevKit.ViewModels
             var transport = _transport;
             if (transport == null)
             {
-                // 抛给 SendLoopInputAsync 处理
-                throw new InvalidOperationException("WebSocket 客户端尚未连接");
+                MessageBox.Show("WebSocket 客户端尚未连接", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             byte[] payload;
