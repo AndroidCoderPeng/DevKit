@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,7 +13,7 @@ namespace DevKit.Utils
             "DevKit"
         );
 
-        private static readonly object Lock = new object();
+        private static readonly object Lock = new();
 
         private static string GetFilePath(string fileName) => Path.Combine(Dir, fileName);
 
@@ -26,7 +27,8 @@ namespace DevKit.Utils
             }
             catch (Exception e)
             {
-                Console.WriteLine($@"[SettingsStore] 读取失败：{e.Message}");
+                MessageBox.Show($@"读取配置文件失败：{e.Message}，请检查文件是否损坏。", "DevKit", MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return new JObject();
             }
         }
@@ -53,7 +55,7 @@ namespace DevKit.Utils
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($@"[SettingsStore] 保存失败：{e.Message}");
+                    MessageBox.Show($@"保存配置文件失败：{e.Message}，请检查文件是否可写。", "DevKit", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }

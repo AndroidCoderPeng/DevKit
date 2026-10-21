@@ -176,7 +176,7 @@ namespace DevKit.Transports
         {
             return $"{session.IP}:{session.Port}";
         }
-        
+
         private static string GetRequestPath(HttpContextEventArgs e)
         {
             return e?.Context?.Request?.RelativeURL;
@@ -266,7 +266,6 @@ namespace DevKit.Transports
                 throw new InvalidOperationException($"客户端 {clientId} 不存在或已断开");
             }
 
-            // WSDataFrame 是一次性对象，发送结束后要及时释放
             var frame = new WSDataFrame(payload)
             {
                 Opcode = kind == WsFrameKind.Text ? WSDataType.Text : WSDataType.Binary
