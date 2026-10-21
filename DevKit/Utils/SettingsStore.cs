@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -27,8 +26,7 @@ namespace DevKit.Utils
             }
             catch (Exception e)
             {
-                MessageBox.Show($@"读取配置文件失败：{e.Message}，请检查文件是否损坏。", "DevKit", MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                Console.WriteLine($@"读取配置文件失败：{e.Message}，请检查文件是否损坏。");
                 return new JObject();
             }
         }
@@ -55,7 +53,7 @@ namespace DevKit.Utils
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show($@"保存配置文件失败：{e.Message}，请检查文件是否可写。", "DevKit", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Console.WriteLine($@"保存配置文件失败：{e.Message}，请检查文件是否可写。");
                 }
             }
         }
