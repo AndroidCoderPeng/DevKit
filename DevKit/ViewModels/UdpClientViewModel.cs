@@ -263,8 +263,8 @@ namespace DevKit.ViewModels
             var transport = _transport;
             if (transport == null)
             {
-                MessageBox.Show("Udp协议尚未初始化，请先点击【应用对端】按钮", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                // 抛给 SendLoopInputAsync 处理
+                throw new InvalidOperationException("UDP 客户端尚未连接");
             }
 
             byte[] payload;
@@ -283,7 +283,7 @@ namespace DevKit.ViewModels
                     bytes.Add(value);
                 }
 
-                payload = bytes.ToArray();
+                payload = [.. bytes];
             }
             else if (command.Type == "ASCII")
             {

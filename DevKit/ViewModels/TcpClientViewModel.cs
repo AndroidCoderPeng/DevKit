@@ -292,29 +292,29 @@ namespace DevKit.ViewModels
             ConnectionState = state;
             ButtonStateText = state == "已连接" ? "断开" : "连接";
 
-            if (state == "连接中")
+            switch (state)
             {
-                StateOuterBackgroundColor = "#66F2994A";
-                StateOuterBorderColor = "#1FF2994A";
-                StateInnerBackgroundColor = "#FBE1C9";
-                StateInnerBorderColor = "#F2994A";
-                StateTextColor = "#F2994A";
-            }
-            else if (state == "已连接")
-            {
-                StateOuterBackgroundColor = "#5917A95C";
-                StateOuterBorderColor = "#1F17A95C";
-                StateInnerBackgroundColor = "#BEE7D1";
-                StateInnerBorderColor = "#16A34A";
-                StateTextColor = "#16A34A";
-            }
-            else
-            {
-                StateOuterBackgroundColor = "#FFF7F9FC";
-                StateOuterBorderColor = "#FFEEEEF0";
-                StateInnerBackgroundColor = "#E7EBF0";
-                StateInnerBorderColor = "#93A0AE";
-                StateTextColor = "#5F6B7A";
+                case "连接中":
+                    StateOuterBackgroundColor = "#66F2994A";
+                    StateOuterBorderColor = "#1FF2994A";
+                    StateInnerBackgroundColor = "#FBE1C9";
+                    StateInnerBorderColor = "#F2994A";
+                    StateTextColor = "#F2994A";
+                    break;
+                case "已连接":
+                    StateOuterBackgroundColor = "#5917A95C";
+                    StateOuterBorderColor = "#1F17A95C";
+                    StateInnerBackgroundColor = "#BEE7D1";
+                    StateInnerBorderColor = "#16A34A";
+                    StateTextColor = "#16A34A";
+                    break;
+                default:
+                    StateOuterBackgroundColor = "#FFF7F9FC";
+                    StateOuterBorderColor = "#FFEEEEF0";
+                    StateInnerBackgroundColor = "#E7EBF0";
+                    StateInnerBorderColor = "#93A0AE";
+                    StateTextColor = "#5F6B7A";
+                    break;
             }
         }
 
@@ -394,8 +394,8 @@ namespace DevKit.ViewModels
             var transport = _transport;
             if (transport == null)
             {
-                MessageBox.Show("请先连接 TCP 服务器", "无法发送", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                // 抛给 SendLoopInputAsync 处理
+                throw new InvalidOperationException("TCP 客户端尚未连接");
             }
 
             byte[] payload;
