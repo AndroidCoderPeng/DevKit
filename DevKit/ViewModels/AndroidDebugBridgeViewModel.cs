@@ -330,7 +330,7 @@ namespace DevKit.ViewModels
                 ShowToast("请先刷新并连接设备");
                 return;
             }
-            
+
             var fileName = $"{DateTime.Now:yyyyMMddHHmmss}.png";
             var argument = new ArgumentCreator();
             var cmdStr = argument.Append("-s").Append(CurrentDevice)
@@ -640,6 +640,10 @@ namespace DevKit.ViewModels
         /// </summary>
         private void RunCommand(string[] args, Action<string> onLine)
         {
+            var device = args.FirstOrDefault(arg => arg == "-s") != null ? args[Array.IndexOf(args, "-s") + 1] : null;
+            // 期间已切换设备，丢弃本次
+            if (device != CurrentDevice) return;
+
             var argument = new ArgumentCreator();
             foreach (var arg in args)
             {
@@ -647,7 +651,6 @@ namespace DevKit.ViewModels
             }
 
             var cmd = argument.ToCommandLine();
-            Console.WriteLine(cmd);
             var executor = new CommandExecutor(cmd);
             executor.OnStandardOutput += line =>
             {
