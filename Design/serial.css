@@ -296,20 +296,6 @@ body {
 }
 
 /* 参数卡片里的紧凑下拉 */
-.select-wrap.sm {
-    height: 30px;
-    padding: 0 26px 0 9px;
-    border-radius: var(--radius-sm);
-}
-
-.select-wrap.sm select {
-    font-size: 12px;
-}
-
-.select-wrap.sm .chevron {
-    right: 8px;
-}
-
 /* 发送区里的换行符下拉 */
 .select-wrap.xs {
     height: 28px;
@@ -469,15 +455,6 @@ body {
     background: var(--accent-soft);
 }
 
-.icon-btn.sm {
-    width: 24px;
-    height: 24px;
-    color: var(--text-3);
-    background: var(--surface-2);
-    border-color: var(--border);
-    border-radius: 7px;
-}
-
 kbd {
     padding: 1px 5px;
     font-family: var(--mono);
@@ -597,22 +574,72 @@ kbd {
 }
 
 /* ================= 串口参数 ================= */
-.param-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.param-field {
+/* 工具条里的串口参数组：位 / 停 / 校 / 流 收成一组小控件 */
+.param-group {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    height: 34px;
+    padding: 0 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
 }
 
-.param-label {
+.mini-select {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.mini-select > span {
     font-size: 11px;
     color: var(--text-3);
+}
+
+.mini-select select {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0 14px 0 0;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: color var(--duration) ease;
+}
+
+.mini-select select:hover {
+    color: var(--accent);
+}
+
+/* 小箭头（用 CSS 画，避免每个下拉都塞一个 svg） */
+.mini-select::after {
+    content: "";
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    margin-top: -2px;
+    width: 0;
+    height: 0;
+    border-left: 3.5px solid transparent;
+    border-right: 3.5px solid transparent;
+    border-top: 4px solid var(--text-3);
+    pointer-events: none;
+}
+
+.mini-select select:disabled {
+    color: var(--text-3);
+    cursor: not-allowed;
+}
+
+.param-group.disabled {
+    opacity: .6;
 }
 
 /* ================= 会话统计 ================= */

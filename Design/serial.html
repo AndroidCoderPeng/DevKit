@@ -92,6 +92,54 @@
                     <input id="baudCustom" type="text" value="1500000" maxlength="9" placeholder="自定义波特率" />
                 </label>
 
+                <span class="toolbar-divider"></span>
+
+                <!-- 串口参数：数据位 / 停止位 / 校验位 / 流控（低频参数收成一组小控件） -->
+                <div class="param-group" id="paramGroup">
+                    <label class="mini-select" title="数据位">
+                        <span>位</span>
+                        <select id="dataBits">
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8" selected>8</option>
+                        </select>
+                    </label>
+
+                    <label class="mini-select" title="停止位">
+                        <span>停</span>
+                        <select id="stopBits">
+                            <option value="1" selected>1</option>
+                            <option value="1.5">1.5</option>
+                            <option value="2">2</option>
+                        </select>
+                    </label>
+
+                    <label class="mini-select" title="校验位">
+                        <span>校</span>
+                        <select id="parity">
+                            <option value="none" selected>无</option>
+                            <option value="odd">奇</option>
+                            <option value="even">偶</option>
+                            <option value="mark">1</option>
+                            <option value="space">0</option>
+                        </select>
+                    </label>
+
+                    <label class="mini-select" title="流控">
+                        <span>流</span>
+                        <select id="flow">
+                            <option value="none" selected>无</option>
+                            <option value="xon">XON/XOFF</option>
+                            <option value="rts">RTS/CTS</option>
+                            <option value="dsr">DSR/DTR</option>
+                        </select>
+                    </label>
+                </div>
+
+                <span class="toolbar-divider"></span>
+
+                <!-- 打开 / 关闭串口：紧跟参数区，构成「配置 → 打开」的动线 -->
                 <button class="btn btn-primary" id="btnOpen">
                     <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
                         <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -116,90 +164,8 @@
             <!-- ============ 主体 ============ -->
             <div class="layout">
 
-                <!-- ---------- 左栏：串口参数 + 会话统计 + 指令库 ---------- -->
+                <!-- ---------- 左栏：会话统计 + 指令库 ---------- -->
                 <aside class="sidebar">
-
-                    <!-- 串口参数 -->
-                    <section class="card">
-                        <div class="card-head">
-                            <span class="card-title">串口参数</span>
-                            <span class="line"></span>
-                            <button class="icon-btn sm" id="btnResetParam" title="恢复默认参数（8N1 / 无流控）">
-                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7" />
-                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" d="M3 4v5h5" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="param-grid">
-                            <div class="param-field">
-                                <span class="param-label">数据位</span>
-                                <label class="select-wrap sm">
-                                    <select id="dataBits">
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8" selected>8</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </div>
-
-                            <div class="param-field">
-                                <span class="param-label">停止位</span>
-                                <label class="select-wrap sm">
-                                    <select id="stopBits">
-                                        <option value="1" selected>1</option>
-                                        <option value="1.5">1.5</option>
-                                        <option value="2">2</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </div>
-
-                            <div class="param-field">
-                                <span class="param-label">校验位</span>
-                                <label class="select-wrap sm">
-                                    <select id="parity">
-                                        <option value="none" selected>None（无）</option>
-                                        <option value="odd">Odd（奇校验）</option>
-                                        <option value="even">Even（偶校验）</option>
-                                        <option value="mark">Mark（1）</option>
-                                        <option value="space">Space（0）</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </div>
-
-                            <div class="param-field">
-                                <span class="param-label">流控</span>
-                                <label class="select-wrap sm">
-                                    <select id="flow">
-                                        <option value="none" selected>None（无）</option>
-                                        <option value="xon">XON / XOFF</option>
-                                        <option value="rts">RTS / CTS</option>
-                                        <option value="dsr">DSR / DTR</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </div>
-                        </div>
-                    </section>
 
                     <!-- 会话统计 -->
                     <section class="card">

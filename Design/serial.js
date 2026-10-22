@@ -55,7 +55,7 @@
         stopBits: document.getElementById("stopBits"),
         parity: document.getElementById("parity"),
         flow: document.getElementById("flow"),
-        btnResetParam: document.getElementById("btnResetParam"),
+        paramGroup: document.getElementById("paramGroup"),
         connTimer: document.getElementById("connTimer"),
         statTxCount: document.getElementById("statTxCount"),
         statTxBytes: document.getElementById("statTxBytes"),
@@ -358,6 +358,18 @@
         el.input.disabled = !enabled;
         el.loopSwitch.disabled = !enabled;
 
+        /* 串口打开/打开中时锁定配置项：参数改动必须重新打开串口才生效 */
+        var locked = status !== "closed";
+        el.port.disabled = locked;
+        el.btnRefresh.disabled = locked;
+        el.baud.disabled = locked;
+        el.baudCustom.disabled = locked;
+        el.dataBits.disabled = locked;
+        el.stopBits.disabled = locked;
+        el.parity.disabled = locked;
+        el.flow.disabled = locked;
+        el.paramGroup.classList.toggle("disabled", locked);
+
         if (!enabled) {
             stopLoop();
         }
@@ -531,27 +543,13 @@
     });
 
     el.baudCustom.addEventListener("input", function () {
-        if (state.conn === "opened") {
-            toast("波特率已修改，重新打开串口后生效");
-        }
+        toast("波特率已修改，下次打开串口时生效");
     });
 
     ["dataBits", "stopBits", "parity", "flow"].forEach(function (id) {
         el[id].addEventListener("change", function () {
-            if (state.conn === "opened") {
-                toast("参数已修改为 " + paramSummary() + "，重新打开串口后生效");
-            }
+            toast("参数已修改为 " + paramSummary() + "，下次打开串口时生效");
         });
-    });
-
-    el.btnResetParam.addEventListener("click", function () {
-        el.baud.value = "115200";
-        el.dataBits.value = "8";
-        el.stopBits.value = "1";
-        el.parity.value = "none";
-        el.flow.value = "none";
-        renderBaudCustom();
-        toast("已恢复默认参数：115200 8N1 无流控");
     });
 
     /* ---------------- 事件绑定：消息区与发送区 ---------------- */
@@ -676,71 +674,84 @@
 
     /* ---------------- 演示状态切换 ---------------- */
 
-    document.querySelectorAll(".demo-btn").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            document.querySelectorAll(".demo-btn").forEach(function (b) {
-                b.classList.toggle("active", b === btn);
-            });
+    /* 演示状态切换：除点击顶部切换器外，也支持地址栏直达，便于逐个状态评审
+       serial.html#opened / #opening / #closed / #noport / #empty */
+    function applyDemoStatus(target) {
+        document.querySelectorAll(".demo-btn").forEach(function (b) {
+            b.classList.toggle("active", b.dataset.status === target);
+        });
 
-            var target = btn.dataset.status;
-
-            if (target === "empty") {
-                state.hasPort = true;
-                renderPorts();
-                state.messages = [];
-                state.openedAt = Date.now() - 96000;
-                setConn("opened");
-                renderMessages();
-                renderStats();
-                return;
-            }
-
-            if (state.messages.length === 0) {
-                state.messages = buildSeedMessages();
-                renderMessages();
-                renderStats();
-            }
-
-            stopLoop();
-            el.loopSwitch.checked = false;
-            el.interval.disabled = true;
-
-            if (target === "noport") {
-                state.hasPort = false;
-                renderPorts();
-                state.openedAt = 0;
-                setConn("closed");
-                showHint("未检测到可用串行端口，请连接设备后点击刷新");
-                setStatus("未检测到可用串行端口", "err");
-                return;
-            }
-
+        if (target === "empty") {
             state.hasPort = true;
             renderPorts();
-            showHint("");
+            state.messages = [];
+            state.openedAt = Date.now() - 96000;
+            setConn("opened");
+            renderMessages();
+            renderStats();
+            return;
+        }
 
-            if (target === "opened") {
-                state.openedAt = Date.now() - 96000;
-                setConn("opened");
-            } else if (target === "opening") {
-                setConn("opening");
-            } else {
-                state.openedAt = 0;
-                setConn("closed");
-            }
+        if (state.messages.length === 0) {
+            state.messages = buildSeedMessages();
+            renderMessages();
+            renderStats();
+        }
+
+        stopLoop();
+        el.loopSwitch.checked = false;
+        el.interval.disabled = true;
+
+        if (target === "noport") {
+            state.hasPort = false;
+            renderPorts();
+            state.openedAt = 0;
+            setConn("closed");
+            showHint("未检测到可用串行端口，请连接设备后点击刷新");
+            setStatus("未检测到可用串行端口", "err");
+            return;
+        }
+
+        state.hasPort = true;
+        renderPorts();
+        showHint("");
+
+        if (target === "opened") {
+            state.openedAt = Date.now() - 96000;
+            setConn("opened");
+        } else if (target === "opening") {
+            setConn("opening");
+        } else {
+            state.openedAt = 0;
+            setConn("closed");
+        }
+    }
+
+    document.querySelectorAll(".demo-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            applyDemoStatus(btn.dataset.status);
         });
     });
 
     /* ---------------- 初始化 ---------------- */
 
     setInterval(updateTimer, 1000);
-    renderPorts();
     renderBaudCustom();
     renderCommands();
-    renderMessages();
-    renderStats();
-    setConn("opened");
-    setStatus("就绪 · HEX 模式示例：01 03 00 00 00 02 · Ctrl + Enter 快速发送");
+
+    var hashState = (location.hash || "").replace("#", "");
+    var demoStates = ["opened", "opening", "closed", "noport", "empty"];
+
+    if (demoStates.indexOf(hashState) >= 0) {
+        applyDemoStatus(hashState);
+    } else {
+        renderPorts();
+        renderMessages();
+        renderStats();
+        setConn("opened");
+        setStatus("就绪 · HEX 模式示例：01 03 00 00 00 02 · Ctrl + Enter 快速发送");
+    }
+
     scrollToBottom();
 
     window.addEventListener("load", scrollToBottom);
