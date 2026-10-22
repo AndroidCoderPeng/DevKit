@@ -25,7 +25,7 @@
       注意：本窗口为 Prism 对话框，窗口标题（串口调试助手）由系统默认标题栏提供，
       因此内容顶部不再放自定义标题栏，改为一条「端口工具条」：
       最左侧放串口状态，右侧依次是端口、波特率这两个最高频参数，以及打开/关闭操作。
-      数据位/停止位/校验位/流控/DTR/RTS 这些次高频参数收进左栏「串口参数」卡片。
+      数据位/停止位/校验位/流控 这些次高频参数收进左栏「串口参数」卡片。
     -->
         <div class="window">
 
@@ -199,24 +199,6 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- 控制信号（串口特有） -->
-                        <div class="signal-row">
-                            <span class="param-label">控制信号</span>
-                            <span class="spacer"></span>
-                            <label class="inline-field">
-                                <input type="checkbox" class="switch-input" id="dtrSwitch" checked />
-                                <span class="switch"></span>
-                                DTR
-                            </label>
-                            <label class="inline-field">
-                                <input type="checkbox" class="switch-input" id="rtsSwitch" checked />
-                                <span class="switch"></span>
-                                RTS
-                            </label>
-                        </div>
-
-                        <div class="summary" id="paramSummary">115200 · 8N1 · 无流控</div>
                     </section>
 
                     <!-- 会话统计 -->
@@ -407,23 +389,6 @@
                                 <button class="active" data-view="hex">HEX</button>
                                 <button data-view="ascii">ASCII</button>
                             </div>
-
-                            <button class="mini-toggle active" id="btnTimestamp" title="显示时间戳">
-                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-                                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
-                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        d="M12 7v5l3 2" />
-                                </svg>
-                                时间戳
-                            </button>
-
-                            <button class="mini-toggle active" id="btnAutoScroll" title="自动滚动到最新">
-                                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" d="M12 4v13m0 0l-5-5m5 5l5-5M5 21h14" />
-                                </svg>
-                                自动滚动
-                            </button>
 
                             <button class="btn btn-sm" id="btnSave">
                                 <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">

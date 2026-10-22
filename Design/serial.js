@@ -30,8 +30,6 @@
         conn: "opened",            // opened | opening | closed
         view: "hex",               // 消息显示编码：hex | ascii
         enc: "hex",                // 发送编码：hex | ascii
-        showTime: true,            // 是否显示时间戳
-        autoScroll: true,          // 是否自动滚动
         hasPort: true,             // 是否检测到可用端口
         openedAt: Date.now() - 96000,
         loopTimer: null,
@@ -57,9 +55,6 @@
         stopBits: document.getElementById("stopBits"),
         parity: document.getElementById("parity"),
         flow: document.getElementById("flow"),
-        dtrSwitch: document.getElementById("dtrSwitch"),
-        rtsSwitch: document.getElementById("rtsSwitch"),
-        paramSummary: document.getElementById("paramSummary"),
         btnResetParam: document.getElementById("btnResetParam"),
         connTimer: document.getElementById("connTimer"),
         statTxCount: document.getElementById("statTxCount"),
@@ -75,8 +70,6 @@
         msgCount: document.getElementById("msgCount"),
         viewSeg: document.getElementById("viewSeg"),
         sendSeg: document.getElementById("sendSeg"),
-        btnTimestamp: document.getElementById("btnTimestamp"),
-        btnAutoScroll: document.getElementById("btnAutoScroll"),
         btnSave: document.getElementById("btnSave"),
         btnClear: document.getElementById("btnClear"),
         input: document.getElementById("input"),
@@ -239,10 +232,6 @@
         return portName() + " · " + paramSummary();
     }
 
-    function updateSummary() {
-        el.paramSummary.textContent = paramSummary();
-    }
-
     function renderBaudCustom() {
         el.baudCustomWrap.classList.toggle("show", el.baud.value === "custom");
     }
@@ -264,7 +253,7 @@
                 '<div class="msg ' + m.dir + '">' +
                 '<div class="msg-head">' +
                 '<span class="tag tag-' + m.dir + '">' + (isTx ? "发送" : "接收") + '</span>' +
-                (state.showTime ? '<span class="msg-meta">' + escapeHtml(m.time) + '</span>' : '') +
+                '<span class="msg-meta">' + escapeHtml(m.time) + '</span>' +
                 '<span class="msg-meta">' + bytes.length + ' B</span>' +
                 '<button class="msg-copy" data-copy="' + escapeHtml(m.hex) + '" title="复制 HEX 内容">' +
                 '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">' +
@@ -283,7 +272,7 @@
         }).pop();
 
         el.statusRight.textContent = (lastRx ? "最后接收 " + lastRx.time : "暂无接收数据") +
-            " · " + (state.autoScroll ? "自动滚动" : "已暂停滚动");
+            " · 消息列表自动滚动";
     }
 
     function renderStats() {
@@ -315,9 +304,7 @@
     }
 
     function scrollToBottom() {
-        if (state.autoScroll) {
-            el.msgScroll.scrollTop = el.msgScroll.scrollHeight;
-        }
+        el.msgScroll.scrollTop = el.msgScroll.scrollHeight;
     }
 
     /* ---------------- 串口开关 ---------------- */
@@ -534,7 +521,6 @@
 
     el.baud.addEventListener("change", function () {
         renderBaudCustom();
-        updateSummary();
         if (el.baud.value === "custom") {
             el.baudCustom.focus();
             el.baudCustom.select();
@@ -545,12 +531,13 @@
     });
 
     el.baudCustom.addEventListener("input", function () {
-        updateSummary();
+        if (state.conn === "opened") {
+            toast("波特率已修改，重新打开串口后生效");
+        }
     });
 
     ["dataBits", "stopBits", "parity", "flow"].forEach(function (id) {
         el[id].addEventListener("change", function () {
-            updateSummary();
             if (state.conn === "opened") {
                 toast("参数已修改为 " + paramSummary() + "，重新打开串口后生效");
             }
@@ -564,36 +551,10 @@
         el.parity.value = "none";
         el.flow.value = "none";
         renderBaudCustom();
-        updateSummary();
         toast("已恢复默认参数：115200 8N1 无流控");
     });
 
-    el.dtrSwitch.addEventListener("change", function () {
-        toast("DTR 已" + (el.dtrSwitch.checked ? "置高" : "置低"));
-    });
-
-    el.rtsSwitch.addEventListener("change", function () {
-        toast("RTS 已" + (el.rtsSwitch.checked ? "置高" : "置低"));
-    });
-
     /* ---------------- 事件绑定：消息区与发送区 ---------------- */
-
-    el.btnTimestamp.addEventListener("click", function () {
-        state.showTime = !state.showTime;
-        el.btnTimestamp.classList.toggle("active", state.showTime);
-        renderMessages();
-        toast(state.showTime ? "已显示时间戳" : "已隐藏时间戳");
-    });
-
-    el.btnAutoScroll.addEventListener("click", function () {
-        state.autoScroll = !state.autoScroll;
-        el.btnAutoScroll.classList.toggle("active", state.autoScroll);
-        if (state.autoScroll) {
-            scrollToBottom();
-        }
-        renderMessages();
-        toast(state.autoScroll ? "已开启自动滚动" : "已暂停自动滚动");
-    });
 
     el.btnScript.addEventListener("click", function () {
         toast("打开「指令脚本」对话框");
@@ -775,7 +736,6 @@
     setInterval(updateTimer, 1000);
     renderPorts();
     renderBaudCustom();
-    updateSummary();
     renderCommands();
     renderMessages();
     renderStats();

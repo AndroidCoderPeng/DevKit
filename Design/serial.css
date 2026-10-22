@@ -478,35 +478,6 @@ body {
     border-radius: 7px;
 }
 
-/* 消息区的小开关按钮（时间戳 / 自动滚动） */
-.mini-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    height: 28px;
-    padding: 0 9px;
-    font-family: var(--font);
-    font-size: 11.5px;
-    color: var(--text-3);
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
-    border-radius: 999px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all var(--duration) ease;
-}
-
-.mini-toggle:hover {
-    color: var(--accent);
-    border-color: rgba(46, 124, 246, .4);
-}
-
-.mini-toggle.active {
-    color: var(--accent);
-    background: var(--accent-soft);
-    border-color: rgba(46, 124, 246, .38);
-}
-
 kbd {
     padding: 1px 5px;
     font-family: var(--mono);
@@ -642,28 +613,6 @@ kbd {
 .param-label {
     font-size: 11px;
     color: var(--text-3);
-}
-
-.signal-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-top: 9px;
-    border-top: 1px solid var(--border);
-}
-
-.summary {
-    padding: 7px 10px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-2);
-    text-align: center;
-    letter-spacing: .2px;
-    background: var(--surface-2);
-    border-radius: var(--radius-md);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* ================= 会话统计 ================= */
@@ -845,6 +794,11 @@ kbd {
     background: var(--surface-2);
     border: 1px dashed var(--border-strong);
     border-radius: var(--radius-md);
+}
+
+/* 有指令时隐藏空状态（display:flex 会覆盖 hidden 属性的 UA 样式，需显式兜底） */
+.cmd-empty[hidden] {
+    display: none;
 }
 
 /* ================= 消息区 ================= */

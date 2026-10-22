@@ -701,6 +701,11 @@ kbd {
     border-radius: var(--radius-md);
 }
 
+/* 有指令时隐藏空状态（display:flex 会覆盖 hidden 属性的 UA 样式，需显式兜底） */
+.cmd-empty[hidden] {
+    display: none;
+}
+
 /* ================= 消息区工具条 ================= */
 .msg-toolbar {
     display: flex;
