@@ -283,6 +283,112 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="MiniComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Grid Margin="8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  选中项文本  -->
+                                <ContentPresenter
+                                    x:Name="ContentSite"
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding SelectionBoxItem}"
+                                    ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                    IsHitTestVisible="False"
+                                    SnapsToDevicePixels="True" />
+
+                                <!--  右侧箭头  -->
+                                <Path
+                                    x:Name="Arrow"
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Data="M 0,0 L 5,5 L 10,0"
+                                    Stroke="{StaticResource DevKitTextSecondaryBrush}"
+                                    StrokeEndLineCap="Round"
+                                    StrokeLineJoin="Round"
+                                    StrokeStartLineCap="Round"
+                                    StrokeThickness="1" />
+                            </Grid>
+
+                            <!--  点击层：放在最上层捕获鼠标、驱动 IsDropDownOpen  -->
+                            <ToggleButton
+                                ClickMode="Press"
+                                Focusable="False"
+                                IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!--  下拉浮层（POPUP 名称必须保留为 PART_Popup）  -->
+                            <Popup
+                                x:Name="PART_Popup"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                Placement="Bottom"
+                                PopupAnimation="Slide">
+                                <Border
+                                    x:Name="DropDownBorder"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    Margin="0,4,0,0"
+                                    Padding="2"
+                                    Background="White"
+                                    BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8">
+                                    <ScrollViewer
+                                        CanContentScroll="True"
+                                        SnapsToDevicePixels="True"
+                                        VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--  hover：边框变主色  -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ContentSite" Property="TextBlock.Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="ContentSite" Property="TextBlock.FontWeight" Value="SemiBold" />
+                            </Trigger>
+
+                            <!--  展开：箭头翻转  -->
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="Arrow" Property="Data" Value="M 0,5 L 5,0 L 10,5" />
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -392,9 +498,69 @@
                 Margin="14,20"
                 Background="{StaticResource DevKitBorderBrush}" />
 
-            <Border Grid.Column="7" />
+            <!--  参数域  -->
+            <Border
+                Grid.Column="7"
+                Width="316"
+                Height="36"
+                Background="{StaticResource DevKitBackgroundBrush}"
+                BorderBrush="{StaticResource DevKitBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel
+                    Margin="8,0"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                        Text="位" />
 
-            <!-- 参数域 -->
+                    <ComboBox SelectedIndex="3" Style="{StaticResource MiniComboBoxStyle}">
+                        <ComboBoxItem Content="5" />
+                        <ComboBoxItem Content="6" />
+                        <ComboBoxItem Content="7" />
+                        <ComboBoxItem Content="8" />
+                    </ComboBox>
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                        Text="停" />
+
+                    <ComboBox SelectedIndex="0" Style="{StaticResource MiniComboBoxStyle}">
+                        <ComboBoxItem Content="1" />
+                        <ComboBoxItem Content="1.5" />
+                        <ComboBoxItem Content="2" />
+                    </ComboBox>
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                        Text="校" />
+
+                    <ComboBox SelectedIndex="0" Style="{StaticResource MiniComboBoxStyle}">
+                        <ComboBoxItem Content="无" />
+                        <ComboBoxItem Content="奇" />
+                        <ComboBoxItem Content="偶" />
+                        <ComboBoxItem Content="1" />
+                        <ComboBoxItem Content="0" />
+                    </ComboBox>
+
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                        Text="流" />
+
+                    <ComboBox SelectedIndex="0" Style="{StaticResource MiniComboBoxStyle}">
+                        <ComboBoxItem Content="无" />
+                        <ComboBoxItem Content="XON/XOFF" />
+                        <ComboBoxItem Content="RTS/CTS" />
+                        <ComboBoxItem Content="DSR/DTR" />
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
             <Border
                 Grid.Column="8"
                 Width="2"
