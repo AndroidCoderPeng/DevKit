@@ -1019,10 +1019,11 @@ kbd {
 
 /* ================= 发送区 ================= */
 /* 发送按钮与输入框同一行：第一列输入框，第二列发送按钮，工具条整行横铺 */
+/* 发送区：输入框满宽，底部一条操作条 */
 .composer {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
     flex: none;
     padding: 11px 12px;
     background: var(--surface);
@@ -1030,10 +1031,19 @@ kbd {
     border-radius: var(--radius-lg);
 }
 
-.composer textarea {
-    width: 100%;
-    min-height: 58px;
-    max-height: 108px;
+/* 输入区网格：输入框占左侧两行，右列两行 = 换行符 / 编码（同属"内容怎么拼"） */
+.composer-top {
+    display: grid;
+    grid-template-columns: 1fr 142px;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px 8px;
+}
+
+.composer-top .input-main {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    min-width: 0;
+    min-height: 72px;
     padding: 8px 10px;
     font-family: var(--mono);
     font-size: 12px;
@@ -1047,61 +1057,89 @@ kbd {
     transition: all var(--duration) ease;
 }
 
-.composer textarea:focus {
+.input-main:focus {
     background: #fff;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.composer textarea::placeholder {
+.input-main::placeholder {
     color: var(--text-3);
     font-family: var(--font);
 }
 
-.composer textarea:disabled {
+.input-main:disabled {
     opacity: .6;
     cursor: not-allowed;
 }
 
-/* 底部参数工具条横跨两列 */
-.composer-bar {
-    grid-column: 1 / -1;
+/* 右列单元格：一行一个参数（标签 + 控件） */
+.side-cell {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: nowrap;
-}
-
-/* 左侧参数区可压缩，空间不足时只能在自己内部换行 */
-.composer-fields {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    row-gap: 8px;
-    flex: 1 1 auto;
-    min-width: 0;
-    flex-wrap: wrap;
-}
-
-/* 输入框右侧的发送按钮：图标与文字同一行，快捷键另起一行，高度跟随输入框 */
-.btn-send {
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 104px;
-    height: auto;
-    padding: 8px 10px;
-    font-size: 12.5px;
-}
-
-.btn-send-main {
-    display: inline-flex;
     align-items: center;
     gap: 6px;
+    min-width: 0;
+    padding: 0 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    transition: all var(--duration) ease;
 }
 
-.btn-send kbd {
-    font-size: 10px;
+
+
+.side-cell .select-wrap.xs {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    height: 26px;
+    background: transparent;
+    border: none;
+    padding: 0 20px 0 8px;
+}
+
+.side-cell .select-wrap.xs:focus-within {
+    background: transparent;
+    box-shadow: none;
+}
+
+.side-cell .segmented {
+    flex: 1;
+    min-width: 0;
+}
+
+.side-cell .segmented button {
+    flex: 1;
+    min-width: 0;
+    padding: 0 4px;
+}
+
+/* 底栏与上方网格同列：左列（1fr）= 指令脚本 + 循环发送/间隔；右列（142px）= 发送 */
+.composer-bar {
+    display: grid;
+    grid-template-columns: 1fr 142px;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 左列内容靠左排，空间不足时在列内换行 */
+.composer-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    min-width: 0;
+}
+
+/* 主操作「发送」：占满右列，与上方编码格等宽对齐 */
+.btn-send {
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12.5px;
 }
 
 .inline-field {
