@@ -217,8 +217,6 @@
             </Setter>
         </Style>
 
-
-
         <!--  分段控件内的单选按钮  -->
         <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
             <Setter Property="Height" Value="28" />
