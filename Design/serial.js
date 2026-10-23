@@ -30,6 +30,7 @@
         conn: "opened",            // opened | opening | closed
         view: "hex",               // 消息显示编码：hex | ascii
         enc: "hex",                // 发送编码：hex | ascii
+        newline: "crlf",           // 换行符：none | crlf | lf | cr
         hasPort: true,             // 是否检测到可用端口
         openedAt: Date.now() - 96000,
         loopTimer: null,
@@ -384,13 +385,13 @@
     /* ---------------- 发送 ---------------- */
 
     function newlineBytes() {
-        if (el.newline.value === "crlf") {
+        if (state.newline === "crlf") {
             return [0x0D, 0x0A];
         }
-        if (el.newline.value === "lf") {
+        if (state.newline === "lf") {
             return [0x0A];
         }
-        if (el.newline.value === "cr") {
+        if (state.newline === "cr") {
             return [0x0D];
         }
         return [];
@@ -622,6 +623,10 @@
         el.input.placeholder = state.enc === "hex"
             ? "输入要发送的内容；HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"
             : "输入要发送的文本内容，将按 UTF-8 编码发送";
+    });
+
+    el.newline.addEventListener("change", function () {
+        state.newline = el.newline.value;
     });
 
     /* 消息列表：复制 */

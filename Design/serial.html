@@ -395,27 +395,23 @@
                             <textarea id="input" class="input-main"
                                 placeholder="输入要发送的内容；HEX 模式下使用空格分隔，例如 01 03 00 00 00 02"></textarea>
 
-                            <div class="side-cell" title="换行符：随发送内容一起拼接为完整指令">
-                                <label class="select-wrap xs">
-                                    <select id="newline">
-                                        <option value="none">无</option>
-                                        <option value="crlf" selected>\r\n</option>
-                                        <option value="lf">\n</option>
-                                        <option value="cr">\r</option>
-                                    </select>
-                                    <svg class="chevron" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
-                                        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" d="M6 9l6 6 6-6" />
-                                    </svg>
-                                </label>
-                            </div>
+                            <label class="select-wrap side-select" title="换行符：随发送内容一起拼接为完整指令">
+                                <select id="newline">
+                                    <option value="none">无</option>
+                                    <option value="crlf" selected>\r\n</option>
+                                    <option value="lf">\n</option>
+                                    <option value="cr">\r</option>
+                                </select>
+                                <svg class="chevron" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+                                    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" d="M6 9l6 6 6-6" />
+                                </svg>
+                            </label>
 
-                            <div class="side-cell" title="发送编码：按 HEX 或 ASCII 解析输入内容">
-                                <span class="segmented" id="sendSeg">
-                                    <button class="active" data-enc="hex">HEX</button>
-                                    <button data-enc="ascii">ASCII</button>
-                                </span>
-                            </div>
+                            <span class="segmented side-seg" id="sendSeg" title="发送编码：按 HEX 或 ASCII 解析输入内容">
+                                <button class="active" data-enc="hex">HEX</button>
+                                <button data-enc="ascii">ASCII</button>
+                            </span>
                         </div>
 
                         <!-- 底栏与上方网格同列：左列 = 指令脚本 + 循环发送/间隔；右列 = 发送（与编码格等宽对齐） -->

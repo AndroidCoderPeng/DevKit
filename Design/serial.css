@@ -1073,45 +1073,30 @@ kbd {
     cursor: not-allowed;
 }
 
-/* 右列单元格：一行一个参数（标签 + 控件） */
-.side-cell {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-    padding: 0 8px;
-    background: var(--surface-2);
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    transition: all var(--duration) ease;
+/* 右列下拉：与顶栏同款 select-wrap，纵向撑满所在行，与输入框等高成对 */
+.side-select {
+    height: auto;
+    min-height: 30px;
+    padding: 0 26px 0 10px;
 }
 
-
-
-.side-cell .select-wrap.xs {
-    flex: 1;
-    width: auto;
-    min-width: 0;
-    height: 26px;
-    background: transparent;
-    border: none;
-    padding: 0 20px 0 8px;
+.side-select select {
+    font-size: 12px;
 }
 
-.side-cell .select-wrap.xs:focus-within {
-    background: transparent;
-    box-shadow: none;
+/* 右列编码分段：撑满所在行，两枚按钮等分，与上方下拉同宽同高 */
+.side-seg {
+    height: auto;
+    min-height: 30px;
+    padding: 3px;
 }
 
-.side-cell .segmented {
+.side-seg button {
     flex: 1;
     min-width: 0;
-}
-
-.side-cell .segmented button {
-    flex: 1;
-    min-width: 0;
-    padding: 0 4px;
+    height: auto;
+    min-height: 24px;
+    padding: 0 6px;
 }
 
 /* 底栏与上方网格同列：左列（1fr）= 指令脚本 + 循环发送/间隔；右列（142px）= 发送 */
