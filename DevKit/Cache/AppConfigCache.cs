@@ -11,6 +11,7 @@ namespace DevKit.Cache
         public const string Tcp = "Tcp";
         public const string Udp = "Udp";
         public const string WebSocket = "WebSocket";
+        public const string SerialPort = "SerialPort";
         public const string History = "History";
     }
 
@@ -34,22 +35,27 @@ namespace DevKit.Cache
     // TCP分组
     public class TcpConfig
     {
-        public EndpointConfig Server { get; set; } = new EndpointConfig();
-        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
+        public EndpointConfig Server { get; set; } = new();
+        public List<ExCommandConfig> ExCommands { get; set; } = [];
     }
 
     public class UdpConfig
     {
-        public EndpointConfig Server { get; set; } = new EndpointConfig();
-        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
+        public EndpointConfig Server { get; set; } = new();
+        public List<ExCommandConfig> ExCommands { get; set; } = [];
     }
 
     public class WebSocketConfig
     {
-        public WsEndpointConfig Server { get; set; } = new WsEndpointConfig();
-        public List<ExCommandConfig> ExCommands { get; set; } = new List<ExCommandConfig>();
+        public WsEndpointConfig Server { get; set; } = new();
+        public List<ExCommandConfig> ExCommands { get; set; } = [];
     }
 
+    public class SerialPortConfig
+    {
+        public List<ExCommandConfig> ExCommands { get; set; } = [];
+    }
+    
     // TCP/UDP端点
     public class EndpointConfig
     {
@@ -73,6 +79,6 @@ namespace DevKit.Cache
     // 最近处理颜色分组
     public class RecentlyColorConfig
     {
-        public List<string> Colors { get; set; } = new List<string>();
+        public List<string> Colors { get; set; } = [];
     }
 }

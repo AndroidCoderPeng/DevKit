@@ -943,7 +943,7 @@
             <Button
                 Grid.Column="9"
                 Margin="0,0,14,0"
-                Command="{Binding OptionPortCommand}"
+                Command="{Binding ConnectDeviceCommand}"
                 Style="{StaticResource DevKitPrimaryButtonStyle}">
                 <Button.Content>
                     <StackPanel Margin="12,0" Orientation="Horizontal">
