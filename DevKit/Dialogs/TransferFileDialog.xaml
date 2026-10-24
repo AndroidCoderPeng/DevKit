@@ -11,7 +11,6 @@
     d:DataContext="{d:DesignInstance Type=vm:TransferFileDialogViewModel}"
     Background="White"
     ResizeMode="NoResize"
-    ShowInTaskbar="False"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

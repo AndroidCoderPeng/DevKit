@@ -77,16 +77,15 @@ namespace DevKit.ViewModels
 
         public void OnDialogOpened(object parameter)
         {
-            if (parameter is string device)
-            {
-                _device = device;
-                _view = (ListCollectionView)CollectionViewSource.GetDefaultView(Screenshots);
+            if (parameter is not string device) return;
+            
+            _device = device;
+            _view = (ListCollectionView)CollectionViewSource.GetDefaultView(Screenshots);
 
-                // 排序只设置一次，之后集合增删由 ListCollectionView 自动重排
-                _view.SortDescriptions.Clear();
-                _view.SortDescriptions.Add(new SortDescription("Time", ListSortDirection.Descending));
-                LoadScreenshots();
-            }
+            // 排序只设置一次，之后集合增删由 ListCollectionView 自动重排
+            _view.SortDescriptions.Clear();
+            _view.SortDescriptions.Add(new SortDescription("Time", ListSortDirection.Descending));
+            LoadScreenshots();
         }
 
         [RelayCommand]
@@ -358,7 +357,7 @@ namespace DevKit.ViewModels
         [RelayCommand]
         private void DeleteSingleImage(ScreenshotFile file)
         {
-            var result = MessageBox.Show($"确定从设备上删除这张截屏吗？此操作不可撤销。", "删除截屏",
+            var result = MessageBox.Show("确定从设备上删除这张截屏吗？此操作不可撤销。", "删除截屏",
                 MessageBoxButton.OKCancel, MessageBoxImage.Question);
             if (result != MessageBoxResult.OK) return;
 

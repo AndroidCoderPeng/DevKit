@@ -398,6 +398,7 @@
 
                     <TextBox
                         x:Name="SaveDirectoryTextBox"
+                        Padding="8,0"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Center"
                         Background="Transparent"
