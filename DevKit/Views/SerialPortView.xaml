@@ -633,6 +633,139 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!--  发送区输入框：多行、可换行  -->
+        <Style x:Key="ComposerTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="ComposerBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="ComposerBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="ComposerBorder" Property="Background" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--  开关样式复选框  -->
+        <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" TextElement.Foreground="{TemplateBinding Foreground}">
+                            <Border
+                                x:Name="SwitchTrack"
+                                Width="36"
+                                Height="24"
+                                Background="{StaticResource DevKitBorderStrongBrush}"
+                                CornerRadius="12">
+                                <Ellipse
+                                    x:Name="SwitchThumb"
+                                    Width="18"
+                                    Height="18"
+                                    Margin="3,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Fill="White"
+                                    RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform X="0" />
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect
+                                            BlurRadius="4"
+                                            Direction="270"
+                                            Opacity="0.25"
+                                            ShadowDepth="1"
+                                            Color="{StaticResource DevKitShadowColor}" />
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SwitchTrack" Property="Background" Value="{StaticResource DevKitAccentBrush}" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="12"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SwitchThumb"
+                                                Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                To="0"
+                                                Duration="0:0:0.18" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -1184,8 +1317,8 @@
             <Border Grid.Column="1" Margin="0,16,16,16">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="3*" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <!--  消息记录  -->
@@ -1482,7 +1615,7 @@
                                             HorizontalAlignment="Center"
                                             FontSize="{StaticResource DevKitFontSize14}"
                                             Foreground="{StaticResource DevKitTextMutedBrush}"
-                                            Text="连接成功后即可收发数据，收发内容会显示在这里；悬浮单条消息可复制。"
+                                            Text="串口打开成功后即可收发数据，收发内容会显示在这里；悬浮单条消息可复制。"
                                             TextAlignment="Center"
                                             TextWrapping="Wrap" />
                                     </StackPanel>
@@ -1498,7 +1631,199 @@
                         Background="White"
                         BorderBrush="{StaticResource DevKitBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="8" />
+                        CornerRadius="8">
+                        <Grid Margin="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!--  输入框（含占位提示）  -->
+                                <Grid Grid.Column="0">
+                                    <TextBox
+                                        x:Name="MessageInputTextBox"
+                                        Style="{StaticResource ComposerTextBoxStyle}"
+                                        Text="{Binding UserInputText, UpdateSourceTrigger=PropertyChanged}"
+                                        VerticalScrollBarVisibility="Auto">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding
+                                                Key="Return"
+                                                Command="{Binding SendMessageCommand}"
+                                                Modifiers="Control" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+
+                                    <TextBlock
+                                        Margin="10,8,10,0"
+                                        VerticalAlignment="Top"
+                                        FontSize="{StaticResource DevKitFontSize14}"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                        IsHitTestVisible="False"
+                                        Text="{Binding PlaceHolderText}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Text, ElementName=MessageInputTextBox}" Value="">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+
+                                <!--  结束符和编码格式  -->
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="12,0,0,0"
+                                    Orientation="Vertical">
+                                    <ComboBox
+                                        ItemsSource="{Binding DelimiterSource}"
+                                        SelectedItem="{Binding SelectedDelimiter, FallbackValue=无}"
+                                        Style="{StaticResource CommonComboBoxStyle}" />
+
+                                    <Border
+                                        Margin="0,6,0,0"
+                                        Padding="2"
+                                        Background="{StaticResource DevKitSurfaceBrush}"
+                                        BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="16">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="0"
+                                                Content="HEX"
+                                                GroupName="SendEncoding"
+                                                IsChecked="{Binding IsSendHexSelected}"
+                                                Style="{StaticResource SegmentRadioStyle}"
+                                                ToolTip="按 16 进制解析发送内容" />
+
+                                            <RadioButton
+                                                Command="{Binding SendRadioChangedCommand}"
+                                                CommandParameter="1"
+                                                Content="ASCII"
+                                                GroupName="SendEncoding"
+                                                IsChecked="{Binding IsSendAsciiSelected}"
+                                                Style="{StaticResource SegmentRadioStyle}"
+                                                ToolTip="按 ASCII/UTF8 文本发送" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <!--  操作条  -->
+                            <Grid Grid.Row="1" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <CheckBox
+                                    x:Name="LoopSendSwitch"
+                                    Grid.Column="0"
+                                    Command="{Binding LoopSendSwitchCommand}"
+                                    CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
+                                    Content="循环发送"
+                                    IsChecked="{Binding IsLoopSendEnabled, Mode=TwoWay}"
+                                    Style="{StaticResource ToggleSwitchStyle}" />
+
+                                <StackPanel
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                    <TextBox
+                                        Width="64"
+                                        Height="32"
+                                        HorizontalContentAlignment="Center"
+                                        Text="{Binding Interval}">
+                                        <TextBox.Style>
+                                            <Style BasedOn="{StaticResource FieldTextBoxStyle}" TargetType="TextBox">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsChecked, ElementName=LoopSendSwitch}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        <Setter Property="Foreground" Value="{StaticResource DevKitTextMutedBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBox.Style>
+                                    </TextBox>
+
+                                    <TextBlock
+                                        Margin="4,0,0,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="{StaticResource DevKitFontSize11}"
+                                        Foreground="{StaticResource DevKitTextMutedBrush}"
+                                        Text="ms / 次" />
+                                </StackPanel>
+
+                                <Button
+                                    Grid.Column="3"
+                                    Command="{Binding OpenScriptCommand}"
+                                    Style="{StaticResource DevKitButtonStyle}"
+                                    ToolTip="按脚本批量、定时发送指令">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize13}"
+                                            Text="&#xe676;" />
+
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="{StaticResource DevKitFontSize14}"
+                                            Text="指令脚本" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button
+                                    Grid.Column="4"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding SendMessageCommand}"
+                                    Style="{StaticResource DevKitPrimaryButtonStyle}"
+                                    ToolTip="Ctrl + Enter 快速发送">
+                                    <StackPanel Margin="12,0" Orientation="Horizontal">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontFamily="{StaticResource DevKitIconFontFamily}"
+                                            FontSize="{StaticResource DevKitFontSize14}"
+                                            Text="&#xe6cd;" />
+
+                                        <TextBlock
+                                            Margin="6,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontSize="{StaticResource DevKitFontSize14}"
+                                            Text="发送" />
+
+                                        <Border
+                                            Margin="8,0,0,0"
+                                            Padding="5,1"
+                                            VerticalAlignment="Center"
+                                            Background="#33FFFFFF"
+                                            CornerRadius="5">
+                                            <TextBlock
+                                                FontSize="{StaticResource DevKitFontSize10}"
+                                                Foreground="{StaticResource DevKitTerminalTextDimBrush}"
+                                                Text="Ctrl + Enter" />
+                                        </Border>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </Grid>
