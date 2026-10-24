@@ -7,18 +7,311 @@
     xmlns:vm="clr-namespace:DevKit.ViewModels"
     Title="ADB 文件导入导出"
     Width="540"
-    Height="340"
+    Height="360"
     d:DataContext="{d:DesignInstance Type=vm:TransferFileDialogViewModel}"
     Background="White"
     ResizeMode="NoResize"
     ShowInTaskbar="False"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+
+    <Window.Resources>
+        <!--  分段控件内的单选按钮  -->
+        <Style x:Key="SegmentRadioStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize13}" />
+            <Setter Property="Foreground" Value="{StaticResource DevKitTextSecondaryBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border
+                            x:Name="SegmentBorder"
+                            Background="Transparent"
+                            CornerRadius="6"
+                            TextElement.Foreground="{TemplateBinding Foreground}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SegmentBorder" Property="Background" Value="White" />
+                                <Setter Property="Foreground" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="{StaticResource DevKitFontSize14}" />
+            <Setter Property="Background" Value="{StaticResource DevKitSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DevKitBorderStrongBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border
+                            x:Name="FieldBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldBorder" Property="BorderBrush" Value="{StaticResource DevKitAccentBrush}" />
+                                <Setter TargetName="FieldBorder" Property="Background" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="{StaticResource DevKitBackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Border
+                Grid.Row="0"
+                Margin="16"
+                Padding="4"
+                Background="{StaticResource DevKitBorderBrush}"
+                BorderBrush="{StaticResource DevKitBorderStrongBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <RadioButton
+                        Grid.Column="0"
+                        Command="{Binding TransferSateChangedCommand}"
+                        CommandParameter="1"
+                        Content="导出 · 设备 → 电脑"
+                        GroupName="TransferSate"
+                        IsChecked="True"
+                        Style="{StaticResource SegmentRadioStyle}" />
+
+                    <RadioButton
+                        Grid.Column="1"
+                        Command="{Binding TransferSateChangedCommand}"
+                        CommandParameter="0"
+                        Content="导入 · 电脑 → 设备"
+                        GroupName="TransferSate"
+                        Style="{StaticResource SegmentRadioStyle}" />
+                </Grid>
+            </Border>
+
+            <!--  导出面板  -->
+            <Grid Grid.Row="1" Margin="16,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TransferMode}" Value="1">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <!--  设备路径 / 保存到电脑 / 命令预览 ...  -->
+                <DockPanel Grid.Row="0" LastChildFill="True">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="{StaticResource DevKitFontSize13}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        Text="设备路径" />
+
+                    <TextBox
+                        Height="36"
+                        Margin="28,0,0,0"
+                        Style="{StaticResource FieldTextBoxStyle}"
+                        Text="{Binding DeviceExportFilePath}" />
+                </DockPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        FontSize="{StaticResource DevKitFontSize13}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        Text="保存到电脑" />
+
+                    <TextBox
+                        Grid.Column="1"
+                        Height="36"
+                        Margin="16,0"
+                        Style="{StaticResource FieldTextBoxStyle}"
+                        Text="{Binding ComputerImportFilePath}" />
+
+                    <Button
+                        Grid.Column="2"
+                        Command="{Binding SelectImportFolderCommand}"
+                        Style="{StaticResource DevKitButtonStyle}">
+                        <Button.Content>
+                            <TextBlock Margin="16,0" Text="浏览..." />
+                        </Button.Content>
+                    </Button>
+                </Grid>
+
+                <TextBlock
+                    Grid.Row="2"
+                    VerticalAlignment="Center"
+                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                    Text="路径可以是文件或目录，导出目录时会递归拉取全部内容" />
+            </Grid>
+
+            <!--  导入面板  -->
+            <Grid Grid.Row="1" Margin="16,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TransferMode}" Value="0">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <!--  拖放区 / 设备目标路径 / 命令预览 ...  -->
+                <Grid Grid.Row="0" Margin="0,0,0,8">
+                    <Rectangle
+                        IsHitTestVisible="False"
+                        RadiusX="8"
+                        RadiusY="8"
+                        StrokeDashArray="3 3"
+                        StrokeThickness="1">
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Setter Property="Stroke" Value="{StaticResource DevKitBorderStrongBrush}" />
+                                <Setter Property="Fill" Value="{StaticResource DevKitBorderBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=FileDropZone}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource DevKitAccentBrush}" />
+                                        <Setter Property="Fill" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                    </DataTrigger>
+
+                                    <!--  拖拽悬停（OLE 拖拽期间 IsMouseOver 不可靠，由事件驱动）  -->
+                                    <DataTrigger Binding="{Binding IsDropZoneActive}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource DevKitAccentBrush}" />
+                                        <Setter Property="Fill" Value="{StaticResource DevKitAccentSoftBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
+
+                    <!--  命中层：Background=Transparent 才能接收点击与拖放  -->
+                    <Grid
+                        x:Name="FileDropZone"
+                        Background="Transparent"
+                        Cursor="Hand">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{StaticResource DevKitTextMutedBrush}"
+                            Text="点击选择或拖入要推送到设备的文件" />
+
+                        <!--  已选文件胶囊：未选文件时整体隐藏  -->
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,0,0,10"
+                            HorizontalAlignment="Center"
+                            Background="{StaticResource DevKitGreenHoverBrush}"
+                            BorderBrush="{StaticResource DevKitGreenLightBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasSelectedFile}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock
+                                Margin="12,4"
+                                FontSize="{StaticResource DevKitFontSize13}"
+                                Foreground="{StaticResource DevKitSuccessBrush}"
+                                Text="{Binding SelectedFileName}" />
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <DockPanel Grid.Row="1" LastChildFill="True">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontSize="{StaticResource DevKitFontSize13}"
+                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                        Text="设备目标路径" />
+
+                    <TextBox
+                        Height="36"
+                        Margin="16,0,0,0"
+                        Style="{StaticResource FieldTextBoxStyle}"
+                        Text="{Binding DeviceImportFilePath}" />
+                </DockPanel>
+
+                <TextBlock
+                    Grid.Row="2"
+                    VerticalAlignment="Center"
+                    Foreground="{StaticResource DevKitTextMutedBrush}"
+                    Text="常用目录：/sdcard/Download · /sdcard/DCIM · /sdcard/Android/obb" />
+            </Grid>
+        </Grid>
 
         <!--  底部  -->
         <Border
@@ -36,12 +329,12 @@
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                    Text="路径可为文件或目录，传输速度取决于连接方式" />
+                    Text="传输速度取决于连接方式" />
 
                 <Button
                     Grid.Column="1"
                     Margin="8,0"
-                    Command="{Binding FolderBrowserCommand}"
+                    Command="{Binding CancelDialogCommand}"
                     Style="{StaticResource DevKitButtonStyle}">
                     <Button.Content>
                         <TextBlock Margin="16,0" Text="取消" />
@@ -51,9 +344,21 @@
                 <Button
                     Grid.Column="2"
                     Command="{Binding TransferFileCommand}"
+                    CommandParameter="{Binding TransferMode}"
                     Style="{StaticResource DevKitPrimaryButtonStyle}">
                     <Button.Content>
-                        <TextBlock Margin="16,0" Text="{Binding ButtonText, FallbackValue=导出文件}" />
+                        <TextBlock Margin="16,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="导出文件" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TransferMode}" Value="0">
+                                            <Setter Property="Text" Value="导入文件" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Button.Content>
                 </Button>
             </Grid>

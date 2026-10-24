@@ -123,8 +123,6 @@
     const ioFill = $('#ioFill');
     const dropZone = $('#dropZone');
     const dropFile = $('#dropFile');
-    const exportCmd = $('#exportCmd');
-    const restoreCmd = $('#restoreCmd');
     const remotePath = $('#remotePath');
     const localPath = $('#localPath');
     const deviceTarget = $('#deviceTarget');
@@ -133,10 +131,6 @@
     let ioTimer = null;
     let ioRunning = false;
     let pickedFile = '';
-
-    function quote(p) {
-        return '"' + String(p).trim() + '"';
-    }
 
     function openIoModal() {
         ioModal.hidden = false;
@@ -178,23 +172,6 @@
 
     switchIoTab('export');
 
-    /* 命令预览联动 */
-    function updateExportCmd() {
-        const remote = remotePath.value.trim() || '/sdcard/';
-        const local = localPath.value.trim() || '.';
-        exportCmd.textContent = 'adb pull ' + quote(remote) + ' ' + quote(local);
-    }
-
-    function updateRestoreCmd() {
-        const local = pickedFile || 'local_file';
-        const remote = deviceTarget.value.trim() || '/sdcard/';
-        restoreCmd.textContent = 'adb push ' + quote(local) + ' ' + quote(remote);
-    }
-
-    remotePath.addEventListener('input', updateExportCmd);
-    localPath.addEventListener('input', updateExportCmd);
-    deviceTarget.addEventListener('input', updateRestoreCmd);
-
     /* 导出：浏览本地保存位置 */
     $('#browseLocal').addEventListener('click', function () {
         // 演示：真实实现中这里调用 FolderBrowserDialog
@@ -206,7 +183,6 @@
         pickedFile = name;
         dropFile.hidden = false;
         dropFile.textContent = name + ' · 3.2 MB';
-        updateRestoreCmd();
     }
 
     dropZone.addEventListener('click', function () {
