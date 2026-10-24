@@ -22,9 +22,6 @@
             <GradientStop Offset="1.0" Color="{StaticResource DevKitAccentLightColor}" />
         </LinearGradientBrush>
 
-
-
-
         <Style x:Key="ShotCardStyle" TargetType="ToggleButton">
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">

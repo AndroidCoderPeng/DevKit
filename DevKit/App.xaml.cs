@@ -43,6 +43,7 @@ namespace DevKit
 
             //  module dialog registrations
             services.AddDialog<ScreenshotExportDialog, ScreenshotExportDialogViewModel>();
+            services.AddDialog<TransferFileDialog, TransferFileDialogViewModel>();
             services.AddDialog<AndroidLogcatDialog, AndroidLogcatDialogViewModel>();
             services.AddDialog<ExCommandDialog, ExCommandDialogViewModel>();
             services.AddDialog<CommandScriptDialog, CommandScriptDialogViewModel>();

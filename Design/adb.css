@@ -790,6 +790,322 @@ body {
     transform: translate(-50%, 0);
 }
 
+/* ================= 导入导出弹窗 ================= */
+.modal-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(19, 34, 61, .38);
+    backdrop-filter: blur(2px);
+}
+
+.modal-mask[hidden] {
+    display: none;
+}
+
+.modal {
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    background: var(--window-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: modal-in .18s ease;
+}
+
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.modal-body {
+    flex: 1;
+    min-height: 0;
+    padding: 16px 20px;
+    overflow-y: auto;
+}
+
+/* 分段切换 */
+.segmented {
+    display: flex;
+    padding: 3px;
+    margin-bottom: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.seg-item {
+    flex: 1;
+    height: 30px;
+    padding: 0 12px;
+    font-family: var(--font);
+    font-size: 12.5px;
+    color: var(--text-2);
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all var(--duration) ease;
+}
+
+.seg-item:hover {
+    color: var(--accent);
+}
+
+.seg-item.active {
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 选项与表单 */
+.io-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.io-pane[hidden] {
+    display: none;
+}
+
+.io-options {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 2px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+}
+
+.check-row:hover {
+    color: var(--accent);
+}
+
+.check-row input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.check-row code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+.io-row {
+    display: grid;
+    grid-template-columns: 76px 1fr auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.io-label {
+    font-size: 12.5px;
+    color: var(--text-2);
+    white-space: nowrap;
+}
+
+.io-input {
+    height: 34px;
+    padding: 0 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--duration) ease;
+}
+
+.io-input.mono {
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+.io-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.io-input::placeholder {
+    color: var(--text-3);
+}
+
+/* 拖放区 */
+.drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 26px 16px;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    outline: none;
+    transition: all var(--duration) ease;
+}
+
+.drop-zone:hover,
+.drop-zone:focus-visible,
+.drop-zone.dragover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.drop-zone p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.drop-zone p b {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.drop-file {
+    font-size: 11.5px;
+    color: var(--success);
+    background: rgba(61, 220, 132, .12);
+    border: 1px solid rgba(61, 220, 132, .35);
+    border-radius: 999px;
+    padding: 3px 12px;
+}
+
+.io-browse {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 12.5px;
+}
+
+.io-tip {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--text-3);
+}
+
+/* 命令预览 */
+.io-cmd {
+    display: block;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    word-break: break-all;
+    user-select: all;
+}
+
+/* 进度 */
+.io-progress {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-strong);
+}
+
+.io-progress[hidden] {
+    display: none;
+}
+
+.io-progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+    color: var(--text-2);
+}
+
+.io-track {
+    width: 100%;
+}
+
+/* 底部按钮 */
+.modal-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+.modal-hint {
+    font-size: 11.5px;
+    color: var(--text-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modal-foot-btns {
+    display: flex;
+    gap: 8px;
+    flex: none;
+}
+
+.btn-primary {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background: #2569d8;
+    border-color: #2569d8;
+}
+
+.btn-primary:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
 /* ================= 响应式 ================= */
 @media (max-width: 860px) {
     .content {

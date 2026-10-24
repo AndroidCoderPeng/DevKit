@@ -311,18 +311,6 @@ namespace DevKit.ViewModels
         }
 
         [RelayCommand]
-        private void OutputImage()
-        {
-            if (CurrentDevice == Flags)
-            {
-                ShowToast("请先刷新并连接设备");
-                return;
-            }
-
-            _dialogService.ShowDialog(typeof(ScreenshotExportDialog), CurrentDevice);
-        }
-
-        [RelayCommand]
         private void Screenshot()
         {
             if (CurrentDevice == Flags)
@@ -342,6 +330,30 @@ namespace DevKit.ViewModels
 
             new CommandExecutor(cmdStr).Execute("adb");
             ShowToast("屏幕截取成功");
+        }
+        
+        [RelayCommand]
+        private void OutputImage()
+        {
+            if (CurrentDevice == Flags)
+            {
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+
+            _dialogService.ShowDialog(typeof(ScreenshotExportDialog), CurrentDevice);
+        }
+
+        [RelayCommand]
+        private void TransferFile()
+        {
+            if (CurrentDevice == Flags)
+            {
+                ShowToast("请先刷新并连接设备");
+                return;
+            }
+
+            _dialogService.ShowDialog(typeof(TransferFileDialog), CurrentDevice);
         }
 
         [RelayCommand]
@@ -449,25 +461,6 @@ namespace DevKit.ViewModels
             var argument = new ArgumentCreator();
             argument.Append("-s").Append(CurrentDevice).Append("reboot");
             new CommandExecutor(argument.ToCommandLine()).Execute("adb");
-        }
-
-        [RelayCommand]
-        private void ShutdownDevice()
-        {
-            var result = MessageBox.Show("确定关闭该设备？", "关机", MessageBoxButton.OKCancel, MessageBoxImage.Question);
-            if (result != MessageBoxResult.OK)
-            {
-                return;
-            }
-
-            var argument = new ArgumentCreator();
-            var cmdStr = argument.Append("-s").Append(CurrentDevice)
-                .Append("shell")
-                .Append("reboot")
-                .Append("-p")
-                .ToCommandLine();
-
-            new CommandExecutor(cmdStr).Execute("adb");
         }
 
         partial void OnKeywordChanged(string value)

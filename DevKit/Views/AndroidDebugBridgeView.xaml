@@ -714,26 +714,6 @@
                         <Button
                             Margin="0,0,4,4"
                             HorizontalAlignment="Stretch"
-                            Command="{Binding OutputImageCommand}"
-                            Style="{StaticResource ActionButtonStyle}">
-                            <Button.Content>
-                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontFamily="{StaticResource DevKitIconFontFamily}"
-                                        FontSize="{StaticResource DevKitFontSize18}"
-                                        Text="&#xe60c;" />
-                                    <TextBlock
-                                        Margin="0,8,0,0"
-                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                                        Text="导出截屏" />
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-
-                        <Button
-                            Margin="4,0,4,4"
-                            HorizontalAlignment="Stretch"
                             Command="{Binding ScreenshotCommand}"
                             Style="{StaticResource ActionButtonStyle}">
                             <Button.Content>
@@ -752,7 +732,47 @@
                         </Button>
 
                         <Button
+                            Margin="4,0,4,4"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding OutputImageCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
+                            <Button.Content>
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontFamily="{StaticResource DevKitIconFontFamily}"
+                                        FontSize="{StaticResource DevKitFontSize18}"
+                                        Text="&#xe60c;" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        Text="导出截屏" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <Button
                             Margin="4,0,0,4"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding TransferFileCommand}"
+                            Style="{StaticResource ActionButtonStyle}">
+                            <Button.Content>
+                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        FontFamily="{StaticResource DevKitIconFontFamily}"
+                                        FontSize="{StaticResource DevKitFontSize18}"
+                                        Text="&#xe66a;" />
+                                    <TextBlock
+                                        Margin="0,8,0,0"
+                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
+                                        Text="导入导出" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <Button
+                            Margin="0,4,4,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding ShowLogcatCommand}"
                             Style="{StaticResource ActionButtonStyle}">
@@ -772,7 +792,7 @@
                         </Button>
 
                         <Button
-                            Margin="0,4,4,0"
+                            Margin="4,4,4,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding InstallApplicationCommand}"
                             IsEnabled="{Binding CanInstall}"
@@ -796,7 +816,8 @@
                             Margin="4,4,4,0"
                             HorizontalAlignment="Stretch"
                             Command="{Binding RebootDeviceCommand}"
-                            Style="{StaticResource ActionButtonStyle}">
+                            Style="{StaticResource ActionButtonStyle}"
+                            Tag="Danger">
                             <Button.Content>
                                 <StackPanel VerticalAlignment="Center" Orientation="Vertical">
                                     <TextBlock
@@ -808,27 +829,6 @@
                                         Margin="0,8,0,0"
                                         Foreground="{StaticResource DevKitTextSecondaryBrush}"
                                         Text="重启设备" />
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
-
-                        <Button
-                            Margin="4,4,0,0"
-                            HorizontalAlignment="Stretch"
-                            Command="{Binding ShutdownDeviceCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Tag="Danger">
-                            <Button.Content>
-                                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-                                    <TextBlock
-                                        HorizontalAlignment="Center"
-                                        FontFamily="{StaticResource DevKitIconFontFamily}"
-                                        FontSize="{StaticResource DevKitFontSize18}"
-                                        Text="&#xe6f1;" />
-                                    <TextBlock
-                                        Margin="0,8,0,0"
-                                        Foreground="{StaticResource DevKitTextSecondaryBrush}"
-                                        Text="设备关机" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
