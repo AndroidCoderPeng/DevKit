@@ -121,7 +121,7 @@ namespace DevKit.ViewModels
         public SerialPortViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
-            
+
             if (DevicePortSource.Count != 0)
             {
                 SelectedPort = DevicePortSource.First();
@@ -216,7 +216,7 @@ namespace DevKit.ViewModels
             }
 
             _isConnecting = true;
-            
+
             var transport = new SerialPortTransport();
             transport.SetPortName(SelectedPort);
             transport.SetSerialPortOption(BuildSerialPortOption());
@@ -269,7 +269,7 @@ namespace DevKit.ViewModels
                     _transport = null;
                     SetConnectionState("未打开");
                     StopSessionTimer();
-                    
+
                     StopLoopSending();
                     IsLoopSendEnabled = false;
                     StopCommandScript();
@@ -322,7 +322,7 @@ namespace DevKit.ViewModels
         {
             StateText = state;
             ButtonStateText = state == "已打开" ? "关闭串口" : "打开串口";
-            
+
             switch (state)
             {
                 case "打开中":
@@ -388,7 +388,7 @@ namespace DevKit.ViewModels
             var elapsed = DateTime.Now - _sessionStartedAt;
             SessionDuration = $"{(long)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
         }
-        
+
         private void UpdateTransportMessage(byte[] bytes)
         {
             if (bytes == null || bytes.Length == 0)
@@ -420,18 +420,18 @@ namespace DevKit.ViewModels
             PersistConfig();
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
         }
-        
+
         private void PersistConfig()
         {
             SettingsStore.Save(ConfigSections.FileName, ConfigSections.SerialPort, _config);
         }
-        
+
         [RelayCommand]
         private void ExCommandItemSelected(string value)
         {
             UserInputText = value;
         }
-        
+
         [RelayCommand]
         private async Task QuickSendAsync(ExCommandConfig command)
         {
@@ -495,7 +495,7 @@ namespace DevKit.ViewModels
                 MessageBox.Show(e.Message, "发送失败", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
+
         [RelayCommand]
         private void EditEx(ExCommandConfig command)
         {
@@ -507,7 +507,7 @@ namespace DevKit.ViewModels
             PersistConfig();
             ExCommandCollection = _config.ExCommands.ToObservableCollection();
         }
-        
+
         [RelayCommand]
         private void DeleteEx(ExCommandConfig command)
         {
@@ -521,7 +521,7 @@ namespace DevKit.ViewModels
             PersistConfig();
             ShowToast("扩展指令已删除");
         }
-        
+
         private void ShowToast(string message)
         {
             ToastMessage = message;
@@ -547,7 +547,7 @@ namespace DevKit.ViewModels
             Clipboard.SetText(value);
             ShowToast("已复制到剪贴板");
         }
-        
+
         [RelayCommand]
         private void DisplayRadioChanged(string value)
         {
@@ -558,7 +558,7 @@ namespace DevKit.ViewModels
                 _ => IsLogHexSelected
             };
         }
-        
+
         [RelayCommand]
         private void SaveLog()
         {
@@ -583,20 +583,20 @@ namespace DevKit.ViewModels
                 writer.WriteLine(text);
             }
         }
-        
+
         [RelayCommand]
         private void ClearLog()
         {
             Logs.Clear();
         }
-        
+
         [RelayCommand]
         private void CopyLog(string log)
         {
             Clipboard.SetText(log);
             ShowToast("已复制到剪贴板");
         }
-        
+
         [RelayCommand]
         private async Task SendMessageAsync()
         {
@@ -607,6 +607,18 @@ namespace DevKit.ViewModels
                 return;
             }
 
+            var delimiter = GetDelimiterBytes();
+            if (delimiter.Length > 0)
+            {
+                value += SelectedDelimiter switch
+                {
+                    "\\r\\n" => "\r\n",
+                    "\\r" => "\r",
+                    "\\n" => "\n",
+                    _ => string.Empty
+                };
+            }
+
             await QuickSendAsync(new ExCommandConfig
             {
                 Type = IsSendHexSelected ? "HEX" : "ASCII",
@@ -614,7 +626,18 @@ namespace DevKit.ViewModels
                 Memo = "用户输入"
             });
         }
-        
+
+        private byte[] GetDelimiterBytes()
+        {
+            return SelectedDelimiter switch
+            {
+                "\\r\\n" => [.. "\r\n"u8],
+                "\\r" => [.. "\r"u8],
+                "\\n" => [.. "\n"u8],
+                _ => [] // "无"
+            };
+        }
+
         [RelayCommand]
         private void SendRadioChanged(string value)
         {
@@ -625,7 +648,7 @@ namespace DevKit.ViewModels
                 _ => IsSendHexSelected
             };
         }
-        
+
         [RelayCommand]
         private void LoopSendSwitch(object value)
         {
@@ -640,7 +663,7 @@ namespace DevKit.ViewModels
                 StopLoopSending();
             }
         }
-        
+
         private void StartLoopSending()
         {
             if (!int.TryParse(Interval, NumberStyles.None, CultureInfo.InvariantCulture, out var ms) || ms <= 0)
@@ -676,7 +699,7 @@ namespace DevKit.ViewModels
             _loopSendCommandTimer.Stop();
             _loopSendCommandTimer.Tick -= TimerTickEvent_Handler;
         }
-        
+
         private void TimerTickEvent_Handler(object sender, EventArgs e)
         {
             if (_isLoopSendInProgress)
@@ -685,7 +708,7 @@ namespace DevKit.ViewModels
             _isLoopSendInProgress = true;
             _ = SendLoopInputAsync();
         }
-        
+
         private async Task SendLoopInputAsync()
         {
             try
@@ -704,7 +727,7 @@ namespace DevKit.ViewModels
                 _isLoopSendInProgress = false;
             }
         }
-        
+
         [RelayCommand]
         private void OpenScript()
         {
@@ -743,7 +766,7 @@ namespace DevKit.ViewModels
             _scriptTimer.Tick += ScriptTimerTickEvent_Handler;
             _scriptTimer.Start();
         }
-        
+
         private void StopCommandScript()
         {
             _scriptTimer.Stop();
@@ -757,7 +780,7 @@ namespace DevKit.ViewModels
         {
             _ = ScriptTimerTickEvent_HandlerAsync();
         }
-        
+
         private async Task ScriptTimerTickEvent_HandlerAsync()
         {
             if (_isScriptCommandInProgress)
@@ -787,7 +810,7 @@ namespace DevKit.ViewModels
                 _isScriptCommandInProgress = false;
             }
         }
-        
+
         public void OnDialogClosed()
         {
             PersistConfig();
