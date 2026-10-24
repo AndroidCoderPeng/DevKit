@@ -607,17 +607,7 @@ namespace DevKit.ViewModels
                 return;
             }
 
-            var delimiter = GetDelimiterBytes();
-            if (delimiter.Length > 0)
-            {
-                value += SelectedDelimiter switch
-                {
-                    "\\r\\n" => "\r\n",
-                    "\\r" => "\r",
-                    "\\n" => "\n",
-                    _ => string.Empty
-                };
-            }
+            value += GetDelimiterText();
 
             await QuickSendAsync(new ExCommandConfig
             {
@@ -627,14 +617,14 @@ namespace DevKit.ViewModels
             });
         }
 
-        private byte[] GetDelimiterBytes()
+        private string GetDelimiterText()
         {
             return SelectedDelimiter switch
             {
-                "\\r\\n" => [.. "\r\n"u8],
-                "\\r" => [.. "\r"u8],
-                "\\n" => [.. "\n"u8],
-                _ => [] // "无"
+                "\\r\\n" => "\r\n",
+                "\\r" => "\r",
+                "\\n" => "\n",
+                _ => string.Empty // "无"
             };
         }
 
