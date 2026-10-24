@@ -21,17 +21,22 @@ public class SerialPortTransport : IClientTransport
     
     public void SetRemoteEndPoint(string address, int port, string path = null)
     {
-        if (string.IsNullOrWhiteSpace(address))
+        
+    }
+
+    public void SetPortName(string portName)
+    {
+        if (string.IsNullOrWhiteSpace(portName))
         {
-            throw new ArgumentException(@"串口名不能为空", nameof(address));
+            throw new ArgumentException(@"串口名不能为空", nameof(portName));
         }
         if (_client != null)
         {
             throw new InvalidOperationException("请先关闭串口，再修改端口");
         }
-        _portName = address.Trim();
+        _portName = portName.Trim();
     }
-    
+
     public void SetSerialPortOption(SerialPortOption option)
     {
         if (_client != null)
