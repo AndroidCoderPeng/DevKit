@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevKit.Utils;
-using Application = System.Windows.Application;
 
 namespace DevKit.ViewModels;
 
 [SupportedOSPlatform("windows6.1")]
-public partial class TransferFileDialogViewModel : ObservableObject, IDialogCloseRequester
+public partial class TransferFileDialogViewModel : ObservableObject, IDialogParameterReceiver, IDialogCloseRequester
 {
     #region VM
 
@@ -26,13 +26,20 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
 
     [ObservableProperty] private bool _isDropZoneActive;
     [ObservableProperty] private string _selectedFileName = string.Empty;
-    [ObservableProperty] private string _deviceImportFilePath = string.Empty;
+    [ObservableProperty] private string _selectedFilePath = string.Empty;
+    [ObservableProperty] private string _deviceImportFilePath = "/sdcard/Download/";
 
     public bool HasSelectedFile => !string.IsNullOrEmpty(SelectedFileName);
 
     #endregion
 
+    private string _deviceSerial = string.Empty;
     public event Action<bool> CloseRequested;
+
+    public void OnDialogOpened(object parameter)
+    {
+        _deviceSerial = parameter as string ?? string.Empty;
+    }
 
     [RelayCommand]
     private void TransferSateChanged(string value)
@@ -76,11 +83,12 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
     {
         if (string.IsNullOrEmpty(path)) return;
 
+        SelectedFilePath = path;
+
         if (File.Exists(path))
         {
             var info = new FileInfo(path);
-            var size = info.Length.ToFileSize();
-            SelectedFileName = $"{info.Name} · {size}";
+            SelectedFileName = $"{info.Name} · {info.Length.ToFileSize()}";
         }
         else if (Directory.Exists(path))
         {
@@ -95,8 +103,9 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
     }
 
     [RelayCommand]
-    private void TransferFile(string mode)
+    private async Task TransferFile(string mode)
     {
+        string[] args = [];
         if (mode is "0")
         {
             // 导入文件（电脑 → 设备）
@@ -106,7 +115,13 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
                 return;
             }
 
-            RunCommand(["push", ComputerImportFilePath, DeviceImportFilePath], line => { Console.WriteLine(line); });
+            if (string.IsNullOrWhiteSpace(DeviceImportFilePath))
+            {
+                MessageBox.Show(@"请输入设备目标路径。", @"提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            args = ["push", SelectedFilePath, DeviceImportFilePath];
         }
         else if (mode is "1")
         {
@@ -117,28 +132,48 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
                 return;
             }
 
-            RunCommand(["pull", DeviceExportFilePath, ComputerImportFilePath], _ => { CloseRequested?.Invoke(true); });
+            args = ["pull", DeviceExportFilePath, ComputerImportFilePath];
+        }
+
+        if (!string.IsNullOrEmpty(_deviceSerial))
+        {
+            args = ["-s", _deviceSerial, .. args];
+        }
+
+        var exitCode = await RunCommandAsync(args);
+        if (exitCode == 0)
+        {
+            var result = MessageBox.Show(@"传输成功，是否继续传输？", @"提示", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (result != DialogResult.Yes)
+            {
+                CloseRequested?.Invoke(true);
+            }
+        }
+        else
+        {
+            MessageBox.Show($@"传输失败：{exitCode}。", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
     /// <summary>
     /// 执行一条 adb 命令，逐行输出通过回调在 UI 线程处理。
     /// </summary>
-    private void RunCommand(string[] args, Action<string> onLine)
+    private async Task<int> RunCommandAsync(string[] args)
     {
         var argument = new ArgumentCreator();
         foreach (var arg in args)
         {
-            argument.Append(arg);
+            argument.Append(Quote(arg));
         }
 
-        var cmd = argument.ToCommandLine();
-        var executor = new CommandExecutor(cmd);
-        executor.OnStandardOutput += line =>
-        {
-            if (string.IsNullOrEmpty(line)) return;
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => onLine(line)));
-        };
-        executor.Execute("adb");
+        var executor = new CommandExecutor(argument.ToCommandLine());
+        return await executor.ExecuteAsync("adb");
     }
+
+    /// <summary>
+    /// 路径含空格时加引号，避免命令行参数被拆散
+    /// </summary>
+    /// <param name="arg"></param>
+    /// <returns></returns>
+    private static string Quote(string arg) => arg.Contains(' ') ? $"\"{arg}\"" : arg;
 }
