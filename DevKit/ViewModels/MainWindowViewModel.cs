@@ -37,7 +37,6 @@ namespace DevKit.ViewModels
                 new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS客户端", ViewType = typeof(WsClientView) },
                 new MainMenu { MenuIcon = "\ue8b2", MenuName = "WS服务端", ViewType = typeof(WsServerView) },
                 new MainMenu { MenuIcon = "\ue8f6", MenuName = "串口通信", ViewType = typeof(SerialPortView) },
-                new MainMenu { MenuIcon = "\ue795", MenuName = "SFTP", ViewType = null }
             ];
             
             OtherTools = [
