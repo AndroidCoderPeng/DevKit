@@ -11,7 +11,7 @@ public partial class TransferFileDialog : Window
     {
         InitializeComponent();
 
-        FileDropZone.PreviewMouseLeftButtonDown += (_, _) =>
+        FileSelectZone.PreviewMouseLeftButtonDown += (_, _) =>
             ((TransferFileDialogViewModel)DataContext).SelectImportFileCommand.Execute(null);
     }
 }

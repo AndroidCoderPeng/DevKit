@@ -217,7 +217,7 @@
                     </Style>
                 </Grid.Style>
 
-                <!--  拖放区 / 设备目标路径 / 命令预览 ...  -->
+                <!--  文件选择区 / 设备目标路径 ...  -->
                 <Grid Grid.Row="0" Margin="0,0,0,8">
                     <Rectangle
                         IsHitTestVisible="False"
@@ -230,13 +230,7 @@
                                 <Setter Property="Stroke" Value="{StaticResource DevKitBorderStrongBrush}" />
                                 <Setter Property="Fill" Value="{StaticResource DevKitBorderBrush}" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=FileDropZone}" Value="True">
-                                        <Setter Property="Stroke" Value="{StaticResource DevKitAccentBrush}" />
-                                        <Setter Property="Fill" Value="{StaticResource DevKitAccentSoftBrush}" />
-                                    </DataTrigger>
-
-                                    <!--  拖拽悬停（OLE 拖拽期间 IsMouseOver 不可靠，由事件驱动）  -->
-                                    <DataTrigger Binding="{Binding IsDropZoneActive}" Value="True">
+                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=FileSelectZone}" Value="True">
                                         <Setter Property="Stroke" Value="{StaticResource DevKitAccentBrush}" />
                                         <Setter Property="Fill" Value="{StaticResource DevKitAccentSoftBrush}" />
                                     </DataTrigger>
@@ -245,9 +239,9 @@
                         </Rectangle.Style>
                     </Rectangle>
 
-                    <!--  命中层：Background=Transparent 才能接收点击与拖放  -->
+                    <!--  点击选择区：Background=Transparent 才能接收点击  -->
                     <Grid
-                        x:Name="FileDropZone"
+                        x:Name="FileSelectZone"
                         Background="Transparent"
                         Cursor="Hand">
                         <Grid.RowDefinitions>
@@ -260,7 +254,7 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Foreground="{StaticResource DevKitTextMutedBrush}"
-                            Text="点击选择或拖入要推送到设备的文件" />
+                            Text="点击选择要推送到设备的文件" />
 
                         <!--  已选文件胶囊：未选文件时整体隐藏  -->
                         <Border

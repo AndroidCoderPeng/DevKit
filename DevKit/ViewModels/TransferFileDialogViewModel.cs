@@ -24,7 +24,6 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogPara
     [ObservableProperty]
     private string _computerImportFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-    [ObservableProperty] private bool _isDropZoneActive;
     [ObservableProperty] private string _selectedFileName = string.Empty;
     [ObservableProperty] private string _selectedFilePath = string.Empty;
     [ObservableProperty] private string _deviceImportFilePath = "/sdcard/Download/";
@@ -76,24 +75,9 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogPara
         };
         if (dialog.ShowDialog() != DialogResult.OK) return;
 
-        SetImportFile(dialog.FileName);
-    }
-
-    public void SetImportFile(string path)
-    {
-        if (string.IsNullOrEmpty(path)) return;
-
-        SelectedFilePath = path;
-
-        if (File.Exists(path))
-        {
-            var info = new FileInfo(path);
-            SelectedFileName = $"{info.Name} · {info.Length.ToFileSize()}";
-        }
-        else if (Directory.Exists(path))
-        {
-            SelectedFileName = new DirectoryInfo(path).Name;
-        }
+        SelectedFilePath = dialog.FileName;
+        var info = new FileInfo(dialog.FileName);
+        SelectedFileName = $"{info.Name} · {info.Length.ToFileSize()}";
     }
 
     [RelayCommand]
@@ -109,9 +93,9 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogPara
         if (mode is "0")
         {
             // 导入文件（电脑 → 设备）
-            if (string.IsNullOrEmpty(DeviceImportFilePath))
+            if (string.IsNullOrEmpty(SelectedFilePath))
             {
-                MessageBox.Show(@"请输入要导入的设备路径。", @"提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(@"请先选择要推送的文件。", @"提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
