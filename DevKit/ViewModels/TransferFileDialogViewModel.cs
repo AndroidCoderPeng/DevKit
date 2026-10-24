@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -24,9 +25,10 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
     private string _computerImportFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
     [ObservableProperty] private bool _isDropZoneActive;
-    [ObservableProperty] private bool _hasSelectedFile;
     [ObservableProperty] private string _selectedFileName = string.Empty;
     [ObservableProperty] private string _deviceImportFilePath = string.Empty;
+
+    public bool HasSelectedFile => !string.IsNullOrEmpty(SelectedFileName);
 
     #endregion
 
@@ -52,6 +54,40 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
         }
     }
 
+    partial void OnSelectedFileNameChanged(string value)
+    {
+        _ = value;
+        OnPropertyChanged(nameof(HasSelectedFile));
+    }
+
+    [RelayCommand]
+    private void SelectImportFile()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = @"选择要推送到设备的文件"
+        };
+        if (dialog.ShowDialog() != DialogResult.OK) return;
+
+        SetImportFile(dialog.FileName);
+    }
+
+    public void SetImportFile(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+
+        if (File.Exists(path))
+        {
+            var info = new FileInfo(path);
+            var size = info.Length.ToFileSize();
+            SelectedFileName = $"{info.Name} · {size}";
+        }
+        else if (Directory.Exists(path))
+        {
+            SelectedFileName = new DirectoryInfo(path).Name;
+        }
+    }
+
     [RelayCommand]
     private void CancelDialog()
     {
@@ -70,10 +106,7 @@ public partial class TransferFileDialogViewModel : ObservableObject, IDialogClos
                 return;
             }
 
-            RunCommand(["push", ComputerImportFilePath, DeviceImportFilePath], line =>
-            {
-                Console.WriteLine(line);
-            });
+            RunCommand(["push", ComputerImportFilePath, DeviceImportFilePath], line => { Console.WriteLine(line); });
         }
         else if (mode is "1")
         {
